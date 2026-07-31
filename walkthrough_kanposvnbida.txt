@@ -1,0 +1,34 @@
+# Kế hoạch Triển khai: Phần mềm Quản lý Quán Bida (Giai đoạn 3 - Quản lý Kho)
+
+Quán Bida không chỉ có tiền giờ mà doanh thu từ Nước giải khát/Đồ ăn (F&B) cũng chiếm tỷ trọng rất lớn. Việc thất thoát kho là một bài toán nhức nhối.
+
+Ở Giai đoạn 3 này, chúng ta sẽ xây dựng hệ thống **Quản lý Tồn Kho (Inventory Management)** siêu chặt chẽ.
+
+## 1. Thiết kế Mô hình Dữ liệu (Isar Model)
+- **`BidaItem` (Đã có):** Đã có sẵn trường `stock` (Số lượng tồn). Hiện tại mỗi khi bán 1 lon Sting ở màn hình POS, hệ thống đã tự động trừ 1 vào `stock`.
+- **Thêm Model mới `BidaInventoryTx` (Phiếu Nhập/Xuất Kho):** Để lưu vết lịch sử mọi giao dịch nhập xuất, bao gồm:
+  - `itemId` (Món hàng)
+  - `quantity` (Số lượng, >0 là nhập, <0 là xuất)
+  - `type` (IMPORT: Nhập hàng từ nhà cung cấp, EXPORT: Xuất hao hụt/Hết hạn)
+  - `createdAt` (Thời gian giao dịch)
+
+## 2. Kiến trúc & Logic (Providers)
+- **`bida_inventory_providers.dart`:** Xử lý việc "Nhập Hàng". Khi bạn tạo 1 Phiếu nhập 50 lon Sting:
+  - Ghi 1 dòng vào lịch sử `BidaInventoryTx` (+50).
+  - Tự động lấy `stock` cũ của Sting cộng thêm 50, lưu lại vào DB.
+
+## 3. Xây dựng Giao diện (UI Screens)
+- **Bổ sung Tab `Kho Hàng` vào Navigation Menu bên trái:**
+  - **Màn hình Danh sách Tồn Kho:** Hiển thị toàn bộ Nước/Đồ ăn kèm Số lượng Tồn hiện tại. Nếu tồn dưới 10 (Sắp hết), hiển thị cảnh báo **Màu Đỏ**.
+  - **Chức năng "Nhập Hàng":** Nút (+) ở góc màn hình. Khi click sẽ mở ra một Dialog chọn Món Hàng (VD: Sting) -> Nhập số lượng mua thêm -> Lưu lại. Số lượng tồn kho sẽ lập tức nhảy số.
+  - **Lịch sử Nhập/Xuất:** Cột bên phải của màn hình Kho sẽ hiển thị nhật ký: "Vừa nhập 50 lon Sting lúc 14:00".
+
+## Verification Plan
+1. **Kiểm tra Cảnh báo Tồn Kho:** Vào Tab Kho Hàng, bạn sẽ thấy Mì Tôm hiện đang có 50 gói. 
+2. **Kiểm tra Nhập Hàng:** Bấm "Nhập Hàng", chọn Mì Tôm và nhập thêm 20 gói. Số tồn kho sẽ nhảy lập tức lên 70 gói. Lịch sử bên cạnh hiện "Nhập 20 Mì trứng xúc xích".
+3. **Kiểm tra Trừ Kho Tự Động:** Quay lại Tab Sơ Đồ Bàn, mở 1 Bàn trống, order 1 tô Mì Tôm và thanh toán. Quay lại Tab Kho Hàng, bạn sẽ thấy số Mì Tôm từ 70 tự động giảm xuống còn 69 gói!
+
+> [!CAUTION]
+> Nghiệp vụ Kho đòi hỏi tính nguyên vẹn dữ liệu cực cao. Việc Trừ kho khi Bán Hàng (POS) đã được tôi gài sẵn ở Giai đoạn 1. Ở Giai đoạn 3 này, việc tạo Phiếu Nhập kho sẽ phải nằm chung trong 1 Transaction của Isar để đảm bảo không bị sai lệch nếu máy mất điện giữa chừng.
+
+Nếu bạn thấy quy trình quản lý kho này đã đủ chặt chẽ để chống thất thoát cho quán, hãy nhấn **Proceed** để tôi tiến hành khởi tạo!

@@ -1,0 +1,49 @@
+# Walkthrough - Ứng dụng Isar + Flutter Quản lý Cafe (kanposvncafe) với Đồng bộ Neon DB qua Vercel API
+
+Đã hoàn thiện module ứng dụng quản lý Cafe - Trà Sữa - Sinh Tố (`kanposvncafe`) dựa theo PRD [trasuacafe.md](file:///d:/GIAI_TRI_SHARED_HP/bag_sony_10/sampledart/demo_code/AI_MARKDOWN/trasuacafe.md), lưu trữ offline Isar Database, Riverpod state management và hỗ trợ đồng bộ 2 chiều với Vercel Serverless API & Neon DB (PostgreSQL).
+
+---
+
+## 🛠️ Các Thành Phần Đã Xây Dựng
+
+### 1. Data Models (`lib/modules/kanposvncafe/models/`)
+- [cafe_table.dart](file:///d:/GIAI_TRI_SHARED_HP/bag_sony_10/sampledart/demo_code/kanposvn/lib/modules/kanposvncafe/models/cafe_table.dart): Model Bàn, Khu vực (`CafeArea`), Trạng thái bàn (`TableStatus`: Trống, Có khách, Đang gọi món, Đang phục vụ, Chờ thanh toán, Đã thanh toán, Đang dọn, Đã đặt trước), Chi tiết khách đang ngồi (`TableCustomerInfo`).
+- [cafe_menu.dart](file:///d:/GIAI_TRI_SHARED_HP/bag_sony_10/sampledart/demo_code/kanposvn/lib/modules/kanposvncafe/models/cafe_menu.dart): Danh mục (`CafeCategory`), Món ăn/đồ uống (`CafeMenuItem`), Sizes (S, M, L), Toppings (Trân châu đen/hoàng kim, Pudding flan, Kem Cheese, Thạch trái cây...).
+- [cafe_recipe.dart](file:///d:/GIAI_TRI_SHARED_HP/bag_sony_10/sampledart/demo_code/kanposvn/lib/modules/kanposvncafe/models/cafe_recipe.dart): Công thức pha chế (`CafeRecipe`, `RecipeIngredient`) quy định lượng tiêu hao nguyên liệu kho cho từng món.
+- [cafe_order.dart](file:///d:/GIAI_TRI_SHARED_HP/bag_sony_10/sampledart/demo_code/kanposvn/lib/modules/kanposvncafe/models/cafe_order.dart): Đơn hàng POS (`CafeOrder`, `CafeOrderItem`), Phân loại Tại bàn / Mang đi (Take Away) / Giao hàng (Delivery: ShopeeFood, Grab, BeFood...), Giảm giá, Voucher, Phương thức thanh toán.
+- [cafe_inventory.dart](file:///d:/GIAI_TRI_SHARED_HP/bag_sony_10/sampledart/demo_code/kanposvn/lib/modules/kanposvncafe/models/cafe_inventory.dart): Quản lý tồn kho nguyên liệu/thành phẩm (`InventoryItem`), định mức tối thiểu cảnh báo hết hàng & nhật ký biến động kho (`InventoryTransaction`).
+- [cafe_customer_supplier.dart](file:///d:/GIAI_TRI_SHARED_HP/bag_sony_10/sampledart/demo_code/kanposvn/lib/modules/kanposvncafe/models/cafe_customer_supplier.dart): Quản lý Khách hàng (`CafeCustomer`: tích điểm, hạng thành viên, công nợ) và Nhà cung cấp (`CafeSupplier`).
+- [cafe_finance_accounting.dart](file:///d:/GIAI_TRI_SHARED_HP/bag_sony_10/sampledart/demo_code/kanposvn/lib/modules/kanposvncafe/models/cafe_finance_accounting.dart): Quản lý Thu - Chi (`CashTransaction`), Báo cáo ca (`ShiftReport`), Báo cáo Kết quả Kinh doanh (`IncomeStatement`), Bảng Cân đối Kế toán (`Balance Sheet`).
+- [cafe_user_role.dart](file:///d:/GIAI_TRI_SHARED_HP/bag_sony_10/sampledart/demo_code/kanposvn/lib/modules/kanposvncafe/models/cafe_user_role.dart): Phân quyền người dùng (Admin, Quản lý, Thu ngân, Pha chế, Phục vụ, Kế toán, Chủ quán).
+- [cafe_sync_model.dart](file:///d:/GIAI_TRI_SHARED_HP/bag_sony_10/sampledart/demo_code/kanposvn/lib/modules/kanposvncafe/models/cafe_sync_model.dart): Model `CafeSyncQueueItem`, `CafeSyncConfig` (Vercel API URL, Secret Key, LastSyncedAt) và Nhật ký Sync Log.
+
+### 2. Core Services (`lib/modules/kanposvncafe/services/`)
+- [cafe_isar_service.dart](file:///d:/GIAI_TRI_SHARED_HP/bag_sony_10/sampledart/demo_code/kanposvn/lib/modules/kanposvncafe/services/cafe_isar_service.dart): Service thao tác cơ sở dữ liệu Isar Database offline, hỗ trợ lưu trữ JSON documents, lọc theo `appCode = 'kanposvncafe'`, và tự động trừ tồn kho nguyên liệu khi thanh toán đơn hàng theo Công thức (Recipe).
+- [cafe_neon_sync_service.dart](file:///d:/GIAI_TRI_SHARED_HP/bag_sony_10/sampledart/demo_code/kanposvn/lib/modules/kanposvncafe/services/cafe_neon_sync_service.dart): Engine đồng bộ 2 chiều Offline-First:
+  - `pushBatch()`: Đóng gói bản ghi trong `SyncQueue` gửi lên Vercel REST API (`POST /api/sync/push`) để ghi vào Neon DB.
+  - `pullUpdates()`: Tải dữ liệu thay đổi mới nhất từ Vercel REST API (`GET /api/sync/pull`).
+  - Xử lý xung đột dữ liệu (Last Write Wins) và fallback Offline seamless.
+- [cafe_seed_data.dart](file:///d:/GIAI_TRI_SHARED_HP/bag_sony_10/sampledart/demo_code/kanposvn/lib/modules/kanposvncafe/services/cafe_seed_data.dart): Dữ liệu khởi tạo mẫu chuẩn sản phẩm: Bàn B1-B10, 3 Khu vực (Tầng 1, Tầng 2, Sân vườn), Menu Cafe, Trà Sữa, Sinh Tố, Nước Ép, Bánh Ngọt, Sizes S/M/L, Toppings, Công thức pha chế, Kho nguyên liệu, Khách hàng, Thu chi mẫu.
+
+### 3. State Management (`lib/modules/kanposvncafe/providers/`)
+- [cafe_providers.dart](file:///d:/GIAI_TRI_SHARED_HP/bag_sony_10/sampledart/demo_code/kanposvn/lib/modules/kanposvncafe/providers/cafe_providers.dart): Quản lý state toàn bộ ứng dụng với Riverpod: `cafeTablesProvider`, `cafeMenuProvider`, `cafePosCartProvider`, `cafeInventoryProvider`, `cafeAccountingSummaryProvider`, `cafeNeonSyncServiceProvider`.
+
+### 4. Giao diện Người dùng (`lib/modules/kanposvncafe/screens/`)
+- [kanposvncafe_shell.dart](file:///d:/GIAI_TRI_SHARED_HP/bag_sony_10/sampledart/demo_code/kanposvn/lib/modules/kanposvncafe/screens/kanposvncafe_shell.dart): Main Navigation Shell với Material 3 NavigationRail & NavigationBar.
+- [tables_screen.dart](file:///d:/GIAI_TRI_SHARED_HP/bag_sony_10/sampledart/demo_code/kanposvn/lib/modules/kanposvncafe/screens/tables_screen.dart): Sơ đồ Bàn theo Khu vực, màu sắc trạng thái bàn, hiển thị thông tin khách đang ngồi, thao tác Chuyển bàn, Ghép bàn, Tách đơn.
+- [pos_order_screen.dart](file:///d:/GIAI_TRI_SHARED_HP/bag_sony_10/sampledart/demo_code/kanposvn/lib/modules/kanposvncafe/screens/pos_order_screen.dart): Màn hình Bán hàng (POS) trực quan, chọn Món, Size, Topping, Ghi chú, Đơn Mang đi / Delivery, Giảm giá %, In bill tạm tính & Thanh toán đa phương thức.
+- [menu_recipe_screen.dart](file:///d:/GIAI_TRI_SHARED_HP/bag_sony_10/sampledart/demo_code/kanposvn/lib/modules/kanposvncafe/screens/menu_recipe_screen.dart): Quản lý Menu, Danh mục, Sizes, Topping và Công thức định lượng pha chế.
+- [inventory_screen.dart](file:///d:/GIAI_TRI_SHARED_HP/bag_sony_10/sampledart/demo_code/kanposvn/lib/modules/kanposvncafe/screens/inventory_screen.dart): Quản lý Kho nguyên liệu, Nhập kho, Kiểm kê và Cảnh báo nguyên liệu dưới định mức tối thiểu.
+- [finance_accounting_screen.dart](file:///d:/GIAI_TRI_SHARED_HP/bag_sony_10/sampledart/demo_code/kanposvn/lib/modules/kanposvncafe/screens/finance_accounting_screen.dart): Sổ Thu - Chi, Quản lý Công nợ, Báo cáo Kết quả kinh doanh, Bảng cân đối kế toán.
+- [dashboard_reports_screen.dart](file:///d:/GIAI_TRI_SHARED_HP/bag_sony_10/sampledart/demo_code/kanposvn/lib/modules/kanposvncafe/screens/dashboard_reports_screen.dart): Dashboard tổng quan doanh thu, lợi nhuận, bàn đang phục vụ, biểu đồ `fl_chart`.
+- [sync_neon_screen.dart](file:///d:/GIAI_TRI_SHARED_HP/bag_sony_10/sampledart/demo_code/kanposvn/lib/modules/kanposvncafe/screens/sync_neon_screen.dart): Màn hình cấu hình Vercel Serverless API URL, API Secret Key, theo dõi `SyncQueue`, trigger đồng bộ Push/Pull & xem Sync Logs.
+
+### 5. Tích hợp Module Hệ thống
+- [module_enum.dart](file:///d:/GIAI_TRI_SHARED_HP/bag_sony_10/sampledart/demo_code/kanposvn/lib/core/module_enum.dart): Đăng ký `AppModule.kanposvncafe`.
+- [main.dart](file:///d:/GIAI_TRI_SHARED_HP/bag_sony_10/sampledart/demo_code/kanposvn/lib/main.dart): Tích hợp khởi chạy shell & tự động seed dữ liệu mẫu khi chọn module `kanposvncafe`.
+
+---
+
+## 🔍 Kết quả Kiểm Tra
+- Đã chạy `flutter analyze lib/modules/kanposvncafe lib/main.dart lib/core/module_enum.dart`:
+  - **Result**: `No issues found!` (0 errors, 0 warnings).

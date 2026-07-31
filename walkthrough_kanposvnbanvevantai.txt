@@ -1,0 +1,27 @@
+# 🚌 Hoàn thiện KanPosVN Vận Tải (Giai đoạn 3: Kế Toán Tổng Hợp)
+
+Giai đoạn 3 đã chính thức ra mắt, mang đến tính năng **Kế Toán và Báo Cáo Lãi Lỗ (P&L)** cực kỳ mạnh mẽ, giúp nhà xe kiểm soát chặt chẽ từng đồng thu chi.
+
+## Các tính năng Kế toán nổi bật
+
+### 1. Sổ Quỹ & Kế Toán Chi Phí (Tab 5 mới)
+- Một màn hình dành riêng cho việc lập **Phiếu Chi**.
+- Hỗ trợ phân loại chi phí chuyên sâu cho ngành vận tải: Tiền Dầu, Trạm Thu Phí, Lương Tài Xế, Sửa Chữa / Bảo Dưỡng.
+- **Tính năng đặc biệt:** Có thể "Gắn" khoản chi này vào một **Chuyến Xe** cụ thể (Ví dụ: Tiền dầu 500k cho chuyến Đà Lạt khởi hành lúc 14h). Điều này giúp nhà xe sau này tính toán được chính xác chuyến nào Lời, chuyến nào Lỗ!
+- Sổ Nhật Ký Chi Tiền bên phải lưu vết toàn bộ giao dịch, đảm bảo không thất thoát.
+
+### 2. Dashboard P&L Tự Động (Báo cáo Kết quả Kinh doanh)
+Màn hình Dashboard (Tab 1) đã được lột xác hoàn toàn:
+- Thay vì chỉ hiện Doanh Thu, nay có hẳn một hàng số liệu khổng lồ gồm: **Tổng Doanh Thu, Tổng Chi Phí, và Lợi Nhuận Ròng**.
+- **Tự động đối chiếu:** Lấy (Tiền bán vé + Tiền cước gửi hàng) TRỪ đi (Tiền đổ dầu + Tiền qua trạm BOT...) để ra con số Lợi Nhuận Ròng cuối cùng.
+- **Trực quan:** Nếu Lãi (Màu xanh), nếu Lỗ (Bôi đỏ cảnh báo).
+
+## Hướng dẫn trải nghiệm Kế Toán
+1. **Khởi động ứng dụng**, vào Module **Vận Tải & Vé**.
+2. **Tab 1 (Dashboard)**: Bạn sẽ thấy hiện tại đang có Doanh thu, và có sẵn một khoản Chi Phí -500.000đ (Tiền đổ dầu). Lợi nhuận ròng có thể đang âm (Màu đỏ) nếu doanh thu chưa bù đắp đủ.
+3. **Tab 2 (Bán vé)**: Hãy bán thêm 3-4 vé Giường nằm (khoảng 1 triệu đồng).
+4. **Tab 4 (Gửi hàng)**: Hãy lập thêm 1 phiếu nhận hàng 200k.
+5. **Về lại Tab 1 (Dashboard)**: Bạn sẽ thấy Tổng Doanh Thu đã vượt 1.200.000đ, trừ đi 500.000đ tiền dầu => Lợi nhuận ròng lập tức chuyển sang **Màu Xanh** (+700.000đ).
+6. **Tab 5 (Kế Toán)**: Hãy thử tự lập 1 Phiếu chi "Tiền ăn cho tài xế" 100k, gắn vào Chuyến Đà Lạt. Quay lại Dashboard, Lợi nhuận sẽ bị trừ đi 100k ngay lập tức!
+
+Phân hệ Kế Toán (Phase 3) được thiết kế theo dạng Thu-Chi trực tiếp (Cashbook), loại bỏ sự phức tạp của Kế toán truyền thống nhưng lại cực kỳ thực chiến, đáp ứng 100% nhu cầu của các ông chủ nhà xe!

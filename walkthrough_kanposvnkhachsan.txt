@@ -1,0 +1,25 @@
+# Màn hình Sơ đồ phòng & Đặt phòng (KanPosVNKhachSan)
+
+Đã hoàn tất việc triển khai giao diện chi tiết cho các tính năng cốt lõi của Khách sạn, bao gồm **Sơ đồ phòng** (Rooms) và **Lễ tân / Đặt phòng** (Booking). Các Models cũng đã được cấu trúc lại hoàn chỉnh theo chuẩn Isar để lưu trữ Offline.
+
+## Các thay đổi chính:
+
+### 1. Sửa đổi Models thành Isar Collections
+*   Đã chuyển đổi toàn bộ 7 file Model trong thư mục `models` (bao gồm `hotel_room.dart`, `hotel_booking.dart`, `hotel_service.dart`...) thành các class có gắn `@collection`.
+*   Cập nhật các liên kết dữ liệu giữa Phòng, Loại phòng và Tầng thông qua `IsarLink`.
+*   Đã chạy thành công `build_runner` để sinh code `.g.dart` cho CSDL cục bộ.
+
+### 2. Màn hình Sơ đồ phòng (`rooms_screen.dart`)
+*   **Hiển thị Real-time**: Lắng nghe `hotelRoomsProvider` để tự động render danh sách phòng theo tầng (Tầng 1, Tầng 2, Tầng 3).
+*   **Giao diện Grid & Thẻ phòng**: Các thẻ phòng hiển thị Tên phòng, Loại phòng và có màu sắc đặc trưng theo Trạng thái (Trống - Xanh lá, Đặt trước - Cam, Có khách - Đỏ, Đang dọn - Cam nhạt...).
+*   **Tương tác Modal**: Click vào một thẻ phòng sẽ mở ra một Bottom Sheet cung cấp các công cụ cập nhật trạng thái phòng như **Nhận phòng**, **Đặt trước**, **Dọn phòng**, **Bảo trì**. Khi chọn, trạng thái sẽ cập nhật ngay lập tức xuống CSDL Isar và UI sẽ tự refresh.
+
+### 3. Màn hình Lễ tân & Đặt phòng (`booking_screen.dart`)
+*   **Danh sách Đặt phòng**: Hiển thị danh sách các lịch đặt phòng (Booking) hiện tại qua `hotelBookingsProvider`.
+*   **Tạo Đặt phòng Mới (Booking Dialog)**:
+    *   Cung cấp Form để nhập thông tin Khách hàng (Tên, SĐT).
+    *   Hệ thống tự động lọc các Phòng đang ở trạng thái **Trống (AVAILABLE)** để cho phép chọn.
+    *   Tạo bản ghi Reservation xuống CSDL Isar, tự động gán `IsarLink` tới phòng đã chọn và tự động đổi trạng thái phòng đó sang **Đặt trước (RESERVED)**.
+
+> [!TIP]
+> Hệ thống CSDL Isar đã hoàn toàn ổn định và được liên kết chặt chẽ với UI qua Riverpod. Chức năng Offline-first đã sẵn sàng cho việc Demo thực tế!

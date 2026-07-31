@@ -1,0 +1,21 @@
+# Chi tiết Phân hệ Kho Phụ Tùng & Sổ Quỹ Thu Chi (Gara)
+
+Hệ sinh thái Gara ERP đã được hoàn thiện thêm 2 mắt xích quan trọng giúp chủ Gara kiểm soát chặt chẽ Vật tư và Dòng tiền.
+
+## 1. Quản lý Kho Phụ Tùng (`gara_inventory_screen.dart`)
+- **Tồn kho Real-time:** Màn hình tự động lọc các mã sản phẩm thuộc loại `PART` (như Bugi, Nhớt, Lọc gió) để hiển thị số lượng tồn kho `currentStock`.
+- **Nhập Hàng Nhanh:** Khi bấm nút **Nhập Hàng** trên một phụ tùng, một hộp thoại (Dialog) sẽ hiện ra cho phép nhập Số Lượng và Đơn Giá.
+- **Xử lý ngầm tự động:** Hệ thống sẽ sinh ra một `GaraInventoryTransaction` (Phiếu Nhập) để lưu lại lịch sử, đồng thời **cộng dồn** số lượng đó vào tồn kho hiện tại của phụ tùng. 
+- Tab Lịch sử lưu trữ toàn bộ vết Nhập/Xuất để tiện đối soát.
+
+## 2. Sổ Quỹ & Công Nợ Khách Hàng (`gara_finance_screen.dart`)
+- **Quản lý Dòng Tiền (Sổ Quỹ):** Liệt kê toàn bộ các `GaraFinanceTransaction` (Phiếu Thu / Phiếu Chi). Phiếu Thu được làm nổi bật màu xanh (+), Phiếu chi màu đỏ (-).
+- **Thu Nợ Khách Hàng:** 
+  - Tại Tab **Công Nợ**, ứng dụng sẽ quét toàn bộ Khách hàng và chỉ hiển thị những ai có `currentDebt > 0` (Đang nợ).
+  - Bấm **Thu Nợ** để lập ngay Phiếu Thu.
+  - Khi lưu, số tiền vừa nhập sẽ tự động **giảm trừ** vào `currentDebt` của Khách hàng, đồng thời sinh ra 1 Phiếu Thu (màu xanh) bên bảng Sổ Quỹ.
+
+> [!TIP]
+> **Hướng dẫn Kiểm thử thực tế:**
+> 1. Mở Tab **Kho / Phụ Tùng**, tìm mục "Bugi Bosch", bấm **Nhập Hàng** -> nhập số lượng 50. Bạn sẽ thấy Tồn kho tự động tăng lên, và bên tab Lịch sử sẽ xuất hiện Phiếu Nhập.
+> 2. Mở Tab **Thu Chi**, sang mục **Công Nợ**, nếu danh sách trống, bạn có thể tạo một Lệnh Sửa Chữa (chưa thanh toán) để phát sinh công nợ, sau đó quay lại đây lập phiếu Thu nợ. Mọi thứ hoạt động hoàn toàn tự động!

@@ -1,0 +1,29 @@
+# Hoàn thiện Phân hệ Hợp đồng Bán Sỉ & Quản lý Thu Chi (KanPosVNVLXD)
+
+Ứng dụng KanPosVN VLXD đã được tích hợp thêm hai tính năng cốt lõi vô cùng quan trọng: **Quản lý Hợp đồng Bán sỉ** và **Quản lý Thu Chi / Công nợ**. Dữ liệu hoạt động 100% Offline (Isar) và tự động tính toán.
+
+## 1. Phân hệ Hợp đồng Bán Sỉ (`vlxd_contracts_screen.dart`)
+- **Màn hình Danh sách Hợp đồng:** Hiển thị toàn bộ các Đơn hàng (Hợp đồng) có cờ đặc biệt (`isWholesaleContract = true`).
+- **Tạo Hợp Đồng Nhanh:** 
+  - Nút bấm tạo Hợp đồng mới góc phải trên cùng.
+  - Tự động sinh Khách hàng loại "Công trình" (Project).
+  - Tự động cấu hình hợp đồng sỉ với **200 sản phẩm** (được lấy giá Sỉ `wholesalePrice` nếu có, hoặc chiết khấu 10% từ giá lẻ).
+- **Chức năng Giao hàng:** Đã tích hợp nút "Giao hàng", làm tiền đề cho việc tạo các Phiếu Giao Hàng (`VlxdDeliveryTicket`) - giao theo tiến độ.
+
+## 2. Phân hệ Thu Chi & Công Nợ (`vlxd_finance_screen.dart`)
+Giao diện được chia thành 3 Tab chuyên nghiệp để theo dõi dòng tiền:
+- **Sổ Quỹ (Thu/Chi):**
+  - Hiển thị danh sách tất cả các Phiếu Thu (Mũi tên xanh) và Phiếu Chi (Mũi tên đỏ).
+  - **Tạo Phiếu Thu/Chi:** Tích hợp nút tạo giao dịch tài chính với khả năng chọn Khách Hàng hoặc Nhà Cung Cấp. Nhập số tiền thu/chi kèm lý do.
+- **Khách Hàng (Phải Thu):**
+  - Lắng nghe sự kiện từ `VlxdCustomersProvider`.
+  - Hiển thị danh sách khách hàng kèm số **Công nợ hiện tại (currentDebt)**. 
+  - *Logic thông minh:* Khi bạn tạo một Phiếu Thu tiền từ Khách A, hệ thống Isar tự động giảm trừ công nợ của Khách A ngay lập tức và giao diện cập nhật Real-time.
+- **Nhà Cung Cấp (Phải Trả):**
+  - Quản lý danh sách Nhà cung cấp kèm số tiền phải trả (Tương tự logic Phải Thu nhưng cho Phiếu Chi).
+
+> [!TIP]
+> **Cách kiểm thử:**
+> 1. Mở app, chuyển đến tab **Hợp Đồng Sỉ** -> Tạo một hợp đồng mới (Nhập tên công trình). Bạn sẽ thấy khách hàng và hợp đồng sỉ được sinh ra.
+> 2. Chuyển sang tab **Thu Chi & Nợ** -> Xem Tab **Khách hàng (Phải thu)** để thấy công nợ khách hàng (nếu có).
+> 3. Ở tab **Sổ quỹ**, tạo 1 Phiếu Thu trị giá 5,000,000đ cho một Khách Hàng -> Kiểm tra lại Tab Khách hàng xem nợ có giảm đúng 5,000,000đ không nhé!

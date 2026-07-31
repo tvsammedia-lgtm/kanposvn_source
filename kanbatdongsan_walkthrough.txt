@@ -1,0 +1,35 @@
+# Walkthrough: KanBatDongSan (Quản lý Bất động sản)
+
+I have successfully initialized the core module for the real estate management system based on your SRS document.
+
+## Changes Made
+
+1.  **Data Models (Isar)**
+    *   [property.dart](file:///d:/GIAI_TRI_SHARED_HP/bag_sony_10/sampledart/demo_code/kanposvn/lib/modules/kanposvnnbatdongsan/models/property.dart): Model for Properties (Bất động sản) including details like area, legal status, and price.
+    *   [customer.dart](file:///d:/GIAI_TRI_SHARED_HP/bag_sony_10/sampledart/demo_code/kanposvn/lib/modules/kanposvnnbatdongsan/models/customer.dart): Model for Customers (Khách hàng) to store both buyers and sellers.
+    *   [transaction.dart](file:///d:/GIAI_TRI_SHARED_HP/bag_sony_10/sampledart/demo_code/kanposvn/lib/modules/kanposvnnbatdongsan/models/transaction.dart): Model for Transactions (Giao dịch).
+    *   [broker.dart](file:///d:/GIAI_TRI_SHARED_HP/bag_sony_10/sampledart/demo_code/kanposvn/lib/modules/kanposvnnbatdongsan/models/broker.dart): Model for Brokers (Môi giới).
+
+2.  **Repositories and Services**
+    *   [isar_db.dart](file:///d:/GIAI_TRI_SHARED_HP/bag_sony_10/sampledart/demo_code/kanposvn/lib/modules/kanposvnnbatdongsan/repositories/isar_db.dart): Handles initialization of the Isar local database instance.
+    *   [sync_service.dart](file:///d:/GIAI_TRI_SHARED_HP/bag_sony_10/sampledart/demo_code/kanposvn/lib/modules/kanposvnnbatdongsan/services/sync_service.dart): A scaffold service to manage synchronization between the local Isar DB and the remote Neon DB via the Vercel API.
+
+3.  **State Management (Riverpod)**
+    *   [batdongsan_providers.dart](file:///d:/GIAI_TRI_SHARED_HP/bag_sony_10/sampledart/demo_code/kanposvn/lib/modules/kanposvnnbatdongsan/providers/batdongsan_providers.dart): Riverpod providers to provide Isar instances, the SyncService, and a reactive list of properties.
+
+4.  **Core UI & CRUD Operations**
+    *   [batdongsan_dashboard.dart](file:///d:/GIAI_TRI_SHARED_HP/bag_sony_10/sampledart/demo_code/kanposvn/lib/modules/kanposvnnbatdongsan/views/batdongsan_dashboard.dart): The main dashboard UI showing key metrics and access to lists.
+    *   [property_list_screen.dart](file:///d:/GIAI_TRI_SHARED_HP/bag_sony_10/sampledart/demo_code/kanposvn/lib/modules/kanposvnnbatdongsan/views/property_list_screen.dart) & [property_form_screen.dart](file:///d:/GIAI_TRI_SHARED_HP/bag_sony_10/sampledart/demo_code/kanposvn/lib/modules/kanposvnnbatdongsan/views/property_form_screen.dart): Form and List for Bất Động Sản.
+    *   [customer_list_screen.dart](file:///d:/GIAI_TRI_SHARED_HP/bag_sony_10/sampledart/demo_code/kanposvn/lib/modules/kanposvnnbatdongsan/views/customer_list_screen.dart) & [customer_form_screen.dart](file:///d:/GIAI_TRI_SHARED_HP/bag_sony_10/sampledart/demo_code/kanposvn/lib/modules/kanposvnnbatdongsan/views/customer_form_screen.dart): Form and List for Khách Hàng (Mua/Bán).
+    *   [broker_list_screen.dart](file:///d:/GIAI_TRI_SHARED_HP/bag_sony_10/sampledart/demo_code/kanposvn/lib/modules/kanposvnnbatdongsan/views/broker_list_screen.dart) & [broker_form_screen.dart](file:///d:/GIAI_TRI_SHARED_HP/bag_sony_10/sampledart/demo_code/kanposvn/lib/modules/kanposvnnbatdongsan/views/broker_form_screen.dart): Form and List for Môi Giới.
+    *   [transaction_list_screen.dart](file:///d:/GIAI_TRI_SHARED_HP/bag_sony_10/sampledart/demo_code/kanposvn/lib/modules/kanposvnnbatdongsan/views/transaction_list_screen.dart) & [transaction_form_screen.dart](file:///d:/GIAI_TRI_SHARED_HP/bag_sony_10/sampledart/demo_code/kanposvn/lib/modules/kanposvnnbatdongsan/views/transaction_form_screen.dart): Form and List for Giao Dịch.
+
+5.  **Data Operations**
+    *   [property_repository.dart](file:///d:/GIAI_TRI_SHARED_HP/bag_sony_10/sampledart/demo_code/kanposvn/lib/modules/kanposvnnbatdongsan/repositories/property_repository.dart): Read/write/delete for Properties.
+    *   [customer_repository.dart](file:///d:/GIAI_TRI_SHARED_HP/bag_sony_10/sampledart/demo_code/kanposvn/lib/modules/kanposvnnbatdongsan/repositories/customer_repository.dart): Read/write/delete for Customers.
+    *   [broker_repository.dart](file:///d:/GIAI_TRI_SHARED_HP/bag_sony_10/sampledart/demo_code/kanposvn/lib/modules/kanposvnnbatdongsan/repositories/broker_repository.dart): Read/write/delete for Brokers.
+    *   [transaction_repository.dart](file:///d:/GIAI_TRI_SHARED_HP/bag_sony_10/sampledart/demo_code/kanposvn/lib/modules/kanposvnnbatdongsan/repositories/transaction_repository.dart): Read/write/delete for Transactions.
+
+## What to do next?
+
+The foundation is now laid. You can navigate to `BatDongSanDashboard()` in your main app to see the new module. From here, we can incrementally add the CRUD operations, implement the actual REST API calls in `SyncService`, and build out the remaining screens (Customers, Transactions, Brokers, etc.).

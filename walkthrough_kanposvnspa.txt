@@ -1,0 +1,28 @@
+# 🌸 KanPosVN Spa - Giai đoạn 2: Quản Lý Khách Hàng & Kho Mỹ Phẩm
+
+Spa của bạn giờ đây đã được nâng cấp lên một phiên bản thực sự "Pro" với hệ thống Quản lý Khách hàng (CRM) và Kho Dược Liệu!
+
+## 1. Hệ thống Khách Hàng (Hồ Sơ Sức Khỏe)
+- Nhìn sang menu bên trái, bạn sẽ thấy thêm Tab **Khách Hàng**. 
+- Tại đây, hệ thống lưu trữ toàn bộ hồ sơ của khách (Da nhạy cảm, Dị ứng mỹ phẩm, Đau mỏi vai gáy...). Việc nắm rõ tình trạng sức khỏe của khách là "chìa khóa vàng" để chốt sale các gói liệu trình cao cấp.
+
+### Quy Trình Bán Hàng (POS) Đã Thay Đổi
+Khởi động lại app và thử mở một Giường Trống, bạn sẽ thấy sự khác biệt:
+- **Bước 1 BẮT BUỘC:** Chọn Khách Hàng. Nếu khách có tiểu sử dị ứng, hệ thống lập tức hiển thị dòng **Cảnh báo đỏ** (Ví dụ: `Lưu ý y tế: Dị ứng cồn | Đau mỏi vai gáy`). KTV nhìn vào đây sẽ biết đường pha chế tinh dầu cho phù hợp!
+- **Bước 2 & 3:** Chọn Dịch vụ và KTV như cũ.
+- Khi vào màn hình "Đang Phục Vụ", tên Khách Hàng sẽ chễm chệ ở trên cùng.
+
+## 2. Hệ thống Kho Dược Liệu & Mỹ Phẩm
+- Tab **Kho Dược Liệu** đã xuất hiện. Nó hiển thị toàn bộ hàng hóa của Spa (Tinh dầu Sả Chanh, Mặt nạ bùn, Serum...).
+- **Cảnh báo Tồn Kho:** Sản phẩm nào số lượng dưới 10 sẽ bị bôi đỏ.
+- **Nghiệp vụ Nhập/Xuất:** Bấm nút `(+)` để lập Phiếu Nhập hoặc Xuất Kho. Mọi giao dịch (Cộng/Trừ số lượng) đều được lưu vào **Nhật ký Kho** ở cột bên phải một cách siêu minh bạch.
+- Data được bọc trong 1 Transaction Isar, cúp điện lúc đang nhập kho cũng không sợ sai số liệu!
+
+## Trải nghiệm ngay
+Bạn hãy **Hot Restart** ứng dụng, mở Module Spa và làm theo các bước sau:
+1. Vào tab **Kho Dược Liệu**, thử Nhập 50 hũ Tinh Dầu.
+2. Ra Sơ Đồ Giường, chọn Giường 01.
+3. Chọn khách hàng "Nguyễn Thị A" -> Xem cảnh báo y tế của cô ấy xuất hiện. 
+4. Bấm bắt đầu liệu trình!
+
+Phiên bản Offline của Spa đã quá hoàn thiện. Bạn có muốn chúng ta đi tiếp vào **Giai đoạn cuối cùng: Xây dựng Queue Đồng bộ và Cấu hình API Vercel để "bắn" data lên Neon DB** không?

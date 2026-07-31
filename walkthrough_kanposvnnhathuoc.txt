@@ -1,0 +1,35 @@
+# Kế hoạch Triển khai: Hệ thống Báo Cáo Tài Chính (Nhà Thuốc v1.2)
+
+Mục tiêu: Xây dựng hệ thống phân tích dữ liệu, tự động tổng hợp Doanh thu, Lợi nhuận và Bảng cân đối kế toán dựa trên các giao dịch POS và Nhập kho đã có ở v1.0.
+
+## Proposed Changes
+
+### 1. Xây dựng Logic Tính toán (Provider)
+Không cần tạo bảng Isar mới vì dữ liệu tài chính được tổng hợp từ `NhathuocOrder`, `NhathuocPurchase` và `NhathuocMedicine`.
+Tôi sẽ tạo một `NhathuocFinanceNotifier` trong `nhathuoc_providers.dart` chịu trách nhiệm chạy các truy vấn tính toán:
+- **Doanh Thu (Revenue):** Tổng `totalAmount` của toàn bộ Hóa đơn (Order).
+- **Giá Vốn Hàng Bán (COGS):** Tổng (Số lượng bán * Giá nhập của từng món thuốc lúc bán).
+- **Lợi Nhuận Gộp (Gross Profit):** Doanh Thu - Giá Vốn.
+- **Giá Trị Tồn Kho (Inventory Value):** Tổng (Tồn kho hiện tại * Giá nhập) của toàn bộ kho thuốc.
+
+### 2. Xây dựng Giao diện Báo Cáo (`nhathuoc_dashboard_screen.dart`)
+Thiết kế một Dashboard cực kỳ trực quan với 2 phần chính:
+- **Báo cáo Lãi Lỗ (P&L):**
+  - Card hiển thị Doanh thu.
+  - Card hiển thị Giá vốn hàng bán.
+  - Card hiển thị Lợi nhuận gộp.
+- **Bảng Cân Đối Kế Toán Mini (Balance Sheet):**
+  - Hiển thị Giá trị Tài sản Tồn kho đang nằm trong tiệm thuốc (rất quan trọng với chủ tiệm thuốc vì tiền bị kẹt ở kho rất nhiều).
+  - Tỉ trọng của các loại thuốc (Kháng sinh, Giảm đau, Vitamin...) chiếm bao nhiêu % vốn.
+
+### 3. Tích hợp UI Shell
+- Bổ sung Tab **Dashboard (Báo Cáo)** lên **vị trí đầu tiên** của thanh Menu trái trong `kanposvnnhathuoc_shell.dart`. Chủ nhà thuốc vừa mở app lên sẽ nhìn thấy ngay sức khỏe tài chính của tiệm!
+
+## Verification Plan
+1. Khởi động app, vào Tab Dashboard -> Thấy doanh thu và lợi nhuận bằng 0 (nếu chưa bán) hoặc tương ứng với số tiền vừa test ở POS. Giá trị tồn kho sẽ tính dựa trên Seed Data (~ vài triệu đồng).
+2. Vào POS, bán 1 vỉ Paracetamol giá 15.000đ (Giá vốn 10.000đ).
+3. Quay lại Dashboard, hệ thống phải tự động nhảy:
+   - Doanh thu: 15.000đ
+   - Lợi nhuận: 5.000đ
+
+Nếu bạn đồng ý với kế hoạch này, hãy nhấn **Proceed** để tôi tiến hành Code ngay Dashboard nhé!
