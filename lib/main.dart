@@ -20,6 +20,8 @@ import 'modules/kanposvnbida/screens/kanposvnbida_shell.dart';
 import 'modules/kanposvnspa/screens/kanposvnspa_shell.dart';
 import 'modules/kanposvnnhahangquanan/screens/kanposvnnhahang_shell.dart';
 import 'modules/kanposvnqlcd/kanposvnqlcd_shell.dart';
+import 'modules/kanposvnnbatdongsan/views/batdongsan_dashboard.dart';
+import 'modules/kanposvnnhatro200/views/nhatro_dashboard.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -174,6 +176,10 @@ class _MainShell extends ConsumerWidget {
         return const KanPosVNRestaurantShell();
       case AppModuleType.kanposvnqlcd:
         return const KanPosVNQlcdShell();
+      case AppModuleType.kanposvnnbatdongsan:
+        return const BatDongSanDashboard();
+      case AppModuleType.kanposvnnhatro200:
+        return const NhaTroDashboard();
     }
   }
 }

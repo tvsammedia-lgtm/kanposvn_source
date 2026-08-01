@@ -1,17 +1,61 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/batdongsan_providers.dart';
+import '../services/batdongsan_seed_data.dart';
 import 'property_list_screen.dart';
 import 'customer_list_screen.dart';
 import 'broker_list_screen.dart';
 import 'transaction_list_screen.dart';
 import '../models/customer.dart';
 
-class BatDongSanDashboard extends ConsumerWidget {
+class BatDongSanDashboard extends ConsumerStatefulWidget {
   const BatDongSanDashboard({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<BatDongSanDashboard> createState() => _BatDongSanDashboardState();
+}
+
+class _BatDongSanDashboardState extends ConsumerState<BatDongSanDashboard> {
+  bool _isInit = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _initData();
+  }
+
+  Future<void> _initData() async {
+    await BatDongSanSeedData.seedIfEmpty();
+    ref.invalidate(propertiesProvider);
+    ref.invalidate(transactionsProvider);
+    ref.invalidate(customersProvider);
+    ref.invalidate(buyersProvider);
+    ref.invalidate(sellersProvider);
+    ref.invalidate(brokersProvider);
+    if (mounted) {
+      setState(() {
+        _isInit = true;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (!_isInit) {
+      return const Scaffold(
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              CircularProgressIndicator(),
+              SizedBox(height: 16),
+              Text('Đang khởi tạo dữ liệu mẫu...'),
+            ],
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Quản lý Bất động sản'),

@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/router/module_selector_screen.dart';
 import '../../../core/sync/api_config.dart';
 import '../providers/hotel_providers.dart';
+import '../services/hotel_seed_data.dart';
 import 'rooms_screen.dart';
 import 'booking_screen.dart';
 import 'checkin_checkout_screen.dart';
@@ -20,6 +21,25 @@ class KanPosVNKhachSanShell extends ConsumerStatefulWidget {
 
 class _KanPosVNKhachSanShellState extends ConsumerState<KanPosVNKhachSanShell> {
   int _selectedIndex = 0;
+  bool _isInit = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _initData();
+  }
+
+  Future<void> _initData() async {
+    final isarService = ref.read(hotelIsarServiceProvider);
+    await HotelSeedData.seed(isarService);
+    ref.read(hotelRoomsProvider.notifier).loadRooms();
+    ref.read(hotelBookingsProvider.notifier).loadBookings();
+    if (mounted) {
+      setState(() {
+        _isInit = true;
+      });
+    }
+  }
 
   final List<Widget> _screens = const [
     RoomsScreen(),
@@ -32,6 +52,10 @@ class _KanPosVNKhachSanShellState extends ConsumerState<KanPosVNKhachSanShell> {
 
   @override
   Widget build(BuildContext context) {
+    if (!_isInit) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+
     final isDesktop = MediaQuery.of(context).size.width > 800;
 
     return Scaffold(
