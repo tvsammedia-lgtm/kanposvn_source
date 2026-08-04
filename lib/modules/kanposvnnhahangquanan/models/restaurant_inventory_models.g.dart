@@ -18,25 +18,50 @@ const RestaurantIngredientSchema = CollectionSchema(
   name: r'RestaurantIngredient',
   id: -3169808264292293857,
   properties: {
-    r'ingredientId': PropertySchema(
+    r'deletedAt': PropertySchema(
       id: 0,
+      name: r'deletedAt',
+      type: IsarType.dateTime,
+    ),
+    r'deviceId': PropertySchema(
+      id: 1,
+      name: r'deviceId',
+      type: IsarType.string,
+    ),
+    r'ingredientId': PropertySchema(
+      id: 2,
       name: r'ingredientId',
       type: IsarType.string,
     ),
+    r'isSynced': PropertySchema(
+      id: 3,
+      name: r'isSynced',
+      type: IsarType.bool,
+    ),
     r'name': PropertySchema(
-      id: 1,
+      id: 4,
       name: r'name',
       type: IsarType.string,
     ),
     r'stock': PropertySchema(
-      id: 2,
+      id: 5,
       name: r'stock',
       type: IsarType.double,
     ),
     r'unit': PropertySchema(
-      id: 3,
+      id: 6,
       name: r'unit',
       type: IsarType.string,
+    ),
+    r'updatedAt': PropertySchema(
+      id: 7,
+      name: r'updatedAt',
+      type: IsarType.dateTime,
+    ),
+    r'version': PropertySchema(
+      id: 8,
+      name: r'version',
+      type: IsarType.long,
     )
   },
   estimateSize: _restaurantIngredientEstimateSize,
@@ -73,6 +98,7 @@ int _restaurantIngredientEstimateSize(
   Map<Type, List<int>> allOffsets,
 ) {
   var bytesCount = offsets.last;
+  bytesCount += 3 + object.deviceId.length * 3;
   bytesCount += 3 + object.ingredientId.length * 3;
   bytesCount += 3 + object.name.length * 3;
   bytesCount += 3 + object.unit.length * 3;
@@ -85,10 +111,15 @@ void _restaurantIngredientSerialize(
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
-  writer.writeString(offsets[0], object.ingredientId);
-  writer.writeString(offsets[1], object.name);
-  writer.writeDouble(offsets[2], object.stock);
-  writer.writeString(offsets[3], object.unit);
+  writer.writeDateTime(offsets[0], object.deletedAt);
+  writer.writeString(offsets[1], object.deviceId);
+  writer.writeString(offsets[2], object.ingredientId);
+  writer.writeBool(offsets[3], object.isSynced);
+  writer.writeString(offsets[4], object.name);
+  writer.writeDouble(offsets[5], object.stock);
+  writer.writeString(offsets[6], object.unit);
+  writer.writeDateTime(offsets[7], object.updatedAt);
+  writer.writeLong(offsets[8], object.version);
 }
 
 RestaurantIngredient _restaurantIngredientDeserialize(
@@ -98,11 +129,16 @@ RestaurantIngredient _restaurantIngredientDeserialize(
   Map<Type, List<int>> allOffsets,
 ) {
   final object = RestaurantIngredient();
+  object.deletedAt = reader.readDateTimeOrNull(offsets[0]);
+  object.deviceId = reader.readString(offsets[1]);
   object.id = id;
-  object.ingredientId = reader.readString(offsets[0]);
-  object.name = reader.readString(offsets[1]);
-  object.stock = reader.readDouble(offsets[2]);
-  object.unit = reader.readString(offsets[3]);
+  object.ingredientId = reader.readString(offsets[2]);
+  object.isSynced = reader.readBool(offsets[3]);
+  object.name = reader.readString(offsets[4]);
+  object.stock = reader.readDouble(offsets[5]);
+  object.unit = reader.readString(offsets[6]);
+  object.updatedAt = reader.readDateTime(offsets[7]);
+  object.version = reader.readLong(offsets[8]);
   return object;
 }
 
@@ -114,13 +150,23 @@ P _restaurantIngredientDeserializeProp<P>(
 ) {
   switch (propertyId) {
     case 0:
-      return (reader.readString(offset)) as P;
+      return (reader.readDateTimeOrNull(offset)) as P;
     case 1:
       return (reader.readString(offset)) as P;
     case 2:
-      return (reader.readDouble(offset)) as P;
-    case 3:
       return (reader.readString(offset)) as P;
+    case 3:
+      return (reader.readBool(offset)) as P;
+    case 4:
+      return (reader.readString(offset)) as P;
+    case 5:
+      return (reader.readDouble(offset)) as P;
+    case 6:
+      return (reader.readString(offset)) as P;
+    case 7:
+      return (reader.readDateTime(offset)) as P;
+    case 8:
+      return (reader.readLong(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
   }
@@ -327,6 +373,218 @@ extension RestaurantIngredientQueryWhere
 extension RestaurantIngredientQueryFilter on QueryBuilder<RestaurantIngredient,
     RestaurantIngredient, QFilterCondition> {
   QueryBuilder<RestaurantIngredient, RestaurantIngredient,
+      QAfterFilterCondition> deletedAtIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'deletedAt',
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantIngredient, RestaurantIngredient,
+      QAfterFilterCondition> deletedAtIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'deletedAt',
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantIngredient, RestaurantIngredient,
+      QAfterFilterCondition> deletedAtEqualTo(DateTime? value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'deletedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantIngredient, RestaurantIngredient,
+      QAfterFilterCondition> deletedAtGreaterThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'deletedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantIngredient, RestaurantIngredient,
+      QAfterFilterCondition> deletedAtLessThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'deletedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantIngredient, RestaurantIngredient,
+      QAfterFilterCondition> deletedAtBetween(
+    DateTime? lower,
+    DateTime? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'deletedAt',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantIngredient, RestaurantIngredient,
+      QAfterFilterCondition> deviceIdEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantIngredient, RestaurantIngredient,
+      QAfterFilterCondition> deviceIdGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantIngredient, RestaurantIngredient,
+      QAfterFilterCondition> deviceIdLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantIngredient, RestaurantIngredient,
+      QAfterFilterCondition> deviceIdBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'deviceId',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantIngredient, RestaurantIngredient,
+      QAfterFilterCondition> deviceIdStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantIngredient, RestaurantIngredient,
+      QAfterFilterCondition> deviceIdEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantIngredient, RestaurantIngredient,
+          QAfterFilterCondition>
+      deviceIdContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantIngredient, RestaurantIngredient,
+          QAfterFilterCondition>
+      deviceIdMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'deviceId',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantIngredient, RestaurantIngredient,
+      QAfterFilterCondition> deviceIdIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'deviceId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantIngredient, RestaurantIngredient,
+      QAfterFilterCondition> deviceIdIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'deviceId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantIngredient, RestaurantIngredient,
       QAfterFilterCondition> idEqualTo(Id value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
@@ -516,6 +774,16 @@ extension RestaurantIngredientQueryFilter on QueryBuilder<RestaurantIngredient,
       return query.addFilterCondition(FilterCondition.greaterThan(
         property: r'ingredientId',
         value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantIngredient, RestaurantIngredient,
+      QAfterFilterCondition> isSyncedEqualTo(bool value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'isSynced',
+        value: value,
       ));
     });
   }
@@ -861,6 +1129,118 @@ extension RestaurantIngredientQueryFilter on QueryBuilder<RestaurantIngredient,
       ));
     });
   }
+
+  QueryBuilder<RestaurantIngredient, RestaurantIngredient,
+      QAfterFilterCondition> updatedAtEqualTo(DateTime value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'updatedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantIngredient, RestaurantIngredient,
+      QAfterFilterCondition> updatedAtGreaterThan(
+    DateTime value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'updatedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantIngredient, RestaurantIngredient,
+      QAfterFilterCondition> updatedAtLessThan(
+    DateTime value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'updatedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantIngredient, RestaurantIngredient,
+      QAfterFilterCondition> updatedAtBetween(
+    DateTime lower,
+    DateTime upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'updatedAt',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantIngredient, RestaurantIngredient,
+      QAfterFilterCondition> versionEqualTo(int value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'version',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantIngredient, RestaurantIngredient,
+      QAfterFilterCondition> versionGreaterThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'version',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantIngredient, RestaurantIngredient,
+      QAfterFilterCondition> versionLessThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'version',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantIngredient, RestaurantIngredient,
+      QAfterFilterCondition> versionBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'version',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
 }
 
 extension RestaurantIngredientQueryObject on QueryBuilder<RestaurantIngredient,
@@ -872,6 +1252,34 @@ extension RestaurantIngredientQueryLinks on QueryBuilder<RestaurantIngredient,
 extension RestaurantIngredientQuerySortBy
     on QueryBuilder<RestaurantIngredient, RestaurantIngredient, QSortBy> {
   QueryBuilder<RestaurantIngredient, RestaurantIngredient, QAfterSortBy>
+      sortByDeletedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<RestaurantIngredient, RestaurantIngredient, QAfterSortBy>
+      sortByDeletedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<RestaurantIngredient, RestaurantIngredient, QAfterSortBy>
+      sortByDeviceId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<RestaurantIngredient, RestaurantIngredient, QAfterSortBy>
+      sortByDeviceIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<RestaurantIngredient, RestaurantIngredient, QAfterSortBy>
       sortByIngredientId() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'ingredientId', Sort.asc);
@@ -882,6 +1290,20 @@ extension RestaurantIngredientQuerySortBy
       sortByIngredientIdDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'ingredientId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<RestaurantIngredient, RestaurantIngredient, QAfterSortBy>
+      sortByIsSynced() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.asc);
+    });
+  }
+
+  QueryBuilder<RestaurantIngredient, RestaurantIngredient, QAfterSortBy>
+      sortByIsSyncedDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.desc);
     });
   }
 
@@ -926,10 +1348,66 @@ extension RestaurantIngredientQuerySortBy
       return query.addSortBy(r'unit', Sort.desc);
     });
   }
+
+  QueryBuilder<RestaurantIngredient, RestaurantIngredient, QAfterSortBy>
+      sortByUpdatedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'updatedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<RestaurantIngredient, RestaurantIngredient, QAfterSortBy>
+      sortByUpdatedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'updatedAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<RestaurantIngredient, RestaurantIngredient, QAfterSortBy>
+      sortByVersion() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.asc);
+    });
+  }
+
+  QueryBuilder<RestaurantIngredient, RestaurantIngredient, QAfterSortBy>
+      sortByVersionDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.desc);
+    });
+  }
 }
 
 extension RestaurantIngredientQuerySortThenBy
     on QueryBuilder<RestaurantIngredient, RestaurantIngredient, QSortThenBy> {
+  QueryBuilder<RestaurantIngredient, RestaurantIngredient, QAfterSortBy>
+      thenByDeletedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<RestaurantIngredient, RestaurantIngredient, QAfterSortBy>
+      thenByDeletedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<RestaurantIngredient, RestaurantIngredient, QAfterSortBy>
+      thenByDeviceId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<RestaurantIngredient, RestaurantIngredient, QAfterSortBy>
+      thenByDeviceIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.desc);
+    });
+  }
+
   QueryBuilder<RestaurantIngredient, RestaurantIngredient, QAfterSortBy>
       thenById() {
     return QueryBuilder.apply(this, (query) {
@@ -955,6 +1433,20 @@ extension RestaurantIngredientQuerySortThenBy
       thenByIngredientIdDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'ingredientId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<RestaurantIngredient, RestaurantIngredient, QAfterSortBy>
+      thenByIsSynced() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.asc);
+    });
+  }
+
+  QueryBuilder<RestaurantIngredient, RestaurantIngredient, QAfterSortBy>
+      thenByIsSyncedDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.desc);
     });
   }
 
@@ -999,14 +1491,63 @@ extension RestaurantIngredientQuerySortThenBy
       return query.addSortBy(r'unit', Sort.desc);
     });
   }
+
+  QueryBuilder<RestaurantIngredient, RestaurantIngredient, QAfterSortBy>
+      thenByUpdatedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'updatedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<RestaurantIngredient, RestaurantIngredient, QAfterSortBy>
+      thenByUpdatedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'updatedAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<RestaurantIngredient, RestaurantIngredient, QAfterSortBy>
+      thenByVersion() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.asc);
+    });
+  }
+
+  QueryBuilder<RestaurantIngredient, RestaurantIngredient, QAfterSortBy>
+      thenByVersionDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.desc);
+    });
+  }
 }
 
 extension RestaurantIngredientQueryWhereDistinct
     on QueryBuilder<RestaurantIngredient, RestaurantIngredient, QDistinct> {
   QueryBuilder<RestaurantIngredient, RestaurantIngredient, QDistinct>
+      distinctByDeletedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'deletedAt');
+    });
+  }
+
+  QueryBuilder<RestaurantIngredient, RestaurantIngredient, QDistinct>
+      distinctByDeviceId({bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'deviceId', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<RestaurantIngredient, RestaurantIngredient, QDistinct>
       distinctByIngredientId({bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'ingredientId', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<RestaurantIngredient, RestaurantIngredient, QDistinct>
+      distinctByIsSynced() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'isSynced');
     });
   }
 
@@ -1030,6 +1571,20 @@ extension RestaurantIngredientQueryWhereDistinct
       return query.addDistinctBy(r'unit', caseSensitive: caseSensitive);
     });
   }
+
+  QueryBuilder<RestaurantIngredient, RestaurantIngredient, QDistinct>
+      distinctByUpdatedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'updatedAt');
+    });
+  }
+
+  QueryBuilder<RestaurantIngredient, RestaurantIngredient, QDistinct>
+      distinctByVersion() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'version');
+    });
+  }
 }
 
 extension RestaurantIngredientQueryProperty on QueryBuilder<
@@ -1040,10 +1595,31 @@ extension RestaurantIngredientQueryProperty on QueryBuilder<
     });
   }
 
+  QueryBuilder<RestaurantIngredient, DateTime?, QQueryOperations>
+      deletedAtProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'deletedAt');
+    });
+  }
+
+  QueryBuilder<RestaurantIngredient, String, QQueryOperations>
+      deviceIdProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'deviceId');
+    });
+  }
+
   QueryBuilder<RestaurantIngredient, String, QQueryOperations>
       ingredientIdProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'ingredientId');
+    });
+  }
+
+  QueryBuilder<RestaurantIngredient, bool, QQueryOperations>
+      isSyncedProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'isSynced');
     });
   }
 
@@ -1062,6 +1638,19 @@ extension RestaurantIngredientQueryProperty on QueryBuilder<
   QueryBuilder<RestaurantIngredient, String, QQueryOperations> unitProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'unit');
+    });
+  }
+
+  QueryBuilder<RestaurantIngredient, DateTime, QQueryOperations>
+      updatedAtProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'updatedAt');
+    });
+  }
+
+  QueryBuilder<RestaurantIngredient, int, QQueryOperations> versionProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'version');
     });
   }
 }
@@ -1083,31 +1672,56 @@ const RestaurantInventoryTxSchema = CollectionSchema(
       name: r'createdAt',
       type: IsarType.dateTime,
     ),
-    r'ingredientId': PropertySchema(
+    r'deletedAt': PropertySchema(
       id: 1,
+      name: r'deletedAt',
+      type: IsarType.dateTime,
+    ),
+    r'deviceId': PropertySchema(
+      id: 2,
+      name: r'deviceId',
+      type: IsarType.string,
+    ),
+    r'ingredientId': PropertySchema(
+      id: 3,
       name: r'ingredientId',
       type: IsarType.string,
     ),
     r'ingredientName': PropertySchema(
-      id: 2,
+      id: 4,
       name: r'ingredientName',
       type: IsarType.string,
     ),
+    r'isSynced': PropertySchema(
+      id: 5,
+      name: r'isSynced',
+      type: IsarType.bool,
+    ),
     r'note': PropertySchema(
-      id: 3,
+      id: 6,
       name: r'note',
       type: IsarType.string,
     ),
     r'quantity': PropertySchema(
-      id: 4,
+      id: 7,
       name: r'quantity',
       type: IsarType.double,
     ),
     r'type': PropertySchema(
-      id: 5,
+      id: 8,
       name: r'type',
       type: IsarType.byte,
       enumMap: _RestaurantInventoryTxtypeEnumValueMap,
+    ),
+    r'updatedAt': PropertySchema(
+      id: 9,
+      name: r'updatedAt',
+      type: IsarType.dateTime,
+    ),
+    r'version': PropertySchema(
+      id: 10,
+      name: r'version',
+      type: IsarType.long,
     )
   },
   estimateSize: _restaurantInventoryTxEstimateSize,
@@ -1144,6 +1758,7 @@ int _restaurantInventoryTxEstimateSize(
   Map<Type, List<int>> allOffsets,
 ) {
   var bytesCount = offsets.last;
+  bytesCount += 3 + object.deviceId.length * 3;
   bytesCount += 3 + object.ingredientId.length * 3;
   bytesCount += 3 + object.ingredientName.length * 3;
   bytesCount += 3 + object.note.length * 3;
@@ -1157,11 +1772,16 @@ void _restaurantInventoryTxSerialize(
   Map<Type, List<int>> allOffsets,
 ) {
   writer.writeDateTime(offsets[0], object.createdAt);
-  writer.writeString(offsets[1], object.ingredientId);
-  writer.writeString(offsets[2], object.ingredientName);
-  writer.writeString(offsets[3], object.note);
-  writer.writeDouble(offsets[4], object.quantity);
-  writer.writeByte(offsets[5], object.type.index);
+  writer.writeDateTime(offsets[1], object.deletedAt);
+  writer.writeString(offsets[2], object.deviceId);
+  writer.writeString(offsets[3], object.ingredientId);
+  writer.writeString(offsets[4], object.ingredientName);
+  writer.writeBool(offsets[5], object.isSynced);
+  writer.writeString(offsets[6], object.note);
+  writer.writeDouble(offsets[7], object.quantity);
+  writer.writeByte(offsets[8], object.type.index);
+  writer.writeDateTime(offsets[9], object.updatedAt);
+  writer.writeLong(offsets[10], object.version);
 }
 
 RestaurantInventoryTx _restaurantInventoryTxDeserialize(
@@ -1172,14 +1792,19 @@ RestaurantInventoryTx _restaurantInventoryTxDeserialize(
 ) {
   final object = RestaurantInventoryTx();
   object.createdAt = reader.readDateTime(offsets[0]);
+  object.deletedAt = reader.readDateTimeOrNull(offsets[1]);
+  object.deviceId = reader.readString(offsets[2]);
   object.id = id;
-  object.ingredientId = reader.readString(offsets[1]);
-  object.ingredientName = reader.readString(offsets[2]);
-  object.note = reader.readString(offsets[3]);
-  object.quantity = reader.readDouble(offsets[4]);
+  object.ingredientId = reader.readString(offsets[3]);
+  object.ingredientName = reader.readString(offsets[4]);
+  object.isSynced = reader.readBool(offsets[5]);
+  object.note = reader.readString(offsets[6]);
+  object.quantity = reader.readDouble(offsets[7]);
   object.type = _RestaurantInventoryTxtypeValueEnumMap[
-          reader.readByteOrNull(offsets[5])] ??
+          reader.readByteOrNull(offsets[8])] ??
       RestaurantInventoryTxType.IMPORT;
+  object.updatedAt = reader.readDateTime(offsets[9]);
+  object.version = reader.readLong(offsets[10]);
   return object;
 }
 
@@ -1193,17 +1818,27 @@ P _restaurantInventoryTxDeserializeProp<P>(
     case 0:
       return (reader.readDateTime(offset)) as P;
     case 1:
-      return (reader.readString(offset)) as P;
+      return (reader.readDateTimeOrNull(offset)) as P;
     case 2:
       return (reader.readString(offset)) as P;
     case 3:
       return (reader.readString(offset)) as P;
     case 4:
-      return (reader.readDouble(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 5:
+      return (reader.readBool(offset)) as P;
+    case 6:
+      return (reader.readString(offset)) as P;
+    case 7:
+      return (reader.readDouble(offset)) as P;
+    case 8:
       return (_RestaurantInventoryTxtypeValueEnumMap[
               reader.readByteOrNull(offset)] ??
           RestaurantInventoryTxType.IMPORT) as P;
+    case 9:
+      return (reader.readDateTime(offset)) as P;
+    case 10:
+      return (reader.readLong(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
   }
@@ -1471,6 +2106,218 @@ extension RestaurantInventoryTxQueryFilter on QueryBuilder<
         includeLower: includeLower,
         upper: upper,
         includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantInventoryTx, RestaurantInventoryTx,
+      QAfterFilterCondition> deletedAtIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'deletedAt',
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantInventoryTx, RestaurantInventoryTx,
+      QAfterFilterCondition> deletedAtIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'deletedAt',
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantInventoryTx, RestaurantInventoryTx,
+      QAfterFilterCondition> deletedAtEqualTo(DateTime? value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'deletedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantInventoryTx, RestaurantInventoryTx,
+      QAfterFilterCondition> deletedAtGreaterThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'deletedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantInventoryTx, RestaurantInventoryTx,
+      QAfterFilterCondition> deletedAtLessThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'deletedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantInventoryTx, RestaurantInventoryTx,
+      QAfterFilterCondition> deletedAtBetween(
+    DateTime? lower,
+    DateTime? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'deletedAt',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantInventoryTx, RestaurantInventoryTx,
+      QAfterFilterCondition> deviceIdEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantInventoryTx, RestaurantInventoryTx,
+      QAfterFilterCondition> deviceIdGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantInventoryTx, RestaurantInventoryTx,
+      QAfterFilterCondition> deviceIdLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantInventoryTx, RestaurantInventoryTx,
+      QAfterFilterCondition> deviceIdBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'deviceId',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantInventoryTx, RestaurantInventoryTx,
+      QAfterFilterCondition> deviceIdStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantInventoryTx, RestaurantInventoryTx,
+      QAfterFilterCondition> deviceIdEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantInventoryTx, RestaurantInventoryTx,
+          QAfterFilterCondition>
+      deviceIdContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantInventoryTx, RestaurantInventoryTx,
+          QAfterFilterCondition>
+      deviceIdMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'deviceId',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantInventoryTx, RestaurantInventoryTx,
+      QAfterFilterCondition> deviceIdIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'deviceId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantInventoryTx, RestaurantInventoryTx,
+      QAfterFilterCondition> deviceIdIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'deviceId',
+        value: '',
       ));
     });
   }
@@ -1808,6 +2655,16 @@ extension RestaurantInventoryTxQueryFilter on QueryBuilder<
   }
 
   QueryBuilder<RestaurantInventoryTx, RestaurantInventoryTx,
+      QAfterFilterCondition> isSyncedEqualTo(bool value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'isSynced',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantInventoryTx, RestaurantInventoryTx,
       QAfterFilterCondition> noteEqualTo(
     String value, {
     bool caseSensitive = true,
@@ -2066,6 +2923,118 @@ extension RestaurantInventoryTxQueryFilter on QueryBuilder<
       ));
     });
   }
+
+  QueryBuilder<RestaurantInventoryTx, RestaurantInventoryTx,
+      QAfterFilterCondition> updatedAtEqualTo(DateTime value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'updatedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantInventoryTx, RestaurantInventoryTx,
+      QAfterFilterCondition> updatedAtGreaterThan(
+    DateTime value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'updatedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantInventoryTx, RestaurantInventoryTx,
+      QAfterFilterCondition> updatedAtLessThan(
+    DateTime value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'updatedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantInventoryTx, RestaurantInventoryTx,
+      QAfterFilterCondition> updatedAtBetween(
+    DateTime lower,
+    DateTime upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'updatedAt',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantInventoryTx, RestaurantInventoryTx,
+      QAfterFilterCondition> versionEqualTo(int value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'version',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantInventoryTx, RestaurantInventoryTx,
+      QAfterFilterCondition> versionGreaterThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'version',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantInventoryTx, RestaurantInventoryTx,
+      QAfterFilterCondition> versionLessThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'version',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantInventoryTx, RestaurantInventoryTx,
+      QAfterFilterCondition> versionBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'version',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
 }
 
 extension RestaurantInventoryTxQueryObject on QueryBuilder<
@@ -2087,6 +3056,34 @@ extension RestaurantInventoryTxQuerySortBy
       sortByCreatedAtDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'createdAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<RestaurantInventoryTx, RestaurantInventoryTx, QAfterSortBy>
+      sortByDeletedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<RestaurantInventoryTx, RestaurantInventoryTx, QAfterSortBy>
+      sortByDeletedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<RestaurantInventoryTx, RestaurantInventoryTx, QAfterSortBy>
+      sortByDeviceId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<RestaurantInventoryTx, RestaurantInventoryTx, QAfterSortBy>
+      sortByDeviceIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.desc);
     });
   }
 
@@ -2115,6 +3112,20 @@ extension RestaurantInventoryTxQuerySortBy
       sortByIngredientNameDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'ingredientName', Sort.desc);
+    });
+  }
+
+  QueryBuilder<RestaurantInventoryTx, RestaurantInventoryTx, QAfterSortBy>
+      sortByIsSynced() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.asc);
+    });
+  }
+
+  QueryBuilder<RestaurantInventoryTx, RestaurantInventoryTx, QAfterSortBy>
+      sortByIsSyncedDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.desc);
     });
   }
 
@@ -2159,6 +3170,34 @@ extension RestaurantInventoryTxQuerySortBy
       return query.addSortBy(r'type', Sort.desc);
     });
   }
+
+  QueryBuilder<RestaurantInventoryTx, RestaurantInventoryTx, QAfterSortBy>
+      sortByUpdatedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'updatedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<RestaurantInventoryTx, RestaurantInventoryTx, QAfterSortBy>
+      sortByUpdatedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'updatedAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<RestaurantInventoryTx, RestaurantInventoryTx, QAfterSortBy>
+      sortByVersion() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.asc);
+    });
+  }
+
+  QueryBuilder<RestaurantInventoryTx, RestaurantInventoryTx, QAfterSortBy>
+      sortByVersionDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.desc);
+    });
+  }
 }
 
 extension RestaurantInventoryTxQuerySortThenBy
@@ -2174,6 +3213,34 @@ extension RestaurantInventoryTxQuerySortThenBy
       thenByCreatedAtDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'createdAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<RestaurantInventoryTx, RestaurantInventoryTx, QAfterSortBy>
+      thenByDeletedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<RestaurantInventoryTx, RestaurantInventoryTx, QAfterSortBy>
+      thenByDeletedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<RestaurantInventoryTx, RestaurantInventoryTx, QAfterSortBy>
+      thenByDeviceId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<RestaurantInventoryTx, RestaurantInventoryTx, QAfterSortBy>
+      thenByDeviceIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.desc);
     });
   }
 
@@ -2220,6 +3287,20 @@ extension RestaurantInventoryTxQuerySortThenBy
   }
 
   QueryBuilder<RestaurantInventoryTx, RestaurantInventoryTx, QAfterSortBy>
+      thenByIsSynced() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.asc);
+    });
+  }
+
+  QueryBuilder<RestaurantInventoryTx, RestaurantInventoryTx, QAfterSortBy>
+      thenByIsSyncedDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.desc);
+    });
+  }
+
+  QueryBuilder<RestaurantInventoryTx, RestaurantInventoryTx, QAfterSortBy>
       thenByNote() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'note', Sort.asc);
@@ -2260,6 +3341,34 @@ extension RestaurantInventoryTxQuerySortThenBy
       return query.addSortBy(r'type', Sort.desc);
     });
   }
+
+  QueryBuilder<RestaurantInventoryTx, RestaurantInventoryTx, QAfterSortBy>
+      thenByUpdatedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'updatedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<RestaurantInventoryTx, RestaurantInventoryTx, QAfterSortBy>
+      thenByUpdatedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'updatedAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<RestaurantInventoryTx, RestaurantInventoryTx, QAfterSortBy>
+      thenByVersion() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.asc);
+    });
+  }
+
+  QueryBuilder<RestaurantInventoryTx, RestaurantInventoryTx, QAfterSortBy>
+      thenByVersionDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.desc);
+    });
+  }
 }
 
 extension RestaurantInventoryTxQueryWhereDistinct
@@ -2268,6 +3377,20 @@ extension RestaurantInventoryTxQueryWhereDistinct
       distinctByCreatedAt() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'createdAt');
+    });
+  }
+
+  QueryBuilder<RestaurantInventoryTx, RestaurantInventoryTx, QDistinct>
+      distinctByDeletedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'deletedAt');
+    });
+  }
+
+  QueryBuilder<RestaurantInventoryTx, RestaurantInventoryTx, QDistinct>
+      distinctByDeviceId({bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'deviceId', caseSensitive: caseSensitive);
     });
   }
 
@@ -2283,6 +3406,13 @@ extension RestaurantInventoryTxQueryWhereDistinct
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'ingredientName',
           caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<RestaurantInventoryTx, RestaurantInventoryTx, QDistinct>
+      distinctByIsSynced() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'isSynced');
     });
   }
 
@@ -2306,6 +3436,20 @@ extension RestaurantInventoryTxQueryWhereDistinct
       return query.addDistinctBy(r'type');
     });
   }
+
+  QueryBuilder<RestaurantInventoryTx, RestaurantInventoryTx, QDistinct>
+      distinctByUpdatedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'updatedAt');
+    });
+  }
+
+  QueryBuilder<RestaurantInventoryTx, RestaurantInventoryTx, QDistinct>
+      distinctByVersion() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'version');
+    });
+  }
 }
 
 extension RestaurantInventoryTxQueryProperty on QueryBuilder<
@@ -2323,6 +3467,20 @@ extension RestaurantInventoryTxQueryProperty on QueryBuilder<
     });
   }
 
+  QueryBuilder<RestaurantInventoryTx, DateTime?, QQueryOperations>
+      deletedAtProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'deletedAt');
+    });
+  }
+
+  QueryBuilder<RestaurantInventoryTx, String, QQueryOperations>
+      deviceIdProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'deviceId');
+    });
+  }
+
   QueryBuilder<RestaurantInventoryTx, String, QQueryOperations>
       ingredientIdProperty() {
     return QueryBuilder.apply(this, (query) {
@@ -2334,6 +3492,13 @@ extension RestaurantInventoryTxQueryProperty on QueryBuilder<
       ingredientNameProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'ingredientName');
+    });
+  }
+
+  QueryBuilder<RestaurantInventoryTx, bool, QQueryOperations>
+      isSyncedProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'isSynced');
     });
   }
 
@@ -2354,6 +3519,19 @@ extension RestaurantInventoryTxQueryProperty on QueryBuilder<
       QQueryOperations> typeProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'type');
+    });
+  }
+
+  QueryBuilder<RestaurantInventoryTx, DateTime, QQueryOperations>
+      updatedAtProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'updatedAt');
+    });
+  }
+
+  QueryBuilder<RestaurantInventoryTx, int, QQueryOperations> versionProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'version');
     });
   }
 }

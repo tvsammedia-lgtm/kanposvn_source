@@ -38,26 +38,51 @@ const HotelCashTransactionSchema = CollectionSchema(
       name: r'createdBy',
       type: IsarType.string,
     ),
-    r'description': PropertySchema(
+    r'deletedAt': PropertySchema(
       id: 4,
+      name: r'deletedAt',
+      type: IsarType.dateTime,
+    ),
+    r'description': PropertySchema(
+      id: 5,
       name: r'description',
       type: IsarType.string,
     ),
+    r'deviceId': PropertySchema(
+      id: 6,
+      name: r'deviceId',
+      type: IsarType.string,
+    ),
+    r'isSynced': PropertySchema(
+      id: 7,
+      name: r'isSynced',
+      type: IsarType.bool,
+    ),
     r'referenceId': PropertySchema(
-      id: 5,
+      id: 8,
       name: r'referenceId',
       type: IsarType.string,
     ),
     r'transactionId': PropertySchema(
-      id: 6,
+      id: 9,
       name: r'transactionId',
       type: IsarType.string,
     ),
     r'type': PropertySchema(
-      id: 7,
+      id: 10,
       name: r'type',
       type: IsarType.byte,
       enumMap: _HotelCashTransactiontypeEnumValueMap,
+    ),
+    r'updatedAt': PropertySchema(
+      id: 11,
+      name: r'updatedAt',
+      type: IsarType.dateTime,
+    ),
+    r'version': PropertySchema(
+      id: 12,
+      name: r'version',
+      type: IsarType.long,
     )
   },
   estimateSize: _hotelCashTransactionEstimateSize,
@@ -97,6 +122,7 @@ int _hotelCashTransactionEstimateSize(
   bytesCount += 3 + object.category.length * 3;
   bytesCount += 3 + object.createdBy.length * 3;
   bytesCount += 3 + object.description.length * 3;
+  bytesCount += 3 + object.deviceId.length * 3;
   bytesCount += 3 + object.referenceId.length * 3;
   bytesCount += 3 + object.transactionId.length * 3;
   return bytesCount;
@@ -112,10 +138,15 @@ void _hotelCashTransactionSerialize(
   writer.writeString(offsets[1], object.category);
   writer.writeDateTime(offsets[2], object.createdAt);
   writer.writeString(offsets[3], object.createdBy);
-  writer.writeString(offsets[4], object.description);
-  writer.writeString(offsets[5], object.referenceId);
-  writer.writeString(offsets[6], object.transactionId);
-  writer.writeByte(offsets[7], object.type.index);
+  writer.writeDateTime(offsets[4], object.deletedAt);
+  writer.writeString(offsets[5], object.description);
+  writer.writeString(offsets[6], object.deviceId);
+  writer.writeBool(offsets[7], object.isSynced);
+  writer.writeString(offsets[8], object.referenceId);
+  writer.writeString(offsets[9], object.transactionId);
+  writer.writeByte(offsets[10], object.type.index);
+  writer.writeDateTime(offsets[11], object.updatedAt);
+  writer.writeLong(offsets[12], object.version);
 }
 
 HotelCashTransaction _hotelCashTransactionDeserialize(
@@ -129,13 +160,18 @@ HotelCashTransaction _hotelCashTransactionDeserialize(
   object.category = reader.readString(offsets[1]);
   object.createdAt = reader.readDateTime(offsets[2]);
   object.createdBy = reader.readString(offsets[3]);
-  object.description = reader.readString(offsets[4]);
+  object.deletedAt = reader.readDateTimeOrNull(offsets[4]);
+  object.description = reader.readString(offsets[5]);
+  object.deviceId = reader.readString(offsets[6]);
   object.id = id;
-  object.referenceId = reader.readString(offsets[5]);
-  object.transactionId = reader.readString(offsets[6]);
+  object.isSynced = reader.readBool(offsets[7]);
+  object.referenceId = reader.readString(offsets[8]);
+  object.transactionId = reader.readString(offsets[9]);
   object.type = _HotelCashTransactiontypeValueEnumMap[
-          reader.readByteOrNull(offsets[7])] ??
+          reader.readByteOrNull(offsets[10])] ??
       CashTransactionType.INCOME;
+  object.updatedAt = reader.readDateTime(offsets[11]);
+  object.version = reader.readLong(offsets[12]);
   return object;
 }
 
@@ -155,15 +191,25 @@ P _hotelCashTransactionDeserializeProp<P>(
     case 3:
       return (reader.readString(offset)) as P;
     case 4:
-      return (reader.readString(offset)) as P;
+      return (reader.readDateTimeOrNull(offset)) as P;
     case 5:
       return (reader.readString(offset)) as P;
     case 6:
       return (reader.readString(offset)) as P;
     case 7:
+      return (reader.readBool(offset)) as P;
+    case 8:
+      return (reader.readString(offset)) as P;
+    case 9:
+      return (reader.readString(offset)) as P;
+    case 10:
       return (_HotelCashTransactiontypeValueEnumMap[
               reader.readByteOrNull(offset)] ??
           CashTransactionType.INCOME) as P;
+    case 11:
+      return (reader.readDateTime(offset)) as P;
+    case 12:
+      return (reader.readLong(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
   }
@@ -777,6 +823,80 @@ extension HotelCashTransactionQueryFilter on QueryBuilder<HotelCashTransaction,
   }
 
   QueryBuilder<HotelCashTransaction, HotelCashTransaction,
+      QAfterFilterCondition> deletedAtIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'deletedAt',
+      ));
+    });
+  }
+
+  QueryBuilder<HotelCashTransaction, HotelCashTransaction,
+      QAfterFilterCondition> deletedAtIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'deletedAt',
+      ));
+    });
+  }
+
+  QueryBuilder<HotelCashTransaction, HotelCashTransaction,
+      QAfterFilterCondition> deletedAtEqualTo(DateTime? value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'deletedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<HotelCashTransaction, HotelCashTransaction,
+      QAfterFilterCondition> deletedAtGreaterThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'deletedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<HotelCashTransaction, HotelCashTransaction,
+      QAfterFilterCondition> deletedAtLessThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'deletedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<HotelCashTransaction, HotelCashTransaction,
+      QAfterFilterCondition> deletedAtBetween(
+    DateTime? lower,
+    DateTime? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'deletedAt',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<HotelCashTransaction, HotelCashTransaction,
       QAfterFilterCondition> descriptionEqualTo(
     String value, {
     bool caseSensitive = true,
@@ -915,6 +1035,144 @@ extension HotelCashTransactionQueryFilter on QueryBuilder<HotelCashTransaction,
   }
 
   QueryBuilder<HotelCashTransaction, HotelCashTransaction,
+      QAfterFilterCondition> deviceIdEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<HotelCashTransaction, HotelCashTransaction,
+      QAfterFilterCondition> deviceIdGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<HotelCashTransaction, HotelCashTransaction,
+      QAfterFilterCondition> deviceIdLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<HotelCashTransaction, HotelCashTransaction,
+      QAfterFilterCondition> deviceIdBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'deviceId',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<HotelCashTransaction, HotelCashTransaction,
+      QAfterFilterCondition> deviceIdStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<HotelCashTransaction, HotelCashTransaction,
+      QAfterFilterCondition> deviceIdEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<HotelCashTransaction, HotelCashTransaction,
+          QAfterFilterCondition>
+      deviceIdContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<HotelCashTransaction, HotelCashTransaction,
+          QAfterFilterCondition>
+      deviceIdMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'deviceId',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<HotelCashTransaction, HotelCashTransaction,
+      QAfterFilterCondition> deviceIdIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'deviceId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<HotelCashTransaction, HotelCashTransaction,
+      QAfterFilterCondition> deviceIdIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'deviceId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<HotelCashTransaction, HotelCashTransaction,
       QAfterFilterCondition> idEqualTo(Id value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
@@ -966,6 +1224,16 @@ extension HotelCashTransactionQueryFilter on QueryBuilder<HotelCashTransaction,
         includeLower: includeLower,
         upper: upper,
         includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<HotelCashTransaction, HotelCashTransaction,
+      QAfterFilterCondition> isSyncedEqualTo(bool value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'isSynced',
+        value: value,
       ));
     });
   }
@@ -1301,6 +1569,118 @@ extension HotelCashTransactionQueryFilter on QueryBuilder<HotelCashTransaction,
       ));
     });
   }
+
+  QueryBuilder<HotelCashTransaction, HotelCashTransaction,
+      QAfterFilterCondition> updatedAtEqualTo(DateTime value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'updatedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<HotelCashTransaction, HotelCashTransaction,
+      QAfterFilterCondition> updatedAtGreaterThan(
+    DateTime value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'updatedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<HotelCashTransaction, HotelCashTransaction,
+      QAfterFilterCondition> updatedAtLessThan(
+    DateTime value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'updatedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<HotelCashTransaction, HotelCashTransaction,
+      QAfterFilterCondition> updatedAtBetween(
+    DateTime lower,
+    DateTime upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'updatedAt',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<HotelCashTransaction, HotelCashTransaction,
+      QAfterFilterCondition> versionEqualTo(int value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'version',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<HotelCashTransaction, HotelCashTransaction,
+      QAfterFilterCondition> versionGreaterThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'version',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<HotelCashTransaction, HotelCashTransaction,
+      QAfterFilterCondition> versionLessThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'version',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<HotelCashTransaction, HotelCashTransaction,
+      QAfterFilterCondition> versionBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'version',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
 }
 
 extension HotelCashTransactionQueryObject on QueryBuilder<HotelCashTransaction,
@@ -1368,6 +1748,20 @@ extension HotelCashTransactionQuerySortBy
   }
 
   QueryBuilder<HotelCashTransaction, HotelCashTransaction, QAfterSortBy>
+      sortByDeletedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<HotelCashTransaction, HotelCashTransaction, QAfterSortBy>
+      sortByDeletedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<HotelCashTransaction, HotelCashTransaction, QAfterSortBy>
       sortByDescription() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'description', Sort.asc);
@@ -1378,6 +1772,34 @@ extension HotelCashTransactionQuerySortBy
       sortByDescriptionDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'description', Sort.desc);
+    });
+  }
+
+  QueryBuilder<HotelCashTransaction, HotelCashTransaction, QAfterSortBy>
+      sortByDeviceId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<HotelCashTransaction, HotelCashTransaction, QAfterSortBy>
+      sortByDeviceIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<HotelCashTransaction, HotelCashTransaction, QAfterSortBy>
+      sortByIsSynced() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.asc);
+    });
+  }
+
+  QueryBuilder<HotelCashTransaction, HotelCashTransaction, QAfterSortBy>
+      sortByIsSyncedDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.desc);
     });
   }
 
@@ -1420,6 +1842,34 @@ extension HotelCashTransactionQuerySortBy
       sortByTypeDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'type', Sort.desc);
+    });
+  }
+
+  QueryBuilder<HotelCashTransaction, HotelCashTransaction, QAfterSortBy>
+      sortByUpdatedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'updatedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<HotelCashTransaction, HotelCashTransaction, QAfterSortBy>
+      sortByUpdatedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'updatedAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<HotelCashTransaction, HotelCashTransaction, QAfterSortBy>
+      sortByVersion() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.asc);
+    });
+  }
+
+  QueryBuilder<HotelCashTransaction, HotelCashTransaction, QAfterSortBy>
+      sortByVersionDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.desc);
     });
   }
 }
@@ -1483,6 +1933,20 @@ extension HotelCashTransactionQuerySortThenBy
   }
 
   QueryBuilder<HotelCashTransaction, HotelCashTransaction, QAfterSortBy>
+      thenByDeletedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<HotelCashTransaction, HotelCashTransaction, QAfterSortBy>
+      thenByDeletedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<HotelCashTransaction, HotelCashTransaction, QAfterSortBy>
       thenByDescription() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'description', Sort.asc);
@@ -1497,6 +1961,20 @@ extension HotelCashTransactionQuerySortThenBy
   }
 
   QueryBuilder<HotelCashTransaction, HotelCashTransaction, QAfterSortBy>
+      thenByDeviceId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<HotelCashTransaction, HotelCashTransaction, QAfterSortBy>
+      thenByDeviceIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<HotelCashTransaction, HotelCashTransaction, QAfterSortBy>
       thenById() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'id', Sort.asc);
@@ -1507,6 +1985,20 @@ extension HotelCashTransactionQuerySortThenBy
       thenByIdDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'id', Sort.desc);
+    });
+  }
+
+  QueryBuilder<HotelCashTransaction, HotelCashTransaction, QAfterSortBy>
+      thenByIsSynced() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.asc);
+    });
+  }
+
+  QueryBuilder<HotelCashTransaction, HotelCashTransaction, QAfterSortBy>
+      thenByIsSyncedDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.desc);
     });
   }
 
@@ -1551,6 +2043,34 @@ extension HotelCashTransactionQuerySortThenBy
       return query.addSortBy(r'type', Sort.desc);
     });
   }
+
+  QueryBuilder<HotelCashTransaction, HotelCashTransaction, QAfterSortBy>
+      thenByUpdatedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'updatedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<HotelCashTransaction, HotelCashTransaction, QAfterSortBy>
+      thenByUpdatedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'updatedAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<HotelCashTransaction, HotelCashTransaction, QAfterSortBy>
+      thenByVersion() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.asc);
+    });
+  }
+
+  QueryBuilder<HotelCashTransaction, HotelCashTransaction, QAfterSortBy>
+      thenByVersionDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.desc);
+    });
+  }
 }
 
 extension HotelCashTransactionQueryWhereDistinct
@@ -1584,9 +2104,30 @@ extension HotelCashTransactionQueryWhereDistinct
   }
 
   QueryBuilder<HotelCashTransaction, HotelCashTransaction, QDistinct>
+      distinctByDeletedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'deletedAt');
+    });
+  }
+
+  QueryBuilder<HotelCashTransaction, HotelCashTransaction, QDistinct>
       distinctByDescription({bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'description', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<HotelCashTransaction, HotelCashTransaction, QDistinct>
+      distinctByDeviceId({bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'deviceId', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<HotelCashTransaction, HotelCashTransaction, QDistinct>
+      distinctByIsSynced() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'isSynced');
     });
   }
 
@@ -1609,6 +2150,20 @@ extension HotelCashTransactionQueryWhereDistinct
       distinctByType() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'type');
+    });
+  }
+
+  QueryBuilder<HotelCashTransaction, HotelCashTransaction, QDistinct>
+      distinctByUpdatedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'updatedAt');
+    });
+  }
+
+  QueryBuilder<HotelCashTransaction, HotelCashTransaction, QDistinct>
+      distinctByVersion() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'version');
     });
   }
 }
@@ -1649,10 +2204,31 @@ extension HotelCashTransactionQueryProperty on QueryBuilder<
     });
   }
 
+  QueryBuilder<HotelCashTransaction, DateTime?, QQueryOperations>
+      deletedAtProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'deletedAt');
+    });
+  }
+
   QueryBuilder<HotelCashTransaction, String, QQueryOperations>
       descriptionProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'description');
+    });
+  }
+
+  QueryBuilder<HotelCashTransaction, String, QQueryOperations>
+      deviceIdProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'deviceId');
+    });
+  }
+
+  QueryBuilder<HotelCashTransaction, bool, QQueryOperations>
+      isSyncedProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'isSynced');
     });
   }
 
@@ -1676,6 +2252,19 @@ extension HotelCashTransactionQueryProperty on QueryBuilder<
       return query.addPropertyName(r'type');
     });
   }
+
+  QueryBuilder<HotelCashTransaction, DateTime, QQueryOperations>
+      updatedAtProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'updatedAt');
+    });
+  }
+
+  QueryBuilder<HotelCashTransaction, int, QQueryOperations> versionProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'version');
+    });
+  }
 }
 
 // coverage:ignore-file
@@ -1689,65 +2278,90 @@ const HotelShiftReportSchema = CollectionSchema(
   name: r'HotelShiftReport',
   id: 6155560072999551684,
   properties: {
-    r'difference': PropertySchema(
+    r'deletedAt': PropertySchema(
       id: 0,
+      name: r'deletedAt',
+      type: IsarType.dateTime,
+    ),
+    r'deviceId': PropertySchema(
+      id: 1,
+      name: r'deviceId',
+      type: IsarType.string,
+    ),
+    r'difference': PropertySchema(
+      id: 2,
       name: r'difference',
       type: IsarType.double,
     ),
     r'employeeName': PropertySchema(
-      id: 1,
+      id: 3,
       name: r'employeeName',
       type: IsarType.string,
     ),
     r'endTime': PropertySchema(
-      id: 2,
+      id: 4,
       name: r'endTime',
       type: IsarType.dateTime,
     ),
     r'endingCash': PropertySchema(
-      id: 3,
+      id: 5,
       name: r'endingCash',
       type: IsarType.double,
     ),
     r'isClosed': PropertySchema(
-      id: 4,
+      id: 6,
       name: r'isClosed',
       type: IsarType.bool,
     ),
+    r'isSynced': PropertySchema(
+      id: 7,
+      name: r'isSynced',
+      type: IsarType.bool,
+    ),
     r'note': PropertySchema(
-      id: 5,
+      id: 8,
       name: r'note',
       type: IsarType.string,
     ),
     r'reportId': PropertySchema(
-      id: 6,
+      id: 9,
       name: r'reportId',
       type: IsarType.string,
     ),
     r'shiftName': PropertySchema(
-      id: 7,
+      id: 10,
       name: r'shiftName',
       type: IsarType.string,
     ),
     r'startTime': PropertySchema(
-      id: 8,
+      id: 11,
       name: r'startTime',
       type: IsarType.dateTime,
     ),
     r'startingCash': PropertySchema(
-      id: 9,
+      id: 12,
       name: r'startingCash',
       type: IsarType.double,
     ),
     r'totalCashExpense': PropertySchema(
-      id: 10,
+      id: 13,
       name: r'totalCashExpense',
       type: IsarType.double,
     ),
     r'totalCashIncome': PropertySchema(
-      id: 11,
+      id: 14,
       name: r'totalCashIncome',
       type: IsarType.double,
+    ),
+    r'updatedAt': PropertySchema(
+      id: 15,
+      name: r'updatedAt',
+      type: IsarType.dateTime,
+    ),
+    r'version': PropertySchema(
+      id: 16,
+      name: r'version',
+      type: IsarType.long,
     )
   },
   estimateSize: _hotelShiftReportEstimateSize,
@@ -1784,6 +2398,7 @@ int _hotelShiftReportEstimateSize(
   Map<Type, List<int>> allOffsets,
 ) {
   var bytesCount = offsets.last;
+  bytesCount += 3 + object.deviceId.length * 3;
   bytesCount += 3 + object.employeeName.length * 3;
   bytesCount += 3 + object.note.length * 3;
   bytesCount += 3 + object.reportId.length * 3;
@@ -1797,18 +2412,23 @@ void _hotelShiftReportSerialize(
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
-  writer.writeDouble(offsets[0], object.difference);
-  writer.writeString(offsets[1], object.employeeName);
-  writer.writeDateTime(offsets[2], object.endTime);
-  writer.writeDouble(offsets[3], object.endingCash);
-  writer.writeBool(offsets[4], object.isClosed);
-  writer.writeString(offsets[5], object.note);
-  writer.writeString(offsets[6], object.reportId);
-  writer.writeString(offsets[7], object.shiftName);
-  writer.writeDateTime(offsets[8], object.startTime);
-  writer.writeDouble(offsets[9], object.startingCash);
-  writer.writeDouble(offsets[10], object.totalCashExpense);
-  writer.writeDouble(offsets[11], object.totalCashIncome);
+  writer.writeDateTime(offsets[0], object.deletedAt);
+  writer.writeString(offsets[1], object.deviceId);
+  writer.writeDouble(offsets[2], object.difference);
+  writer.writeString(offsets[3], object.employeeName);
+  writer.writeDateTime(offsets[4], object.endTime);
+  writer.writeDouble(offsets[5], object.endingCash);
+  writer.writeBool(offsets[6], object.isClosed);
+  writer.writeBool(offsets[7], object.isSynced);
+  writer.writeString(offsets[8], object.note);
+  writer.writeString(offsets[9], object.reportId);
+  writer.writeString(offsets[10], object.shiftName);
+  writer.writeDateTime(offsets[11], object.startTime);
+  writer.writeDouble(offsets[12], object.startingCash);
+  writer.writeDouble(offsets[13], object.totalCashExpense);
+  writer.writeDouble(offsets[14], object.totalCashIncome);
+  writer.writeDateTime(offsets[15], object.updatedAt);
+  writer.writeLong(offsets[16], object.version);
 }
 
 HotelShiftReport _hotelShiftReportDeserialize(
@@ -1818,19 +2438,24 @@ HotelShiftReport _hotelShiftReportDeserialize(
   Map<Type, List<int>> allOffsets,
 ) {
   final object = HotelShiftReport();
-  object.difference = reader.readDouble(offsets[0]);
-  object.employeeName = reader.readString(offsets[1]);
-  object.endTime = reader.readDateTimeOrNull(offsets[2]);
-  object.endingCash = reader.readDouble(offsets[3]);
+  object.deletedAt = reader.readDateTimeOrNull(offsets[0]);
+  object.deviceId = reader.readString(offsets[1]);
+  object.difference = reader.readDouble(offsets[2]);
+  object.employeeName = reader.readString(offsets[3]);
+  object.endTime = reader.readDateTimeOrNull(offsets[4]);
+  object.endingCash = reader.readDouble(offsets[5]);
   object.id = id;
-  object.isClosed = reader.readBool(offsets[4]);
-  object.note = reader.readString(offsets[5]);
-  object.reportId = reader.readString(offsets[6]);
-  object.shiftName = reader.readString(offsets[7]);
-  object.startTime = reader.readDateTime(offsets[8]);
-  object.startingCash = reader.readDouble(offsets[9]);
-  object.totalCashExpense = reader.readDouble(offsets[10]);
-  object.totalCashIncome = reader.readDouble(offsets[11]);
+  object.isClosed = reader.readBool(offsets[6]);
+  object.isSynced = reader.readBool(offsets[7]);
+  object.note = reader.readString(offsets[8]);
+  object.reportId = reader.readString(offsets[9]);
+  object.shiftName = reader.readString(offsets[10]);
+  object.startTime = reader.readDateTime(offsets[11]);
+  object.startingCash = reader.readDouble(offsets[12]);
+  object.totalCashExpense = reader.readDouble(offsets[13]);
+  object.totalCashIncome = reader.readDouble(offsets[14]);
+  object.updatedAt = reader.readDateTime(offsets[15]);
+  object.version = reader.readLong(offsets[16]);
   return object;
 }
 
@@ -1842,29 +2467,39 @@ P _hotelShiftReportDeserializeProp<P>(
 ) {
   switch (propertyId) {
     case 0:
-      return (reader.readDouble(offset)) as P;
+      return (reader.readDateTimeOrNull(offset)) as P;
     case 1:
       return (reader.readString(offset)) as P;
     case 2:
-      return (reader.readDateTimeOrNull(offset)) as P;
+      return (reader.readDouble(offset)) as P;
     case 3:
-      return (reader.readDouble(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 4:
-      return (reader.readBool(offset)) as P;
+      return (reader.readDateTimeOrNull(offset)) as P;
     case 5:
-      return (reader.readString(offset)) as P;
+      return (reader.readDouble(offset)) as P;
     case 6:
-      return (reader.readString(offset)) as P;
+      return (reader.readBool(offset)) as P;
     case 7:
-      return (reader.readString(offset)) as P;
+      return (reader.readBool(offset)) as P;
     case 8:
-      return (reader.readDateTime(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 9:
-      return (reader.readDouble(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 10:
-      return (reader.readDouble(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 11:
+      return (reader.readDateTime(offset)) as P;
+    case 12:
       return (reader.readDouble(offset)) as P;
+    case 13:
+      return (reader.readDouble(offset)) as P;
+    case 14:
+      return (reader.readDouble(offset)) as P;
+    case 15:
+      return (reader.readDateTime(offset)) as P;
+    case 16:
+      return (reader.readLong(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
   }
@@ -2065,6 +2700,216 @@ extension HotelShiftReportQueryWhere
 
 extension HotelShiftReportQueryFilter
     on QueryBuilder<HotelShiftReport, HotelShiftReport, QFilterCondition> {
+  QueryBuilder<HotelShiftReport, HotelShiftReport, QAfterFilterCondition>
+      deletedAtIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'deletedAt',
+      ));
+    });
+  }
+
+  QueryBuilder<HotelShiftReport, HotelShiftReport, QAfterFilterCondition>
+      deletedAtIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'deletedAt',
+      ));
+    });
+  }
+
+  QueryBuilder<HotelShiftReport, HotelShiftReport, QAfterFilterCondition>
+      deletedAtEqualTo(DateTime? value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'deletedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<HotelShiftReport, HotelShiftReport, QAfterFilterCondition>
+      deletedAtGreaterThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'deletedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<HotelShiftReport, HotelShiftReport, QAfterFilterCondition>
+      deletedAtLessThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'deletedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<HotelShiftReport, HotelShiftReport, QAfterFilterCondition>
+      deletedAtBetween(
+    DateTime? lower,
+    DateTime? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'deletedAt',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<HotelShiftReport, HotelShiftReport, QAfterFilterCondition>
+      deviceIdEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<HotelShiftReport, HotelShiftReport, QAfterFilterCondition>
+      deviceIdGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<HotelShiftReport, HotelShiftReport, QAfterFilterCondition>
+      deviceIdLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<HotelShiftReport, HotelShiftReport, QAfterFilterCondition>
+      deviceIdBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'deviceId',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<HotelShiftReport, HotelShiftReport, QAfterFilterCondition>
+      deviceIdStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<HotelShiftReport, HotelShiftReport, QAfterFilterCondition>
+      deviceIdEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<HotelShiftReport, HotelShiftReport, QAfterFilterCondition>
+      deviceIdContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<HotelShiftReport, HotelShiftReport, QAfterFilterCondition>
+      deviceIdMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'deviceId',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<HotelShiftReport, HotelShiftReport, QAfterFilterCondition>
+      deviceIdIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'deviceId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<HotelShiftReport, HotelShiftReport, QAfterFilterCondition>
+      deviceIdIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'deviceId',
+        value: '',
+      ));
+    });
+  }
+
   QueryBuilder<HotelShiftReport, HotelShiftReport, QAfterFilterCondition>
       differenceEqualTo(
     double value, {
@@ -2468,6 +3313,16 @@ extension HotelShiftReportQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'isClosed',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<HotelShiftReport, HotelShiftReport, QAfterFilterCondition>
+      isSyncedEqualTo(bool value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'isSynced',
         value: value,
       ));
     });
@@ -3134,6 +3989,118 @@ extension HotelShiftReportQueryFilter
       ));
     });
   }
+
+  QueryBuilder<HotelShiftReport, HotelShiftReport, QAfterFilterCondition>
+      updatedAtEqualTo(DateTime value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'updatedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<HotelShiftReport, HotelShiftReport, QAfterFilterCondition>
+      updatedAtGreaterThan(
+    DateTime value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'updatedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<HotelShiftReport, HotelShiftReport, QAfterFilterCondition>
+      updatedAtLessThan(
+    DateTime value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'updatedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<HotelShiftReport, HotelShiftReport, QAfterFilterCondition>
+      updatedAtBetween(
+    DateTime lower,
+    DateTime upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'updatedAt',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<HotelShiftReport, HotelShiftReport, QAfterFilterCondition>
+      versionEqualTo(int value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'version',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<HotelShiftReport, HotelShiftReport, QAfterFilterCondition>
+      versionGreaterThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'version',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<HotelShiftReport, HotelShiftReport, QAfterFilterCondition>
+      versionLessThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'version',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<HotelShiftReport, HotelShiftReport, QAfterFilterCondition>
+      versionBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'version',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
 }
 
 extension HotelShiftReportQueryObject
@@ -3144,6 +4111,34 @@ extension HotelShiftReportQueryLinks
 
 extension HotelShiftReportQuerySortBy
     on QueryBuilder<HotelShiftReport, HotelShiftReport, QSortBy> {
+  QueryBuilder<HotelShiftReport, HotelShiftReport, QAfterSortBy>
+      sortByDeletedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<HotelShiftReport, HotelShiftReport, QAfterSortBy>
+      sortByDeletedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<HotelShiftReport, HotelShiftReport, QAfterSortBy>
+      sortByDeviceId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<HotelShiftReport, HotelShiftReport, QAfterSortBy>
+      sortByDeviceIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.desc);
+    });
+  }
+
   QueryBuilder<HotelShiftReport, HotelShiftReport, QAfterSortBy>
       sortByDifference() {
     return QueryBuilder.apply(this, (query) {
@@ -3211,6 +4206,20 @@ extension HotelShiftReportQuerySortBy
       sortByIsClosedDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'isClosed', Sort.desc);
+    });
+  }
+
+  QueryBuilder<HotelShiftReport, HotelShiftReport, QAfterSortBy>
+      sortByIsSynced() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.asc);
+    });
+  }
+
+  QueryBuilder<HotelShiftReport, HotelShiftReport, QAfterSortBy>
+      sortByIsSyncedDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.desc);
     });
   }
 
@@ -3310,10 +4319,66 @@ extension HotelShiftReportQuerySortBy
       return query.addSortBy(r'totalCashIncome', Sort.desc);
     });
   }
+
+  QueryBuilder<HotelShiftReport, HotelShiftReport, QAfterSortBy>
+      sortByUpdatedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'updatedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<HotelShiftReport, HotelShiftReport, QAfterSortBy>
+      sortByUpdatedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'updatedAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<HotelShiftReport, HotelShiftReport, QAfterSortBy>
+      sortByVersion() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.asc);
+    });
+  }
+
+  QueryBuilder<HotelShiftReport, HotelShiftReport, QAfterSortBy>
+      sortByVersionDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.desc);
+    });
+  }
 }
 
 extension HotelShiftReportQuerySortThenBy
     on QueryBuilder<HotelShiftReport, HotelShiftReport, QSortThenBy> {
+  QueryBuilder<HotelShiftReport, HotelShiftReport, QAfterSortBy>
+      thenByDeletedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<HotelShiftReport, HotelShiftReport, QAfterSortBy>
+      thenByDeletedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<HotelShiftReport, HotelShiftReport, QAfterSortBy>
+      thenByDeviceId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<HotelShiftReport, HotelShiftReport, QAfterSortBy>
+      thenByDeviceIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.desc);
+    });
+  }
+
   QueryBuilder<HotelShiftReport, HotelShiftReport, QAfterSortBy>
       thenByDifference() {
     return QueryBuilder.apply(this, (query) {
@@ -3394,6 +4459,20 @@ extension HotelShiftReportQuerySortThenBy
       thenByIsClosedDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'isClosed', Sort.desc);
+    });
+  }
+
+  QueryBuilder<HotelShiftReport, HotelShiftReport, QAfterSortBy>
+      thenByIsSynced() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.asc);
+    });
+  }
+
+  QueryBuilder<HotelShiftReport, HotelShiftReport, QAfterSortBy>
+      thenByIsSyncedDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.desc);
     });
   }
 
@@ -3493,10 +4572,52 @@ extension HotelShiftReportQuerySortThenBy
       return query.addSortBy(r'totalCashIncome', Sort.desc);
     });
   }
+
+  QueryBuilder<HotelShiftReport, HotelShiftReport, QAfterSortBy>
+      thenByUpdatedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'updatedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<HotelShiftReport, HotelShiftReport, QAfterSortBy>
+      thenByUpdatedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'updatedAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<HotelShiftReport, HotelShiftReport, QAfterSortBy>
+      thenByVersion() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.asc);
+    });
+  }
+
+  QueryBuilder<HotelShiftReport, HotelShiftReport, QAfterSortBy>
+      thenByVersionDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.desc);
+    });
+  }
 }
 
 extension HotelShiftReportQueryWhereDistinct
     on QueryBuilder<HotelShiftReport, HotelShiftReport, QDistinct> {
+  QueryBuilder<HotelShiftReport, HotelShiftReport, QDistinct>
+      distinctByDeletedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'deletedAt');
+    });
+  }
+
+  QueryBuilder<HotelShiftReport, HotelShiftReport, QDistinct>
+      distinctByDeviceId({bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'deviceId', caseSensitive: caseSensitive);
+    });
+  }
+
   QueryBuilder<HotelShiftReport, HotelShiftReport, QDistinct>
       distinctByDifference() {
     return QueryBuilder.apply(this, (query) {
@@ -3529,6 +4650,13 @@ extension HotelShiftReportQueryWhereDistinct
       distinctByIsClosed() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'isClosed');
+    });
+  }
+
+  QueryBuilder<HotelShiftReport, HotelShiftReport, QDistinct>
+      distinctByIsSynced() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'isSynced');
     });
   }
 
@@ -3580,6 +4708,20 @@ extension HotelShiftReportQueryWhereDistinct
       return query.addDistinctBy(r'totalCashIncome');
     });
   }
+
+  QueryBuilder<HotelShiftReport, HotelShiftReport, QDistinct>
+      distinctByUpdatedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'updatedAt');
+    });
+  }
+
+  QueryBuilder<HotelShiftReport, HotelShiftReport, QDistinct>
+      distinctByVersion() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'version');
+    });
+  }
 }
 
 extension HotelShiftReportQueryProperty
@@ -3587,6 +4729,19 @@ extension HotelShiftReportQueryProperty
   QueryBuilder<HotelShiftReport, int, QQueryOperations> idProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'id');
+    });
+  }
+
+  QueryBuilder<HotelShiftReport, DateTime?, QQueryOperations>
+      deletedAtProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'deletedAt');
+    });
+  }
+
+  QueryBuilder<HotelShiftReport, String, QQueryOperations> deviceIdProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'deviceId');
     });
   }
 
@@ -3621,6 +4776,12 @@ extension HotelShiftReportQueryProperty
   QueryBuilder<HotelShiftReport, bool, QQueryOperations> isClosedProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'isClosed');
+    });
+  }
+
+  QueryBuilder<HotelShiftReport, bool, QQueryOperations> isSyncedProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'isSynced');
     });
   }
 
@@ -3669,6 +4830,19 @@ extension HotelShiftReportQueryProperty
       return query.addPropertyName(r'totalCashIncome');
     });
   }
+
+  QueryBuilder<HotelShiftReport, DateTime, QQueryOperations>
+      updatedAtProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'updatedAt');
+    });
+  }
+
+  QueryBuilder<HotelShiftReport, int, QQueryOperations> versionProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'version');
+    });
+  }
 }
 
 // coverage:ignore-file
@@ -3683,35 +4857,55 @@ const HotelAccountingSummarySchema = CollectionSchema(
   name: r'HotelAccountingSummary',
   id: 6958360105979766274,
   properties: {
-    r'netProfit': PropertySchema(
+    r'deletedAt': PropertySchema(
       id: 0,
+      name: r'deletedAt',
+      type: IsarType.dateTime,
+    ),
+    r'deviceId': PropertySchema(
+      id: 1,
+      name: r'deviceId',
+      type: IsarType.string,
+    ),
+    r'isSynced': PropertySchema(
+      id: 2,
+      name: r'isSynced',
+      type: IsarType.bool,
+    ),
+    r'netProfit': PropertySchema(
+      id: 3,
       name: r'netProfit',
       type: IsarType.double,
     ),
     r'summaryDate': PropertySchema(
-      id: 1,
+      id: 4,
       name: r'summaryDate',
       type: IsarType.string,
     ),
     r'totalExpense': PropertySchema(
-      id: 2,
+      id: 5,
       name: r'totalExpense',
       type: IsarType.double,
     ),
     r'totalRoomRevenue': PropertySchema(
-      id: 3,
+      id: 6,
       name: r'totalRoomRevenue',
       type: IsarType.double,
     ),
     r'totalServiceRevenue': PropertySchema(
-      id: 4,
+      id: 7,
       name: r'totalServiceRevenue',
       type: IsarType.double,
     ),
     r'updatedAt': PropertySchema(
-      id: 5,
+      id: 8,
       name: r'updatedAt',
       type: IsarType.dateTime,
+    ),
+    r'version': PropertySchema(
+      id: 9,
+      name: r'version',
+      type: IsarType.long,
     )
   },
   estimateSize: _hotelAccountingSummaryEstimateSize,
@@ -3748,6 +4942,7 @@ int _hotelAccountingSummaryEstimateSize(
   Map<Type, List<int>> allOffsets,
 ) {
   var bytesCount = offsets.last;
+  bytesCount += 3 + object.deviceId.length * 3;
   bytesCount += 3 + object.summaryDate.length * 3;
   return bytesCount;
 }
@@ -3758,12 +4953,16 @@ void _hotelAccountingSummarySerialize(
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
-  writer.writeDouble(offsets[0], object.netProfit);
-  writer.writeString(offsets[1], object.summaryDate);
-  writer.writeDouble(offsets[2], object.totalExpense);
-  writer.writeDouble(offsets[3], object.totalRoomRevenue);
-  writer.writeDouble(offsets[4], object.totalServiceRevenue);
-  writer.writeDateTime(offsets[5], object.updatedAt);
+  writer.writeDateTime(offsets[0], object.deletedAt);
+  writer.writeString(offsets[1], object.deviceId);
+  writer.writeBool(offsets[2], object.isSynced);
+  writer.writeDouble(offsets[3], object.netProfit);
+  writer.writeString(offsets[4], object.summaryDate);
+  writer.writeDouble(offsets[5], object.totalExpense);
+  writer.writeDouble(offsets[6], object.totalRoomRevenue);
+  writer.writeDouble(offsets[7], object.totalServiceRevenue);
+  writer.writeDateTime(offsets[8], object.updatedAt);
+  writer.writeLong(offsets[9], object.version);
 }
 
 HotelAccountingSummary _hotelAccountingSummaryDeserialize(
@@ -3773,13 +4972,17 @@ HotelAccountingSummary _hotelAccountingSummaryDeserialize(
   Map<Type, List<int>> allOffsets,
 ) {
   final object = HotelAccountingSummary();
+  object.deletedAt = reader.readDateTimeOrNull(offsets[0]);
+  object.deviceId = reader.readString(offsets[1]);
   object.id = id;
-  object.netProfit = reader.readDouble(offsets[0]);
-  object.summaryDate = reader.readString(offsets[1]);
-  object.totalExpense = reader.readDouble(offsets[2]);
-  object.totalRoomRevenue = reader.readDouble(offsets[3]);
-  object.totalServiceRevenue = reader.readDouble(offsets[4]);
-  object.updatedAt = reader.readDateTime(offsets[5]);
+  object.isSynced = reader.readBool(offsets[2]);
+  object.netProfit = reader.readDouble(offsets[3]);
+  object.summaryDate = reader.readString(offsets[4]);
+  object.totalExpense = reader.readDouble(offsets[5]);
+  object.totalRoomRevenue = reader.readDouble(offsets[6]);
+  object.totalServiceRevenue = reader.readDouble(offsets[7]);
+  object.updatedAt = reader.readDateTime(offsets[8]);
+  object.version = reader.readLong(offsets[9]);
   return object;
 }
 
@@ -3791,17 +4994,25 @@ P _hotelAccountingSummaryDeserializeProp<P>(
 ) {
   switch (propertyId) {
     case 0:
-      return (reader.readDouble(offset)) as P;
+      return (reader.readDateTimeOrNull(offset)) as P;
     case 1:
       return (reader.readString(offset)) as P;
     case 2:
-      return (reader.readDouble(offset)) as P;
+      return (reader.readBool(offset)) as P;
     case 3:
       return (reader.readDouble(offset)) as P;
     case 4:
-      return (reader.readDouble(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 5:
+      return (reader.readDouble(offset)) as P;
+    case 6:
+      return (reader.readDouble(offset)) as P;
+    case 7:
+      return (reader.readDouble(offset)) as P;
+    case 8:
       return (reader.readDateTime(offset)) as P;
+    case 9:
+      return (reader.readLong(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
   }
@@ -4009,6 +5220,218 @@ extension HotelAccountingSummaryQueryWhere on QueryBuilder<
 extension HotelAccountingSummaryQueryFilter on QueryBuilder<
     HotelAccountingSummary, HotelAccountingSummary, QFilterCondition> {
   QueryBuilder<HotelAccountingSummary, HotelAccountingSummary,
+      QAfterFilterCondition> deletedAtIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'deletedAt',
+      ));
+    });
+  }
+
+  QueryBuilder<HotelAccountingSummary, HotelAccountingSummary,
+      QAfterFilterCondition> deletedAtIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'deletedAt',
+      ));
+    });
+  }
+
+  QueryBuilder<HotelAccountingSummary, HotelAccountingSummary,
+      QAfterFilterCondition> deletedAtEqualTo(DateTime? value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'deletedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<HotelAccountingSummary, HotelAccountingSummary,
+      QAfterFilterCondition> deletedAtGreaterThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'deletedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<HotelAccountingSummary, HotelAccountingSummary,
+      QAfterFilterCondition> deletedAtLessThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'deletedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<HotelAccountingSummary, HotelAccountingSummary,
+      QAfterFilterCondition> deletedAtBetween(
+    DateTime? lower,
+    DateTime? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'deletedAt',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<HotelAccountingSummary, HotelAccountingSummary,
+      QAfterFilterCondition> deviceIdEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<HotelAccountingSummary, HotelAccountingSummary,
+      QAfterFilterCondition> deviceIdGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<HotelAccountingSummary, HotelAccountingSummary,
+      QAfterFilterCondition> deviceIdLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<HotelAccountingSummary, HotelAccountingSummary,
+      QAfterFilterCondition> deviceIdBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'deviceId',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<HotelAccountingSummary, HotelAccountingSummary,
+      QAfterFilterCondition> deviceIdStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<HotelAccountingSummary, HotelAccountingSummary,
+      QAfterFilterCondition> deviceIdEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<HotelAccountingSummary, HotelAccountingSummary,
+          QAfterFilterCondition>
+      deviceIdContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<HotelAccountingSummary, HotelAccountingSummary,
+          QAfterFilterCondition>
+      deviceIdMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'deviceId',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<HotelAccountingSummary, HotelAccountingSummary,
+      QAfterFilterCondition> deviceIdIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'deviceId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<HotelAccountingSummary, HotelAccountingSummary,
+      QAfterFilterCondition> deviceIdIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'deviceId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<HotelAccountingSummary, HotelAccountingSummary,
       QAfterFilterCondition> idEqualTo(Id value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
@@ -4060,6 +5483,16 @@ extension HotelAccountingSummaryQueryFilter on QueryBuilder<
         includeLower: includeLower,
         upper: upper,
         includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<HotelAccountingSummary, HotelAccountingSummary,
+      QAfterFilterCondition> isSyncedEqualTo(bool value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'isSynced',
+        value: value,
       ));
     });
   }
@@ -4521,6 +5954,62 @@ extension HotelAccountingSummaryQueryFilter on QueryBuilder<
       ));
     });
   }
+
+  QueryBuilder<HotelAccountingSummary, HotelAccountingSummary,
+      QAfterFilterCondition> versionEqualTo(int value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'version',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<HotelAccountingSummary, HotelAccountingSummary,
+      QAfterFilterCondition> versionGreaterThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'version',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<HotelAccountingSummary, HotelAccountingSummary,
+      QAfterFilterCondition> versionLessThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'version',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<HotelAccountingSummary, HotelAccountingSummary,
+      QAfterFilterCondition> versionBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'version',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
 }
 
 extension HotelAccountingSummaryQueryObject on QueryBuilder<
@@ -4531,6 +6020,48 @@ extension HotelAccountingSummaryQueryLinks on QueryBuilder<
 
 extension HotelAccountingSummaryQuerySortBy
     on QueryBuilder<HotelAccountingSummary, HotelAccountingSummary, QSortBy> {
+  QueryBuilder<HotelAccountingSummary, HotelAccountingSummary, QAfterSortBy>
+      sortByDeletedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<HotelAccountingSummary, HotelAccountingSummary, QAfterSortBy>
+      sortByDeletedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<HotelAccountingSummary, HotelAccountingSummary, QAfterSortBy>
+      sortByDeviceId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<HotelAccountingSummary, HotelAccountingSummary, QAfterSortBy>
+      sortByDeviceIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<HotelAccountingSummary, HotelAccountingSummary, QAfterSortBy>
+      sortByIsSynced() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.asc);
+    });
+  }
+
+  QueryBuilder<HotelAccountingSummary, HotelAccountingSummary, QAfterSortBy>
+      sortByIsSyncedDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.desc);
+    });
+  }
+
   QueryBuilder<HotelAccountingSummary, HotelAccountingSummary, QAfterSortBy>
       sortByNetProfit() {
     return QueryBuilder.apply(this, (query) {
@@ -4614,10 +6145,52 @@ extension HotelAccountingSummaryQuerySortBy
       return query.addSortBy(r'updatedAt', Sort.desc);
     });
   }
+
+  QueryBuilder<HotelAccountingSummary, HotelAccountingSummary, QAfterSortBy>
+      sortByVersion() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.asc);
+    });
+  }
+
+  QueryBuilder<HotelAccountingSummary, HotelAccountingSummary, QAfterSortBy>
+      sortByVersionDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.desc);
+    });
+  }
 }
 
 extension HotelAccountingSummaryQuerySortThenBy on QueryBuilder<
     HotelAccountingSummary, HotelAccountingSummary, QSortThenBy> {
+  QueryBuilder<HotelAccountingSummary, HotelAccountingSummary, QAfterSortBy>
+      thenByDeletedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<HotelAccountingSummary, HotelAccountingSummary, QAfterSortBy>
+      thenByDeletedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<HotelAccountingSummary, HotelAccountingSummary, QAfterSortBy>
+      thenByDeviceId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<HotelAccountingSummary, HotelAccountingSummary, QAfterSortBy>
+      thenByDeviceIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.desc);
+    });
+  }
+
   QueryBuilder<HotelAccountingSummary, HotelAccountingSummary, QAfterSortBy>
       thenById() {
     return QueryBuilder.apply(this, (query) {
@@ -4629,6 +6202,20 @@ extension HotelAccountingSummaryQuerySortThenBy on QueryBuilder<
       thenByIdDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'id', Sort.desc);
+    });
+  }
+
+  QueryBuilder<HotelAccountingSummary, HotelAccountingSummary, QAfterSortBy>
+      thenByIsSynced() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.asc);
+    });
+  }
+
+  QueryBuilder<HotelAccountingSummary, HotelAccountingSummary, QAfterSortBy>
+      thenByIsSyncedDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.desc);
     });
   }
 
@@ -4715,10 +6302,45 @@ extension HotelAccountingSummaryQuerySortThenBy on QueryBuilder<
       return query.addSortBy(r'updatedAt', Sort.desc);
     });
   }
+
+  QueryBuilder<HotelAccountingSummary, HotelAccountingSummary, QAfterSortBy>
+      thenByVersion() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.asc);
+    });
+  }
+
+  QueryBuilder<HotelAccountingSummary, HotelAccountingSummary, QAfterSortBy>
+      thenByVersionDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.desc);
+    });
+  }
 }
 
 extension HotelAccountingSummaryQueryWhereDistinct
     on QueryBuilder<HotelAccountingSummary, HotelAccountingSummary, QDistinct> {
+  QueryBuilder<HotelAccountingSummary, HotelAccountingSummary, QDistinct>
+      distinctByDeletedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'deletedAt');
+    });
+  }
+
+  QueryBuilder<HotelAccountingSummary, HotelAccountingSummary, QDistinct>
+      distinctByDeviceId({bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'deviceId', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<HotelAccountingSummary, HotelAccountingSummary, QDistinct>
+      distinctByIsSynced() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'isSynced');
+    });
+  }
+
   QueryBuilder<HotelAccountingSummary, HotelAccountingSummary, QDistinct>
       distinctByNetProfit() {
     return QueryBuilder.apply(this, (query) {
@@ -4760,6 +6382,13 @@ extension HotelAccountingSummaryQueryWhereDistinct
       return query.addDistinctBy(r'updatedAt');
     });
   }
+
+  QueryBuilder<HotelAccountingSummary, HotelAccountingSummary, QDistinct>
+      distinctByVersion() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'version');
+    });
+  }
 }
 
 extension HotelAccountingSummaryQueryProperty on QueryBuilder<
@@ -4767,6 +6396,27 @@ extension HotelAccountingSummaryQueryProperty on QueryBuilder<
   QueryBuilder<HotelAccountingSummary, int, QQueryOperations> idProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'id');
+    });
+  }
+
+  QueryBuilder<HotelAccountingSummary, DateTime?, QQueryOperations>
+      deletedAtProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'deletedAt');
+    });
+  }
+
+  QueryBuilder<HotelAccountingSummary, String, QQueryOperations>
+      deviceIdProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'deviceId');
+    });
+  }
+
+  QueryBuilder<HotelAccountingSummary, bool, QQueryOperations>
+      isSyncedProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'isSynced');
     });
   }
 
@@ -4809,6 +6459,13 @@ extension HotelAccountingSummaryQueryProperty on QueryBuilder<
       updatedAtProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'updatedAt');
+    });
+  }
+
+  QueryBuilder<HotelAccountingSummary, int, QQueryOperations>
+      versionProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'version');
     });
   }
 }

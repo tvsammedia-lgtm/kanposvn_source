@@ -13,6 +13,11 @@ enum CashTransactionType {
 @collection
 class HotelCashTransaction {
   Id id = Isar.autoIncrement;
+  bool isSynced = false;
+  DateTime updatedAt = DateTime.now();
+  DateTime? deletedAt;
+  String deviceId = "";
+  int version = 1;
 
   @Index(unique: true, replace: true)
   String transactionId = '';
@@ -32,6 +37,11 @@ class HotelCashTransaction {
 @collection
 class HotelShiftReport {
   Id id = Isar.autoIncrement;
+  bool isSynced = false;
+  DateTime updatedAt = DateTime.now();
+  DateTime? deletedAt;
+  String deviceId = "";
+  int version = 1;
 
   @Index(unique: true, replace: true)
   String reportId = '';
@@ -55,6 +65,10 @@ class HotelShiftReport {
 @collection
 class HotelAccountingSummary {
   Id id = Isar.autoIncrement;
+  bool isSynced = false;
+  DateTime? deletedAt;
+  String deviceId = "";
+  int version = 1;
 
   @Index(unique: true, replace: true)
   String summaryDate = ''; // YYYY-MM-DD

@@ -7,6 +7,11 @@ part 'contract.g.dart';
 class Contract {
   Id id = Isar.autoIncrement;
 
+  bool isSynced = false;
+  DateTime? deletedAt;
+  String deviceId = "";
+  int version = 1;
+
   @Index(unique: true, replace: true)
   String? uuid;
 

@@ -7,6 +7,7 @@ import '../models/cafe_inventory.dart';
 import '../models/cafe_customer_supplier.dart';
 import '../models/cafe_finance_accounting.dart';
 import '../services/cafe_isar_service.dart';
+import 'package:kanposvn/core/db/database_service.dart';
 import '../services/cafe_neon_sync_service.dart';
 import '../services/cafe_backup_restore_service.dart';
 
@@ -24,12 +25,34 @@ final cafeBackupRestoreServiceProvider =
 // --- AREAS & TABLES PROVIDER ---
 class CafeTablesNotifier extends StateNotifier<List<CafeTable>> {
   final CafeIsarService _isar;
+  bool _isLoading = false;
+
   CafeTablesNotifier(this._isar) : super([]) {
     loadTables();
+    // If DatabaseService initializes later (Android async), reload when it notifies
+    DatabaseService.instance.addListener(_onDbChanged);
+  }
+
+  void _onDbChanged() {
+    if (DatabaseService.instance.isInitialized && !_isLoading) {
+      loadTables();
+    }
   }
 
   void loadTables() {
-    state = _isar.getTables();
+    if (_isLoading) return;
+    _isLoading = true;
+    // Use Future to avoid blocking UI thread
+    Future.microtask(() {
+      state = _isar.getTables();
+      _isLoading = false;
+    });
+  }
+
+  @override
+  void dispose() {
+    DatabaseService.instance.removeListener(_onDbChanged);
+    super.dispose();
   }
 
   Future<void> setActiveOrder(String tableId, String? orderId) async {
@@ -138,13 +161,54 @@ class CafeTablesNotifier extends StateNotifier<List<CafeTable>> {
   }
 }
 
-final cafeTablesProvider =
-    StateNotifierProvider<CafeTablesNotifier, List<CafeTable>>((ref) {
-      return CafeTablesNotifier(ref.watch(cafeIsarServiceProvider));
-    });
+final cafeTablesProvider = StateNotifierProvider<CafeTablesNotifier, List<CafeTable>>(
+  (ref) => CafeTablesNotifier(ref.watch(cafeIsarServiceProvider)),
+);
 
-final cafeAreasProvider = Provider<List<CafeArea>>((ref) {
-  return ref.watch(cafeIsarServiceProvider).getAreas();
+class CafeAreasNotifier extends StateNotifier<List<CafeArea>> {
+  final CafeIsarService _isar;
+  bool _isLoading = false;
+
+  CafeAreasNotifier(this._isar) : super([]) {
+    loadAreas();
+    DatabaseService.instance.addListener(_onDbChanged);
+  }
+
+  void _onDbChanged() {
+    if (DatabaseService.instance.isInitialized && !_isLoading) {
+      loadAreas();
+    }
+  }
+
+  void loadAreas() {
+    if (_isLoading) return;
+    _isLoading = true;
+    Future.microtask(() {
+      state = _isar.getAreas();
+      _isLoading = false;
+    });
+  }
+
+  Future<void> saveArea(CafeArea area) async {
+    await _isar.saveArea(area);
+    loadAreas();
+  }
+
+  Future<void> deleteArea(String id) async {
+    await _isar.deleteArea(id);
+    loadAreas();
+  }
+
+  @override
+  void dispose() {
+    DatabaseService.instance.removeListener(_onDbChanged);
+    super.dispose();
+  }
+}
+
+final cafeAreasProvider =
+    StateNotifierProvider<CafeAreasNotifier, List<CafeArea>>((ref) {
+  return CafeAreasNotifier(ref.watch(cafeIsarServiceProvider));
 });
 
 // --- MENU PROVIDERS ---
@@ -179,9 +243,10 @@ final cafeRecipesProvider = Provider<List<CafeRecipe>>((ref) {
 
 // --- CURRENT POS ORDER CART PROVIDER ---
 class CafePosCartNotifier extends StateNotifier<CafeOrder> {
+  final Ref _ref;
   final CafeIsarService _isar;
 
-  CafePosCartNotifier(this._isar)
+  CafePosCartNotifier(this._ref, this._isar)
     : super(
         CafeOrder(
           id: 'ORD-${DateTime.now().millisecondsSinceEpoch}',
@@ -218,6 +283,7 @@ class CafePosCartNotifier extends StateNotifier<CafeOrder> {
 
   Future<void> _save() async {
     await _isar.saveOrder(state);
+    _ref.read(cafeOrdersProvider.notifier).loadOrders();
   }
 
   Future<void> addItem(
@@ -376,18 +442,32 @@ class CafePosCartNotifier extends StateNotifier<CafeOrder> {
 
 final cafePosCartProvider =
     StateNotifierProvider<CafePosCartNotifier, CafeOrder>((ref) {
-      return CafePosCartNotifier(ref.watch(cafeIsarServiceProvider));
+      return CafePosCartNotifier(ref, ref.watch(cafeIsarServiceProvider));
     });
 
 // --- ORDERS PROVIDER ---
 class CafeOrdersNotifier extends StateNotifier<List<CafeOrder>> {
   final CafeIsarService _isar;
+  bool _isLoading = false;
+
   CafeOrdersNotifier(this._isar) : super([]) {
     loadOrders();
+    DatabaseService.instance.addListener(_onDbChanged);
+  }
+
+  void _onDbChanged() {
+    if (DatabaseService.instance.isInitialized && !_isLoading) {
+      loadOrders();
+    }
   }
 
   void loadOrders() {
-    state = _isar.getOrders();
+    if (_isLoading) return;
+    _isLoading = true;
+    Future.microtask(() {
+      state = _isar.getOrders();
+      _isLoading = false;
+    });
   }
 
   List<CafeOrder> getOrdersByDateRange(DateTime from, DateTime to) {
@@ -403,6 +483,21 @@ class CafeOrdersNotifier extends StateNotifier<List<CafeOrder>> {
     } catch (_) {
       return null;
     }
+  }
+
+  Future<void> markPrinted(CafeOrder order) async {
+    final updated = order.copyWith(
+      printedAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+    );
+    await _isar.saveOrder(updated);
+    loadOrders();
+  }
+
+  @override
+  void dispose() {
+    DatabaseService.instance.removeListener(_onDbChanged);
+    super.dispose();
   }
 }
 
@@ -575,3 +670,6 @@ final cafeAccountingSummaryProvider = Provider<AccountingSummaryReport>((ref) {
 });
 
 final cafeTabIndexProvider = StateProvider<int>((ref) => 0);
+
+// Active tab identifier to allow screens to react to becoming visible without hard-coded indices
+final cafeActiveTabIdProvider = StateProvider<String?>((ref) => null);

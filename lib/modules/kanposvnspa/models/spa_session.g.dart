@@ -17,31 +17,56 @@ const SpaSessionSchema = CollectionSchema(
   name: r'SpaSession',
   id: 6949002434136987758,
   properties: {
-    r'endTime': PropertySchema(
+    r'deletedAt': PropertySchema(
       id: 0,
+      name: r'deletedAt',
+      type: IsarType.dateTime,
+    ),
+    r'deviceId': PropertySchema(
+      id: 1,
+      name: r'deviceId',
+      type: IsarType.string,
+    ),
+    r'endTime': PropertySchema(
+      id: 2,
       name: r'endTime',
       type: IsarType.dateTime,
     ),
+    r'isSynced': PropertySchema(
+      id: 3,
+      name: r'isSynced',
+      type: IsarType.bool,
+    ),
     r'sessionId': PropertySchema(
-      id: 1,
+      id: 4,
       name: r'sessionId',
       type: IsarType.string,
     ),
     r'startTime': PropertySchema(
-      id: 2,
+      id: 5,
       name: r'startTime',
       type: IsarType.dateTime,
     ),
     r'status': PropertySchema(
-      id: 3,
+      id: 6,
       name: r'status',
       type: IsarType.byte,
       enumMap: _SpaSessionstatusEnumValueMap,
     ),
     r'totalAmount': PropertySchema(
-      id: 4,
+      id: 7,
       name: r'totalAmount',
       type: IsarType.double,
+    ),
+    r'updatedAt': PropertySchema(
+      id: 8,
+      name: r'updatedAt',
+      type: IsarType.dateTime,
+    ),
+    r'version': PropertySchema(
+      id: 9,
+      name: r'version',
+      type: IsarType.long,
     )
   },
   estimateSize: _spaSessionEstimateSize,
@@ -103,6 +128,7 @@ int _spaSessionEstimateSize(
   Map<Type, List<int>> allOffsets,
 ) {
   var bytesCount = offsets.last;
+  bytesCount += 3 + object.deviceId.length * 3;
   bytesCount += 3 + object.sessionId.length * 3;
   return bytesCount;
 }
@@ -113,11 +139,16 @@ void _spaSessionSerialize(
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
-  writer.writeDateTime(offsets[0], object.endTime);
-  writer.writeString(offsets[1], object.sessionId);
-  writer.writeDateTime(offsets[2], object.startTime);
-  writer.writeByte(offsets[3], object.status.index);
-  writer.writeDouble(offsets[4], object.totalAmount);
+  writer.writeDateTime(offsets[0], object.deletedAt);
+  writer.writeString(offsets[1], object.deviceId);
+  writer.writeDateTime(offsets[2], object.endTime);
+  writer.writeBool(offsets[3], object.isSynced);
+  writer.writeString(offsets[4], object.sessionId);
+  writer.writeDateTime(offsets[5], object.startTime);
+  writer.writeByte(offsets[6], object.status.index);
+  writer.writeDouble(offsets[7], object.totalAmount);
+  writer.writeDateTime(offsets[8], object.updatedAt);
+  writer.writeLong(offsets[9], object.version);
 }
 
 SpaSession _spaSessionDeserialize(
@@ -127,14 +158,19 @@ SpaSession _spaSessionDeserialize(
   Map<Type, List<int>> allOffsets,
 ) {
   final object = SpaSession();
-  object.endTime = reader.readDateTimeOrNull(offsets[0]);
+  object.deletedAt = reader.readDateTimeOrNull(offsets[0]);
+  object.deviceId = reader.readString(offsets[1]);
+  object.endTime = reader.readDateTimeOrNull(offsets[2]);
   object.id = id;
-  object.sessionId = reader.readString(offsets[1]);
-  object.startTime = reader.readDateTimeOrNull(offsets[2]);
+  object.isSynced = reader.readBool(offsets[3]);
+  object.sessionId = reader.readString(offsets[4]);
+  object.startTime = reader.readDateTimeOrNull(offsets[5]);
   object.status =
-      _SpaSessionstatusValueEnumMap[reader.readByteOrNull(offsets[3])] ??
+      _SpaSessionstatusValueEnumMap[reader.readByteOrNull(offsets[6])] ??
           SpaSessionStatus.IN_PROGRESS;
-  object.totalAmount = reader.readDouble(offsets[4]);
+  object.totalAmount = reader.readDouble(offsets[7]);
+  object.updatedAt = reader.readDateTime(offsets[8]);
+  object.version = reader.readLong(offsets[9]);
   return object;
 }
 
@@ -152,10 +188,20 @@ P _spaSessionDeserializeProp<P>(
     case 2:
       return (reader.readDateTimeOrNull(offset)) as P;
     case 3:
+      return (reader.readBool(offset)) as P;
+    case 4:
+      return (reader.readString(offset)) as P;
+    case 5:
+      return (reader.readDateTimeOrNull(offset)) as P;
+    case 6:
       return (_SpaSessionstatusValueEnumMap[reader.readByteOrNull(offset)] ??
           SpaSessionStatus.IN_PROGRESS) as P;
-    case 4:
+    case 7:
       return (reader.readDouble(offset)) as P;
+    case 8:
+      return (reader.readDateTime(offset)) as P;
+    case 9:
+      return (reader.readLong(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
   }
@@ -368,6 +414,212 @@ extension SpaSessionQueryWhere
 
 extension SpaSessionQueryFilter
     on QueryBuilder<SpaSession, SpaSession, QFilterCondition> {
+  QueryBuilder<SpaSession, SpaSession, QAfterFilterCondition>
+      deletedAtIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'deletedAt',
+      ));
+    });
+  }
+
+  QueryBuilder<SpaSession, SpaSession, QAfterFilterCondition>
+      deletedAtIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'deletedAt',
+      ));
+    });
+  }
+
+  QueryBuilder<SpaSession, SpaSession, QAfterFilterCondition> deletedAtEqualTo(
+      DateTime? value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'deletedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaSession, SpaSession, QAfterFilterCondition>
+      deletedAtGreaterThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'deletedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaSession, SpaSession, QAfterFilterCondition> deletedAtLessThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'deletedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaSession, SpaSession, QAfterFilterCondition> deletedAtBetween(
+    DateTime? lower,
+    DateTime? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'deletedAt',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaSession, SpaSession, QAfterFilterCondition> deviceIdEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaSession, SpaSession, QAfterFilterCondition>
+      deviceIdGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaSession, SpaSession, QAfterFilterCondition> deviceIdLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaSession, SpaSession, QAfterFilterCondition> deviceIdBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'deviceId',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaSession, SpaSession, QAfterFilterCondition>
+      deviceIdStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaSession, SpaSession, QAfterFilterCondition> deviceIdEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaSession, SpaSession, QAfterFilterCondition> deviceIdContains(
+      String value,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaSession, SpaSession, QAfterFilterCondition> deviceIdMatches(
+      String pattern,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'deviceId',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaSession, SpaSession, QAfterFilterCondition>
+      deviceIdIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'deviceId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<SpaSession, SpaSession, QAfterFilterCondition>
+      deviceIdIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'deviceId',
+        value: '',
+      ));
+    });
+  }
+
   QueryBuilder<SpaSession, SpaSession, QAfterFilterCondition> endTimeIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNull(
@@ -488,6 +740,16 @@ extension SpaSessionQueryFilter
         includeLower: includeLower,
         upper: upper,
         includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaSession, SpaSession, QAfterFilterCondition> isSyncedEqualTo(
+      bool value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'isSynced',
+        value: value,
       ));
     });
   }
@@ -816,6 +1078,114 @@ extension SpaSessionQueryFilter
       ));
     });
   }
+
+  QueryBuilder<SpaSession, SpaSession, QAfterFilterCondition> updatedAtEqualTo(
+      DateTime value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'updatedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaSession, SpaSession, QAfterFilterCondition>
+      updatedAtGreaterThan(
+    DateTime value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'updatedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaSession, SpaSession, QAfterFilterCondition> updatedAtLessThan(
+    DateTime value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'updatedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaSession, SpaSession, QAfterFilterCondition> updatedAtBetween(
+    DateTime lower,
+    DateTime upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'updatedAt',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaSession, SpaSession, QAfterFilterCondition> versionEqualTo(
+      int value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'version',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaSession, SpaSession, QAfterFilterCondition>
+      versionGreaterThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'version',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaSession, SpaSession, QAfterFilterCondition> versionLessThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'version',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaSession, SpaSession, QAfterFilterCondition> versionBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'version',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
 }
 
 extension SpaSessionQueryObject
@@ -879,6 +1249,30 @@ extension SpaSessionQueryLinks
 
 extension SpaSessionQuerySortBy
     on QueryBuilder<SpaSession, SpaSession, QSortBy> {
+  QueryBuilder<SpaSession, SpaSession, QAfterSortBy> sortByDeletedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<SpaSession, SpaSession, QAfterSortBy> sortByDeletedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<SpaSession, SpaSession, QAfterSortBy> sortByDeviceId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<SpaSession, SpaSession, QAfterSortBy> sortByDeviceIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.desc);
+    });
+  }
+
   QueryBuilder<SpaSession, SpaSession, QAfterSortBy> sortByEndTime() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'endTime', Sort.asc);
@@ -888,6 +1282,18 @@ extension SpaSessionQuerySortBy
   QueryBuilder<SpaSession, SpaSession, QAfterSortBy> sortByEndTimeDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'endTime', Sort.desc);
+    });
+  }
+
+  QueryBuilder<SpaSession, SpaSession, QAfterSortBy> sortByIsSynced() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.asc);
+    });
+  }
+
+  QueryBuilder<SpaSession, SpaSession, QAfterSortBy> sortByIsSyncedDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.desc);
     });
   }
 
@@ -938,10 +1344,58 @@ extension SpaSessionQuerySortBy
       return query.addSortBy(r'totalAmount', Sort.desc);
     });
   }
+
+  QueryBuilder<SpaSession, SpaSession, QAfterSortBy> sortByUpdatedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'updatedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<SpaSession, SpaSession, QAfterSortBy> sortByUpdatedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'updatedAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<SpaSession, SpaSession, QAfterSortBy> sortByVersion() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.asc);
+    });
+  }
+
+  QueryBuilder<SpaSession, SpaSession, QAfterSortBy> sortByVersionDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.desc);
+    });
+  }
 }
 
 extension SpaSessionQuerySortThenBy
     on QueryBuilder<SpaSession, SpaSession, QSortThenBy> {
+  QueryBuilder<SpaSession, SpaSession, QAfterSortBy> thenByDeletedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<SpaSession, SpaSession, QAfterSortBy> thenByDeletedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<SpaSession, SpaSession, QAfterSortBy> thenByDeviceId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<SpaSession, SpaSession, QAfterSortBy> thenByDeviceIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.desc);
+    });
+  }
+
   QueryBuilder<SpaSession, SpaSession, QAfterSortBy> thenByEndTime() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'endTime', Sort.asc);
@@ -963,6 +1417,18 @@ extension SpaSessionQuerySortThenBy
   QueryBuilder<SpaSession, SpaSession, QAfterSortBy> thenByIdDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'id', Sort.desc);
+    });
+  }
+
+  QueryBuilder<SpaSession, SpaSession, QAfterSortBy> thenByIsSynced() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.asc);
+    });
+  }
+
+  QueryBuilder<SpaSession, SpaSession, QAfterSortBy> thenByIsSyncedDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.desc);
     });
   }
 
@@ -1013,13 +1479,56 @@ extension SpaSessionQuerySortThenBy
       return query.addSortBy(r'totalAmount', Sort.desc);
     });
   }
+
+  QueryBuilder<SpaSession, SpaSession, QAfterSortBy> thenByUpdatedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'updatedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<SpaSession, SpaSession, QAfterSortBy> thenByUpdatedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'updatedAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<SpaSession, SpaSession, QAfterSortBy> thenByVersion() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.asc);
+    });
+  }
+
+  QueryBuilder<SpaSession, SpaSession, QAfterSortBy> thenByVersionDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.desc);
+    });
+  }
 }
 
 extension SpaSessionQueryWhereDistinct
     on QueryBuilder<SpaSession, SpaSession, QDistinct> {
+  QueryBuilder<SpaSession, SpaSession, QDistinct> distinctByDeletedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'deletedAt');
+    });
+  }
+
+  QueryBuilder<SpaSession, SpaSession, QDistinct> distinctByDeviceId(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'deviceId', caseSensitive: caseSensitive);
+    });
+  }
+
   QueryBuilder<SpaSession, SpaSession, QDistinct> distinctByEndTime() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'endTime');
+    });
+  }
+
+  QueryBuilder<SpaSession, SpaSession, QDistinct> distinctByIsSynced() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'isSynced');
     });
   }
 
@@ -1047,6 +1556,18 @@ extension SpaSessionQueryWhereDistinct
       return query.addDistinctBy(r'totalAmount');
     });
   }
+
+  QueryBuilder<SpaSession, SpaSession, QDistinct> distinctByUpdatedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'updatedAt');
+    });
+  }
+
+  QueryBuilder<SpaSession, SpaSession, QDistinct> distinctByVersion() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'version');
+    });
+  }
 }
 
 extension SpaSessionQueryProperty
@@ -1057,9 +1578,27 @@ extension SpaSessionQueryProperty
     });
   }
 
+  QueryBuilder<SpaSession, DateTime?, QQueryOperations> deletedAtProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'deletedAt');
+    });
+  }
+
+  QueryBuilder<SpaSession, String, QQueryOperations> deviceIdProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'deviceId');
+    });
+  }
+
   QueryBuilder<SpaSession, DateTime?, QQueryOperations> endTimeProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'endTime');
+    });
+  }
+
+  QueryBuilder<SpaSession, bool, QQueryOperations> isSyncedProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'isSynced');
     });
   }
 
@@ -1085,6 +1624,18 @@ extension SpaSessionQueryProperty
   QueryBuilder<SpaSession, double, QQueryOperations> totalAmountProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'totalAmount');
+    });
+  }
+
+  QueryBuilder<SpaSession, DateTime, QQueryOperations> updatedAtProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'updatedAt');
+    });
+  }
+
+  QueryBuilder<SpaSession, int, QQueryOperations> versionProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'version');
     });
   }
 }

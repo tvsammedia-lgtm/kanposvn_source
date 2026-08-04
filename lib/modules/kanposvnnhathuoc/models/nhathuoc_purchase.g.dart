@@ -17,25 +17,50 @@ const NhathuocPurchaseSchema = CollectionSchema(
   name: r'NhathuocPurchase',
   id: -1557401023203841738,
   properties: {
-    r'documentCode': PropertySchema(
+    r'deletedAt': PropertySchema(
       id: 0,
+      name: r'deletedAt',
+      type: IsarType.dateTime,
+    ),
+    r'deviceId': PropertySchema(
+      id: 1,
+      name: r'deviceId',
+      type: IsarType.string,
+    ),
+    r'documentCode': PropertySchema(
+      id: 2,
       name: r'documentCode',
       type: IsarType.string,
     ),
+    r'isSynced': PropertySchema(
+      id: 3,
+      name: r'isSynced',
+      type: IsarType.bool,
+    ),
     r'purchaseDate': PropertySchema(
-      id: 1,
+      id: 4,
       name: r'purchaseDate',
       type: IsarType.dateTime,
     ),
     r'purchaseId': PropertySchema(
-      id: 2,
+      id: 5,
       name: r'purchaseId',
       type: IsarType.string,
     ),
     r'totalAmount': PropertySchema(
-      id: 3,
+      id: 6,
       name: r'totalAmount',
       type: IsarType.double,
+    ),
+    r'updatedAt': PropertySchema(
+      id: 7,
+      name: r'updatedAt',
+      type: IsarType.dateTime,
+    ),
+    r'version': PropertySchema(
+      id: 8,
+      name: r'version',
+      type: IsarType.long,
     )
   },
   estimateSize: _nhathuocPurchaseEstimateSize,
@@ -86,6 +111,7 @@ int _nhathuocPurchaseEstimateSize(
   Map<Type, List<int>> allOffsets,
 ) {
   var bytesCount = offsets.last;
+  bytesCount += 3 + object.deviceId.length * 3;
   bytesCount += 3 + object.documentCode.length * 3;
   bytesCount += 3 + object.purchaseId.length * 3;
   return bytesCount;
@@ -97,10 +123,15 @@ void _nhathuocPurchaseSerialize(
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
-  writer.writeString(offsets[0], object.documentCode);
-  writer.writeDateTime(offsets[1], object.purchaseDate);
-  writer.writeString(offsets[2], object.purchaseId);
-  writer.writeDouble(offsets[3], object.totalAmount);
+  writer.writeDateTime(offsets[0], object.deletedAt);
+  writer.writeString(offsets[1], object.deviceId);
+  writer.writeString(offsets[2], object.documentCode);
+  writer.writeBool(offsets[3], object.isSynced);
+  writer.writeDateTime(offsets[4], object.purchaseDate);
+  writer.writeString(offsets[5], object.purchaseId);
+  writer.writeDouble(offsets[6], object.totalAmount);
+  writer.writeDateTime(offsets[7], object.updatedAt);
+  writer.writeLong(offsets[8], object.version);
 }
 
 NhathuocPurchase _nhathuocPurchaseDeserialize(
@@ -110,11 +141,16 @@ NhathuocPurchase _nhathuocPurchaseDeserialize(
   Map<Type, List<int>> allOffsets,
 ) {
   final object = NhathuocPurchase();
-  object.documentCode = reader.readString(offsets[0]);
+  object.deletedAt = reader.readDateTimeOrNull(offsets[0]);
+  object.deviceId = reader.readString(offsets[1]);
+  object.documentCode = reader.readString(offsets[2]);
   object.id = id;
-  object.purchaseDate = reader.readDateTimeOrNull(offsets[1]);
-  object.purchaseId = reader.readString(offsets[2]);
-  object.totalAmount = reader.readDouble(offsets[3]);
+  object.isSynced = reader.readBool(offsets[3]);
+  object.purchaseDate = reader.readDateTimeOrNull(offsets[4]);
+  object.purchaseId = reader.readString(offsets[5]);
+  object.totalAmount = reader.readDouble(offsets[6]);
+  object.updatedAt = reader.readDateTime(offsets[7]);
+  object.version = reader.readLong(offsets[8]);
   return object;
 }
 
@@ -126,13 +162,23 @@ P _nhathuocPurchaseDeserializeProp<P>(
 ) {
   switch (propertyId) {
     case 0:
-      return (reader.readString(offset)) as P;
-    case 1:
       return (reader.readDateTimeOrNull(offset)) as P;
+    case 1:
+      return (reader.readString(offset)) as P;
     case 2:
       return (reader.readString(offset)) as P;
     case 3:
+      return (reader.readBool(offset)) as P;
+    case 4:
+      return (reader.readDateTimeOrNull(offset)) as P;
+    case 5:
+      return (reader.readString(offset)) as P;
+    case 6:
       return (reader.readDouble(offset)) as P;
+    case 7:
+      return (reader.readDateTime(offset)) as P;
+    case 8:
+      return (reader.readLong(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
   }
@@ -339,6 +385,216 @@ extension NhathuocPurchaseQueryWhere
 extension NhathuocPurchaseQueryFilter
     on QueryBuilder<NhathuocPurchase, NhathuocPurchase, QFilterCondition> {
   QueryBuilder<NhathuocPurchase, NhathuocPurchase, QAfterFilterCondition>
+      deletedAtIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'deletedAt',
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPurchase, NhathuocPurchase, QAfterFilterCondition>
+      deletedAtIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'deletedAt',
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPurchase, NhathuocPurchase, QAfterFilterCondition>
+      deletedAtEqualTo(DateTime? value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'deletedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPurchase, NhathuocPurchase, QAfterFilterCondition>
+      deletedAtGreaterThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'deletedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPurchase, NhathuocPurchase, QAfterFilterCondition>
+      deletedAtLessThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'deletedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPurchase, NhathuocPurchase, QAfterFilterCondition>
+      deletedAtBetween(
+    DateTime? lower,
+    DateTime? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'deletedAt',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPurchase, NhathuocPurchase, QAfterFilterCondition>
+      deviceIdEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPurchase, NhathuocPurchase, QAfterFilterCondition>
+      deviceIdGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPurchase, NhathuocPurchase, QAfterFilterCondition>
+      deviceIdLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPurchase, NhathuocPurchase, QAfterFilterCondition>
+      deviceIdBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'deviceId',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPurchase, NhathuocPurchase, QAfterFilterCondition>
+      deviceIdStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPurchase, NhathuocPurchase, QAfterFilterCondition>
+      deviceIdEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPurchase, NhathuocPurchase, QAfterFilterCondition>
+      deviceIdContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPurchase, NhathuocPurchase, QAfterFilterCondition>
+      deviceIdMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'deviceId',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPurchase, NhathuocPurchase, QAfterFilterCondition>
+      deviceIdIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'deviceId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPurchase, NhathuocPurchase, QAfterFilterCondition>
+      deviceIdIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'deviceId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPurchase, NhathuocPurchase, QAfterFilterCondition>
       documentCodeEqualTo(
     String value, {
     bool caseSensitive = true,
@@ -526,6 +782,16 @@ extension NhathuocPurchaseQueryFilter
         includeLower: includeLower,
         upper: upper,
         includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPurchase, NhathuocPurchase, QAfterFilterCondition>
+      isSyncedEqualTo(bool value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'isSynced',
+        value: value,
       ));
     });
   }
@@ -805,6 +1071,118 @@ extension NhathuocPurchaseQueryFilter
       ));
     });
   }
+
+  QueryBuilder<NhathuocPurchase, NhathuocPurchase, QAfterFilterCondition>
+      updatedAtEqualTo(DateTime value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'updatedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPurchase, NhathuocPurchase, QAfterFilterCondition>
+      updatedAtGreaterThan(
+    DateTime value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'updatedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPurchase, NhathuocPurchase, QAfterFilterCondition>
+      updatedAtLessThan(
+    DateTime value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'updatedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPurchase, NhathuocPurchase, QAfterFilterCondition>
+      updatedAtBetween(
+    DateTime lower,
+    DateTime upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'updatedAt',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPurchase, NhathuocPurchase, QAfterFilterCondition>
+      versionEqualTo(int value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'version',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPurchase, NhathuocPurchase, QAfterFilterCondition>
+      versionGreaterThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'version',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPurchase, NhathuocPurchase, QAfterFilterCondition>
+      versionLessThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'version',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPurchase, NhathuocPurchase, QAfterFilterCondition>
+      versionBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'version',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
 }
 
 extension NhathuocPurchaseQueryObject
@@ -891,6 +1269,34 @@ extension NhathuocPurchaseQueryLinks
 extension NhathuocPurchaseQuerySortBy
     on QueryBuilder<NhathuocPurchase, NhathuocPurchase, QSortBy> {
   QueryBuilder<NhathuocPurchase, NhathuocPurchase, QAfterSortBy>
+      sortByDeletedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocPurchase, NhathuocPurchase, QAfterSortBy>
+      sortByDeletedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<NhathuocPurchase, NhathuocPurchase, QAfterSortBy>
+      sortByDeviceId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocPurchase, NhathuocPurchase, QAfterSortBy>
+      sortByDeviceIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<NhathuocPurchase, NhathuocPurchase, QAfterSortBy>
       sortByDocumentCode() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'documentCode', Sort.asc);
@@ -901,6 +1307,20 @@ extension NhathuocPurchaseQuerySortBy
       sortByDocumentCodeDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'documentCode', Sort.desc);
+    });
+  }
+
+  QueryBuilder<NhathuocPurchase, NhathuocPurchase, QAfterSortBy>
+      sortByIsSynced() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocPurchase, NhathuocPurchase, QAfterSortBy>
+      sortByIsSyncedDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.desc);
     });
   }
 
@@ -945,10 +1365,66 @@ extension NhathuocPurchaseQuerySortBy
       return query.addSortBy(r'totalAmount', Sort.desc);
     });
   }
+
+  QueryBuilder<NhathuocPurchase, NhathuocPurchase, QAfterSortBy>
+      sortByUpdatedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'updatedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocPurchase, NhathuocPurchase, QAfterSortBy>
+      sortByUpdatedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'updatedAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<NhathuocPurchase, NhathuocPurchase, QAfterSortBy>
+      sortByVersion() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocPurchase, NhathuocPurchase, QAfterSortBy>
+      sortByVersionDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.desc);
+    });
+  }
 }
 
 extension NhathuocPurchaseQuerySortThenBy
     on QueryBuilder<NhathuocPurchase, NhathuocPurchase, QSortThenBy> {
+  QueryBuilder<NhathuocPurchase, NhathuocPurchase, QAfterSortBy>
+      thenByDeletedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocPurchase, NhathuocPurchase, QAfterSortBy>
+      thenByDeletedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<NhathuocPurchase, NhathuocPurchase, QAfterSortBy>
+      thenByDeviceId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocPurchase, NhathuocPurchase, QAfterSortBy>
+      thenByDeviceIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.desc);
+    });
+  }
+
   QueryBuilder<NhathuocPurchase, NhathuocPurchase, QAfterSortBy>
       thenByDocumentCode() {
     return QueryBuilder.apply(this, (query) {
@@ -973,6 +1449,20 @@ extension NhathuocPurchaseQuerySortThenBy
       thenByIdDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'id', Sort.desc);
+    });
+  }
+
+  QueryBuilder<NhathuocPurchase, NhathuocPurchase, QAfterSortBy>
+      thenByIsSynced() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocPurchase, NhathuocPurchase, QAfterSortBy>
+      thenByIsSyncedDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.desc);
     });
   }
 
@@ -1017,14 +1507,63 @@ extension NhathuocPurchaseQuerySortThenBy
       return query.addSortBy(r'totalAmount', Sort.desc);
     });
   }
+
+  QueryBuilder<NhathuocPurchase, NhathuocPurchase, QAfterSortBy>
+      thenByUpdatedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'updatedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocPurchase, NhathuocPurchase, QAfterSortBy>
+      thenByUpdatedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'updatedAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<NhathuocPurchase, NhathuocPurchase, QAfterSortBy>
+      thenByVersion() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocPurchase, NhathuocPurchase, QAfterSortBy>
+      thenByVersionDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.desc);
+    });
+  }
 }
 
 extension NhathuocPurchaseQueryWhereDistinct
     on QueryBuilder<NhathuocPurchase, NhathuocPurchase, QDistinct> {
   QueryBuilder<NhathuocPurchase, NhathuocPurchase, QDistinct>
+      distinctByDeletedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'deletedAt');
+    });
+  }
+
+  QueryBuilder<NhathuocPurchase, NhathuocPurchase, QDistinct>
+      distinctByDeviceId({bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'deviceId', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<NhathuocPurchase, NhathuocPurchase, QDistinct>
       distinctByDocumentCode({bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'documentCode', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<NhathuocPurchase, NhathuocPurchase, QDistinct>
+      distinctByIsSynced() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'isSynced');
     });
   }
 
@@ -1048,6 +1587,20 @@ extension NhathuocPurchaseQueryWhereDistinct
       return query.addDistinctBy(r'totalAmount');
     });
   }
+
+  QueryBuilder<NhathuocPurchase, NhathuocPurchase, QDistinct>
+      distinctByUpdatedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'updatedAt');
+    });
+  }
+
+  QueryBuilder<NhathuocPurchase, NhathuocPurchase, QDistinct>
+      distinctByVersion() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'version');
+    });
+  }
 }
 
 extension NhathuocPurchaseQueryProperty
@@ -1058,10 +1611,29 @@ extension NhathuocPurchaseQueryProperty
     });
   }
 
+  QueryBuilder<NhathuocPurchase, DateTime?, QQueryOperations>
+      deletedAtProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'deletedAt');
+    });
+  }
+
+  QueryBuilder<NhathuocPurchase, String, QQueryOperations> deviceIdProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'deviceId');
+    });
+  }
+
   QueryBuilder<NhathuocPurchase, String, QQueryOperations>
       documentCodeProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'documentCode');
+    });
+  }
+
+  QueryBuilder<NhathuocPurchase, bool, QQueryOperations> isSyncedProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'isSynced');
     });
   }
 
@@ -1085,6 +1657,19 @@ extension NhathuocPurchaseQueryProperty
       return query.addPropertyName(r'totalAmount');
     });
   }
+
+  QueryBuilder<NhathuocPurchase, DateTime, QQueryOperations>
+      updatedAtProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'updatedAt');
+    });
+  }
+
+  QueryBuilder<NhathuocPurchase, int, QQueryOperations> versionProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'version');
+    });
+  }
 }
 
 // coverage:ignore-file
@@ -1104,25 +1689,50 @@ const NhathuocPurchaseDetailSchema = CollectionSchema(
       name: r'batchNumber',
       type: IsarType.string,
     ),
-    r'expiryDate': PropertySchema(
+    r'deletedAt': PropertySchema(
       id: 1,
+      name: r'deletedAt',
+      type: IsarType.dateTime,
+    ),
+    r'deviceId': PropertySchema(
+      id: 2,
+      name: r'deviceId',
+      type: IsarType.string,
+    ),
+    r'expiryDate': PropertySchema(
+      id: 3,
       name: r'expiryDate',
       type: IsarType.dateTime,
     ),
+    r'isSynced': PropertySchema(
+      id: 4,
+      name: r'isSynced',
+      type: IsarType.bool,
+    ),
     r'purchasePrice': PropertySchema(
-      id: 2,
+      id: 5,
       name: r'purchasePrice',
       type: IsarType.double,
     ),
     r'quantity': PropertySchema(
-      id: 3,
+      id: 6,
       name: r'quantity',
       type: IsarType.double,
     ),
     r'totalAmount': PropertySchema(
-      id: 4,
+      id: 7,
       name: r'totalAmount',
       type: IsarType.double,
+    ),
+    r'updatedAt': PropertySchema(
+      id: 8,
+      name: r'updatedAt',
+      type: IsarType.dateTime,
+    ),
+    r'version': PropertySchema(
+      id: 9,
+      name: r'version',
+      type: IsarType.long,
     )
   },
   estimateSize: _nhathuocPurchaseDetailEstimateSize,
@@ -1159,6 +1769,7 @@ int _nhathuocPurchaseDetailEstimateSize(
 ) {
   var bytesCount = offsets.last;
   bytesCount += 3 + object.batchNumber.length * 3;
+  bytesCount += 3 + object.deviceId.length * 3;
   return bytesCount;
 }
 
@@ -1169,10 +1780,15 @@ void _nhathuocPurchaseDetailSerialize(
   Map<Type, List<int>> allOffsets,
 ) {
   writer.writeString(offsets[0], object.batchNumber);
-  writer.writeDateTime(offsets[1], object.expiryDate);
-  writer.writeDouble(offsets[2], object.purchasePrice);
-  writer.writeDouble(offsets[3], object.quantity);
-  writer.writeDouble(offsets[4], object.totalAmount);
+  writer.writeDateTime(offsets[1], object.deletedAt);
+  writer.writeString(offsets[2], object.deviceId);
+  writer.writeDateTime(offsets[3], object.expiryDate);
+  writer.writeBool(offsets[4], object.isSynced);
+  writer.writeDouble(offsets[5], object.purchasePrice);
+  writer.writeDouble(offsets[6], object.quantity);
+  writer.writeDouble(offsets[7], object.totalAmount);
+  writer.writeDateTime(offsets[8], object.updatedAt);
+  writer.writeLong(offsets[9], object.version);
 }
 
 NhathuocPurchaseDetail _nhathuocPurchaseDetailDeserialize(
@@ -1183,11 +1799,16 @@ NhathuocPurchaseDetail _nhathuocPurchaseDetailDeserialize(
 ) {
   final object = NhathuocPurchaseDetail();
   object.batchNumber = reader.readString(offsets[0]);
-  object.expiryDate = reader.readDateTimeOrNull(offsets[1]);
+  object.deletedAt = reader.readDateTimeOrNull(offsets[1]);
+  object.deviceId = reader.readString(offsets[2]);
+  object.expiryDate = reader.readDateTimeOrNull(offsets[3]);
   object.id = id;
-  object.purchasePrice = reader.readDouble(offsets[2]);
-  object.quantity = reader.readDouble(offsets[3]);
-  object.totalAmount = reader.readDouble(offsets[4]);
+  object.isSynced = reader.readBool(offsets[4]);
+  object.purchasePrice = reader.readDouble(offsets[5]);
+  object.quantity = reader.readDouble(offsets[6]);
+  object.totalAmount = reader.readDouble(offsets[7]);
+  object.updatedAt = reader.readDateTime(offsets[8]);
+  object.version = reader.readLong(offsets[9]);
   return object;
 }
 
@@ -1203,11 +1824,21 @@ P _nhathuocPurchaseDetailDeserializeProp<P>(
     case 1:
       return (reader.readDateTimeOrNull(offset)) as P;
     case 2:
-      return (reader.readDouble(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 3:
-      return (reader.readDouble(offset)) as P;
+      return (reader.readDateTimeOrNull(offset)) as P;
     case 4:
+      return (reader.readBool(offset)) as P;
+    case 5:
       return (reader.readDouble(offset)) as P;
+    case 6:
+      return (reader.readDouble(offset)) as P;
+    case 7:
+      return (reader.readDouble(offset)) as P;
+    case 8:
+      return (reader.readDateTime(offset)) as P;
+    case 9:
+      return (reader.readLong(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
   }
@@ -1453,6 +2084,218 @@ extension NhathuocPurchaseDetailQueryFilter on QueryBuilder<
   }
 
   QueryBuilder<NhathuocPurchaseDetail, NhathuocPurchaseDetail,
+      QAfterFilterCondition> deletedAtIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'deletedAt',
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPurchaseDetail, NhathuocPurchaseDetail,
+      QAfterFilterCondition> deletedAtIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'deletedAt',
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPurchaseDetail, NhathuocPurchaseDetail,
+      QAfterFilterCondition> deletedAtEqualTo(DateTime? value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'deletedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPurchaseDetail, NhathuocPurchaseDetail,
+      QAfterFilterCondition> deletedAtGreaterThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'deletedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPurchaseDetail, NhathuocPurchaseDetail,
+      QAfterFilterCondition> deletedAtLessThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'deletedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPurchaseDetail, NhathuocPurchaseDetail,
+      QAfterFilterCondition> deletedAtBetween(
+    DateTime? lower,
+    DateTime? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'deletedAt',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPurchaseDetail, NhathuocPurchaseDetail,
+      QAfterFilterCondition> deviceIdEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPurchaseDetail, NhathuocPurchaseDetail,
+      QAfterFilterCondition> deviceIdGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPurchaseDetail, NhathuocPurchaseDetail,
+      QAfterFilterCondition> deviceIdLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPurchaseDetail, NhathuocPurchaseDetail,
+      QAfterFilterCondition> deviceIdBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'deviceId',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPurchaseDetail, NhathuocPurchaseDetail,
+      QAfterFilterCondition> deviceIdStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPurchaseDetail, NhathuocPurchaseDetail,
+      QAfterFilterCondition> deviceIdEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPurchaseDetail, NhathuocPurchaseDetail,
+          QAfterFilterCondition>
+      deviceIdContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPurchaseDetail, NhathuocPurchaseDetail,
+          QAfterFilterCondition>
+      deviceIdMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'deviceId',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPurchaseDetail, NhathuocPurchaseDetail,
+      QAfterFilterCondition> deviceIdIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'deviceId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPurchaseDetail, NhathuocPurchaseDetail,
+      QAfterFilterCondition> deviceIdIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'deviceId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPurchaseDetail, NhathuocPurchaseDetail,
       QAfterFilterCondition> expiryDateIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNull(
@@ -1578,6 +2421,16 @@ extension NhathuocPurchaseDetailQueryFilter on QueryBuilder<
         includeLower: includeLower,
         upper: upper,
         includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPurchaseDetail, NhathuocPurchaseDetail,
+      QAfterFilterCondition> isSyncedEqualTo(bool value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'isSynced',
+        value: value,
       ));
     });
   }
@@ -1779,6 +2632,118 @@ extension NhathuocPurchaseDetailQueryFilter on QueryBuilder<
       ));
     });
   }
+
+  QueryBuilder<NhathuocPurchaseDetail, NhathuocPurchaseDetail,
+      QAfterFilterCondition> updatedAtEqualTo(DateTime value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'updatedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPurchaseDetail, NhathuocPurchaseDetail,
+      QAfterFilterCondition> updatedAtGreaterThan(
+    DateTime value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'updatedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPurchaseDetail, NhathuocPurchaseDetail,
+      QAfterFilterCondition> updatedAtLessThan(
+    DateTime value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'updatedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPurchaseDetail, NhathuocPurchaseDetail,
+      QAfterFilterCondition> updatedAtBetween(
+    DateTime lower,
+    DateTime upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'updatedAt',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPurchaseDetail, NhathuocPurchaseDetail,
+      QAfterFilterCondition> versionEqualTo(int value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'version',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPurchaseDetail, NhathuocPurchaseDetail,
+      QAfterFilterCondition> versionGreaterThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'version',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPurchaseDetail, NhathuocPurchaseDetail,
+      QAfterFilterCondition> versionLessThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'version',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPurchaseDetail, NhathuocPurchaseDetail,
+      QAfterFilterCondition> versionBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'version',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
 }
 
 extension NhathuocPurchaseDetailQueryObject on QueryBuilder<
@@ -1832,6 +2797,34 @@ extension NhathuocPurchaseDetailQuerySortBy
   }
 
   QueryBuilder<NhathuocPurchaseDetail, NhathuocPurchaseDetail, QAfterSortBy>
+      sortByDeletedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocPurchaseDetail, NhathuocPurchaseDetail, QAfterSortBy>
+      sortByDeletedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<NhathuocPurchaseDetail, NhathuocPurchaseDetail, QAfterSortBy>
+      sortByDeviceId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocPurchaseDetail, NhathuocPurchaseDetail, QAfterSortBy>
+      sortByDeviceIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<NhathuocPurchaseDetail, NhathuocPurchaseDetail, QAfterSortBy>
       sortByExpiryDate() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'expiryDate', Sort.asc);
@@ -1842,6 +2835,20 @@ extension NhathuocPurchaseDetailQuerySortBy
       sortByExpiryDateDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'expiryDate', Sort.desc);
+    });
+  }
+
+  QueryBuilder<NhathuocPurchaseDetail, NhathuocPurchaseDetail, QAfterSortBy>
+      sortByIsSynced() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocPurchaseDetail, NhathuocPurchaseDetail, QAfterSortBy>
+      sortByIsSyncedDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.desc);
     });
   }
 
@@ -1886,6 +2893,34 @@ extension NhathuocPurchaseDetailQuerySortBy
       return query.addSortBy(r'totalAmount', Sort.desc);
     });
   }
+
+  QueryBuilder<NhathuocPurchaseDetail, NhathuocPurchaseDetail, QAfterSortBy>
+      sortByUpdatedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'updatedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocPurchaseDetail, NhathuocPurchaseDetail, QAfterSortBy>
+      sortByUpdatedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'updatedAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<NhathuocPurchaseDetail, NhathuocPurchaseDetail, QAfterSortBy>
+      sortByVersion() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocPurchaseDetail, NhathuocPurchaseDetail, QAfterSortBy>
+      sortByVersionDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.desc);
+    });
+  }
 }
 
 extension NhathuocPurchaseDetailQuerySortThenBy on QueryBuilder<
@@ -1901,6 +2936,34 @@ extension NhathuocPurchaseDetailQuerySortThenBy on QueryBuilder<
       thenByBatchNumberDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'batchNumber', Sort.desc);
+    });
+  }
+
+  QueryBuilder<NhathuocPurchaseDetail, NhathuocPurchaseDetail, QAfterSortBy>
+      thenByDeletedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocPurchaseDetail, NhathuocPurchaseDetail, QAfterSortBy>
+      thenByDeletedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<NhathuocPurchaseDetail, NhathuocPurchaseDetail, QAfterSortBy>
+      thenByDeviceId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocPurchaseDetail, NhathuocPurchaseDetail, QAfterSortBy>
+      thenByDeviceIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.desc);
     });
   }
 
@@ -1929,6 +2992,20 @@ extension NhathuocPurchaseDetailQuerySortThenBy on QueryBuilder<
       thenByIdDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'id', Sort.desc);
+    });
+  }
+
+  QueryBuilder<NhathuocPurchaseDetail, NhathuocPurchaseDetail, QAfterSortBy>
+      thenByIsSynced() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocPurchaseDetail, NhathuocPurchaseDetail, QAfterSortBy>
+      thenByIsSyncedDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.desc);
     });
   }
 
@@ -1973,6 +3050,34 @@ extension NhathuocPurchaseDetailQuerySortThenBy on QueryBuilder<
       return query.addSortBy(r'totalAmount', Sort.desc);
     });
   }
+
+  QueryBuilder<NhathuocPurchaseDetail, NhathuocPurchaseDetail, QAfterSortBy>
+      thenByUpdatedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'updatedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocPurchaseDetail, NhathuocPurchaseDetail, QAfterSortBy>
+      thenByUpdatedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'updatedAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<NhathuocPurchaseDetail, NhathuocPurchaseDetail, QAfterSortBy>
+      thenByVersion() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocPurchaseDetail, NhathuocPurchaseDetail, QAfterSortBy>
+      thenByVersionDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.desc);
+    });
+  }
 }
 
 extension NhathuocPurchaseDetailQueryWhereDistinct
@@ -1985,9 +3090,30 @@ extension NhathuocPurchaseDetailQueryWhereDistinct
   }
 
   QueryBuilder<NhathuocPurchaseDetail, NhathuocPurchaseDetail, QDistinct>
+      distinctByDeletedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'deletedAt');
+    });
+  }
+
+  QueryBuilder<NhathuocPurchaseDetail, NhathuocPurchaseDetail, QDistinct>
+      distinctByDeviceId({bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'deviceId', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<NhathuocPurchaseDetail, NhathuocPurchaseDetail, QDistinct>
       distinctByExpiryDate() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'expiryDate');
+    });
+  }
+
+  QueryBuilder<NhathuocPurchaseDetail, NhathuocPurchaseDetail, QDistinct>
+      distinctByIsSynced() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'isSynced');
     });
   }
 
@@ -2011,6 +3137,20 @@ extension NhathuocPurchaseDetailQueryWhereDistinct
       return query.addDistinctBy(r'totalAmount');
     });
   }
+
+  QueryBuilder<NhathuocPurchaseDetail, NhathuocPurchaseDetail, QDistinct>
+      distinctByUpdatedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'updatedAt');
+    });
+  }
+
+  QueryBuilder<NhathuocPurchaseDetail, NhathuocPurchaseDetail, QDistinct>
+      distinctByVersion() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'version');
+    });
+  }
 }
 
 extension NhathuocPurchaseDetailQueryProperty on QueryBuilder<
@@ -2029,9 +3169,30 @@ extension NhathuocPurchaseDetailQueryProperty on QueryBuilder<
   }
 
   QueryBuilder<NhathuocPurchaseDetail, DateTime?, QQueryOperations>
+      deletedAtProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'deletedAt');
+    });
+  }
+
+  QueryBuilder<NhathuocPurchaseDetail, String, QQueryOperations>
+      deviceIdProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'deviceId');
+    });
+  }
+
+  QueryBuilder<NhathuocPurchaseDetail, DateTime?, QQueryOperations>
       expiryDateProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'expiryDate');
+    });
+  }
+
+  QueryBuilder<NhathuocPurchaseDetail, bool, QQueryOperations>
+      isSyncedProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'isSynced');
     });
   }
 
@@ -2053,6 +3214,20 @@ extension NhathuocPurchaseDetailQueryProperty on QueryBuilder<
       totalAmountProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'totalAmount');
+    });
+  }
+
+  QueryBuilder<NhathuocPurchaseDetail, DateTime, QQueryOperations>
+      updatedAtProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'updatedAt');
+    });
+  }
+
+  QueryBuilder<NhathuocPurchaseDetail, int, QQueryOperations>
+      versionProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'version');
     });
   }
 }

@@ -20,8 +20,19 @@ export default function AppsPage() {
   const [editingApp, setEditingApp] = useState<App | null>(null);
   const [form, setForm] = useState(EMPTY_FORM);
   const [error, setError] = useState('');
+  const [currentUser, setCurrentUser] = useState<{ email: string } | null>(null);
 
   const token = typeof window !== 'undefined' ? localStorage.getItem('admin_token') : '';
+
+  useEffect(() => {
+    const userData = localStorage.getItem('admin_user');
+    if (userData) {
+      setCurrentUser(JSON.parse(userData));
+    }
+  }, []);
+
+  const isSuperAdmin = currentUser?.email === 'admin@kanposvn.com';
+  const isCafeAdmin = currentUser?.email === 'admin@kanposvncafe.com';
 
   const loadApps = async () => {
     const res = await fetch('/api/apps', { headers: { Authorization: `Bearer ${token}` } });
@@ -31,6 +42,10 @@ export default function AppsPage() {
   useEffect(() => { loadApps(); }, []);
 
   const handleCreate = async (e: React.FormEvent) => {
+    if (!isSuperAdmin && !isCafeAdmin) {
+      alert('Chi super admin moi co tao app moi');
+      return;
+    }
     e.preventDefault();
     setError('');
     const res = await fetch('/api/apps', {
@@ -46,6 +61,14 @@ export default function AppsPage() {
   };
 
   const handleEdit = async (e: React.FormEvent) => {
+    if (!isSuperAdmin && !isCafeAdmin) {
+      alert('Chi super admin moi co chinh sua app');
+      return;
+    }
+    if (isCafeAdmin && editingApp?.app_code !== 'kanposvncafe') {
+      alert('Cafe admin chi co chinh sua kanposvncafe');
+      return;
+    }
     e.preventDefault();
     if (!editingApp) return;
     setError('');
@@ -62,6 +85,10 @@ export default function AppsPage() {
   };
 
   const deleteApp = async (app: App) => {
+    if (!isSuperAdmin) {
+      alert('Chi super admin moi co xoa app');
+      return;
+    }
     if (!confirm(`Xác nhận xóa app "${app.app_name}" (${app.app_code})?`)) return;
     await fetch(`/api/apps/${app.id}`, {
       method: 'DELETE',
@@ -95,7 +122,9 @@ export default function AppsPage() {
     <div>
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Quản lý Apps</h1>
-        <button onClick={() => { setShowCreate(true); setEditingApp(null); setForm(EMPTY_FORM); }} className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">+ Tạo App mới</button>
+        {isSuperAdmin && (
+          <button onClick={() => { setShowCreate(true); setEditingApp(null); setForm(EMPTY_FORM); }} className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">+ Tạo App mới</button>
+        )}
       </div>
 
       {(showCreate || editingApp) && (
@@ -164,8 +193,12 @@ export default function AppsPage() {
                 </td>
                 <td className="px-4 py-3">
                   <div className="flex gap-1">
-                    <button onClick={() => startEdit(app)} className="text-xs px-2 py-1 rounded bg-blue-100 text-blue-600 hover:bg-blue-200">Sửa</button>
-                    <button onClick={() => deleteApp(app)} className="text-xs px-2 py-1 rounded bg-red-100 text-red-600 hover:bg-red-200">Xóa</button>
+                    {(isSuperAdmin || (isCafeAdmin && app.app_code === 'kanposvncafe')) && (
+                      <button onClick={() => startEdit(app)} className="text-xs px-2 py-1 rounded bg-blue-100 text-blue-600 hover:bg-blue-200">Sửa</button>
+                    )}
+                    {isSuperAdmin && (
+                      <button onClick={() => deleteApp(app)} className="text-xs px-2 py-1 rounded bg-red-100 text-red-600 hover:bg-red-200">Xóa</button>
+                    )}
                   </div>
                 </td>
               </tr>

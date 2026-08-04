@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'api_config.dart';
 
@@ -72,12 +71,11 @@ class VercelApiClient {
         syncedIds: [], pulledRecords: [],
       );
     } catch (e) {
-      debugPrint('Push exception: $e');
+      // ignore push errors
       return VercelSyncResponse(
-        success: true,
-        message: 'Offline fallback: ${items.length} bản ghi',
-        syncedIds: items.map((e) => e['operationId'] as String? ?? '').where((id) => id.isNotEmpty).toList(),
-        pulledRecords: [],
+        success: false,
+        message: 'Lỗi mạng khi push: $e',
+        syncedIds: [], pulledRecords: [],
       );
     }
   }
@@ -121,9 +119,9 @@ class VercelApiClient {
         syncedIds: [], pulledRecords: [],
       );
     } catch (e) {
-      debugPrint('Pull exception: $e');
+      // ignore pull errors
       return const VercelSyncResponse(
-        success: true, message: 'Offline: pull skipped',
+        success: false, message: 'Pull failed',
         syncedIds: [], pulledRecords: [],
       );
     }

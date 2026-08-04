@@ -28,7 +28,18 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const result = await sql`SELECT * FROM users WHERE email = ${email}`;
+    const [userRows, permRows] = await Promise.all([
+      sql`SELECT * FROM users WHERE email = ${email}`,
+      sql`
+        SELECT a.app_code, a.app_name, r.role_name, p.can_login
+        FROM user_permissions p
+        JOIN users u ON u.id = p.user_id
+        JOIN apps a ON a.id = p.app_id
+        JOIN roles r ON r.id = p.role_id
+        WHERE u.email = ${email}
+      `,
+    ]);
+    const result = userRows;
     if (result.length === 0) {
       return NextResponse.json(
         { error: 'Email hoặc mật khẩu không đúng' },
@@ -52,17 +63,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const allPerms = await sql`
-      SELECT
-        a.app_code,
-        a.app_name,
-        r.role_name,
-        p.can_login
-      FROM user_permissions p
-      JOIN apps a ON a.id = p.app_id
-      JOIN roles r ON r.id = p.role_id
-      WHERE p.user_id = ${user.id}
-    `;
+    const allPerms = permRows;
 
     if (appCode) {
       const appPerm = allPerms.find(

@@ -32,56 +32,76 @@ const ContractSchema = CollectionSchema(
       name: r'deleted',
       type: IsarType.bool,
     ),
-    r'depositAmount': PropertySchema(
+    r'deletedAt': PropertySchema(
       id: 3,
+      name: r'deletedAt',
+      type: IsarType.dateTime,
+    ),
+    r'depositAmount': PropertySchema(
+      id: 4,
       name: r'depositAmount',
       type: IsarType.double,
     ),
+    r'deviceId': PropertySchema(
+      id: 5,
+      name: r'deviceId',
+      type: IsarType.string,
+    ),
     r'endDate': PropertySchema(
-      id: 4,
+      id: 6,
       name: r'endDate',
       type: IsarType.dateTime,
     ),
+    r'isSynced': PropertySchema(
+      id: 7,
+      name: r'isSynced',
+      type: IsarType.bool,
+    ),
     r'paymentCycleMonths': PropertySchema(
-      id: 5,
+      id: 8,
       name: r'paymentCycleMonths',
       type: IsarType.long,
     ),
     r'rentPrice': PropertySchema(
-      id: 6,
+      id: 9,
       name: r'rentPrice',
       type: IsarType.double,
     ),
     r'roomUuid': PropertySchema(
-      id: 7,
+      id: 10,
       name: r'roomUuid',
       type: IsarType.string,
     ),
     r'startDate': PropertySchema(
-      id: 8,
+      id: 11,
       name: r'startDate',
       type: IsarType.dateTime,
     ),
     r'syncStatus': PropertySchema(
-      id: 9,
+      id: 12,
       name: r'syncStatus',
       type: IsarType.string,
       enumMap: _ContractsyncStatusEnumValueMap,
     ),
     r'tenantUuid': PropertySchema(
-      id: 10,
+      id: 13,
       name: r'tenantUuid',
       type: IsarType.string,
     ),
     r'updatedAt': PropertySchema(
-      id: 11,
+      id: 14,
       name: r'updatedAt',
       type: IsarType.dateTime,
     ),
     r'uuid': PropertySchema(
-      id: 12,
+      id: 15,
       name: r'uuid',
       type: IsarType.string,
+    ),
+    r'version': PropertySchema(
+      id: 16,
+      name: r'version',
+      type: IsarType.long,
     )
   },
   estimateSize: _contractEstimateSize,
@@ -124,6 +144,7 @@ int _contractEstimateSize(
       bytesCount += 3 + value.length * 3;
     }
   }
+  bytesCount += 3 + object.deviceId.length * 3;
   {
     final value = object.roomUuid;
     if (value != null) {
@@ -155,16 +176,20 @@ void _contractSerialize(
   writer.writeString(offsets[0], object.contractNumber);
   writer.writeDateTime(offsets[1], object.createdAt);
   writer.writeBool(offsets[2], object.deleted);
-  writer.writeDouble(offsets[3], object.depositAmount);
-  writer.writeDateTime(offsets[4], object.endDate);
-  writer.writeLong(offsets[5], object.paymentCycleMonths);
-  writer.writeDouble(offsets[6], object.rentPrice);
-  writer.writeString(offsets[7], object.roomUuid);
-  writer.writeDateTime(offsets[8], object.startDate);
-  writer.writeString(offsets[9], object.syncStatus.name);
-  writer.writeString(offsets[10], object.tenantUuid);
-  writer.writeDateTime(offsets[11], object.updatedAt);
-  writer.writeString(offsets[12], object.uuid);
+  writer.writeDateTime(offsets[3], object.deletedAt);
+  writer.writeDouble(offsets[4], object.depositAmount);
+  writer.writeString(offsets[5], object.deviceId);
+  writer.writeDateTime(offsets[6], object.endDate);
+  writer.writeBool(offsets[7], object.isSynced);
+  writer.writeLong(offsets[8], object.paymentCycleMonths);
+  writer.writeDouble(offsets[9], object.rentPrice);
+  writer.writeString(offsets[10], object.roomUuid);
+  writer.writeDateTime(offsets[11], object.startDate);
+  writer.writeString(offsets[12], object.syncStatus.name);
+  writer.writeString(offsets[13], object.tenantUuid);
+  writer.writeDateTime(offsets[14], object.updatedAt);
+  writer.writeString(offsets[15], object.uuid);
+  writer.writeLong(offsets[16], object.version);
 }
 
 Contract _contractDeserialize(
@@ -177,19 +202,23 @@ Contract _contractDeserialize(
   object.contractNumber = reader.readStringOrNull(offsets[0]);
   object.createdAt = reader.readDateTimeOrNull(offsets[1]);
   object.deleted = reader.readBool(offsets[2]);
-  object.depositAmount = reader.readDoubleOrNull(offsets[3]);
-  object.endDate = reader.readDateTimeOrNull(offsets[4]);
+  object.deletedAt = reader.readDateTimeOrNull(offsets[3]);
+  object.depositAmount = reader.readDoubleOrNull(offsets[4]);
+  object.deviceId = reader.readString(offsets[5]);
+  object.endDate = reader.readDateTimeOrNull(offsets[6]);
   object.id = id;
-  object.paymentCycleMonths = reader.readLongOrNull(offsets[5]);
-  object.rentPrice = reader.readDoubleOrNull(offsets[6]);
-  object.roomUuid = reader.readStringOrNull(offsets[7]);
-  object.startDate = reader.readDateTimeOrNull(offsets[8]);
+  object.isSynced = reader.readBool(offsets[7]);
+  object.paymentCycleMonths = reader.readLongOrNull(offsets[8]);
+  object.rentPrice = reader.readDoubleOrNull(offsets[9]);
+  object.roomUuid = reader.readStringOrNull(offsets[10]);
+  object.startDate = reader.readDateTimeOrNull(offsets[11]);
   object.syncStatus =
-      _ContractsyncStatusValueEnumMap[reader.readStringOrNull(offsets[9])] ??
+      _ContractsyncStatusValueEnumMap[reader.readStringOrNull(offsets[12])] ??
           SyncStatus.pending;
-  object.tenantUuid = reader.readStringOrNull(offsets[10]);
-  object.updatedAt = reader.readDateTimeOrNull(offsets[11]);
-  object.uuid = reader.readStringOrNull(offsets[12]);
+  object.tenantUuid = reader.readStringOrNull(offsets[13]);
+  object.updatedAt = reader.readDateTimeOrNull(offsets[14]);
+  object.uuid = reader.readStringOrNull(offsets[15]);
+  object.version = reader.readLong(offsets[16]);
   return object;
 }
 
@@ -207,27 +236,35 @@ P _contractDeserializeProp<P>(
     case 2:
       return (reader.readBool(offset)) as P;
     case 3:
-      return (reader.readDoubleOrNull(offset)) as P;
+      return (reader.readDateTimeOrNull(offset)) as P;
     case 4:
-      return (reader.readDateTimeOrNull(offset)) as P;
-    case 5:
-      return (reader.readLongOrNull(offset)) as P;
-    case 6:
       return (reader.readDoubleOrNull(offset)) as P;
-    case 7:
-      return (reader.readStringOrNull(offset)) as P;
-    case 8:
+    case 5:
+      return (reader.readString(offset)) as P;
+    case 6:
       return (reader.readDateTimeOrNull(offset)) as P;
+    case 7:
+      return (reader.readBool(offset)) as P;
+    case 8:
+      return (reader.readLongOrNull(offset)) as P;
     case 9:
-      return (_ContractsyncStatusValueEnumMap[
-              reader.readStringOrNull(offset)] ??
-          SyncStatus.pending) as P;
+      return (reader.readDoubleOrNull(offset)) as P;
     case 10:
       return (reader.readStringOrNull(offset)) as P;
     case 11:
       return (reader.readDateTimeOrNull(offset)) as P;
     case 12:
+      return (_ContractsyncStatusValueEnumMap[
+              reader.readStringOrNull(offset)] ??
+          SyncStatus.pending) as P;
+    case 13:
       return (reader.readStringOrNull(offset)) as P;
+    case 14:
+      return (reader.readDateTimeOrNull(offset)) as P;
+    case 15:
+      return (reader.readStringOrNull(offset)) as P;
+    case 16:
+      return (reader.readLong(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
   }
@@ -684,6 +721,75 @@ extension ContractQueryFilter
     });
   }
 
+  QueryBuilder<Contract, Contract, QAfterFilterCondition> deletedAtIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'deletedAt',
+      ));
+    });
+  }
+
+  QueryBuilder<Contract, Contract, QAfterFilterCondition> deletedAtIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'deletedAt',
+      ));
+    });
+  }
+
+  QueryBuilder<Contract, Contract, QAfterFilterCondition> deletedAtEqualTo(
+      DateTime? value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'deletedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Contract, Contract, QAfterFilterCondition> deletedAtGreaterThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'deletedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Contract, Contract, QAfterFilterCondition> deletedAtLessThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'deletedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Contract, Contract, QAfterFilterCondition> deletedAtBetween(
+    DateTime? lower,
+    DateTime? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'deletedAt',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
   QueryBuilder<Contract, Contract, QAfterFilterCondition>
       depositAmountIsNull() {
     return QueryBuilder.apply(this, (query) {
@@ -761,6 +867,136 @@ extension ContractQueryFilter
         upper: upper,
         includeUpper: includeUpper,
         epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<Contract, Contract, QAfterFilterCondition> deviceIdEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Contract, Contract, QAfterFilterCondition> deviceIdGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Contract, Contract, QAfterFilterCondition> deviceIdLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Contract, Contract, QAfterFilterCondition> deviceIdBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'deviceId',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Contract, Contract, QAfterFilterCondition> deviceIdStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Contract, Contract, QAfterFilterCondition> deviceIdEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Contract, Contract, QAfterFilterCondition> deviceIdContains(
+      String value,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Contract, Contract, QAfterFilterCondition> deviceIdMatches(
+      String pattern,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'deviceId',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Contract, Contract, QAfterFilterCondition> deviceIdIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'deviceId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<Contract, Contract, QAfterFilterCondition> deviceIdIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'deviceId',
+        value: '',
       ));
     });
   }
@@ -882,6 +1118,16 @@ extension ContractQueryFilter
         includeLower: includeLower,
         upper: upper,
         includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<Contract, Contract, QAfterFilterCondition> isSyncedEqualTo(
+      bool value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'isSynced',
+        value: value,
       ));
     });
   }
@@ -1746,6 +1992,59 @@ extension ContractQueryFilter
       ));
     });
   }
+
+  QueryBuilder<Contract, Contract, QAfterFilterCondition> versionEqualTo(
+      int value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'version',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Contract, Contract, QAfterFilterCondition> versionGreaterThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'version',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Contract, Contract, QAfterFilterCondition> versionLessThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'version',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Contract, Contract, QAfterFilterCondition> versionBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'version',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
 }
 
 extension ContractQueryObject
@@ -1791,6 +2090,18 @@ extension ContractQuerySortBy on QueryBuilder<Contract, Contract, QSortBy> {
     });
   }
 
+  QueryBuilder<Contract, Contract, QAfterSortBy> sortByDeletedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Contract, Contract, QAfterSortBy> sortByDeletedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.desc);
+    });
+  }
+
   QueryBuilder<Contract, Contract, QAfterSortBy> sortByDepositAmount() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'depositAmount', Sort.asc);
@@ -1803,6 +2114,18 @@ extension ContractQuerySortBy on QueryBuilder<Contract, Contract, QSortBy> {
     });
   }
 
+  QueryBuilder<Contract, Contract, QAfterSortBy> sortByDeviceId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Contract, Contract, QAfterSortBy> sortByDeviceIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.desc);
+    });
+  }
+
   QueryBuilder<Contract, Contract, QAfterSortBy> sortByEndDate() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'endDate', Sort.asc);
@@ -1812,6 +2135,18 @@ extension ContractQuerySortBy on QueryBuilder<Contract, Contract, QSortBy> {
   QueryBuilder<Contract, Contract, QAfterSortBy> sortByEndDateDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'endDate', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Contract, Contract, QAfterSortBy> sortByIsSynced() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Contract, Contract, QAfterSortBy> sortByIsSyncedDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.desc);
     });
   }
 
@@ -1911,6 +2246,18 @@ extension ContractQuerySortBy on QueryBuilder<Contract, Contract, QSortBy> {
       return query.addSortBy(r'uuid', Sort.desc);
     });
   }
+
+  QueryBuilder<Contract, Contract, QAfterSortBy> sortByVersion() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Contract, Contract, QAfterSortBy> sortByVersionDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.desc);
+    });
+  }
 }
 
 extension ContractQuerySortThenBy
@@ -1951,6 +2298,18 @@ extension ContractQuerySortThenBy
     });
   }
 
+  QueryBuilder<Contract, Contract, QAfterSortBy> thenByDeletedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Contract, Contract, QAfterSortBy> thenByDeletedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.desc);
+    });
+  }
+
   QueryBuilder<Contract, Contract, QAfterSortBy> thenByDepositAmount() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'depositAmount', Sort.asc);
@@ -1960,6 +2319,18 @@ extension ContractQuerySortThenBy
   QueryBuilder<Contract, Contract, QAfterSortBy> thenByDepositAmountDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'depositAmount', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Contract, Contract, QAfterSortBy> thenByDeviceId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Contract, Contract, QAfterSortBy> thenByDeviceIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.desc);
     });
   }
 
@@ -1984,6 +2355,18 @@ extension ContractQuerySortThenBy
   QueryBuilder<Contract, Contract, QAfterSortBy> thenByIdDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'id', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Contract, Contract, QAfterSortBy> thenByIsSynced() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Contract, Contract, QAfterSortBy> thenByIsSyncedDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.desc);
     });
   }
 
@@ -2083,6 +2466,18 @@ extension ContractQuerySortThenBy
       return query.addSortBy(r'uuid', Sort.desc);
     });
   }
+
+  QueryBuilder<Contract, Contract, QAfterSortBy> thenByVersion() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Contract, Contract, QAfterSortBy> thenByVersionDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.desc);
+    });
+  }
 }
 
 extension ContractQueryWhereDistinct
@@ -2107,15 +2502,34 @@ extension ContractQueryWhereDistinct
     });
   }
 
+  QueryBuilder<Contract, Contract, QDistinct> distinctByDeletedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'deletedAt');
+    });
+  }
+
   QueryBuilder<Contract, Contract, QDistinct> distinctByDepositAmount() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'depositAmount');
     });
   }
 
+  QueryBuilder<Contract, Contract, QDistinct> distinctByDeviceId(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'deviceId', caseSensitive: caseSensitive);
+    });
+  }
+
   QueryBuilder<Contract, Contract, QDistinct> distinctByEndDate() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'endDate');
+    });
+  }
+
+  QueryBuilder<Contract, Contract, QDistinct> distinctByIsSynced() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'isSynced');
     });
   }
 
@@ -2170,6 +2584,12 @@ extension ContractQueryWhereDistinct
       return query.addDistinctBy(r'uuid', caseSensitive: caseSensitive);
     });
   }
+
+  QueryBuilder<Contract, Contract, QDistinct> distinctByVersion() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'version');
+    });
+  }
 }
 
 extension ContractQueryProperty
@@ -2198,15 +2618,33 @@ extension ContractQueryProperty
     });
   }
 
+  QueryBuilder<Contract, DateTime?, QQueryOperations> deletedAtProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'deletedAt');
+    });
+  }
+
   QueryBuilder<Contract, double?, QQueryOperations> depositAmountProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'depositAmount');
     });
   }
 
+  QueryBuilder<Contract, String, QQueryOperations> deviceIdProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'deviceId');
+    });
+  }
+
   QueryBuilder<Contract, DateTime?, QQueryOperations> endDateProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'endDate');
+    });
+  }
+
+  QueryBuilder<Contract, bool, QQueryOperations> isSyncedProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'isSynced');
     });
   }
 
@@ -2255,6 +2693,12 @@ extension ContractQueryProperty
   QueryBuilder<Contract, String?, QQueryOperations> uuidProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'uuid');
+    });
+  }
+
+  QueryBuilder<Contract, int, QQueryOperations> versionProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'version');
     });
   }
 }

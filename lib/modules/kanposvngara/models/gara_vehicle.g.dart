@@ -22,28 +22,53 @@ const GaraVehicleSchema = CollectionSchema(
       name: r'brand',
       type: IsarType.string,
     ),
-    r'engineNumber': PropertySchema(
+    r'deletedAt': PropertySchema(
       id: 1,
+      name: r'deletedAt',
+      type: IsarType.dateTime,
+    ),
+    r'deviceId': PropertySchema(
+      id: 2,
+      name: r'deviceId',
+      type: IsarType.string,
+    ),
+    r'engineNumber': PropertySchema(
+      id: 3,
       name: r'engineNumber',
       type: IsarType.string,
     ),
+    r'isSynced': PropertySchema(
+      id: 4,
+      name: r'isSynced',
+      type: IsarType.bool,
+    ),
     r'licensePlate': PropertySchema(
-      id: 2,
+      id: 5,
       name: r'licensePlate',
       type: IsarType.string,
     ),
     r'modelName': PropertySchema(
-      id: 3,
+      id: 6,
       name: r'modelName',
       type: IsarType.string,
     ),
+    r'updatedAt': PropertySchema(
+      id: 7,
+      name: r'updatedAt',
+      type: IsarType.dateTime,
+    ),
     r'vehicleId': PropertySchema(
-      id: 4,
+      id: 8,
       name: r'vehicleId',
       type: IsarType.string,
     ),
+    r'version': PropertySchema(
+      id: 9,
+      name: r'version',
+      type: IsarType.long,
+    ),
     r'vin': PropertySchema(
-      id: 5,
+      id: 10,
       name: r'vin',
       type: IsarType.string,
     )
@@ -90,6 +115,7 @@ int _garaVehicleEstimateSize(
 ) {
   var bytesCount = offsets.last;
   bytesCount += 3 + object.brand.length * 3;
+  bytesCount += 3 + object.deviceId.length * 3;
   bytesCount += 3 + object.engineNumber.length * 3;
   bytesCount += 3 + object.licensePlate.length * 3;
   bytesCount += 3 + object.modelName.length * 3;
@@ -105,11 +131,16 @@ void _garaVehicleSerialize(
   Map<Type, List<int>> allOffsets,
 ) {
   writer.writeString(offsets[0], object.brand);
-  writer.writeString(offsets[1], object.engineNumber);
-  writer.writeString(offsets[2], object.licensePlate);
-  writer.writeString(offsets[3], object.modelName);
-  writer.writeString(offsets[4], object.vehicleId);
-  writer.writeString(offsets[5], object.vin);
+  writer.writeDateTime(offsets[1], object.deletedAt);
+  writer.writeString(offsets[2], object.deviceId);
+  writer.writeString(offsets[3], object.engineNumber);
+  writer.writeBool(offsets[4], object.isSynced);
+  writer.writeString(offsets[5], object.licensePlate);
+  writer.writeString(offsets[6], object.modelName);
+  writer.writeDateTime(offsets[7], object.updatedAt);
+  writer.writeString(offsets[8], object.vehicleId);
+  writer.writeLong(offsets[9], object.version);
+  writer.writeString(offsets[10], object.vin);
 }
 
 GaraVehicle _garaVehicleDeserialize(
@@ -120,12 +151,17 @@ GaraVehicle _garaVehicleDeserialize(
 ) {
   final object = GaraVehicle();
   object.brand = reader.readString(offsets[0]);
-  object.engineNumber = reader.readString(offsets[1]);
+  object.deletedAt = reader.readDateTimeOrNull(offsets[1]);
+  object.deviceId = reader.readString(offsets[2]);
+  object.engineNumber = reader.readString(offsets[3]);
   object.id = id;
-  object.licensePlate = reader.readString(offsets[2]);
-  object.modelName = reader.readString(offsets[3]);
-  object.vehicleId = reader.readString(offsets[4]);
-  object.vin = reader.readString(offsets[5]);
+  object.isSynced = reader.readBool(offsets[4]);
+  object.licensePlate = reader.readString(offsets[5]);
+  object.modelName = reader.readString(offsets[6]);
+  object.updatedAt = reader.readDateTime(offsets[7]);
+  object.vehicleId = reader.readString(offsets[8]);
+  object.version = reader.readLong(offsets[9]);
+  object.vin = reader.readString(offsets[10]);
   return object;
 }
 
@@ -139,14 +175,24 @@ P _garaVehicleDeserializeProp<P>(
     case 0:
       return (reader.readString(offset)) as P;
     case 1:
-      return (reader.readString(offset)) as P;
+      return (reader.readDateTimeOrNull(offset)) as P;
     case 2:
       return (reader.readString(offset)) as P;
     case 3:
       return (reader.readString(offset)) as P;
     case 4:
-      return (reader.readString(offset)) as P;
+      return (reader.readBool(offset)) as P;
     case 5:
+      return (reader.readString(offset)) as P;
+    case 6:
+      return (reader.readString(offset)) as P;
+    case 7:
+      return (reader.readDateTime(offset)) as P;
+    case 8:
+      return (reader.readString(offset)) as P;
+    case 9:
+      return (reader.readLong(offset)) as P;
+    case 10:
       return (reader.readString(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -480,6 +526,215 @@ extension GaraVehicleQueryFilter
   }
 
   QueryBuilder<GaraVehicle, GaraVehicle, QAfterFilterCondition>
+      deletedAtIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'deletedAt',
+      ));
+    });
+  }
+
+  QueryBuilder<GaraVehicle, GaraVehicle, QAfterFilterCondition>
+      deletedAtIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'deletedAt',
+      ));
+    });
+  }
+
+  QueryBuilder<GaraVehicle, GaraVehicle, QAfterFilterCondition>
+      deletedAtEqualTo(DateTime? value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'deletedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<GaraVehicle, GaraVehicle, QAfterFilterCondition>
+      deletedAtGreaterThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'deletedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<GaraVehicle, GaraVehicle, QAfterFilterCondition>
+      deletedAtLessThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'deletedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<GaraVehicle, GaraVehicle, QAfterFilterCondition>
+      deletedAtBetween(
+    DateTime? lower,
+    DateTime? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'deletedAt',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<GaraVehicle, GaraVehicle, QAfterFilterCondition> deviceIdEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<GaraVehicle, GaraVehicle, QAfterFilterCondition>
+      deviceIdGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<GaraVehicle, GaraVehicle, QAfterFilterCondition>
+      deviceIdLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<GaraVehicle, GaraVehicle, QAfterFilterCondition> deviceIdBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'deviceId',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<GaraVehicle, GaraVehicle, QAfterFilterCondition>
+      deviceIdStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<GaraVehicle, GaraVehicle, QAfterFilterCondition>
+      deviceIdEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<GaraVehicle, GaraVehicle, QAfterFilterCondition>
+      deviceIdContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<GaraVehicle, GaraVehicle, QAfterFilterCondition> deviceIdMatches(
+      String pattern,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'deviceId',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<GaraVehicle, GaraVehicle, QAfterFilterCondition>
+      deviceIdIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'deviceId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<GaraVehicle, GaraVehicle, QAfterFilterCondition>
+      deviceIdIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'deviceId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<GaraVehicle, GaraVehicle, QAfterFilterCondition>
       engineNumberEqualTo(
     String value, {
     bool caseSensitive = true,
@@ -664,6 +919,16 @@ extension GaraVehicleQueryFilter
         includeLower: includeLower,
         upper: upper,
         includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<GaraVehicle, GaraVehicle, QAfterFilterCondition> isSyncedEqualTo(
+      bool value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'isSynced',
+        value: value,
       ));
     });
   }
@@ -941,6 +1206,62 @@ extension GaraVehicleQueryFilter
   }
 
   QueryBuilder<GaraVehicle, GaraVehicle, QAfterFilterCondition>
+      updatedAtEqualTo(DateTime value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'updatedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<GaraVehicle, GaraVehicle, QAfterFilterCondition>
+      updatedAtGreaterThan(
+    DateTime value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'updatedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<GaraVehicle, GaraVehicle, QAfterFilterCondition>
+      updatedAtLessThan(
+    DateTime value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'updatedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<GaraVehicle, GaraVehicle, QAfterFilterCondition>
+      updatedAtBetween(
+    DateTime lower,
+    DateTime upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'updatedAt',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<GaraVehicle, GaraVehicle, QAfterFilterCondition>
       vehicleIdEqualTo(
     String value, {
     bool caseSensitive = true,
@@ -1072,6 +1393,60 @@ extension GaraVehicleQueryFilter
       return query.addFilterCondition(FilterCondition.greaterThan(
         property: r'vehicleId',
         value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<GaraVehicle, GaraVehicle, QAfterFilterCondition> versionEqualTo(
+      int value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'version',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<GaraVehicle, GaraVehicle, QAfterFilterCondition>
+      versionGreaterThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'version',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<GaraVehicle, GaraVehicle, QAfterFilterCondition> versionLessThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'version',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<GaraVehicle, GaraVehicle, QAfterFilterCondition> versionBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'version',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
       ));
     });
   }
@@ -1241,6 +1616,30 @@ extension GaraVehicleQuerySortBy
     });
   }
 
+  QueryBuilder<GaraVehicle, GaraVehicle, QAfterSortBy> sortByDeletedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<GaraVehicle, GaraVehicle, QAfterSortBy> sortByDeletedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<GaraVehicle, GaraVehicle, QAfterSortBy> sortByDeviceId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<GaraVehicle, GaraVehicle, QAfterSortBy> sortByDeviceIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.desc);
+    });
+  }
+
   QueryBuilder<GaraVehicle, GaraVehicle, QAfterSortBy> sortByEngineNumber() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'engineNumber', Sort.asc);
@@ -1251,6 +1650,18 @@ extension GaraVehicleQuerySortBy
       sortByEngineNumberDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'engineNumber', Sort.desc);
+    });
+  }
+
+  QueryBuilder<GaraVehicle, GaraVehicle, QAfterSortBy> sortByIsSynced() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.asc);
+    });
+  }
+
+  QueryBuilder<GaraVehicle, GaraVehicle, QAfterSortBy> sortByIsSyncedDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.desc);
     });
   }
 
@@ -1279,6 +1690,18 @@ extension GaraVehicleQuerySortBy
     });
   }
 
+  QueryBuilder<GaraVehicle, GaraVehicle, QAfterSortBy> sortByUpdatedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'updatedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<GaraVehicle, GaraVehicle, QAfterSortBy> sortByUpdatedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'updatedAt', Sort.desc);
+    });
+  }
+
   QueryBuilder<GaraVehicle, GaraVehicle, QAfterSortBy> sortByVehicleId() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'vehicleId', Sort.asc);
@@ -1288,6 +1711,18 @@ extension GaraVehicleQuerySortBy
   QueryBuilder<GaraVehicle, GaraVehicle, QAfterSortBy> sortByVehicleIdDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'vehicleId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<GaraVehicle, GaraVehicle, QAfterSortBy> sortByVersion() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.asc);
+    });
+  }
+
+  QueryBuilder<GaraVehicle, GaraVehicle, QAfterSortBy> sortByVersionDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.desc);
     });
   }
 
@@ -1318,6 +1753,30 @@ extension GaraVehicleQuerySortThenBy
     });
   }
 
+  QueryBuilder<GaraVehicle, GaraVehicle, QAfterSortBy> thenByDeletedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<GaraVehicle, GaraVehicle, QAfterSortBy> thenByDeletedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<GaraVehicle, GaraVehicle, QAfterSortBy> thenByDeviceId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<GaraVehicle, GaraVehicle, QAfterSortBy> thenByDeviceIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.desc);
+    });
+  }
+
   QueryBuilder<GaraVehicle, GaraVehicle, QAfterSortBy> thenByEngineNumber() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'engineNumber', Sort.asc);
@@ -1340,6 +1799,18 @@ extension GaraVehicleQuerySortThenBy
   QueryBuilder<GaraVehicle, GaraVehicle, QAfterSortBy> thenByIdDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'id', Sort.desc);
+    });
+  }
+
+  QueryBuilder<GaraVehicle, GaraVehicle, QAfterSortBy> thenByIsSynced() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.asc);
+    });
+  }
+
+  QueryBuilder<GaraVehicle, GaraVehicle, QAfterSortBy> thenByIsSyncedDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.desc);
     });
   }
 
@@ -1368,6 +1839,18 @@ extension GaraVehicleQuerySortThenBy
     });
   }
 
+  QueryBuilder<GaraVehicle, GaraVehicle, QAfterSortBy> thenByUpdatedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'updatedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<GaraVehicle, GaraVehicle, QAfterSortBy> thenByUpdatedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'updatedAt', Sort.desc);
+    });
+  }
+
   QueryBuilder<GaraVehicle, GaraVehicle, QAfterSortBy> thenByVehicleId() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'vehicleId', Sort.asc);
@@ -1377,6 +1860,18 @@ extension GaraVehicleQuerySortThenBy
   QueryBuilder<GaraVehicle, GaraVehicle, QAfterSortBy> thenByVehicleIdDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'vehicleId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<GaraVehicle, GaraVehicle, QAfterSortBy> thenByVersion() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.asc);
+    });
+  }
+
+  QueryBuilder<GaraVehicle, GaraVehicle, QAfterSortBy> thenByVersionDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.desc);
     });
   }
 
@@ -1402,10 +1897,29 @@ extension GaraVehicleQueryWhereDistinct
     });
   }
 
+  QueryBuilder<GaraVehicle, GaraVehicle, QDistinct> distinctByDeletedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'deletedAt');
+    });
+  }
+
+  QueryBuilder<GaraVehicle, GaraVehicle, QDistinct> distinctByDeviceId(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'deviceId', caseSensitive: caseSensitive);
+    });
+  }
+
   QueryBuilder<GaraVehicle, GaraVehicle, QDistinct> distinctByEngineNumber(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'engineNumber', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<GaraVehicle, GaraVehicle, QDistinct> distinctByIsSynced() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'isSynced');
     });
   }
 
@@ -1423,10 +1937,22 @@ extension GaraVehicleQueryWhereDistinct
     });
   }
 
+  QueryBuilder<GaraVehicle, GaraVehicle, QDistinct> distinctByUpdatedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'updatedAt');
+    });
+  }
+
   QueryBuilder<GaraVehicle, GaraVehicle, QDistinct> distinctByVehicleId(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'vehicleId', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<GaraVehicle, GaraVehicle, QDistinct> distinctByVersion() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'version');
     });
   }
 
@@ -1452,9 +1978,27 @@ extension GaraVehicleQueryProperty
     });
   }
 
+  QueryBuilder<GaraVehicle, DateTime?, QQueryOperations> deletedAtProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'deletedAt');
+    });
+  }
+
+  QueryBuilder<GaraVehicle, String, QQueryOperations> deviceIdProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'deviceId');
+    });
+  }
+
   QueryBuilder<GaraVehicle, String, QQueryOperations> engineNumberProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'engineNumber');
+    });
+  }
+
+  QueryBuilder<GaraVehicle, bool, QQueryOperations> isSyncedProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'isSynced');
     });
   }
 
@@ -1470,9 +2014,21 @@ extension GaraVehicleQueryProperty
     });
   }
 
+  QueryBuilder<GaraVehicle, DateTime, QQueryOperations> updatedAtProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'updatedAt');
+    });
+  }
+
   QueryBuilder<GaraVehicle, String, QQueryOperations> vehicleIdProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'vehicleId');
+    });
+  }
+
+  QueryBuilder<GaraVehicle, int, QQueryOperations> versionProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'version');
     });
   }
 

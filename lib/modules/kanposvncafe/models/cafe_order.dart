@@ -146,6 +146,7 @@ class CafeOrder {
   final String note;
   final DateTime? occupiedAt;
   final DateTime? paidAt;
+  final DateTime? printedAt;
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -171,6 +172,7 @@ class CafeOrder {
     this.note = '',
     this.occupiedAt,
     this.paidAt,
+    this.printedAt,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) : createdAt = createdAt ?? DateTime.now(),
@@ -208,6 +210,7 @@ class CafeOrder {
     String? note,
     DateTime? occupiedAt,
     DateTime? paidAt,
+    DateTime? printedAt,
     DateTime? updatedAt,
   }) {
     return CafeOrder(
@@ -232,6 +235,7 @@ class CafeOrder {
       note: note ?? this.note,
       occupiedAt: occupiedAt ?? this.occupiedAt,
       paidAt: paidAt ?? this.paidAt,
+      printedAt: printedAt ?? this.printedAt,
       createdAt: createdAt,
       updatedAt: updatedAt ?? DateTime.now(),
     );
@@ -261,6 +265,7 @@ class CafeOrder {
     'grandTotal': grandTotal,
     'occupiedAt': occupiedAt?.toIso8601String(),
     'paidAt': paidAt?.toIso8601String(),
+    'printedAt': printedAt?.toIso8601String(),
     'createdAt': createdAt.toIso8601String(),
     'updatedAt': updatedAt.toIso8601String(),
   };
@@ -308,6 +313,9 @@ class CafeOrder {
         : null,
     paidAt: json['paidAt'] != null
         ? DateTime.parse(json['paidAt'])
+        : null,
+    printedAt: json['printedAt'] != null
+        ? DateTime.parse(json['printedAt'])
         : null,
     createdAt: json['createdAt'] != null
         ? DateTime.parse(json['createdAt'])

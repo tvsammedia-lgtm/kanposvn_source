@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/providers.dart';
+import '../../../core/router/module_selector_screen.dart';
 import '../providers/bida_providers.dart';
 import '../models/bida_table.dart';
 import 'bida_pos_screen.dart';
+import 'bida_sales_report_screen.dart';
+import 'bida_sync_screen.dart';
 
 class BidaTablesScreen extends ConsumerWidget {
   const BidaTablesScreen({super.key});
@@ -12,7 +16,39 @@ class BidaTablesScreen extends ConsumerWidget {
     final tablesAsync = ref.watch(bidaTablesProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Sơ Đồ Bàn Bida')),
+      appBar: AppBar(
+        title: const Text('Sơ Đồ Bàn Bida'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.sync),
+            tooltip: 'Đồng bộ',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const BidaSyncScreen()),
+              );
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.bar_chart),
+            tooltip: 'Báo cáo',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const BidaSalesReportScreen()),
+              );
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.logout),
+            tooltip: 'Thoát',
+            onPressed: () async {
+              await ref.read(authServiceProvider).signOut();
+              ref.read(selectedModuleProvider.notifier).state = null;
+            },
+          ),
+        ],
+      ),
       body: tablesAsync.when(
         data: (tables) {
           if (tables.isEmpty) return const Center(child: Text('Chưa có bàn nào.'));

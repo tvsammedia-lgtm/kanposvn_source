@@ -22,31 +22,56 @@ const VantaiVehicleSchema = CollectionSchema(
       name: r'brand',
       type: IsarType.string,
     ),
-    r'manufactureYear': PropertySchema(
+    r'deletedAt': PropertySchema(
       id: 1,
+      name: r'deletedAt',
+      type: IsarType.dateTime,
+    ),
+    r'deviceId': PropertySchema(
+      id: 2,
+      name: r'deviceId',
+      type: IsarType.string,
+    ),
+    r'isSynced': PropertySchema(
+      id: 3,
+      name: r'isSynced',
+      type: IsarType.bool,
+    ),
+    r'manufactureYear': PropertySchema(
+      id: 4,
       name: r'manufactureYear',
       type: IsarType.long,
     ),
     r'plateNumber': PropertySchema(
-      id: 2,
+      id: 5,
       name: r'plateNumber',
       type: IsarType.string,
     ),
     r'totalSeats': PropertySchema(
-      id: 3,
+      id: 6,
       name: r'totalSeats',
       type: IsarType.long,
     ),
     r'type': PropertySchema(
-      id: 4,
+      id: 7,
       name: r'type',
       type: IsarType.byte,
       enumMap: _VantaiVehicletypeEnumValueMap,
     ),
+    r'updatedAt': PropertySchema(
+      id: 8,
+      name: r'updatedAt',
+      type: IsarType.dateTime,
+    ),
     r'vehicleId': PropertySchema(
-      id: 5,
+      id: 9,
       name: r'vehicleId',
       type: IsarType.string,
+    ),
+    r'version': PropertySchema(
+      id: 10,
+      name: r'version',
+      type: IsarType.long,
     )
   },
   estimateSize: _vantaiVehicleEstimateSize,
@@ -84,6 +109,7 @@ int _vantaiVehicleEstimateSize(
 ) {
   var bytesCount = offsets.last;
   bytesCount += 3 + object.brand.length * 3;
+  bytesCount += 3 + object.deviceId.length * 3;
   bytesCount += 3 + object.plateNumber.length * 3;
   bytesCount += 3 + object.vehicleId.length * 3;
   return bytesCount;
@@ -96,11 +122,16 @@ void _vantaiVehicleSerialize(
   Map<Type, List<int>> allOffsets,
 ) {
   writer.writeString(offsets[0], object.brand);
-  writer.writeLong(offsets[1], object.manufactureYear);
-  writer.writeString(offsets[2], object.plateNumber);
-  writer.writeLong(offsets[3], object.totalSeats);
-  writer.writeByte(offsets[4], object.type.index);
-  writer.writeString(offsets[5], object.vehicleId);
+  writer.writeDateTime(offsets[1], object.deletedAt);
+  writer.writeString(offsets[2], object.deviceId);
+  writer.writeBool(offsets[3], object.isSynced);
+  writer.writeLong(offsets[4], object.manufactureYear);
+  writer.writeString(offsets[5], object.plateNumber);
+  writer.writeLong(offsets[6], object.totalSeats);
+  writer.writeByte(offsets[7], object.type.index);
+  writer.writeDateTime(offsets[8], object.updatedAt);
+  writer.writeString(offsets[9], object.vehicleId);
+  writer.writeLong(offsets[10], object.version);
 }
 
 VantaiVehicle _vantaiVehicleDeserialize(
@@ -111,14 +142,19 @@ VantaiVehicle _vantaiVehicleDeserialize(
 ) {
   final object = VantaiVehicle();
   object.brand = reader.readString(offsets[0]);
+  object.deletedAt = reader.readDateTimeOrNull(offsets[1]);
+  object.deviceId = reader.readString(offsets[2]);
   object.id = id;
-  object.manufactureYear = reader.readLong(offsets[1]);
-  object.plateNumber = reader.readString(offsets[2]);
-  object.totalSeats = reader.readLong(offsets[3]);
+  object.isSynced = reader.readBool(offsets[3]);
+  object.manufactureYear = reader.readLong(offsets[4]);
+  object.plateNumber = reader.readString(offsets[5]);
+  object.totalSeats = reader.readLong(offsets[6]);
   object.type =
-      _VantaiVehicletypeValueEnumMap[reader.readByteOrNull(offsets[4])] ??
+      _VantaiVehicletypeValueEnumMap[reader.readByteOrNull(offsets[7])] ??
           VehicleType.SLEEPER;
-  object.vehicleId = reader.readString(offsets[5]);
+  object.updatedAt = reader.readDateTime(offsets[8]);
+  object.vehicleId = reader.readString(offsets[9]);
+  object.version = reader.readLong(offsets[10]);
   return object;
 }
 
@@ -132,16 +168,26 @@ P _vantaiVehicleDeserializeProp<P>(
     case 0:
       return (reader.readString(offset)) as P;
     case 1:
-      return (reader.readLong(offset)) as P;
+      return (reader.readDateTimeOrNull(offset)) as P;
     case 2:
       return (reader.readString(offset)) as P;
     case 3:
-      return (reader.readLong(offset)) as P;
+      return (reader.readBool(offset)) as P;
     case 4:
-      return (_VantaiVehicletypeValueEnumMap[reader.readByteOrNull(offset)] ??
-          VehicleType.SLEEPER) as P;
+      return (reader.readLong(offset)) as P;
     case 5:
       return (reader.readString(offset)) as P;
+    case 6:
+      return (reader.readLong(offset)) as P;
+    case 7:
+      return (_VantaiVehicletypeValueEnumMap[reader.readByteOrNull(offset)] ??
+          VehicleType.SLEEPER) as P;
+    case 8:
+      return (reader.readDateTime(offset)) as P;
+    case 9:
+      return (reader.readString(offset)) as P;
+    case 10:
+      return (reader.readLong(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
   }
@@ -492,6 +538,216 @@ extension VantaiVehicleQueryFilter
     });
   }
 
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterFilterCondition>
+      deletedAtIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'deletedAt',
+      ));
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterFilterCondition>
+      deletedAtIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'deletedAt',
+      ));
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterFilterCondition>
+      deletedAtEqualTo(DateTime? value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'deletedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterFilterCondition>
+      deletedAtGreaterThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'deletedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterFilterCondition>
+      deletedAtLessThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'deletedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterFilterCondition>
+      deletedAtBetween(
+    DateTime? lower,
+    DateTime? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'deletedAt',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterFilterCondition>
+      deviceIdEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterFilterCondition>
+      deviceIdGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterFilterCondition>
+      deviceIdLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterFilterCondition>
+      deviceIdBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'deviceId',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterFilterCondition>
+      deviceIdStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterFilterCondition>
+      deviceIdEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterFilterCondition>
+      deviceIdContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterFilterCondition>
+      deviceIdMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'deviceId',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterFilterCondition>
+      deviceIdIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'deviceId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterFilterCondition>
+      deviceIdIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'deviceId',
+        value: '',
+      ));
+    });
+  }
+
   QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterFilterCondition> idEqualTo(
       Id value) {
     return QueryBuilder.apply(this, (query) {
@@ -542,6 +798,16 @@ extension VantaiVehicleQueryFilter
         includeLower: includeLower,
         upper: upper,
         includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterFilterCondition>
+      isSyncedEqualTo(bool value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'isSynced',
+        value: value,
       ));
     });
   }
@@ -850,6 +1116,62 @@ extension VantaiVehicleQueryFilter
   }
 
   QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterFilterCondition>
+      updatedAtEqualTo(DateTime value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'updatedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterFilterCondition>
+      updatedAtGreaterThan(
+    DateTime value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'updatedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterFilterCondition>
+      updatedAtLessThan(
+    DateTime value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'updatedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterFilterCondition>
+      updatedAtBetween(
+    DateTime lower,
+    DateTime upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'updatedAt',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterFilterCondition>
       vehicleIdEqualTo(
     String value, {
     bool caseSensitive = true,
@@ -984,6 +1306,62 @@ extension VantaiVehicleQueryFilter
       ));
     });
   }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterFilterCondition>
+      versionEqualTo(int value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'version',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterFilterCondition>
+      versionGreaterThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'version',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterFilterCondition>
+      versionLessThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'version',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterFilterCondition>
+      versionBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'version',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
 }
 
 extension VantaiVehicleQueryObject
@@ -1003,6 +1381,45 @@ extension VantaiVehicleQuerySortBy
   QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterSortBy> sortByBrandDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'brand', Sort.desc);
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterSortBy> sortByDeletedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterSortBy>
+      sortByDeletedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterSortBy> sortByDeviceId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterSortBy>
+      sortByDeviceIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterSortBy> sortByIsSynced() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.asc);
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterSortBy>
+      sortByIsSyncedDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.desc);
     });
   }
 
@@ -1058,6 +1475,19 @@ extension VantaiVehicleQuerySortBy
     });
   }
 
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterSortBy> sortByUpdatedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'updatedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterSortBy>
+      sortByUpdatedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'updatedAt', Sort.desc);
+    });
+  }
+
   QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterSortBy> sortByVehicleId() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'vehicleId', Sort.asc);
@@ -1068,6 +1498,18 @@ extension VantaiVehicleQuerySortBy
       sortByVehicleIdDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'vehicleId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterSortBy> sortByVersion() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.asc);
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterSortBy> sortByVersionDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.desc);
     });
   }
 }
@@ -1086,6 +1528,32 @@ extension VantaiVehicleQuerySortThenBy
     });
   }
 
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterSortBy> thenByDeletedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterSortBy>
+      thenByDeletedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterSortBy> thenByDeviceId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterSortBy>
+      thenByDeviceIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.desc);
+    });
+  }
+
   QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterSortBy> thenById() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'id', Sort.asc);
@@ -1095,6 +1563,19 @@ extension VantaiVehicleQuerySortThenBy
   QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterSortBy> thenByIdDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'id', Sort.desc);
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterSortBy> thenByIsSynced() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.asc);
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterSortBy>
+      thenByIsSyncedDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.desc);
     });
   }
 
@@ -1150,6 +1631,19 @@ extension VantaiVehicleQuerySortThenBy
     });
   }
 
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterSortBy> thenByUpdatedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'updatedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterSortBy>
+      thenByUpdatedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'updatedAt', Sort.desc);
+    });
+  }
+
   QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterSortBy> thenByVehicleId() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'vehicleId', Sort.asc);
@@ -1162,6 +1656,18 @@ extension VantaiVehicleQuerySortThenBy
       return query.addSortBy(r'vehicleId', Sort.desc);
     });
   }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterSortBy> thenByVersion() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.asc);
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterSortBy> thenByVersionDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.desc);
+    });
+  }
 }
 
 extension VantaiVehicleQueryWhereDistinct
@@ -1170,6 +1676,25 @@ extension VantaiVehicleQueryWhereDistinct
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'brand', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QDistinct> distinctByDeletedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'deletedAt');
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QDistinct> distinctByDeviceId(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'deviceId', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QDistinct> distinctByIsSynced() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'isSynced');
     });
   }
 
@@ -1199,10 +1724,22 @@ extension VantaiVehicleQueryWhereDistinct
     });
   }
 
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QDistinct> distinctByUpdatedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'updatedAt');
+    });
+  }
+
   QueryBuilder<VantaiVehicle, VantaiVehicle, QDistinct> distinctByVehicleId(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'vehicleId', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QDistinct> distinctByVersion() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'version');
     });
   }
 }
@@ -1218,6 +1755,24 @@ extension VantaiVehicleQueryProperty
   QueryBuilder<VantaiVehicle, String, QQueryOperations> brandProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'brand');
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, DateTime?, QQueryOperations> deletedAtProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'deletedAt');
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, String, QQueryOperations> deviceIdProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'deviceId');
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, bool, QQueryOperations> isSyncedProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'isSynced');
     });
   }
 
@@ -1245,9 +1800,21 @@ extension VantaiVehicleQueryProperty
     });
   }
 
+  QueryBuilder<VantaiVehicle, DateTime, QQueryOperations> updatedAtProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'updatedAt');
+    });
+  }
+
   QueryBuilder<VantaiVehicle, String, QQueryOperations> vehicleIdProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'vehicleId');
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, int, QQueryOperations> versionProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'version');
     });
   }
 }

@@ -9,6 +9,7 @@ import 'gara_inventory_screen.dart';
 import 'gara_finance_screen.dart';
 import 'gara_dashboard_screen.dart';
 import 'gara_ticket_search_screen.dart';
+import 'gara_sales_report_screen.dart';
 
 class KanPosVNGaraShell extends ConsumerStatefulWidget {
   const KanPosVNGaraShell({super.key});
@@ -43,6 +44,7 @@ class _KanPosVNGaraShellState extends ConsumerState<KanPosVNGaraShell> {
     const GaraFinanceScreen(),
     const GaraSyncScreen(),
     const GaraTicketSearchScreen(),
+    const GaraSalesReportScreen(),
   ];
 
   @override
@@ -70,6 +72,7 @@ class _KanPosVNGaraShellState extends ConsumerState<KanPosVNGaraShell> {
               NavigationRailDestination(icon: Icon(Icons.account_balance_wallet), label: Text('Thu Chi')),
               NavigationRailDestination(icon: Icon(Icons.sync), label: Text('Đồng bộ')),
               NavigationRailDestination(icon: Icon(Icons.receipt_long), label: Text('Tra Cứu Phiếu')),
+              NavigationRailDestination(icon: Icon(Icons.bar_chart), label: Text('Báo Cáo')),
             ],
           ),
           const VerticalDivider(thickness: 1, width: 1),

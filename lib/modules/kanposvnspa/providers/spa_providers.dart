@@ -6,8 +6,14 @@ import '../models/spa_technician.dart';
 import '../models/spa_session.dart';
 import '../models/spa_customer.dart';
 import '../services/spa_isar_service.dart';
+import '../services/spa_neon_sync_service.dart';
 
 final spaIsarServiceProvider = Provider((ref) => SpaIsarService());
+
+final spaNeonSyncServiceProvider = Provider<SpaNeonSyncService>((ref) {
+  final isarService = ref.watch(spaIsarServiceProvider);
+  return SpaNeonSyncService(isarService);
+});
 
 // Beds
 class SpaBedsNotifier extends StateNotifier<AsyncValue<List<SpaBed>>> {

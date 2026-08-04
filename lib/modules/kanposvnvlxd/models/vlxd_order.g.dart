@@ -17,77 +17,102 @@ const VlxdOrderSchema = CollectionSchema(
   name: r'VlxdOrder',
   id: 3337884341486608406,
   properties: {
-    r'discount': PropertySchema(
+    r'deletedAt': PropertySchema(
       id: 0,
+      name: r'deletedAt',
+      type: IsarType.dateTime,
+    ),
+    r'deviceId': PropertySchema(
+      id: 1,
+      name: r'deviceId',
+      type: IsarType.string,
+    ),
+    r'discount': PropertySchema(
+      id: 2,
       name: r'discount',
       type: IsarType.double,
     ),
     r'expectedDeliveryDate': PropertySchema(
-      id: 1,
+      id: 3,
       name: r'expectedDeliveryDate',
       type: IsarType.dateTime,
     ),
+    r'isSynced': PropertySchema(
+      id: 4,
+      name: r'isSynced',
+      type: IsarType.bool,
+    ),
     r'isWholesaleContract': PropertySchema(
-      id: 2,
+      id: 5,
       name: r'isWholesaleContract',
       type: IsarType.bool,
     ),
     r'notes': PropertySchema(
-      id: 3,
+      id: 6,
       name: r'notes',
       type: IsarType.string,
     ),
     r'orderCode': PropertySchema(
-      id: 4,
+      id: 7,
       name: r'orderCode',
       type: IsarType.string,
     ),
     r'orderDate': PropertySchema(
-      id: 5,
+      id: 8,
       name: r'orderDate',
       type: IsarType.dateTime,
     ),
     r'orderId': PropertySchema(
-      id: 6,
+      id: 9,
       name: r'orderId',
       type: IsarType.string,
     ),
     r'paidAmount': PropertySchema(
-      id: 7,
+      id: 10,
       name: r'paidAmount',
       type: IsarType.double,
     ),
     r'paymentMethod': PropertySchema(
-      id: 8,
+      id: 11,
       name: r'paymentMethod',
       type: IsarType.byte,
       enumMap: _VlxdOrderpaymentMethodEnumValueMap,
     ),
     r'shippingFee': PropertySchema(
-      id: 9,
+      id: 12,
       name: r'shippingFee',
       type: IsarType.double,
     ),
     r'status': PropertySchema(
-      id: 10,
+      id: 13,
       name: r'status',
       type: IsarType.byte,
       enumMap: _VlxdOrderstatusEnumValueMap,
     ),
     r'subTotal': PropertySchema(
-      id: 11,
+      id: 14,
       name: r'subTotal',
       type: IsarType.double,
     ),
     r'totalAmount': PropertySchema(
-      id: 12,
+      id: 15,
       name: r'totalAmount',
       type: IsarType.double,
     ),
+    r'updatedAt': PropertySchema(
+      id: 16,
+      name: r'updatedAt',
+      type: IsarType.dateTime,
+    ),
     r'vatAmount': PropertySchema(
-      id: 13,
+      id: 17,
       name: r'vatAmount',
       type: IsarType.double,
+    ),
+    r'version': PropertySchema(
+      id: 18,
+      name: r'version',
+      type: IsarType.long,
     )
   },
   estimateSize: _vlxdOrderEstimateSize,
@@ -131,6 +156,7 @@ int _vlxdOrderEstimateSize(
   Map<Type, List<int>> allOffsets,
 ) {
   var bytesCount = offsets.last;
+  bytesCount += 3 + object.deviceId.length * 3;
   bytesCount += 3 + object.notes.length * 3;
   bytesCount += 3 + object.orderCode.length * 3;
   bytesCount += 3 + object.orderId.length * 3;
@@ -143,20 +169,25 @@ void _vlxdOrderSerialize(
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
-  writer.writeDouble(offsets[0], object.discount);
-  writer.writeDateTime(offsets[1], object.expectedDeliveryDate);
-  writer.writeBool(offsets[2], object.isWholesaleContract);
-  writer.writeString(offsets[3], object.notes);
-  writer.writeString(offsets[4], object.orderCode);
-  writer.writeDateTime(offsets[5], object.orderDate);
-  writer.writeString(offsets[6], object.orderId);
-  writer.writeDouble(offsets[7], object.paidAmount);
-  writer.writeByte(offsets[8], object.paymentMethod.index);
-  writer.writeDouble(offsets[9], object.shippingFee);
-  writer.writeByte(offsets[10], object.status.index);
-  writer.writeDouble(offsets[11], object.subTotal);
-  writer.writeDouble(offsets[12], object.totalAmount);
-  writer.writeDouble(offsets[13], object.vatAmount);
+  writer.writeDateTime(offsets[0], object.deletedAt);
+  writer.writeString(offsets[1], object.deviceId);
+  writer.writeDouble(offsets[2], object.discount);
+  writer.writeDateTime(offsets[3], object.expectedDeliveryDate);
+  writer.writeBool(offsets[4], object.isSynced);
+  writer.writeBool(offsets[5], object.isWholesaleContract);
+  writer.writeString(offsets[6], object.notes);
+  writer.writeString(offsets[7], object.orderCode);
+  writer.writeDateTime(offsets[8], object.orderDate);
+  writer.writeString(offsets[9], object.orderId);
+  writer.writeDouble(offsets[10], object.paidAmount);
+  writer.writeByte(offsets[11], object.paymentMethod.index);
+  writer.writeDouble(offsets[12], object.shippingFee);
+  writer.writeByte(offsets[13], object.status.index);
+  writer.writeDouble(offsets[14], object.subTotal);
+  writer.writeDouble(offsets[15], object.totalAmount);
+  writer.writeDateTime(offsets[16], object.updatedAt);
+  writer.writeDouble(offsets[17], object.vatAmount);
+  writer.writeLong(offsets[18], object.version);
 }
 
 VlxdOrder _vlxdOrderDeserialize(
@@ -166,25 +197,30 @@ VlxdOrder _vlxdOrderDeserialize(
   Map<Type, List<int>> allOffsets,
 ) {
   final object = VlxdOrder();
-  object.discount = reader.readDouble(offsets[0]);
-  object.expectedDeliveryDate = reader.readDateTimeOrNull(offsets[1]);
+  object.deletedAt = reader.readDateTimeOrNull(offsets[0]);
+  object.deviceId = reader.readString(offsets[1]);
+  object.discount = reader.readDouble(offsets[2]);
+  object.expectedDeliveryDate = reader.readDateTimeOrNull(offsets[3]);
   object.id = id;
-  object.isWholesaleContract = reader.readBool(offsets[2]);
-  object.notes = reader.readString(offsets[3]);
-  object.orderCode = reader.readString(offsets[4]);
-  object.orderDate = reader.readDateTime(offsets[5]);
-  object.orderId = reader.readString(offsets[6]);
-  object.paidAmount = reader.readDouble(offsets[7]);
+  object.isSynced = reader.readBool(offsets[4]);
+  object.isWholesaleContract = reader.readBool(offsets[5]);
+  object.notes = reader.readString(offsets[6]);
+  object.orderCode = reader.readString(offsets[7]);
+  object.orderDate = reader.readDateTime(offsets[8]);
+  object.orderId = reader.readString(offsets[9]);
+  object.paidAmount = reader.readDouble(offsets[10]);
   object.paymentMethod =
-      _VlxdOrderpaymentMethodValueEnumMap[reader.readByteOrNull(offsets[8])] ??
+      _VlxdOrderpaymentMethodValueEnumMap[reader.readByteOrNull(offsets[11])] ??
           PaymentMethod.CASH;
-  object.shippingFee = reader.readDouble(offsets[9]);
+  object.shippingFee = reader.readDouble(offsets[12]);
   object.status =
-      _VlxdOrderstatusValueEnumMap[reader.readByteOrNull(offsets[10])] ??
+      _VlxdOrderstatusValueEnumMap[reader.readByteOrNull(offsets[13])] ??
           OrderStatus.PENDING;
-  object.subTotal = reader.readDouble(offsets[11]);
-  object.totalAmount = reader.readDouble(offsets[12]);
-  object.vatAmount = reader.readDouble(offsets[13]);
+  object.subTotal = reader.readDouble(offsets[14]);
+  object.totalAmount = reader.readDouble(offsets[15]);
+  object.updatedAt = reader.readDateTime(offsets[16]);
+  object.vatAmount = reader.readDouble(offsets[17]);
+  object.version = reader.readLong(offsets[18]);
   return object;
 }
 
@@ -196,36 +232,46 @@ P _vlxdOrderDeserializeProp<P>(
 ) {
   switch (propertyId) {
     case 0:
-      return (reader.readDouble(offset)) as P;
-    case 1:
       return (reader.readDateTimeOrNull(offset)) as P;
+    case 1:
+      return (reader.readString(offset)) as P;
     case 2:
-      return (reader.readBool(offset)) as P;
+      return (reader.readDouble(offset)) as P;
     case 3:
-      return (reader.readString(offset)) as P;
+      return (reader.readDateTimeOrNull(offset)) as P;
     case 4:
-      return (reader.readString(offset)) as P;
+      return (reader.readBool(offset)) as P;
     case 5:
-      return (reader.readDateTime(offset)) as P;
+      return (reader.readBool(offset)) as P;
     case 6:
       return (reader.readString(offset)) as P;
     case 7:
-      return (reader.readDouble(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 8:
+      return (reader.readDateTime(offset)) as P;
+    case 9:
+      return (reader.readString(offset)) as P;
+    case 10:
+      return (reader.readDouble(offset)) as P;
+    case 11:
       return (_VlxdOrderpaymentMethodValueEnumMap[
               reader.readByteOrNull(offset)] ??
           PaymentMethod.CASH) as P;
-    case 9:
-      return (reader.readDouble(offset)) as P;
-    case 10:
-      return (_VlxdOrderstatusValueEnumMap[reader.readByteOrNull(offset)] ??
-          OrderStatus.PENDING) as P;
-    case 11:
-      return (reader.readDouble(offset)) as P;
     case 12:
       return (reader.readDouble(offset)) as P;
     case 13:
+      return (_VlxdOrderstatusValueEnumMap[reader.readByteOrNull(offset)] ??
+          OrderStatus.PENDING) as P;
+    case 14:
       return (reader.readDouble(offset)) as P;
+    case 15:
+      return (reader.readDouble(offset)) as P;
+    case 16:
+      return (reader.readDateTime(offset)) as P;
+    case 17:
+      return (reader.readDouble(offset)) as P;
+    case 18:
+      return (reader.readLong(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
   }
@@ -449,6 +495,208 @@ extension VlxdOrderQueryWhere
 
 extension VlxdOrderQueryFilter
     on QueryBuilder<VlxdOrder, VlxdOrder, QFilterCondition> {
+  QueryBuilder<VlxdOrder, VlxdOrder, QAfterFilterCondition> deletedAtIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'deletedAt',
+      ));
+    });
+  }
+
+  QueryBuilder<VlxdOrder, VlxdOrder, QAfterFilterCondition>
+      deletedAtIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'deletedAt',
+      ));
+    });
+  }
+
+  QueryBuilder<VlxdOrder, VlxdOrder, QAfterFilterCondition> deletedAtEqualTo(
+      DateTime? value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'deletedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<VlxdOrder, VlxdOrder, QAfterFilterCondition>
+      deletedAtGreaterThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'deletedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<VlxdOrder, VlxdOrder, QAfterFilterCondition> deletedAtLessThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'deletedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<VlxdOrder, VlxdOrder, QAfterFilterCondition> deletedAtBetween(
+    DateTime? lower,
+    DateTime? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'deletedAt',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<VlxdOrder, VlxdOrder, QAfterFilterCondition> deviceIdEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<VlxdOrder, VlxdOrder, QAfterFilterCondition> deviceIdGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<VlxdOrder, VlxdOrder, QAfterFilterCondition> deviceIdLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<VlxdOrder, VlxdOrder, QAfterFilterCondition> deviceIdBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'deviceId',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<VlxdOrder, VlxdOrder, QAfterFilterCondition> deviceIdStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<VlxdOrder, VlxdOrder, QAfterFilterCondition> deviceIdEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<VlxdOrder, VlxdOrder, QAfterFilterCondition> deviceIdContains(
+      String value,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<VlxdOrder, VlxdOrder, QAfterFilterCondition> deviceIdMatches(
+      String pattern,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'deviceId',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<VlxdOrder, VlxdOrder, QAfterFilterCondition> deviceIdIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'deviceId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<VlxdOrder, VlxdOrder, QAfterFilterCondition>
+      deviceIdIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'deviceId',
+        value: '',
+      ));
+    });
+  }
+
   QueryBuilder<VlxdOrder, VlxdOrder, QAfterFilterCondition> discountEqualTo(
     double value, {
     double epsilon = Query.epsilon,
@@ -634,6 +882,16 @@ extension VlxdOrderQueryFilter
         includeLower: includeLower,
         upper: upper,
         includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<VlxdOrder, VlxdOrder, QAfterFilterCondition> isSyncedEqualTo(
+      bool value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'isSynced',
+        value: value,
       ));
     });
   }
@@ -1455,6 +1713,60 @@ extension VlxdOrderQueryFilter
     });
   }
 
+  QueryBuilder<VlxdOrder, VlxdOrder, QAfterFilterCondition> updatedAtEqualTo(
+      DateTime value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'updatedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<VlxdOrder, VlxdOrder, QAfterFilterCondition>
+      updatedAtGreaterThan(
+    DateTime value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'updatedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<VlxdOrder, VlxdOrder, QAfterFilterCondition> updatedAtLessThan(
+    DateTime value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'updatedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<VlxdOrder, VlxdOrder, QAfterFilterCondition> updatedAtBetween(
+    DateTime lower,
+    DateTime upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'updatedAt',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
   QueryBuilder<VlxdOrder, VlxdOrder, QAfterFilterCondition> vatAmountEqualTo(
     double value, {
     double epsilon = Query.epsilon,
@@ -1517,6 +1829,59 @@ extension VlxdOrderQueryFilter
       ));
     });
   }
+
+  QueryBuilder<VlxdOrder, VlxdOrder, QAfterFilterCondition> versionEqualTo(
+      int value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'version',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<VlxdOrder, VlxdOrder, QAfterFilterCondition> versionGreaterThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'version',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<VlxdOrder, VlxdOrder, QAfterFilterCondition> versionLessThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'version',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<VlxdOrder, VlxdOrder, QAfterFilterCondition> versionBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'version',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
 }
 
 extension VlxdOrderQueryObject
@@ -1539,6 +1904,30 @@ extension VlxdOrderQueryLinks
 }
 
 extension VlxdOrderQuerySortBy on QueryBuilder<VlxdOrder, VlxdOrder, QSortBy> {
+  QueryBuilder<VlxdOrder, VlxdOrder, QAfterSortBy> sortByDeletedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<VlxdOrder, VlxdOrder, QAfterSortBy> sortByDeletedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<VlxdOrder, VlxdOrder, QAfterSortBy> sortByDeviceId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<VlxdOrder, VlxdOrder, QAfterSortBy> sortByDeviceIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.desc);
+    });
+  }
+
   QueryBuilder<VlxdOrder, VlxdOrder, QAfterSortBy> sortByDiscount() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'discount', Sort.asc);
@@ -1562,6 +1951,18 @@ extension VlxdOrderQuerySortBy on QueryBuilder<VlxdOrder, VlxdOrder, QSortBy> {
       sortByExpectedDeliveryDateDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'expectedDeliveryDate', Sort.desc);
+    });
+  }
+
+  QueryBuilder<VlxdOrder, VlxdOrder, QAfterSortBy> sortByIsSynced() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.asc);
+    });
+  }
+
+  QueryBuilder<VlxdOrder, VlxdOrder, QAfterSortBy> sortByIsSyncedDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.desc);
     });
   }
 
@@ -1698,6 +2099,18 @@ extension VlxdOrderQuerySortBy on QueryBuilder<VlxdOrder, VlxdOrder, QSortBy> {
     });
   }
 
+  QueryBuilder<VlxdOrder, VlxdOrder, QAfterSortBy> sortByUpdatedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'updatedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<VlxdOrder, VlxdOrder, QAfterSortBy> sortByUpdatedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'updatedAt', Sort.desc);
+    });
+  }
+
   QueryBuilder<VlxdOrder, VlxdOrder, QAfterSortBy> sortByVatAmount() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'vatAmount', Sort.asc);
@@ -1709,10 +2122,46 @@ extension VlxdOrderQuerySortBy on QueryBuilder<VlxdOrder, VlxdOrder, QSortBy> {
       return query.addSortBy(r'vatAmount', Sort.desc);
     });
   }
+
+  QueryBuilder<VlxdOrder, VlxdOrder, QAfterSortBy> sortByVersion() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.asc);
+    });
+  }
+
+  QueryBuilder<VlxdOrder, VlxdOrder, QAfterSortBy> sortByVersionDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.desc);
+    });
+  }
 }
 
 extension VlxdOrderQuerySortThenBy
     on QueryBuilder<VlxdOrder, VlxdOrder, QSortThenBy> {
+  QueryBuilder<VlxdOrder, VlxdOrder, QAfterSortBy> thenByDeletedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<VlxdOrder, VlxdOrder, QAfterSortBy> thenByDeletedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<VlxdOrder, VlxdOrder, QAfterSortBy> thenByDeviceId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<VlxdOrder, VlxdOrder, QAfterSortBy> thenByDeviceIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.desc);
+    });
+  }
+
   QueryBuilder<VlxdOrder, VlxdOrder, QAfterSortBy> thenByDiscount() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'discount', Sort.asc);
@@ -1748,6 +2197,18 @@ extension VlxdOrderQuerySortThenBy
   QueryBuilder<VlxdOrder, VlxdOrder, QAfterSortBy> thenByIdDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'id', Sort.desc);
+    });
+  }
+
+  QueryBuilder<VlxdOrder, VlxdOrder, QAfterSortBy> thenByIsSynced() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.asc);
+    });
+  }
+
+  QueryBuilder<VlxdOrder, VlxdOrder, QAfterSortBy> thenByIsSyncedDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.desc);
     });
   }
 
@@ -1884,6 +2345,18 @@ extension VlxdOrderQuerySortThenBy
     });
   }
 
+  QueryBuilder<VlxdOrder, VlxdOrder, QAfterSortBy> thenByUpdatedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'updatedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<VlxdOrder, VlxdOrder, QAfterSortBy> thenByUpdatedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'updatedAt', Sort.desc);
+    });
+  }
+
   QueryBuilder<VlxdOrder, VlxdOrder, QAfterSortBy> thenByVatAmount() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'vatAmount', Sort.asc);
@@ -1895,10 +2368,35 @@ extension VlxdOrderQuerySortThenBy
       return query.addSortBy(r'vatAmount', Sort.desc);
     });
   }
+
+  QueryBuilder<VlxdOrder, VlxdOrder, QAfterSortBy> thenByVersion() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.asc);
+    });
+  }
+
+  QueryBuilder<VlxdOrder, VlxdOrder, QAfterSortBy> thenByVersionDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.desc);
+    });
+  }
 }
 
 extension VlxdOrderQueryWhereDistinct
     on QueryBuilder<VlxdOrder, VlxdOrder, QDistinct> {
+  QueryBuilder<VlxdOrder, VlxdOrder, QDistinct> distinctByDeletedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'deletedAt');
+    });
+  }
+
+  QueryBuilder<VlxdOrder, VlxdOrder, QDistinct> distinctByDeviceId(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'deviceId', caseSensitive: caseSensitive);
+    });
+  }
+
   QueryBuilder<VlxdOrder, VlxdOrder, QDistinct> distinctByDiscount() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'discount');
@@ -1909,6 +2407,12 @@ extension VlxdOrderQueryWhereDistinct
       distinctByExpectedDeliveryDate() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'expectedDeliveryDate');
+    });
+  }
+
+  QueryBuilder<VlxdOrder, VlxdOrder, QDistinct> distinctByIsSynced() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'isSynced');
     });
   }
 
@@ -1982,9 +2486,21 @@ extension VlxdOrderQueryWhereDistinct
     });
   }
 
+  QueryBuilder<VlxdOrder, VlxdOrder, QDistinct> distinctByUpdatedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'updatedAt');
+    });
+  }
+
   QueryBuilder<VlxdOrder, VlxdOrder, QDistinct> distinctByVatAmount() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'vatAmount');
+    });
+  }
+
+  QueryBuilder<VlxdOrder, VlxdOrder, QDistinct> distinctByVersion() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'version');
     });
   }
 }
@@ -1994,6 +2510,18 @@ extension VlxdOrderQueryProperty
   QueryBuilder<VlxdOrder, int, QQueryOperations> idProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'id');
+    });
+  }
+
+  QueryBuilder<VlxdOrder, DateTime?, QQueryOperations> deletedAtProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'deletedAt');
+    });
+  }
+
+  QueryBuilder<VlxdOrder, String, QQueryOperations> deviceIdProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'deviceId');
     });
   }
 
@@ -2007,6 +2535,12 @@ extension VlxdOrderQueryProperty
       expectedDeliveryDateProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'expectedDeliveryDate');
+    });
+  }
+
+  QueryBuilder<VlxdOrder, bool, QQueryOperations> isSyncedProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'isSynced');
     });
   }
 
@@ -2078,9 +2612,21 @@ extension VlxdOrderQueryProperty
     });
   }
 
+  QueryBuilder<VlxdOrder, DateTime, QQueryOperations> updatedAtProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'updatedAt');
+    });
+  }
+
   QueryBuilder<VlxdOrder, double, QQueryOperations> vatAmountProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'vatAmount');
+    });
+  }
+
+  QueryBuilder<VlxdOrder, int, QQueryOperations> versionProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'version');
     });
   }
 }
@@ -2096,30 +2642,55 @@ const VlxdOrderDetailSchema = CollectionSchema(
   name: r'VlxdOrderDetail',
   id: 5877120424694505631,
   properties: {
-    r'deliveredQuantity': PropertySchema(
+    r'deletedAt': PropertySchema(
       id: 0,
+      name: r'deletedAt',
+      type: IsarType.dateTime,
+    ),
+    r'deliveredQuantity': PropertySchema(
+      id: 1,
       name: r'deliveredQuantity',
       type: IsarType.double,
     ),
+    r'deviceId': PropertySchema(
+      id: 2,
+      name: r'deviceId',
+      type: IsarType.string,
+    ),
     r'discountAmount': PropertySchema(
-      id: 1,
+      id: 3,
       name: r'discountAmount',
       type: IsarType.double,
     ),
+    r'isSynced': PropertySchema(
+      id: 4,
+      name: r'isSynced',
+      type: IsarType.bool,
+    ),
     r'quantity': PropertySchema(
-      id: 2,
+      id: 5,
       name: r'quantity',
       type: IsarType.double,
     ),
     r'total': PropertySchema(
-      id: 3,
+      id: 6,
       name: r'total',
       type: IsarType.double,
     ),
     r'unitPrice': PropertySchema(
-      id: 4,
+      id: 7,
       name: r'unitPrice',
       type: IsarType.double,
+    ),
+    r'updatedAt': PropertySchema(
+      id: 8,
+      name: r'updatedAt',
+      type: IsarType.dateTime,
+    ),
+    r'version': PropertySchema(
+      id: 9,
+      name: r'version',
+      type: IsarType.long,
     )
   },
   estimateSize: _vlxdOrderDetailEstimateSize,
@@ -2155,6 +2726,7 @@ int _vlxdOrderDetailEstimateSize(
   Map<Type, List<int>> allOffsets,
 ) {
   var bytesCount = offsets.last;
+  bytesCount += 3 + object.deviceId.length * 3;
   return bytesCount;
 }
 
@@ -2164,11 +2736,16 @@ void _vlxdOrderDetailSerialize(
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
-  writer.writeDouble(offsets[0], object.deliveredQuantity);
-  writer.writeDouble(offsets[1], object.discountAmount);
-  writer.writeDouble(offsets[2], object.quantity);
-  writer.writeDouble(offsets[3], object.total);
-  writer.writeDouble(offsets[4], object.unitPrice);
+  writer.writeDateTime(offsets[0], object.deletedAt);
+  writer.writeDouble(offsets[1], object.deliveredQuantity);
+  writer.writeString(offsets[2], object.deviceId);
+  writer.writeDouble(offsets[3], object.discountAmount);
+  writer.writeBool(offsets[4], object.isSynced);
+  writer.writeDouble(offsets[5], object.quantity);
+  writer.writeDouble(offsets[6], object.total);
+  writer.writeDouble(offsets[7], object.unitPrice);
+  writer.writeDateTime(offsets[8], object.updatedAt);
+  writer.writeLong(offsets[9], object.version);
 }
 
 VlxdOrderDetail _vlxdOrderDetailDeserialize(
@@ -2178,12 +2755,17 @@ VlxdOrderDetail _vlxdOrderDetailDeserialize(
   Map<Type, List<int>> allOffsets,
 ) {
   final object = VlxdOrderDetail();
-  object.deliveredQuantity = reader.readDouble(offsets[0]);
-  object.discountAmount = reader.readDouble(offsets[1]);
+  object.deletedAt = reader.readDateTimeOrNull(offsets[0]);
+  object.deliveredQuantity = reader.readDouble(offsets[1]);
+  object.deviceId = reader.readString(offsets[2]);
+  object.discountAmount = reader.readDouble(offsets[3]);
   object.id = id;
-  object.quantity = reader.readDouble(offsets[2]);
-  object.total = reader.readDouble(offsets[3]);
-  object.unitPrice = reader.readDouble(offsets[4]);
+  object.isSynced = reader.readBool(offsets[4]);
+  object.quantity = reader.readDouble(offsets[5]);
+  object.total = reader.readDouble(offsets[6]);
+  object.unitPrice = reader.readDouble(offsets[7]);
+  object.updatedAt = reader.readDateTime(offsets[8]);
+  object.version = reader.readLong(offsets[9]);
   return object;
 }
 
@@ -2195,15 +2777,25 @@ P _vlxdOrderDetailDeserializeProp<P>(
 ) {
   switch (propertyId) {
     case 0:
-      return (reader.readDouble(offset)) as P;
+      return (reader.readDateTimeOrNull(offset)) as P;
     case 1:
       return (reader.readDouble(offset)) as P;
     case 2:
-      return (reader.readDouble(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 3:
       return (reader.readDouble(offset)) as P;
     case 4:
+      return (reader.readBool(offset)) as P;
+    case 5:
       return (reader.readDouble(offset)) as P;
+    case 6:
+      return (reader.readDouble(offset)) as P;
+    case 7:
+      return (reader.readDouble(offset)) as P;
+    case 8:
+      return (reader.readDateTime(offset)) as P;
+    case 9:
+      return (reader.readLong(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
   }
@@ -2308,6 +2900,80 @@ extension VlxdOrderDetailQueryWhere
 extension VlxdOrderDetailQueryFilter
     on QueryBuilder<VlxdOrderDetail, VlxdOrderDetail, QFilterCondition> {
   QueryBuilder<VlxdOrderDetail, VlxdOrderDetail, QAfterFilterCondition>
+      deletedAtIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'deletedAt',
+      ));
+    });
+  }
+
+  QueryBuilder<VlxdOrderDetail, VlxdOrderDetail, QAfterFilterCondition>
+      deletedAtIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'deletedAt',
+      ));
+    });
+  }
+
+  QueryBuilder<VlxdOrderDetail, VlxdOrderDetail, QAfterFilterCondition>
+      deletedAtEqualTo(DateTime? value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'deletedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<VlxdOrderDetail, VlxdOrderDetail, QAfterFilterCondition>
+      deletedAtGreaterThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'deletedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<VlxdOrderDetail, VlxdOrderDetail, QAfterFilterCondition>
+      deletedAtLessThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'deletedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<VlxdOrderDetail, VlxdOrderDetail, QAfterFilterCondition>
+      deletedAtBetween(
+    DateTime? lower,
+    DateTime? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'deletedAt',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<VlxdOrderDetail, VlxdOrderDetail, QAfterFilterCondition>
       deliveredQuantityEqualTo(
     double value, {
     double epsilon = Query.epsilon,
@@ -2369,6 +3035,142 @@ extension VlxdOrderDetailQueryFilter
         upper: upper,
         includeUpper: includeUpper,
         epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<VlxdOrderDetail, VlxdOrderDetail, QAfterFilterCondition>
+      deviceIdEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<VlxdOrderDetail, VlxdOrderDetail, QAfterFilterCondition>
+      deviceIdGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<VlxdOrderDetail, VlxdOrderDetail, QAfterFilterCondition>
+      deviceIdLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<VlxdOrderDetail, VlxdOrderDetail, QAfterFilterCondition>
+      deviceIdBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'deviceId',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<VlxdOrderDetail, VlxdOrderDetail, QAfterFilterCondition>
+      deviceIdStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<VlxdOrderDetail, VlxdOrderDetail, QAfterFilterCondition>
+      deviceIdEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<VlxdOrderDetail, VlxdOrderDetail, QAfterFilterCondition>
+      deviceIdContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<VlxdOrderDetail, VlxdOrderDetail, QAfterFilterCondition>
+      deviceIdMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'deviceId',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<VlxdOrderDetail, VlxdOrderDetail, QAfterFilterCondition>
+      deviceIdIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'deviceId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<VlxdOrderDetail, VlxdOrderDetail, QAfterFilterCondition>
+      deviceIdIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'deviceId',
+        value: '',
       ));
     });
   }
@@ -2491,6 +3293,16 @@ extension VlxdOrderDetailQueryFilter
         includeLower: includeLower,
         upper: upper,
         includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<VlxdOrderDetail, VlxdOrderDetail, QAfterFilterCondition>
+      isSyncedEqualTo(bool value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'isSynced',
+        value: value,
       ));
     });
   }
@@ -2692,6 +3504,118 @@ extension VlxdOrderDetailQueryFilter
       ));
     });
   }
+
+  QueryBuilder<VlxdOrderDetail, VlxdOrderDetail, QAfterFilterCondition>
+      updatedAtEqualTo(DateTime value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'updatedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<VlxdOrderDetail, VlxdOrderDetail, QAfterFilterCondition>
+      updatedAtGreaterThan(
+    DateTime value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'updatedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<VlxdOrderDetail, VlxdOrderDetail, QAfterFilterCondition>
+      updatedAtLessThan(
+    DateTime value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'updatedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<VlxdOrderDetail, VlxdOrderDetail, QAfterFilterCondition>
+      updatedAtBetween(
+    DateTime lower,
+    DateTime upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'updatedAt',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<VlxdOrderDetail, VlxdOrderDetail, QAfterFilterCondition>
+      versionEqualTo(int value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'version',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<VlxdOrderDetail, VlxdOrderDetail, QAfterFilterCondition>
+      versionGreaterThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'version',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<VlxdOrderDetail, VlxdOrderDetail, QAfterFilterCondition>
+      versionLessThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'version',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<VlxdOrderDetail, VlxdOrderDetail, QAfterFilterCondition>
+      versionBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'version',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
 }
 
 extension VlxdOrderDetailQueryObject
@@ -2731,6 +3655,20 @@ extension VlxdOrderDetailQueryLinks
 extension VlxdOrderDetailQuerySortBy
     on QueryBuilder<VlxdOrderDetail, VlxdOrderDetail, QSortBy> {
   QueryBuilder<VlxdOrderDetail, VlxdOrderDetail, QAfterSortBy>
+      sortByDeletedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<VlxdOrderDetail, VlxdOrderDetail, QAfterSortBy>
+      sortByDeletedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<VlxdOrderDetail, VlxdOrderDetail, QAfterSortBy>
       sortByDeliveredQuantity() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'deliveredQuantity', Sort.asc);
@@ -2745,6 +3683,20 @@ extension VlxdOrderDetailQuerySortBy
   }
 
   QueryBuilder<VlxdOrderDetail, VlxdOrderDetail, QAfterSortBy>
+      sortByDeviceId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<VlxdOrderDetail, VlxdOrderDetail, QAfterSortBy>
+      sortByDeviceIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<VlxdOrderDetail, VlxdOrderDetail, QAfterSortBy>
       sortByDiscountAmount() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'discountAmount', Sort.asc);
@@ -2755,6 +3707,20 @@ extension VlxdOrderDetailQuerySortBy
       sortByDiscountAmountDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'discountAmount', Sort.desc);
+    });
+  }
+
+  QueryBuilder<VlxdOrderDetail, VlxdOrderDetail, QAfterSortBy>
+      sortByIsSynced() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.asc);
+    });
+  }
+
+  QueryBuilder<VlxdOrderDetail, VlxdOrderDetail, QAfterSortBy>
+      sortByIsSyncedDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.desc);
     });
   }
 
@@ -2798,10 +3764,51 @@ extension VlxdOrderDetailQuerySortBy
       return query.addSortBy(r'unitPrice', Sort.desc);
     });
   }
+
+  QueryBuilder<VlxdOrderDetail, VlxdOrderDetail, QAfterSortBy>
+      sortByUpdatedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'updatedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<VlxdOrderDetail, VlxdOrderDetail, QAfterSortBy>
+      sortByUpdatedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'updatedAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<VlxdOrderDetail, VlxdOrderDetail, QAfterSortBy> sortByVersion() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.asc);
+    });
+  }
+
+  QueryBuilder<VlxdOrderDetail, VlxdOrderDetail, QAfterSortBy>
+      sortByVersionDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.desc);
+    });
+  }
 }
 
 extension VlxdOrderDetailQuerySortThenBy
     on QueryBuilder<VlxdOrderDetail, VlxdOrderDetail, QSortThenBy> {
+  QueryBuilder<VlxdOrderDetail, VlxdOrderDetail, QAfterSortBy>
+      thenByDeletedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<VlxdOrderDetail, VlxdOrderDetail, QAfterSortBy>
+      thenByDeletedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.desc);
+    });
+  }
+
   QueryBuilder<VlxdOrderDetail, VlxdOrderDetail, QAfterSortBy>
       thenByDeliveredQuantity() {
     return QueryBuilder.apply(this, (query) {
@@ -2813,6 +3820,20 @@ extension VlxdOrderDetailQuerySortThenBy
       thenByDeliveredQuantityDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'deliveredQuantity', Sort.desc);
+    });
+  }
+
+  QueryBuilder<VlxdOrderDetail, VlxdOrderDetail, QAfterSortBy>
+      thenByDeviceId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<VlxdOrderDetail, VlxdOrderDetail, QAfterSortBy>
+      thenByDeviceIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.desc);
     });
   }
 
@@ -2839,6 +3860,20 @@ extension VlxdOrderDetailQuerySortThenBy
   QueryBuilder<VlxdOrderDetail, VlxdOrderDetail, QAfterSortBy> thenByIdDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'id', Sort.desc);
+    });
+  }
+
+  QueryBuilder<VlxdOrderDetail, VlxdOrderDetail, QAfterSortBy>
+      thenByIsSynced() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.asc);
+    });
+  }
+
+  QueryBuilder<VlxdOrderDetail, VlxdOrderDetail, QAfterSortBy>
+      thenByIsSyncedDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.desc);
     });
   }
 
@@ -2882,10 +3917,44 @@ extension VlxdOrderDetailQuerySortThenBy
       return query.addSortBy(r'unitPrice', Sort.desc);
     });
   }
+
+  QueryBuilder<VlxdOrderDetail, VlxdOrderDetail, QAfterSortBy>
+      thenByUpdatedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'updatedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<VlxdOrderDetail, VlxdOrderDetail, QAfterSortBy>
+      thenByUpdatedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'updatedAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<VlxdOrderDetail, VlxdOrderDetail, QAfterSortBy> thenByVersion() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.asc);
+    });
+  }
+
+  QueryBuilder<VlxdOrderDetail, VlxdOrderDetail, QAfterSortBy>
+      thenByVersionDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.desc);
+    });
+  }
 }
 
 extension VlxdOrderDetailQueryWhereDistinct
     on QueryBuilder<VlxdOrderDetail, VlxdOrderDetail, QDistinct> {
+  QueryBuilder<VlxdOrderDetail, VlxdOrderDetail, QDistinct>
+      distinctByDeletedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'deletedAt');
+    });
+  }
+
   QueryBuilder<VlxdOrderDetail, VlxdOrderDetail, QDistinct>
       distinctByDeliveredQuantity() {
     return QueryBuilder.apply(this, (query) {
@@ -2893,10 +3962,24 @@ extension VlxdOrderDetailQueryWhereDistinct
     });
   }
 
+  QueryBuilder<VlxdOrderDetail, VlxdOrderDetail, QDistinct> distinctByDeviceId(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'deviceId', caseSensitive: caseSensitive);
+    });
+  }
+
   QueryBuilder<VlxdOrderDetail, VlxdOrderDetail, QDistinct>
       distinctByDiscountAmount() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'discountAmount');
+    });
+  }
+
+  QueryBuilder<VlxdOrderDetail, VlxdOrderDetail, QDistinct>
+      distinctByIsSynced() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'isSynced');
     });
   }
 
@@ -2919,6 +4002,20 @@ extension VlxdOrderDetailQueryWhereDistinct
       return query.addDistinctBy(r'unitPrice');
     });
   }
+
+  QueryBuilder<VlxdOrderDetail, VlxdOrderDetail, QDistinct>
+      distinctByUpdatedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'updatedAt');
+    });
+  }
+
+  QueryBuilder<VlxdOrderDetail, VlxdOrderDetail, QDistinct>
+      distinctByVersion() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'version');
+    });
+  }
 }
 
 extension VlxdOrderDetailQueryProperty
@@ -2929,6 +4026,13 @@ extension VlxdOrderDetailQueryProperty
     });
   }
 
+  QueryBuilder<VlxdOrderDetail, DateTime?, QQueryOperations>
+      deletedAtProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'deletedAt');
+    });
+  }
+
   QueryBuilder<VlxdOrderDetail, double, QQueryOperations>
       deliveredQuantityProperty() {
     return QueryBuilder.apply(this, (query) {
@@ -2936,10 +4040,22 @@ extension VlxdOrderDetailQueryProperty
     });
   }
 
+  QueryBuilder<VlxdOrderDetail, String, QQueryOperations> deviceIdProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'deviceId');
+    });
+  }
+
   QueryBuilder<VlxdOrderDetail, double, QQueryOperations>
       discountAmountProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'discountAmount');
+    });
+  }
+
+  QueryBuilder<VlxdOrderDetail, bool, QQueryOperations> isSyncedProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'isSynced');
     });
   }
 
@@ -2960,6 +4076,19 @@ extension VlxdOrderDetailQueryProperty
       return query.addPropertyName(r'unitPrice');
     });
   }
+
+  QueryBuilder<VlxdOrderDetail, DateTime, QQueryOperations>
+      updatedAtProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'updatedAt');
+    });
+  }
+
+  QueryBuilder<VlxdOrderDetail, int, QQueryOperations> versionProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'version');
+    });
+  }
 }
 
 // coverage:ignore-file
@@ -2974,51 +4103,76 @@ const VlxdDeliveryTicketSchema = CollectionSchema(
   name: r'VlxdDeliveryTicket',
   id: -1471772112649676614,
   properties: {
-    r'deliveryDate': PropertySchema(
+    r'deletedAt': PropertySchema(
       id: 0,
+      name: r'deletedAt',
+      type: IsarType.dateTime,
+    ),
+    r'deliveryDate': PropertySchema(
+      id: 1,
       name: r'deliveryDate',
       type: IsarType.dateTime,
     ),
     r'deliveryPhotoUrl': PropertySchema(
-      id: 1,
+      id: 2,
       name: r'deliveryPhotoUrl',
       type: IsarType.string,
     ),
+    r'deviceId': PropertySchema(
+      id: 3,
+      name: r'deviceId',
+      type: IsarType.string,
+    ),
     r'driverName': PropertySchema(
-      id: 2,
+      id: 4,
       name: r'driverName',
       type: IsarType.string,
     ),
     r'eSignatureUrl': PropertySchema(
-      id: 3,
+      id: 5,
       name: r'eSignatureUrl',
       type: IsarType.string,
     ),
     r'gpsLocation': PropertySchema(
-      id: 4,
+      id: 6,
       name: r'gpsLocation',
       type: IsarType.string,
     ),
+    r'isSynced': PropertySchema(
+      id: 7,
+      name: r'isSynced',
+      type: IsarType.bool,
+    ),
     r'receiverName': PropertySchema(
-      id: 5,
+      id: 8,
       name: r'receiverName',
       type: IsarType.string,
     ),
     r'status': PropertySchema(
-      id: 6,
+      id: 9,
       name: r'status',
       type: IsarType.byte,
       enumMap: _VlxdDeliveryTicketstatusEnumValueMap,
     ),
     r'ticketId': PropertySchema(
-      id: 7,
+      id: 10,
       name: r'ticketId',
       type: IsarType.string,
     ),
+    r'updatedAt': PropertySchema(
+      id: 11,
+      name: r'updatedAt',
+      type: IsarType.dateTime,
+    ),
     r'vehicleInfo': PropertySchema(
-      id: 8,
+      id: 12,
       name: r'vehicleInfo',
       type: IsarType.string,
+    ),
+    r'version': PropertySchema(
+      id: 13,
+      name: r'version',
+      type: IsarType.long,
     )
   },
   estimateSize: _vlxdDeliveryTicketEstimateSize,
@@ -3063,6 +4217,7 @@ int _vlxdDeliveryTicketEstimateSize(
 ) {
   var bytesCount = offsets.last;
   bytesCount += 3 + object.deliveryPhotoUrl.length * 3;
+  bytesCount += 3 + object.deviceId.length * 3;
   bytesCount += 3 + object.driverName.length * 3;
   bytesCount += 3 + object.eSignatureUrl.length * 3;
   bytesCount += 3 + object.gpsLocation.length * 3;
@@ -3078,15 +4233,20 @@ void _vlxdDeliveryTicketSerialize(
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
-  writer.writeDateTime(offsets[0], object.deliveryDate);
-  writer.writeString(offsets[1], object.deliveryPhotoUrl);
-  writer.writeString(offsets[2], object.driverName);
-  writer.writeString(offsets[3], object.eSignatureUrl);
-  writer.writeString(offsets[4], object.gpsLocation);
-  writer.writeString(offsets[5], object.receiverName);
-  writer.writeByte(offsets[6], object.status.index);
-  writer.writeString(offsets[7], object.ticketId);
-  writer.writeString(offsets[8], object.vehicleInfo);
+  writer.writeDateTime(offsets[0], object.deletedAt);
+  writer.writeDateTime(offsets[1], object.deliveryDate);
+  writer.writeString(offsets[2], object.deliveryPhotoUrl);
+  writer.writeString(offsets[3], object.deviceId);
+  writer.writeString(offsets[4], object.driverName);
+  writer.writeString(offsets[5], object.eSignatureUrl);
+  writer.writeString(offsets[6], object.gpsLocation);
+  writer.writeBool(offsets[7], object.isSynced);
+  writer.writeString(offsets[8], object.receiverName);
+  writer.writeByte(offsets[9], object.status.index);
+  writer.writeString(offsets[10], object.ticketId);
+  writer.writeDateTime(offsets[11], object.updatedAt);
+  writer.writeString(offsets[12], object.vehicleInfo);
+  writer.writeLong(offsets[13], object.version);
 }
 
 VlxdDeliveryTicket _vlxdDeliveryTicketDeserialize(
@@ -3096,18 +4256,23 @@ VlxdDeliveryTicket _vlxdDeliveryTicketDeserialize(
   Map<Type, List<int>> allOffsets,
 ) {
   final object = VlxdDeliveryTicket();
-  object.deliveryDate = reader.readDateTime(offsets[0]);
-  object.deliveryPhotoUrl = reader.readString(offsets[1]);
-  object.driverName = reader.readString(offsets[2]);
-  object.eSignatureUrl = reader.readString(offsets[3]);
-  object.gpsLocation = reader.readString(offsets[4]);
+  object.deletedAt = reader.readDateTimeOrNull(offsets[0]);
+  object.deliveryDate = reader.readDateTime(offsets[1]);
+  object.deliveryPhotoUrl = reader.readString(offsets[2]);
+  object.deviceId = reader.readString(offsets[3]);
+  object.driverName = reader.readString(offsets[4]);
+  object.eSignatureUrl = reader.readString(offsets[5]);
+  object.gpsLocation = reader.readString(offsets[6]);
   object.id = id;
-  object.receiverName = reader.readString(offsets[5]);
+  object.isSynced = reader.readBool(offsets[7]);
+  object.receiverName = reader.readString(offsets[8]);
   object.status = _VlxdDeliveryTicketstatusValueEnumMap[
-          reader.readByteOrNull(offsets[6])] ??
+          reader.readByteOrNull(offsets[9])] ??
       OrderStatus.PENDING;
-  object.ticketId = reader.readString(offsets[7]);
-  object.vehicleInfo = reader.readString(offsets[8]);
+  object.ticketId = reader.readString(offsets[10]);
+  object.updatedAt = reader.readDateTime(offsets[11]);
+  object.vehicleInfo = reader.readString(offsets[12]);
+  object.version = reader.readLong(offsets[13]);
   return object;
 }
 
@@ -3119,9 +4284,9 @@ P _vlxdDeliveryTicketDeserializeProp<P>(
 ) {
   switch (propertyId) {
     case 0:
-      return (reader.readDateTime(offset)) as P;
+      return (reader.readDateTimeOrNull(offset)) as P;
     case 1:
-      return (reader.readString(offset)) as P;
+      return (reader.readDateTime(offset)) as P;
     case 2:
       return (reader.readString(offset)) as P;
     case 3:
@@ -3131,13 +4296,23 @@ P _vlxdDeliveryTicketDeserializeProp<P>(
     case 5:
       return (reader.readString(offset)) as P;
     case 6:
+      return (reader.readString(offset)) as P;
+    case 7:
+      return (reader.readBool(offset)) as P;
+    case 8:
+      return (reader.readString(offset)) as P;
+    case 9:
       return (_VlxdDeliveryTicketstatusValueEnumMap[
               reader.readByteOrNull(offset)] ??
           OrderStatus.PENDING) as P;
-    case 7:
+    case 10:
       return (reader.readString(offset)) as P;
-    case 8:
+    case 11:
+      return (reader.readDateTime(offset)) as P;
+    case 12:
       return (reader.readString(offset)) as P;
+    case 13:
+      return (reader.readLong(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
   }
@@ -3355,6 +4530,80 @@ extension VlxdDeliveryTicketQueryWhere
 extension VlxdDeliveryTicketQueryFilter
     on QueryBuilder<VlxdDeliveryTicket, VlxdDeliveryTicket, QFilterCondition> {
   QueryBuilder<VlxdDeliveryTicket, VlxdDeliveryTicket, QAfterFilterCondition>
+      deletedAtIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'deletedAt',
+      ));
+    });
+  }
+
+  QueryBuilder<VlxdDeliveryTicket, VlxdDeliveryTicket, QAfterFilterCondition>
+      deletedAtIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'deletedAt',
+      ));
+    });
+  }
+
+  QueryBuilder<VlxdDeliveryTicket, VlxdDeliveryTicket, QAfterFilterCondition>
+      deletedAtEqualTo(DateTime? value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'deletedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<VlxdDeliveryTicket, VlxdDeliveryTicket, QAfterFilterCondition>
+      deletedAtGreaterThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'deletedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<VlxdDeliveryTicket, VlxdDeliveryTicket, QAfterFilterCondition>
+      deletedAtLessThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'deletedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<VlxdDeliveryTicket, VlxdDeliveryTicket, QAfterFilterCondition>
+      deletedAtBetween(
+    DateTime? lower,
+    DateTime? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'deletedAt',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<VlxdDeliveryTicket, VlxdDeliveryTicket, QAfterFilterCondition>
       deliveryDateEqualTo(DateTime value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
@@ -3541,6 +4790,142 @@ extension VlxdDeliveryTicketQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         property: r'deliveryPhotoUrl',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<VlxdDeliveryTicket, VlxdDeliveryTicket, QAfterFilterCondition>
+      deviceIdEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<VlxdDeliveryTicket, VlxdDeliveryTicket, QAfterFilterCondition>
+      deviceIdGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<VlxdDeliveryTicket, VlxdDeliveryTicket, QAfterFilterCondition>
+      deviceIdLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<VlxdDeliveryTicket, VlxdDeliveryTicket, QAfterFilterCondition>
+      deviceIdBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'deviceId',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<VlxdDeliveryTicket, VlxdDeliveryTicket, QAfterFilterCondition>
+      deviceIdStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<VlxdDeliveryTicket, VlxdDeliveryTicket, QAfterFilterCondition>
+      deviceIdEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<VlxdDeliveryTicket, VlxdDeliveryTicket, QAfterFilterCondition>
+      deviceIdContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<VlxdDeliveryTicket, VlxdDeliveryTicket, QAfterFilterCondition>
+      deviceIdMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'deviceId',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<VlxdDeliveryTicket, VlxdDeliveryTicket, QAfterFilterCondition>
+      deviceIdIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'deviceId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<VlxdDeliveryTicket, VlxdDeliveryTicket, QAfterFilterCondition>
+      deviceIdIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'deviceId',
         value: '',
       ));
     });
@@ -4011,6 +5396,16 @@ extension VlxdDeliveryTicketQueryFilter
   }
 
   QueryBuilder<VlxdDeliveryTicket, VlxdDeliveryTicket, QAfterFilterCondition>
+      isSyncedEqualTo(bool value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'isSynced',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<VlxdDeliveryTicket, VlxdDeliveryTicket, QAfterFilterCondition>
       receiverNameEqualTo(
     String value, {
     bool caseSensitive = true,
@@ -4339,6 +5734,62 @@ extension VlxdDeliveryTicketQueryFilter
   }
 
   QueryBuilder<VlxdDeliveryTicket, VlxdDeliveryTicket, QAfterFilterCondition>
+      updatedAtEqualTo(DateTime value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'updatedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<VlxdDeliveryTicket, VlxdDeliveryTicket, QAfterFilterCondition>
+      updatedAtGreaterThan(
+    DateTime value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'updatedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<VlxdDeliveryTicket, VlxdDeliveryTicket, QAfterFilterCondition>
+      updatedAtLessThan(
+    DateTime value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'updatedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<VlxdDeliveryTicket, VlxdDeliveryTicket, QAfterFilterCondition>
+      updatedAtBetween(
+    DateTime lower,
+    DateTime upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'updatedAt',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<VlxdDeliveryTicket, VlxdDeliveryTicket, QAfterFilterCondition>
       vehicleInfoEqualTo(
     String value, {
     bool caseSensitive = true,
@@ -4473,6 +5924,62 @@ extension VlxdDeliveryTicketQueryFilter
       ));
     });
   }
+
+  QueryBuilder<VlxdDeliveryTicket, VlxdDeliveryTicket, QAfterFilterCondition>
+      versionEqualTo(int value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'version',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<VlxdDeliveryTicket, VlxdDeliveryTicket, QAfterFilterCondition>
+      versionGreaterThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'version',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<VlxdDeliveryTicket, VlxdDeliveryTicket, QAfterFilterCondition>
+      versionLessThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'version',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<VlxdDeliveryTicket, VlxdDeliveryTicket, QAfterFilterCondition>
+      versionBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'version',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
 }
 
 extension VlxdDeliveryTicketQueryObject
@@ -4498,6 +6005,20 @@ extension VlxdDeliveryTicketQueryLinks
 extension VlxdDeliveryTicketQuerySortBy
     on QueryBuilder<VlxdDeliveryTicket, VlxdDeliveryTicket, QSortBy> {
   QueryBuilder<VlxdDeliveryTicket, VlxdDeliveryTicket, QAfterSortBy>
+      sortByDeletedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<VlxdDeliveryTicket, VlxdDeliveryTicket, QAfterSortBy>
+      sortByDeletedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<VlxdDeliveryTicket, VlxdDeliveryTicket, QAfterSortBy>
       sortByDeliveryDate() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'deliveryDate', Sort.asc);
@@ -4522,6 +6043,20 @@ extension VlxdDeliveryTicketQuerySortBy
       sortByDeliveryPhotoUrlDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'deliveryPhotoUrl', Sort.desc);
+    });
+  }
+
+  QueryBuilder<VlxdDeliveryTicket, VlxdDeliveryTicket, QAfterSortBy>
+      sortByDeviceId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<VlxdDeliveryTicket, VlxdDeliveryTicket, QAfterSortBy>
+      sortByDeviceIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.desc);
     });
   }
 
@@ -4568,6 +6103,20 @@ extension VlxdDeliveryTicketQuerySortBy
   }
 
   QueryBuilder<VlxdDeliveryTicket, VlxdDeliveryTicket, QAfterSortBy>
+      sortByIsSynced() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.asc);
+    });
+  }
+
+  QueryBuilder<VlxdDeliveryTicket, VlxdDeliveryTicket, QAfterSortBy>
+      sortByIsSyncedDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.desc);
+    });
+  }
+
+  QueryBuilder<VlxdDeliveryTicket, VlxdDeliveryTicket, QAfterSortBy>
       sortByReceiverName() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'receiverName', Sort.asc);
@@ -4610,6 +6159,20 @@ extension VlxdDeliveryTicketQuerySortBy
   }
 
   QueryBuilder<VlxdDeliveryTicket, VlxdDeliveryTicket, QAfterSortBy>
+      sortByUpdatedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'updatedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<VlxdDeliveryTicket, VlxdDeliveryTicket, QAfterSortBy>
+      sortByUpdatedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'updatedAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<VlxdDeliveryTicket, VlxdDeliveryTicket, QAfterSortBy>
       sortByVehicleInfo() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'vehicleInfo', Sort.asc);
@@ -4622,10 +6185,38 @@ extension VlxdDeliveryTicketQuerySortBy
       return query.addSortBy(r'vehicleInfo', Sort.desc);
     });
   }
+
+  QueryBuilder<VlxdDeliveryTicket, VlxdDeliveryTicket, QAfterSortBy>
+      sortByVersion() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.asc);
+    });
+  }
+
+  QueryBuilder<VlxdDeliveryTicket, VlxdDeliveryTicket, QAfterSortBy>
+      sortByVersionDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.desc);
+    });
+  }
 }
 
 extension VlxdDeliveryTicketQuerySortThenBy
     on QueryBuilder<VlxdDeliveryTicket, VlxdDeliveryTicket, QSortThenBy> {
+  QueryBuilder<VlxdDeliveryTicket, VlxdDeliveryTicket, QAfterSortBy>
+      thenByDeletedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<VlxdDeliveryTicket, VlxdDeliveryTicket, QAfterSortBy>
+      thenByDeletedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.desc);
+    });
+  }
+
   QueryBuilder<VlxdDeliveryTicket, VlxdDeliveryTicket, QAfterSortBy>
       thenByDeliveryDate() {
     return QueryBuilder.apply(this, (query) {
@@ -4651,6 +6242,20 @@ extension VlxdDeliveryTicketQuerySortThenBy
       thenByDeliveryPhotoUrlDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'deliveryPhotoUrl', Sort.desc);
+    });
+  }
+
+  QueryBuilder<VlxdDeliveryTicket, VlxdDeliveryTicket, QAfterSortBy>
+      thenByDeviceId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<VlxdDeliveryTicket, VlxdDeliveryTicket, QAfterSortBy>
+      thenByDeviceIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.desc);
     });
   }
 
@@ -4711,6 +6316,20 @@ extension VlxdDeliveryTicketQuerySortThenBy
   }
 
   QueryBuilder<VlxdDeliveryTicket, VlxdDeliveryTicket, QAfterSortBy>
+      thenByIsSynced() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.asc);
+    });
+  }
+
+  QueryBuilder<VlxdDeliveryTicket, VlxdDeliveryTicket, QAfterSortBy>
+      thenByIsSyncedDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.desc);
+    });
+  }
+
+  QueryBuilder<VlxdDeliveryTicket, VlxdDeliveryTicket, QAfterSortBy>
       thenByReceiverName() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'receiverName', Sort.asc);
@@ -4753,6 +6372,20 @@ extension VlxdDeliveryTicketQuerySortThenBy
   }
 
   QueryBuilder<VlxdDeliveryTicket, VlxdDeliveryTicket, QAfterSortBy>
+      thenByUpdatedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'updatedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<VlxdDeliveryTicket, VlxdDeliveryTicket, QAfterSortBy>
+      thenByUpdatedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'updatedAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<VlxdDeliveryTicket, VlxdDeliveryTicket, QAfterSortBy>
       thenByVehicleInfo() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'vehicleInfo', Sort.asc);
@@ -4765,10 +6398,31 @@ extension VlxdDeliveryTicketQuerySortThenBy
       return query.addSortBy(r'vehicleInfo', Sort.desc);
     });
   }
+
+  QueryBuilder<VlxdDeliveryTicket, VlxdDeliveryTicket, QAfterSortBy>
+      thenByVersion() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.asc);
+    });
+  }
+
+  QueryBuilder<VlxdDeliveryTicket, VlxdDeliveryTicket, QAfterSortBy>
+      thenByVersionDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.desc);
+    });
+  }
 }
 
 extension VlxdDeliveryTicketQueryWhereDistinct
     on QueryBuilder<VlxdDeliveryTicket, VlxdDeliveryTicket, QDistinct> {
+  QueryBuilder<VlxdDeliveryTicket, VlxdDeliveryTicket, QDistinct>
+      distinctByDeletedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'deletedAt');
+    });
+  }
+
   QueryBuilder<VlxdDeliveryTicket, VlxdDeliveryTicket, QDistinct>
       distinctByDeliveryDate() {
     return QueryBuilder.apply(this, (query) {
@@ -4781,6 +6435,13 @@ extension VlxdDeliveryTicketQueryWhereDistinct
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'deliveryPhotoUrl',
           caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<VlxdDeliveryTicket, VlxdDeliveryTicket, QDistinct>
+      distinctByDeviceId({bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'deviceId', caseSensitive: caseSensitive);
     });
   }
 
@@ -4807,6 +6468,13 @@ extension VlxdDeliveryTicketQueryWhereDistinct
   }
 
   QueryBuilder<VlxdDeliveryTicket, VlxdDeliveryTicket, QDistinct>
+      distinctByIsSynced() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'isSynced');
+    });
+  }
+
+  QueryBuilder<VlxdDeliveryTicket, VlxdDeliveryTicket, QDistinct>
       distinctByReceiverName({bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'receiverName', caseSensitive: caseSensitive);
@@ -4828,9 +6496,23 @@ extension VlxdDeliveryTicketQueryWhereDistinct
   }
 
   QueryBuilder<VlxdDeliveryTicket, VlxdDeliveryTicket, QDistinct>
+      distinctByUpdatedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'updatedAt');
+    });
+  }
+
+  QueryBuilder<VlxdDeliveryTicket, VlxdDeliveryTicket, QDistinct>
       distinctByVehicleInfo({bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'vehicleInfo', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<VlxdDeliveryTicket, VlxdDeliveryTicket, QDistinct>
+      distinctByVersion() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'version');
     });
   }
 }
@@ -4840,6 +6522,13 @@ extension VlxdDeliveryTicketQueryProperty
   QueryBuilder<VlxdDeliveryTicket, int, QQueryOperations> idProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'id');
+    });
+  }
+
+  QueryBuilder<VlxdDeliveryTicket, DateTime?, QQueryOperations>
+      deletedAtProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'deletedAt');
     });
   }
 
@@ -4854,6 +6543,13 @@ extension VlxdDeliveryTicketQueryProperty
       deliveryPhotoUrlProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'deliveryPhotoUrl');
+    });
+  }
+
+  QueryBuilder<VlxdDeliveryTicket, String, QQueryOperations>
+      deviceIdProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'deviceId');
     });
   }
 
@@ -4878,6 +6574,12 @@ extension VlxdDeliveryTicketQueryProperty
     });
   }
 
+  QueryBuilder<VlxdDeliveryTicket, bool, QQueryOperations> isSyncedProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'isSynced');
+    });
+  }
+
   QueryBuilder<VlxdDeliveryTicket, String, QQueryOperations>
       receiverNameProperty() {
     return QueryBuilder.apply(this, (query) {
@@ -4899,10 +6601,23 @@ extension VlxdDeliveryTicketQueryProperty
     });
   }
 
+  QueryBuilder<VlxdDeliveryTicket, DateTime, QQueryOperations>
+      updatedAtProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'updatedAt');
+    });
+  }
+
   QueryBuilder<VlxdDeliveryTicket, String, QQueryOperations>
       vehicleInfoProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'vehicleInfo');
+    });
+  }
+
+  QueryBuilder<VlxdDeliveryTicket, int, QQueryOperations> versionProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'version');
     });
   }
 }

@@ -70,7 +70,7 @@ class DatabaseService extends ChangeNotifier {
         _memory[e.collection]![e.itemId] = jsonDecode(e.jsonData);
       }
     } catch (e) {
-      debugPrint("Isar load error: $e");
+      // ignore isar load errors
     }
   }
 
@@ -99,7 +99,7 @@ class DatabaseService extends ChangeNotifier {
         }
       });
     } catch (e) {
-      debugPrint("Isar save item error: $e");
+      // ignore isar save errors
     }
   }
 
@@ -119,7 +119,7 @@ class DatabaseService extends ChangeNotifier {
         });
       }
     } catch (e) {
-      debugPrint("Isar delete item error: $e");
+      // ignore isar delete errors
     }
   }
 
@@ -147,7 +147,7 @@ class DatabaseService extends ChangeNotifier {
           }
         });
       } catch (e) {
-        debugPrint("Isar clear collection error: $e");
+        // ignore isar clear collection errors
       }
     }
     notifyListeners();

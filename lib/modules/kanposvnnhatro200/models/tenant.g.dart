@@ -37,51 +37,71 @@ const TenantSchema = CollectionSchema(
       name: r'deleted',
       type: IsarType.bool,
     ),
-    r'email': PropertySchema(
+    r'deletedAt': PropertySchema(
       id: 4,
+      name: r'deletedAt',
+      type: IsarType.dateTime,
+    ),
+    r'deviceId': PropertySchema(
+      id: 5,
+      name: r'deviceId',
+      type: IsarType.string,
+    ),
+    r'email': PropertySchema(
+      id: 6,
       name: r'email',
       type: IsarType.string,
     ),
     r'fullName': PropertySchema(
-      id: 5,
+      id: 7,
       name: r'fullName',
       type: IsarType.string,
     ),
+    r'isSynced': PropertySchema(
+      id: 8,
+      name: r'isSynced',
+      type: IsarType.bool,
+    ),
     r'licensePlate': PropertySchema(
-      id: 6,
+      id: 9,
       name: r'licensePlate',
       type: IsarType.string,
     ),
     r'occupation': PropertySchema(
-      id: 7,
+      id: 10,
       name: r'occupation',
       type: IsarType.string,
     ),
     r'permanentAddress': PropertySchema(
-      id: 8,
+      id: 11,
       name: r'permanentAddress',
       type: IsarType.string,
     ),
     r'phone': PropertySchema(
-      id: 9,
+      id: 12,
       name: r'phone',
       type: IsarType.string,
     ),
     r'syncStatus': PropertySchema(
-      id: 10,
+      id: 13,
       name: r'syncStatus',
       type: IsarType.string,
       enumMap: _TenantsyncStatusEnumValueMap,
     ),
     r'updatedAt': PropertySchema(
-      id: 11,
+      id: 14,
       name: r'updatedAt',
       type: IsarType.dateTime,
     ),
     r'uuid': PropertySchema(
-      id: 12,
+      id: 15,
       name: r'uuid',
       type: IsarType.string,
+    ),
+    r'version': PropertySchema(
+      id: 16,
+      name: r'version',
+      type: IsarType.long,
     )
   },
   estimateSize: _tenantEstimateSize,
@@ -124,6 +144,7 @@ int _tenantEstimateSize(
       bytesCount += 3 + value.length * 3;
     }
   }
+  bytesCount += 3 + object.deviceId.length * 3;
   {
     final value = object.email;
     if (value != null) {
@@ -180,15 +201,19 @@ void _tenantSerialize(
   writer.writeString(offsets[1], object.cccd);
   writer.writeDateTime(offsets[2], object.createdAt);
   writer.writeBool(offsets[3], object.deleted);
-  writer.writeString(offsets[4], object.email);
-  writer.writeString(offsets[5], object.fullName);
-  writer.writeString(offsets[6], object.licensePlate);
-  writer.writeString(offsets[7], object.occupation);
-  writer.writeString(offsets[8], object.permanentAddress);
-  writer.writeString(offsets[9], object.phone);
-  writer.writeString(offsets[10], object.syncStatus.name);
-  writer.writeDateTime(offsets[11], object.updatedAt);
-  writer.writeString(offsets[12], object.uuid);
+  writer.writeDateTime(offsets[4], object.deletedAt);
+  writer.writeString(offsets[5], object.deviceId);
+  writer.writeString(offsets[6], object.email);
+  writer.writeString(offsets[7], object.fullName);
+  writer.writeBool(offsets[8], object.isSynced);
+  writer.writeString(offsets[9], object.licensePlate);
+  writer.writeString(offsets[10], object.occupation);
+  writer.writeString(offsets[11], object.permanentAddress);
+  writer.writeString(offsets[12], object.phone);
+  writer.writeString(offsets[13], object.syncStatus.name);
+  writer.writeDateTime(offsets[14], object.updatedAt);
+  writer.writeString(offsets[15], object.uuid);
+  writer.writeLong(offsets[16], object.version);
 }
 
 Tenant _tenantDeserialize(
@@ -202,18 +227,22 @@ Tenant _tenantDeserialize(
   object.cccd = reader.readStringOrNull(offsets[1]);
   object.createdAt = reader.readDateTimeOrNull(offsets[2]);
   object.deleted = reader.readBool(offsets[3]);
-  object.email = reader.readStringOrNull(offsets[4]);
-  object.fullName = reader.readStringOrNull(offsets[5]);
+  object.deletedAt = reader.readDateTimeOrNull(offsets[4]);
+  object.deviceId = reader.readString(offsets[5]);
+  object.email = reader.readStringOrNull(offsets[6]);
+  object.fullName = reader.readStringOrNull(offsets[7]);
   object.id = id;
-  object.licensePlate = reader.readStringOrNull(offsets[6]);
-  object.occupation = reader.readStringOrNull(offsets[7]);
-  object.permanentAddress = reader.readStringOrNull(offsets[8]);
-  object.phone = reader.readStringOrNull(offsets[9]);
+  object.isSynced = reader.readBool(offsets[8]);
+  object.licensePlate = reader.readStringOrNull(offsets[9]);
+  object.occupation = reader.readStringOrNull(offsets[10]);
+  object.permanentAddress = reader.readStringOrNull(offsets[11]);
+  object.phone = reader.readStringOrNull(offsets[12]);
   object.syncStatus =
-      _TenantsyncStatusValueEnumMap[reader.readStringOrNull(offsets[10])] ??
+      _TenantsyncStatusValueEnumMap[reader.readStringOrNull(offsets[13])] ??
           SyncStatus.pending;
-  object.updatedAt = reader.readDateTimeOrNull(offsets[11]);
-  object.uuid = reader.readStringOrNull(offsets[12]);
+  object.updatedAt = reader.readDateTimeOrNull(offsets[14]);
+  object.uuid = reader.readStringOrNull(offsets[15]);
+  object.version = reader.readLong(offsets[16]);
   return object;
 }
 
@@ -233,24 +262,32 @@ P _tenantDeserializeProp<P>(
     case 3:
       return (reader.readBool(offset)) as P;
     case 4:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readDateTimeOrNull(offset)) as P;
     case 5:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 6:
       return (reader.readStringOrNull(offset)) as P;
     case 7:
       return (reader.readStringOrNull(offset)) as P;
     case 8:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readBool(offset)) as P;
     case 9:
       return (reader.readStringOrNull(offset)) as P;
     case 10:
-      return (_TenantsyncStatusValueEnumMap[reader.readStringOrNull(offset)] ??
-          SyncStatus.pending) as P;
+      return (reader.readStringOrNull(offset)) as P;
     case 11:
-      return (reader.readDateTimeOrNull(offset)) as P;
+      return (reader.readStringOrNull(offset)) as P;
     case 12:
       return (reader.readStringOrNull(offset)) as P;
+    case 13:
+      return (_TenantsyncStatusValueEnumMap[reader.readStringOrNull(offset)] ??
+          SyncStatus.pending) as P;
+    case 14:
+      return (reader.readDateTimeOrNull(offset)) as P;
+    case 15:
+      return (reader.readStringOrNull(offset)) as P;
+    case 16:
+      return (reader.readLong(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
   }
@@ -765,6 +802,205 @@ extension TenantQueryFilter on QueryBuilder<Tenant, Tenant, QFilterCondition> {
     });
   }
 
+  QueryBuilder<Tenant, Tenant, QAfterFilterCondition> deletedAtIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'deletedAt',
+      ));
+    });
+  }
+
+  QueryBuilder<Tenant, Tenant, QAfterFilterCondition> deletedAtIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'deletedAt',
+      ));
+    });
+  }
+
+  QueryBuilder<Tenant, Tenant, QAfterFilterCondition> deletedAtEqualTo(
+      DateTime? value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'deletedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Tenant, Tenant, QAfterFilterCondition> deletedAtGreaterThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'deletedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Tenant, Tenant, QAfterFilterCondition> deletedAtLessThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'deletedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Tenant, Tenant, QAfterFilterCondition> deletedAtBetween(
+    DateTime? lower,
+    DateTime? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'deletedAt',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<Tenant, Tenant, QAfterFilterCondition> deviceIdEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Tenant, Tenant, QAfterFilterCondition> deviceIdGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Tenant, Tenant, QAfterFilterCondition> deviceIdLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Tenant, Tenant, QAfterFilterCondition> deviceIdBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'deviceId',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Tenant, Tenant, QAfterFilterCondition> deviceIdStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Tenant, Tenant, QAfterFilterCondition> deviceIdEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Tenant, Tenant, QAfterFilterCondition> deviceIdContains(
+      String value,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Tenant, Tenant, QAfterFilterCondition> deviceIdMatches(
+      String pattern,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'deviceId',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Tenant, Tenant, QAfterFilterCondition> deviceIdIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'deviceId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<Tenant, Tenant, QAfterFilterCondition> deviceIdIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'deviceId',
+        value: '',
+      ));
+    });
+  }
+
   QueryBuilder<Tenant, Tenant, QAfterFilterCondition> emailIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNull(
@@ -1105,6 +1341,16 @@ extension TenantQueryFilter on QueryBuilder<Tenant, Tenant, QFilterCondition> {
         includeLower: includeLower,
         upper: upper,
         includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<Tenant, Tenant, QAfterFilterCondition> isSyncedEqualTo(
+      bool value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'isSynced',
+        value: value,
       ));
     });
   }
@@ -2041,6 +2287,59 @@ extension TenantQueryFilter on QueryBuilder<Tenant, Tenant, QFilterCondition> {
       ));
     });
   }
+
+  QueryBuilder<Tenant, Tenant, QAfterFilterCondition> versionEqualTo(
+      int value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'version',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Tenant, Tenant, QAfterFilterCondition> versionGreaterThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'version',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Tenant, Tenant, QAfterFilterCondition> versionLessThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'version',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Tenant, Tenant, QAfterFilterCondition> versionBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'version',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
 }
 
 extension TenantQueryObject on QueryBuilder<Tenant, Tenant, QFilterCondition> {}
@@ -2096,6 +2395,30 @@ extension TenantQuerySortBy on QueryBuilder<Tenant, Tenant, QSortBy> {
     });
   }
 
+  QueryBuilder<Tenant, Tenant, QAfterSortBy> sortByDeletedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Tenant, Tenant, QAfterSortBy> sortByDeletedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Tenant, Tenant, QAfterSortBy> sortByDeviceId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Tenant, Tenant, QAfterSortBy> sortByDeviceIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.desc);
+    });
+  }
+
   QueryBuilder<Tenant, Tenant, QAfterSortBy> sortByEmail() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'email', Sort.asc);
@@ -2117,6 +2440,18 @@ extension TenantQuerySortBy on QueryBuilder<Tenant, Tenant, QSortBy> {
   QueryBuilder<Tenant, Tenant, QAfterSortBy> sortByFullNameDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'fullName', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Tenant, Tenant, QAfterSortBy> sortByIsSynced() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Tenant, Tenant, QAfterSortBy> sortByIsSyncedDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.desc);
     });
   }
 
@@ -2203,6 +2538,18 @@ extension TenantQuerySortBy on QueryBuilder<Tenant, Tenant, QSortBy> {
       return query.addSortBy(r'uuid', Sort.desc);
     });
   }
+
+  QueryBuilder<Tenant, Tenant, QAfterSortBy> sortByVersion() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Tenant, Tenant, QAfterSortBy> sortByVersionDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.desc);
+    });
+  }
 }
 
 extension TenantQuerySortThenBy on QueryBuilder<Tenant, Tenant, QSortThenBy> {
@@ -2254,6 +2601,30 @@ extension TenantQuerySortThenBy on QueryBuilder<Tenant, Tenant, QSortThenBy> {
     });
   }
 
+  QueryBuilder<Tenant, Tenant, QAfterSortBy> thenByDeletedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Tenant, Tenant, QAfterSortBy> thenByDeletedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Tenant, Tenant, QAfterSortBy> thenByDeviceId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Tenant, Tenant, QAfterSortBy> thenByDeviceIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.desc);
+    });
+  }
+
   QueryBuilder<Tenant, Tenant, QAfterSortBy> thenByEmail() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'email', Sort.asc);
@@ -2287,6 +2658,18 @@ extension TenantQuerySortThenBy on QueryBuilder<Tenant, Tenant, QSortThenBy> {
   QueryBuilder<Tenant, Tenant, QAfterSortBy> thenByIdDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'id', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Tenant, Tenant, QAfterSortBy> thenByIsSynced() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Tenant, Tenant, QAfterSortBy> thenByIsSyncedDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.desc);
     });
   }
 
@@ -2373,6 +2756,18 @@ extension TenantQuerySortThenBy on QueryBuilder<Tenant, Tenant, QSortThenBy> {
       return query.addSortBy(r'uuid', Sort.desc);
     });
   }
+
+  QueryBuilder<Tenant, Tenant, QAfterSortBy> thenByVersion() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Tenant, Tenant, QAfterSortBy> thenByVersionDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.desc);
+    });
+  }
 }
 
 extension TenantQueryWhereDistinct on QueryBuilder<Tenant, Tenant, QDistinct> {
@@ -2401,6 +2796,19 @@ extension TenantQueryWhereDistinct on QueryBuilder<Tenant, Tenant, QDistinct> {
     });
   }
 
+  QueryBuilder<Tenant, Tenant, QDistinct> distinctByDeletedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'deletedAt');
+    });
+  }
+
+  QueryBuilder<Tenant, Tenant, QDistinct> distinctByDeviceId(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'deviceId', caseSensitive: caseSensitive);
+    });
+  }
+
   QueryBuilder<Tenant, Tenant, QDistinct> distinctByEmail(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
@@ -2412,6 +2820,12 @@ extension TenantQueryWhereDistinct on QueryBuilder<Tenant, Tenant, QDistinct> {
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'fullName', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<Tenant, Tenant, QDistinct> distinctByIsSynced() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'isSynced');
     });
   }
 
@@ -2463,6 +2877,12 @@ extension TenantQueryWhereDistinct on QueryBuilder<Tenant, Tenant, QDistinct> {
       return query.addDistinctBy(r'uuid', caseSensitive: caseSensitive);
     });
   }
+
+  QueryBuilder<Tenant, Tenant, QDistinct> distinctByVersion() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'version');
+    });
+  }
 }
 
 extension TenantQueryProperty on QueryBuilder<Tenant, Tenant, QQueryProperty> {
@@ -2496,6 +2916,18 @@ extension TenantQueryProperty on QueryBuilder<Tenant, Tenant, QQueryProperty> {
     });
   }
 
+  QueryBuilder<Tenant, DateTime?, QQueryOperations> deletedAtProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'deletedAt');
+    });
+  }
+
+  QueryBuilder<Tenant, String, QQueryOperations> deviceIdProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'deviceId');
+    });
+  }
+
   QueryBuilder<Tenant, String?, QQueryOperations> emailProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'email');
@@ -2505,6 +2937,12 @@ extension TenantQueryProperty on QueryBuilder<Tenant, Tenant, QQueryProperty> {
   QueryBuilder<Tenant, String?, QQueryOperations> fullNameProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'fullName');
+    });
+  }
+
+  QueryBuilder<Tenant, bool, QQueryOperations> isSyncedProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'isSynced');
     });
   }
 
@@ -2547,6 +2985,12 @@ extension TenantQueryProperty on QueryBuilder<Tenant, Tenant, QQueryProperty> {
   QueryBuilder<Tenant, String?, QQueryOperations> uuidProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'uuid');
+    });
+  }
+
+  QueryBuilder<Tenant, int, QQueryOperations> versionProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'version');
     });
   }
 }

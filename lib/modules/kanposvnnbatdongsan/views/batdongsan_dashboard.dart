@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/providers.dart';
+import '../../../core/router/module_selector_screen.dart';
 import '../providers/batdongsan_providers.dart';
 import '../services/batdongsan_seed_data.dart';
 import 'property_list_screen.dart';
 import 'customer_list_screen.dart';
 import 'broker_list_screen.dart';
 import 'transaction_list_screen.dart';
+import 'batdongsan_sales_report_screen.dart';
+import 'batdongsan_sync_screen.dart';
 import '../models/customer.dart';
 
 class BatDongSanDashboard extends ConsumerStatefulWidget {
@@ -68,7 +72,15 @@ class _BatDongSanDashboardState extends ConsumerState<BatDongSanDashboard> {
                 const SnackBar(content: Text('Đang đồng bộ...')),
               );
             },
-          )
+          ),
+          IconButton(
+            icon: const Icon(Icons.logout),
+            tooltip: 'Thoát',
+            onPressed: () async {
+              await ref.read(authServiceProvider).signOut();
+              ref.read(selectedModuleProvider.notifier).state = null;
+            },
+          ),
         ],
       ),
       body: Padding(
@@ -78,20 +90,26 @@ class _BatDongSanDashboardState extends ConsumerState<BatDongSanDashboard> {
           crossAxisSpacing: 16,
           mainAxisSpacing: 16,
           children: [
-            _buildDashboardCard(context, 'Tổng BĐS', Icons.home, Colors.blue, () {
+            _buildDashboardCard(context, 'Bất động sản', Icons.home, Colors.blue, () {
               Navigator.push(context, MaterialPageRoute(builder: (context) => const PropertyListScreen()));
             }),
-            _buildDashboardCard(context, 'Khách Mua', Icons.person_add, Colors.green, () {
+            _buildDashboardCard(context, 'Khách mua', Icons.people, Colors.green, () {
               Navigator.push(context, MaterialPageRoute(builder: (context) => const CustomerListScreen(type: CustomerType.buyer)));
             }),
-            _buildDashboardCard(context, 'Khách Bán', Icons.person_remove, Colors.orange, () {
+            _buildDashboardCard(context, 'Khách bán', Icons.people_outline, Colors.lightGreen, () {
               Navigator.push(context, MaterialPageRoute(builder: (context) => const CustomerListScreen(type: CustomerType.seller)));
             }),
-            _buildDashboardCard(context, 'Môi Giới', Icons.support_agent, Colors.teal, () {
+            _buildDashboardCard(context, 'Môi giới', Icons.person, Colors.orange, () {
               Navigator.push(context, MaterialPageRoute(builder: (context) => const BrokerListScreen()));
             }),
-            _buildDashboardCard(context, 'Giao Dịch', Icons.handshake, Colors.purple, () {
+            _buildDashboardCard(context, 'Giao dịch', Icons.description, Colors.purple, () {
               Navigator.push(context, MaterialPageRoute(builder: (context) => const TransactionListScreen()));
+            }),
+            _buildDashboardCard(context, 'Báo cáo', Icons.bar_chart, Colors.deepOrange, () {
+              Navigator.push(context, MaterialPageRoute(builder: (context) => const BatDongSanSalesReportScreen()));
+            }),
+            _buildDashboardCard(context, 'Đồng bộ', Icons.sync, Colors.indigo, () {
+              Navigator.push(context, MaterialPageRoute(builder: (context) => const BatDongSanSyncScreen()));
             }),
           ],
         ),

@@ -17,6 +17,11 @@ enum RoomStatus {
 @collection
 class RoomType {
   Id id = Isar.autoIncrement;
+  bool isSynced = false;
+  DateTime updatedAt = DateTime.now();
+  DateTime? deletedAt;
+  String deviceId = "";
+  int version = 1;
 
   @Index(unique: true, replace: true)
   String typeCode = ''; // e.g. STD, VIP
@@ -34,6 +39,11 @@ class RoomType {
 @collection
 class HotelFloor {
   Id id = Isar.autoIncrement;
+  bool isSynced = false;
+  DateTime updatedAt = DateTime.now();
+  DateTime? deletedAt;
+  String deviceId = "";
+  int version = 1;
 
   @Index(unique: true, replace: true)
   String floorCode = '';
@@ -46,6 +56,10 @@ class HotelFloor {
 @collection
 class HotelRoom {
   Id id = Isar.autoIncrement;
+  bool isSynced = false;
+  DateTime? deletedAt;
+  String deviceId = "";
+  int version = 1;
 
   @Index(unique: true, replace: true)
   String roomId = ''; // UUID for sync

@@ -6,6 +6,11 @@ part 'gara_sync_model.g.dart';
 class GaraSyncQueue {
   Id id = Isar.autoIncrement;
   
+  DateTime updatedAt = DateTime.now();
+  DateTime? deletedAt;
+  String deviceId = "";
+  int version = 1;
+  
   String entityType = ''; // e.g. 'GaraCustomer', 'GaraRepairOrder'
   String entityId = ''; // id của đối tượng
   

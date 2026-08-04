@@ -32,36 +32,56 @@ const HostelSchema = CollectionSchema(
       name: r'deleted',
       type: IsarType.bool,
     ),
-    r'managerName': PropertySchema(
+    r'deletedAt': PropertySchema(
       id: 3,
+      name: r'deletedAt',
+      type: IsarType.dateTime,
+    ),
+    r'deviceId': PropertySchema(
+      id: 4,
+      name: r'deviceId',
+      type: IsarType.string,
+    ),
+    r'isSynced': PropertySchema(
+      id: 5,
+      name: r'isSynced',
+      type: IsarType.bool,
+    ),
+    r'managerName': PropertySchema(
+      id: 6,
       name: r'managerName',
       type: IsarType.string,
     ),
     r'name': PropertySchema(
-      id: 4,
+      id: 7,
       name: r'name',
       type: IsarType.string,
     ),
     r'notes': PropertySchema(
-      id: 5,
+      id: 8,
       name: r'notes',
       type: IsarType.string,
     ),
     r'syncStatus': PropertySchema(
-      id: 6,
+      id: 9,
       name: r'syncStatus',
       type: IsarType.string,
       enumMap: _HostelsyncStatusEnumValueMap,
     ),
     r'updatedAt': PropertySchema(
-      id: 7,
+      id: 10,
       name: r'updatedAt',
       type: IsarType.dateTime,
     ),
     r'uuid': PropertySchema(
-      id: 8,
+      id: 11,
       name: r'uuid',
       type: IsarType.string,
+    ),
+    r'version': PropertySchema(
+      id: 12,
+      name: r'version',
+      type: IsarType.long,
     )
   },
   estimateSize: _hostelEstimateSize,
@@ -104,6 +124,7 @@ int _hostelEstimateSize(
       bytesCount += 3 + value.length * 3;
     }
   }
+  bytesCount += 3 + object.deviceId.length * 3;
   {
     final value = object.managerName;
     if (value != null) {
@@ -141,12 +162,16 @@ void _hostelSerialize(
   writer.writeString(offsets[0], object.address);
   writer.writeDateTime(offsets[1], object.createdAt);
   writer.writeBool(offsets[2], object.deleted);
-  writer.writeString(offsets[3], object.managerName);
-  writer.writeString(offsets[4], object.name);
-  writer.writeString(offsets[5], object.notes);
-  writer.writeString(offsets[6], object.syncStatus.name);
-  writer.writeDateTime(offsets[7], object.updatedAt);
-  writer.writeString(offsets[8], object.uuid);
+  writer.writeDateTime(offsets[3], object.deletedAt);
+  writer.writeString(offsets[4], object.deviceId);
+  writer.writeBool(offsets[5], object.isSynced);
+  writer.writeString(offsets[6], object.managerName);
+  writer.writeString(offsets[7], object.name);
+  writer.writeString(offsets[8], object.notes);
+  writer.writeString(offsets[9], object.syncStatus.name);
+  writer.writeDateTime(offsets[10], object.updatedAt);
+  writer.writeString(offsets[11], object.uuid);
+  writer.writeLong(offsets[12], object.version);
 }
 
 Hostel _hostelDeserialize(
@@ -159,15 +184,19 @@ Hostel _hostelDeserialize(
   object.address = reader.readStringOrNull(offsets[0]);
   object.createdAt = reader.readDateTimeOrNull(offsets[1]);
   object.deleted = reader.readBool(offsets[2]);
+  object.deletedAt = reader.readDateTimeOrNull(offsets[3]);
+  object.deviceId = reader.readString(offsets[4]);
   object.id = id;
-  object.managerName = reader.readStringOrNull(offsets[3]);
-  object.name = reader.readStringOrNull(offsets[4]);
-  object.notes = reader.readStringOrNull(offsets[5]);
+  object.isSynced = reader.readBool(offsets[5]);
+  object.managerName = reader.readStringOrNull(offsets[6]);
+  object.name = reader.readStringOrNull(offsets[7]);
+  object.notes = reader.readStringOrNull(offsets[8]);
   object.syncStatus =
-      _HostelsyncStatusValueEnumMap[reader.readStringOrNull(offsets[6])] ??
+      _HostelsyncStatusValueEnumMap[reader.readStringOrNull(offsets[9])] ??
           SyncStatus.pending;
-  object.updatedAt = reader.readDateTimeOrNull(offsets[7]);
-  object.uuid = reader.readStringOrNull(offsets[8]);
+  object.updatedAt = reader.readDateTimeOrNull(offsets[10]);
+  object.uuid = reader.readStringOrNull(offsets[11]);
+  object.version = reader.readLong(offsets[12]);
   return object;
 }
 
@@ -185,18 +214,26 @@ P _hostelDeserializeProp<P>(
     case 2:
       return (reader.readBool(offset)) as P;
     case 3:
-      return (reader.readStringOrNull(offset)) as P;
-    case 4:
-      return (reader.readStringOrNull(offset)) as P;
-    case 5:
-      return (reader.readStringOrNull(offset)) as P;
-    case 6:
-      return (_HostelsyncStatusValueEnumMap[reader.readStringOrNull(offset)] ??
-          SyncStatus.pending) as P;
-    case 7:
       return (reader.readDateTimeOrNull(offset)) as P;
+    case 4:
+      return (reader.readString(offset)) as P;
+    case 5:
+      return (reader.readBool(offset)) as P;
+    case 6:
+      return (reader.readStringOrNull(offset)) as P;
+    case 7:
+      return (reader.readStringOrNull(offset)) as P;
     case 8:
       return (reader.readStringOrNull(offset)) as P;
+    case 9:
+      return (_HostelsyncStatusValueEnumMap[reader.readStringOrNull(offset)] ??
+          SyncStatus.pending) as P;
+    case 10:
+      return (reader.readDateTimeOrNull(offset)) as P;
+    case 11:
+      return (reader.readStringOrNull(offset)) as P;
+    case 12:
+      return (reader.readLong(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
   }
@@ -643,6 +680,205 @@ extension HostelQueryFilter on QueryBuilder<Hostel, Hostel, QFilterCondition> {
     });
   }
 
+  QueryBuilder<Hostel, Hostel, QAfterFilterCondition> deletedAtIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'deletedAt',
+      ));
+    });
+  }
+
+  QueryBuilder<Hostel, Hostel, QAfterFilterCondition> deletedAtIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'deletedAt',
+      ));
+    });
+  }
+
+  QueryBuilder<Hostel, Hostel, QAfterFilterCondition> deletedAtEqualTo(
+      DateTime? value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'deletedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Hostel, Hostel, QAfterFilterCondition> deletedAtGreaterThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'deletedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Hostel, Hostel, QAfterFilterCondition> deletedAtLessThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'deletedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Hostel, Hostel, QAfterFilterCondition> deletedAtBetween(
+    DateTime? lower,
+    DateTime? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'deletedAt',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<Hostel, Hostel, QAfterFilterCondition> deviceIdEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Hostel, Hostel, QAfterFilterCondition> deviceIdGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Hostel, Hostel, QAfterFilterCondition> deviceIdLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Hostel, Hostel, QAfterFilterCondition> deviceIdBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'deviceId',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Hostel, Hostel, QAfterFilterCondition> deviceIdStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Hostel, Hostel, QAfterFilterCondition> deviceIdEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Hostel, Hostel, QAfterFilterCondition> deviceIdContains(
+      String value,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Hostel, Hostel, QAfterFilterCondition> deviceIdMatches(
+      String pattern,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'deviceId',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Hostel, Hostel, QAfterFilterCondition> deviceIdIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'deviceId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<Hostel, Hostel, QAfterFilterCondition> deviceIdIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'deviceId',
+        value: '',
+      ));
+    });
+  }
+
   QueryBuilder<Hostel, Hostel, QAfterFilterCondition> idEqualTo(Id value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
@@ -691,6 +927,16 @@ extension HostelQueryFilter on QueryBuilder<Hostel, Hostel, QFilterCondition> {
         includeLower: includeLower,
         upper: upper,
         includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<Hostel, Hostel, QAfterFilterCondition> isSyncedEqualTo(
+      bool value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'isSynced',
+        value: value,
       ));
     });
   }
@@ -1475,6 +1721,59 @@ extension HostelQueryFilter on QueryBuilder<Hostel, Hostel, QFilterCondition> {
       ));
     });
   }
+
+  QueryBuilder<Hostel, Hostel, QAfterFilterCondition> versionEqualTo(
+      int value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'version',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Hostel, Hostel, QAfterFilterCondition> versionGreaterThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'version',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Hostel, Hostel, QAfterFilterCondition> versionLessThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'version',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Hostel, Hostel, QAfterFilterCondition> versionBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'version',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
 }
 
 extension HostelQueryObject on QueryBuilder<Hostel, Hostel, QFilterCondition> {}
@@ -1515,6 +1814,42 @@ extension HostelQuerySortBy on QueryBuilder<Hostel, Hostel, QSortBy> {
   QueryBuilder<Hostel, Hostel, QAfterSortBy> sortByDeletedDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'deleted', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Hostel, Hostel, QAfterSortBy> sortByDeletedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Hostel, Hostel, QAfterSortBy> sortByDeletedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Hostel, Hostel, QAfterSortBy> sortByDeviceId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Hostel, Hostel, QAfterSortBy> sortByDeviceIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Hostel, Hostel, QAfterSortBy> sortByIsSynced() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Hostel, Hostel, QAfterSortBy> sortByIsSyncedDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.desc);
     });
   }
 
@@ -1589,6 +1924,18 @@ extension HostelQuerySortBy on QueryBuilder<Hostel, Hostel, QSortBy> {
       return query.addSortBy(r'uuid', Sort.desc);
     });
   }
+
+  QueryBuilder<Hostel, Hostel, QAfterSortBy> sortByVersion() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Hostel, Hostel, QAfterSortBy> sortByVersionDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.desc);
+    });
+  }
 }
 
 extension HostelQuerySortThenBy on QueryBuilder<Hostel, Hostel, QSortThenBy> {
@@ -1628,6 +1975,30 @@ extension HostelQuerySortThenBy on QueryBuilder<Hostel, Hostel, QSortThenBy> {
     });
   }
 
+  QueryBuilder<Hostel, Hostel, QAfterSortBy> thenByDeletedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Hostel, Hostel, QAfterSortBy> thenByDeletedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Hostel, Hostel, QAfterSortBy> thenByDeviceId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Hostel, Hostel, QAfterSortBy> thenByDeviceIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.desc);
+    });
+  }
+
   QueryBuilder<Hostel, Hostel, QAfterSortBy> thenById() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'id', Sort.asc);
@@ -1637,6 +2008,18 @@ extension HostelQuerySortThenBy on QueryBuilder<Hostel, Hostel, QSortThenBy> {
   QueryBuilder<Hostel, Hostel, QAfterSortBy> thenByIdDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'id', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Hostel, Hostel, QAfterSortBy> thenByIsSynced() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Hostel, Hostel, QAfterSortBy> thenByIsSyncedDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.desc);
     });
   }
 
@@ -1711,6 +2094,18 @@ extension HostelQuerySortThenBy on QueryBuilder<Hostel, Hostel, QSortThenBy> {
       return query.addSortBy(r'uuid', Sort.desc);
     });
   }
+
+  QueryBuilder<Hostel, Hostel, QAfterSortBy> thenByVersion() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Hostel, Hostel, QAfterSortBy> thenByVersionDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.desc);
+    });
+  }
 }
 
 extension HostelQueryWhereDistinct on QueryBuilder<Hostel, Hostel, QDistinct> {
@@ -1730,6 +2125,25 @@ extension HostelQueryWhereDistinct on QueryBuilder<Hostel, Hostel, QDistinct> {
   QueryBuilder<Hostel, Hostel, QDistinct> distinctByDeleted() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'deleted');
+    });
+  }
+
+  QueryBuilder<Hostel, Hostel, QDistinct> distinctByDeletedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'deletedAt');
+    });
+  }
+
+  QueryBuilder<Hostel, Hostel, QDistinct> distinctByDeviceId(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'deviceId', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<Hostel, Hostel, QDistinct> distinctByIsSynced() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'isSynced');
     });
   }
 
@@ -1773,6 +2187,12 @@ extension HostelQueryWhereDistinct on QueryBuilder<Hostel, Hostel, QDistinct> {
       return query.addDistinctBy(r'uuid', caseSensitive: caseSensitive);
     });
   }
+
+  QueryBuilder<Hostel, Hostel, QDistinct> distinctByVersion() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'version');
+    });
+  }
 }
 
 extension HostelQueryProperty on QueryBuilder<Hostel, Hostel, QQueryProperty> {
@@ -1797,6 +2217,24 @@ extension HostelQueryProperty on QueryBuilder<Hostel, Hostel, QQueryProperty> {
   QueryBuilder<Hostel, bool, QQueryOperations> deletedProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'deleted');
+    });
+  }
+
+  QueryBuilder<Hostel, DateTime?, QQueryOperations> deletedAtProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'deletedAt');
+    });
+  }
+
+  QueryBuilder<Hostel, String, QQueryOperations> deviceIdProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'deviceId');
+    });
+  }
+
+  QueryBuilder<Hostel, bool, QQueryOperations> isSyncedProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'isSynced');
     });
   }
 
@@ -1833,6 +2271,12 @@ extension HostelQueryProperty on QueryBuilder<Hostel, Hostel, QQueryProperty> {
   QueryBuilder<Hostel, String?, QQueryOperations> uuidProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'uuid');
+    });
+  }
+
+  QueryBuilder<Hostel, int, QQueryOperations> versionProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'version');
     });
   }
 }

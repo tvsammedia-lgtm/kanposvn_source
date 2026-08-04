@@ -33,36 +33,61 @@ const VlxdFinanceTransactionSchema = CollectionSchema(
       name: r'createdBy',
       type: IsarType.string,
     ),
-    r'description': PropertySchema(
+    r'deletedAt': PropertySchema(
       id: 3,
+      name: r'deletedAt',
+      type: IsarType.dateTime,
+    ),
+    r'description': PropertySchema(
+      id: 4,
       name: r'description',
       type: IsarType.string,
     ),
+    r'deviceId': PropertySchema(
+      id: 5,
+      name: r'deviceId',
+      type: IsarType.string,
+    ),
     r'documentCode': PropertySchema(
-      id: 4,
+      id: 6,
       name: r'documentCode',
       type: IsarType.string,
     ),
+    r'isSynced': PropertySchema(
+      id: 7,
+      name: r'isSynced',
+      type: IsarType.bool,
+    ),
     r'paymentMethod': PropertySchema(
-      id: 5,
+      id: 8,
       name: r'paymentMethod',
       type: IsarType.string,
     ),
     r'transactionDate': PropertySchema(
-      id: 6,
+      id: 9,
       name: r'transactionDate',
       type: IsarType.dateTime,
     ),
     r'transactionId': PropertySchema(
-      id: 7,
+      id: 10,
       name: r'transactionId',
       type: IsarType.string,
     ),
     r'type': PropertySchema(
-      id: 8,
+      id: 11,
       name: r'type',
       type: IsarType.byte,
       enumMap: _VlxdFinanceTransactiontypeEnumValueMap,
+    ),
+    r'updatedAt': PropertySchema(
+      id: 12,
+      name: r'updatedAt',
+      type: IsarType.dateTime,
+    ),
+    r'version': PropertySchema(
+      id: 13,
+      name: r'version',
+      type: IsarType.long,
     )
   },
   estimateSize: _vlxdFinanceTransactionEstimateSize,
@@ -121,6 +146,7 @@ int _vlxdFinanceTransactionEstimateSize(
   bytesCount += 3 + object.category.length * 3;
   bytesCount += 3 + object.createdBy.length * 3;
   bytesCount += 3 + object.description.length * 3;
+  bytesCount += 3 + object.deviceId.length * 3;
   bytesCount += 3 + object.documentCode.length * 3;
   bytesCount += 3 + object.paymentMethod.length * 3;
   bytesCount += 3 + object.transactionId.length * 3;
@@ -136,12 +162,17 @@ void _vlxdFinanceTransactionSerialize(
   writer.writeDouble(offsets[0], object.amount);
   writer.writeString(offsets[1], object.category);
   writer.writeString(offsets[2], object.createdBy);
-  writer.writeString(offsets[3], object.description);
-  writer.writeString(offsets[4], object.documentCode);
-  writer.writeString(offsets[5], object.paymentMethod);
-  writer.writeDateTime(offsets[6], object.transactionDate);
-  writer.writeString(offsets[7], object.transactionId);
-  writer.writeByte(offsets[8], object.type.index);
+  writer.writeDateTime(offsets[3], object.deletedAt);
+  writer.writeString(offsets[4], object.description);
+  writer.writeString(offsets[5], object.deviceId);
+  writer.writeString(offsets[6], object.documentCode);
+  writer.writeBool(offsets[7], object.isSynced);
+  writer.writeString(offsets[8], object.paymentMethod);
+  writer.writeDateTime(offsets[9], object.transactionDate);
+  writer.writeString(offsets[10], object.transactionId);
+  writer.writeByte(offsets[11], object.type.index);
+  writer.writeDateTime(offsets[12], object.updatedAt);
+  writer.writeLong(offsets[13], object.version);
 }
 
 VlxdFinanceTransaction _vlxdFinanceTransactionDeserialize(
@@ -154,15 +185,20 @@ VlxdFinanceTransaction _vlxdFinanceTransactionDeserialize(
   object.amount = reader.readDouble(offsets[0]);
   object.category = reader.readString(offsets[1]);
   object.createdBy = reader.readString(offsets[2]);
-  object.description = reader.readString(offsets[3]);
-  object.documentCode = reader.readString(offsets[4]);
+  object.deletedAt = reader.readDateTimeOrNull(offsets[3]);
+  object.description = reader.readString(offsets[4]);
+  object.deviceId = reader.readString(offsets[5]);
+  object.documentCode = reader.readString(offsets[6]);
   object.id = id;
-  object.paymentMethod = reader.readString(offsets[5]);
-  object.transactionDate = reader.readDateTime(offsets[6]);
-  object.transactionId = reader.readString(offsets[7]);
+  object.isSynced = reader.readBool(offsets[7]);
+  object.paymentMethod = reader.readString(offsets[8]);
+  object.transactionDate = reader.readDateTime(offsets[9]);
+  object.transactionId = reader.readString(offsets[10]);
   object.type = _VlxdFinanceTransactiontypeValueEnumMap[
-          reader.readByteOrNull(offsets[8])] ??
+          reader.readByteOrNull(offsets[11])] ??
       FinanceTransactionType.RECEIPT;
+  object.updatedAt = reader.readDateTime(offsets[12]);
+  object.version = reader.readLong(offsets[13]);
   return object;
 }
 
@@ -180,19 +216,29 @@ P _vlxdFinanceTransactionDeserializeProp<P>(
     case 2:
       return (reader.readString(offset)) as P;
     case 3:
-      return (reader.readString(offset)) as P;
+      return (reader.readDateTimeOrNull(offset)) as P;
     case 4:
       return (reader.readString(offset)) as P;
     case 5:
       return (reader.readString(offset)) as P;
     case 6:
-      return (reader.readDateTime(offset)) as P;
-    case 7:
       return (reader.readString(offset)) as P;
+    case 7:
+      return (reader.readBool(offset)) as P;
     case 8:
+      return (reader.readString(offset)) as P;
+    case 9:
+      return (reader.readDateTime(offset)) as P;
+    case 10:
+      return (reader.readString(offset)) as P;
+    case 11:
       return (_VlxdFinanceTransactiontypeValueEnumMap[
               reader.readByteOrNull(offset)] ??
           FinanceTransactionType.RECEIPT) as P;
+    case 12:
+      return (reader.readDateTime(offset)) as P;
+    case 13:
+      return (reader.readLong(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
   }
@@ -756,6 +802,80 @@ extension VlxdFinanceTransactionQueryFilter on QueryBuilder<
   }
 
   QueryBuilder<VlxdFinanceTransaction, VlxdFinanceTransaction,
+      QAfterFilterCondition> deletedAtIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'deletedAt',
+      ));
+    });
+  }
+
+  QueryBuilder<VlxdFinanceTransaction, VlxdFinanceTransaction,
+      QAfterFilterCondition> deletedAtIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'deletedAt',
+      ));
+    });
+  }
+
+  QueryBuilder<VlxdFinanceTransaction, VlxdFinanceTransaction,
+      QAfterFilterCondition> deletedAtEqualTo(DateTime? value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'deletedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<VlxdFinanceTransaction, VlxdFinanceTransaction,
+      QAfterFilterCondition> deletedAtGreaterThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'deletedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<VlxdFinanceTransaction, VlxdFinanceTransaction,
+      QAfterFilterCondition> deletedAtLessThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'deletedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<VlxdFinanceTransaction, VlxdFinanceTransaction,
+      QAfterFilterCondition> deletedAtBetween(
+    DateTime? lower,
+    DateTime? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'deletedAt',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<VlxdFinanceTransaction, VlxdFinanceTransaction,
       QAfterFilterCondition> descriptionEqualTo(
     String value, {
     bool caseSensitive = true,
@@ -888,6 +1008,144 @@ extension VlxdFinanceTransactionQueryFilter on QueryBuilder<
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         property: r'description',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<VlxdFinanceTransaction, VlxdFinanceTransaction,
+      QAfterFilterCondition> deviceIdEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<VlxdFinanceTransaction, VlxdFinanceTransaction,
+      QAfterFilterCondition> deviceIdGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<VlxdFinanceTransaction, VlxdFinanceTransaction,
+      QAfterFilterCondition> deviceIdLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<VlxdFinanceTransaction, VlxdFinanceTransaction,
+      QAfterFilterCondition> deviceIdBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'deviceId',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<VlxdFinanceTransaction, VlxdFinanceTransaction,
+      QAfterFilterCondition> deviceIdStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<VlxdFinanceTransaction, VlxdFinanceTransaction,
+      QAfterFilterCondition> deviceIdEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<VlxdFinanceTransaction, VlxdFinanceTransaction,
+          QAfterFilterCondition>
+      deviceIdContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<VlxdFinanceTransaction, VlxdFinanceTransaction,
+          QAfterFilterCondition>
+      deviceIdMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'deviceId',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<VlxdFinanceTransaction, VlxdFinanceTransaction,
+      QAfterFilterCondition> deviceIdIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'deviceId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<VlxdFinanceTransaction, VlxdFinanceTransaction,
+      QAfterFilterCondition> deviceIdIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'deviceId',
         value: '',
       ));
     });
@@ -1083,6 +1341,16 @@ extension VlxdFinanceTransactionQueryFilter on QueryBuilder<
         includeLower: includeLower,
         upper: upper,
         includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<VlxdFinanceTransaction, VlxdFinanceTransaction,
+      QAfterFilterCondition> isSyncedEqualTo(bool value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'isSynced',
+        value: value,
       ));
     });
   }
@@ -1474,6 +1742,118 @@ extension VlxdFinanceTransactionQueryFilter on QueryBuilder<
       ));
     });
   }
+
+  QueryBuilder<VlxdFinanceTransaction, VlxdFinanceTransaction,
+      QAfterFilterCondition> updatedAtEqualTo(DateTime value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'updatedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<VlxdFinanceTransaction, VlxdFinanceTransaction,
+      QAfterFilterCondition> updatedAtGreaterThan(
+    DateTime value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'updatedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<VlxdFinanceTransaction, VlxdFinanceTransaction,
+      QAfterFilterCondition> updatedAtLessThan(
+    DateTime value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'updatedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<VlxdFinanceTransaction, VlxdFinanceTransaction,
+      QAfterFilterCondition> updatedAtBetween(
+    DateTime lower,
+    DateTime upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'updatedAt',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<VlxdFinanceTransaction, VlxdFinanceTransaction,
+      QAfterFilterCondition> versionEqualTo(int value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'version',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<VlxdFinanceTransaction, VlxdFinanceTransaction,
+      QAfterFilterCondition> versionGreaterThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'version',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<VlxdFinanceTransaction, VlxdFinanceTransaction,
+      QAfterFilterCondition> versionLessThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'version',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<VlxdFinanceTransaction, VlxdFinanceTransaction,
+      QAfterFilterCondition> versionBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'version',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
 }
 
 extension VlxdFinanceTransactionQueryObject on QueryBuilder<
@@ -1569,6 +1949,20 @@ extension VlxdFinanceTransactionQuerySortBy
   }
 
   QueryBuilder<VlxdFinanceTransaction, VlxdFinanceTransaction, QAfterSortBy>
+      sortByDeletedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<VlxdFinanceTransaction, VlxdFinanceTransaction, QAfterSortBy>
+      sortByDeletedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<VlxdFinanceTransaction, VlxdFinanceTransaction, QAfterSortBy>
       sortByDescription() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'description', Sort.asc);
@@ -1583,6 +1977,20 @@ extension VlxdFinanceTransactionQuerySortBy
   }
 
   QueryBuilder<VlxdFinanceTransaction, VlxdFinanceTransaction, QAfterSortBy>
+      sortByDeviceId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<VlxdFinanceTransaction, VlxdFinanceTransaction, QAfterSortBy>
+      sortByDeviceIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<VlxdFinanceTransaction, VlxdFinanceTransaction, QAfterSortBy>
       sortByDocumentCode() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'documentCode', Sort.asc);
@@ -1593,6 +2001,20 @@ extension VlxdFinanceTransactionQuerySortBy
       sortByDocumentCodeDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'documentCode', Sort.desc);
+    });
+  }
+
+  QueryBuilder<VlxdFinanceTransaction, VlxdFinanceTransaction, QAfterSortBy>
+      sortByIsSynced() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.asc);
+    });
+  }
+
+  QueryBuilder<VlxdFinanceTransaction, VlxdFinanceTransaction, QAfterSortBy>
+      sortByIsSyncedDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.desc);
     });
   }
 
@@ -1651,6 +2073,34 @@ extension VlxdFinanceTransactionQuerySortBy
       return query.addSortBy(r'type', Sort.desc);
     });
   }
+
+  QueryBuilder<VlxdFinanceTransaction, VlxdFinanceTransaction, QAfterSortBy>
+      sortByUpdatedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'updatedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<VlxdFinanceTransaction, VlxdFinanceTransaction, QAfterSortBy>
+      sortByUpdatedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'updatedAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<VlxdFinanceTransaction, VlxdFinanceTransaction, QAfterSortBy>
+      sortByVersion() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.asc);
+    });
+  }
+
+  QueryBuilder<VlxdFinanceTransaction, VlxdFinanceTransaction, QAfterSortBy>
+      sortByVersionDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.desc);
+    });
+  }
 }
 
 extension VlxdFinanceTransactionQuerySortThenBy on QueryBuilder<
@@ -1698,6 +2148,20 @@ extension VlxdFinanceTransactionQuerySortThenBy on QueryBuilder<
   }
 
   QueryBuilder<VlxdFinanceTransaction, VlxdFinanceTransaction, QAfterSortBy>
+      thenByDeletedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<VlxdFinanceTransaction, VlxdFinanceTransaction, QAfterSortBy>
+      thenByDeletedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<VlxdFinanceTransaction, VlxdFinanceTransaction, QAfterSortBy>
       thenByDescription() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'description', Sort.asc);
@@ -1708,6 +2172,20 @@ extension VlxdFinanceTransactionQuerySortThenBy on QueryBuilder<
       thenByDescriptionDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'description', Sort.desc);
+    });
+  }
+
+  QueryBuilder<VlxdFinanceTransaction, VlxdFinanceTransaction, QAfterSortBy>
+      thenByDeviceId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<VlxdFinanceTransaction, VlxdFinanceTransaction, QAfterSortBy>
+      thenByDeviceIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.desc);
     });
   }
 
@@ -1736,6 +2214,20 @@ extension VlxdFinanceTransactionQuerySortThenBy on QueryBuilder<
       thenByIdDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'id', Sort.desc);
+    });
+  }
+
+  QueryBuilder<VlxdFinanceTransaction, VlxdFinanceTransaction, QAfterSortBy>
+      thenByIsSynced() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.asc);
+    });
+  }
+
+  QueryBuilder<VlxdFinanceTransaction, VlxdFinanceTransaction, QAfterSortBy>
+      thenByIsSyncedDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.desc);
     });
   }
 
@@ -1794,6 +2286,34 @@ extension VlxdFinanceTransactionQuerySortThenBy on QueryBuilder<
       return query.addSortBy(r'type', Sort.desc);
     });
   }
+
+  QueryBuilder<VlxdFinanceTransaction, VlxdFinanceTransaction, QAfterSortBy>
+      thenByUpdatedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'updatedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<VlxdFinanceTransaction, VlxdFinanceTransaction, QAfterSortBy>
+      thenByUpdatedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'updatedAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<VlxdFinanceTransaction, VlxdFinanceTransaction, QAfterSortBy>
+      thenByVersion() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.asc);
+    });
+  }
+
+  QueryBuilder<VlxdFinanceTransaction, VlxdFinanceTransaction, QAfterSortBy>
+      thenByVersionDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.desc);
+    });
+  }
 }
 
 extension VlxdFinanceTransactionQueryWhereDistinct
@@ -1820,6 +2340,13 @@ extension VlxdFinanceTransactionQueryWhereDistinct
   }
 
   QueryBuilder<VlxdFinanceTransaction, VlxdFinanceTransaction, QDistinct>
+      distinctByDeletedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'deletedAt');
+    });
+  }
+
+  QueryBuilder<VlxdFinanceTransaction, VlxdFinanceTransaction, QDistinct>
       distinctByDescription({bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'description', caseSensitive: caseSensitive);
@@ -1827,9 +2354,23 @@ extension VlxdFinanceTransactionQueryWhereDistinct
   }
 
   QueryBuilder<VlxdFinanceTransaction, VlxdFinanceTransaction, QDistinct>
+      distinctByDeviceId({bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'deviceId', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<VlxdFinanceTransaction, VlxdFinanceTransaction, QDistinct>
       distinctByDocumentCode({bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'documentCode', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<VlxdFinanceTransaction, VlxdFinanceTransaction, QDistinct>
+      distinctByIsSynced() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'isSynced');
     });
   }
 
@@ -1860,6 +2401,20 @@ extension VlxdFinanceTransactionQueryWhereDistinct
       distinctByType() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'type');
+    });
+  }
+
+  QueryBuilder<VlxdFinanceTransaction, VlxdFinanceTransaction, QDistinct>
+      distinctByUpdatedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'updatedAt');
+    });
+  }
+
+  QueryBuilder<VlxdFinanceTransaction, VlxdFinanceTransaction, QDistinct>
+      distinctByVersion() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'version');
     });
   }
 }
@@ -1893,6 +2448,13 @@ extension VlxdFinanceTransactionQueryProperty on QueryBuilder<
     });
   }
 
+  QueryBuilder<VlxdFinanceTransaction, DateTime?, QQueryOperations>
+      deletedAtProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'deletedAt');
+    });
+  }
+
   QueryBuilder<VlxdFinanceTransaction, String, QQueryOperations>
       descriptionProperty() {
     return QueryBuilder.apply(this, (query) {
@@ -1901,9 +2463,23 @@ extension VlxdFinanceTransactionQueryProperty on QueryBuilder<
   }
 
   QueryBuilder<VlxdFinanceTransaction, String, QQueryOperations>
+      deviceIdProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'deviceId');
+    });
+  }
+
+  QueryBuilder<VlxdFinanceTransaction, String, QQueryOperations>
       documentCodeProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'documentCode');
+    });
+  }
+
+  QueryBuilder<VlxdFinanceTransaction, bool, QQueryOperations>
+      isSyncedProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'isSynced');
     });
   }
 
@@ -1932,6 +2508,20 @@ extension VlxdFinanceTransactionQueryProperty on QueryBuilder<
       typeProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'type');
+    });
+  }
+
+  QueryBuilder<VlxdFinanceTransaction, DateTime, QQueryOperations>
+      updatedAtProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'updatedAt');
+    });
+  }
+
+  QueryBuilder<VlxdFinanceTransaction, int, QQueryOperations>
+      versionProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'version');
     });
   }
 }

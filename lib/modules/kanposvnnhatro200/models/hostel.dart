@@ -6,6 +6,11 @@ part 'hostel.g.dart';
 class Hostel {
   Id id = Isar.autoIncrement; // Local ID
 
+  bool isSynced = false;
+  DateTime? deletedAt;
+  String deviceId = "";
+  int version = 1;
+
   @Index(unique: true, replace: true)
   String? uuid; // Neon DB ID
 

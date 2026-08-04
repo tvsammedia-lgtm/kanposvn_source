@@ -5,6 +5,11 @@ part 'nhathuoc_sync_model.g.dart';
 @collection
 class NhathuocSyncQueue {
   Id id = Isar.autoIncrement;
+
+  DateTime updatedAt = DateTime.now();
+  DateTime? deletedAt;
+  String deviceId = "";
+  int version = 1;
   
   String entityType = '';
   String entityId = ''; 

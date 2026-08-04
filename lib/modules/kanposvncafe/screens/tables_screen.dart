@@ -45,17 +45,65 @@ class _TablesScreenState extends ConsumerState<TablesScreen> {
     }
 
     return Scaffold(
-      body: areas.isEmpty
-          ? const Center(
-              child: Text('Chưa có khu vực nào. Vui lòng seed dữ liệu.'),
-            )
-          : Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
+      appBar: AppBar(title: const Text('Sơ Đồ Bàn - Cafe')),
+      body: SafeArea(
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            if (areas.isEmpty) {
+              return const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(16.0),
+                  child: Text('Chưa có khu vực nào. Vui lòng seed dữ liệu.'),
+                ),
+              );
+            }
+
+            final isWide = constraints.maxWidth >= 900;
+            if (isWide) {
+              return Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    flex: 3,
+                    child: ListView.builder(
+                      padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
+                      itemCount: areas.length,
+                      itemBuilder: (context, areaIndex) {
+                        final area = areas[areaIndex];
+                        final areaTables = tables
+                            .where((t) => t.areaId == area.id)
+                            .toList();
+                        final emptyCount = areaTables
+                            .where((t) => t.status == TableStatus.trong)
+                            .length;
+                        final occupiedCount = areaTables.length - emptyCount;
+
+                        return _buildFloorSection(
+                          context,
+                          area,
+                          areaTables,
+                          emptyCount,
+                          occupiedCount,
+                          orders,
+                          posCart,
+                        );
+                      },
+                    ),
+                  ),
+                  const VerticalDivider(width: 1, thickness: 1),
+                  Expanded(
+                    flex: 2,
+                    child: _buildOrderDetailPanel(selectedTable, selectedOrder),
+                  ),
+                ],
+              );
+            }
+
+            return Column(
               children: [
                 Expanded(
-                  flex: 3,
                   child: ListView.builder(
-                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
+                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
                     itemCount: areas.length,
                     itemBuilder: (context, areaIndex) {
                       final area = areas[areaIndex];
@@ -79,13 +127,16 @@ class _TablesScreenState extends ConsumerState<TablesScreen> {
                     },
                   ),
                 ),
-                const VerticalDivider(width: 1, thickness: 1),
-                Expanded(
-                  flex: 2,
+                const Divider(height: 1),
+                SizedBox(
+                  height: constraints.maxHeight * 0.42,
                   child: _buildOrderDetailPanel(selectedTable, selectedOrder),
                 ),
               ],
-            ),
+            );
+          },
+        ),
+      ),
     );
   }
 
@@ -403,216 +454,237 @@ class _TablesScreenState extends ConsumerState<TablesScreen> {
     final sheetStatus = activeOrder != null && table.status == TableStatus.trong
         ? TableStatus.coKhach
         : table.status;
-    final canAct = table.status != TableStatus.dangDon &&
+    final canAct =
+        table.status != TableStatus.dangDon &&
         table.status != TableStatus.daThanhToan;
 
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
       builder: (ctx) {
         return Padding(
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                '${table.name} · ${table.areaName}',
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 3,
-                ),
-                decoration: BoxDecoration(
-                  color: Color(sheetStatus.colorValue).withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Text(
-                  sheetStatus.label,
-                  style: TextStyle(
-                    color: Color(table.status.colorValue),
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 8),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+          padding: EdgeInsets.fromLTRB(
+            16,
+            16,
+            16,
+            MediaQuery.of(ctx).viewInsets.bottom + 16,
+          ),
+          child: SafeArea(
+            top: false,
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  _infoChip(Icons.event_seat, '${table.seatCount} ghế'),
-                  if (table.customerInfo != null) ...[
-                    const SizedBox(width: 8),
-                    _infoChip(
-                      Icons.people,
-                      '${table.customerInfo!.guestCount} khách',
+                  Text(
+                    '${table.name} · ${table.areaName}',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 3,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Color(
+                        sheetStatus.colorValue,
+                      ).withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Text(
+                      sheetStatus.label,
+                      style: TextStyle(
+                        color: Color(table.status.colorValue),
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      _infoChip(Icons.event_seat, '${table.seatCount} ghế'),
+                      if (table.customerInfo != null) ...[
+                        const SizedBox(width: 8),
+                        _infoChip(
+                          Icons.people,
+                          '${table.customerInfo!.guestCount} khách',
+                        ),
+                      ],
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  // --- Nút GỌI MÓN / THANH TOÁN (trống & có khách đều mở được) ---
+                  SizedBox(
+                    width: double.infinity,
+                    height: 48,
+                    child: ElevatedButton.icon(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFD97706),
+                        disabledBackgroundColor: const Color(
+                          0xFFD97706,
+                        ).withValues(alpha: 0.4),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      icon: Icon(
+                        table.status == TableStatus.dangDon
+                            ? Icons.cleaning_services
+                            : (table.status == TableStatus.daThanhToan
+                                  ? Icons.check_circle_outline
+                                  : (activeOrder != null
+                                        ? Icons.payment
+                                        : Icons.add_shopping_cart)),
+                        color: Colors.white,
+                        size: 20,
+                      ),
+                      label: Text(
+                        table.status == TableStatus.dangDon
+                            ? 'Bàn đang dọn'
+                            : (table.status == TableStatus.daThanhToan
+                                  ? 'Bàn đã thanh toán'
+                                  : (activeOrder != null
+                                        ? 'Thanh toán'
+                                        : 'Gọi món')),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15,
+                        ),
+                      ),
+                      onPressed: canAct
+                          ? () {
+                              Navigator.pop(ctx);
+                              if (activeOrder != null) {
+                                _enterOrderForPayment(
+                                  context,
+                                  table,
+                                  activeOrder,
+                                );
+                              } else {
+                                _showOrderTypePickerDialog(context, table);
+                              }
+                            }
+                          : null,
+                    ),
+                  ),
+                  if (activeOrder != null) ...[
+                    const SizedBox(height: 8),
+                    // Tóm tắt đơn hàng
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 8,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.amber.shade50,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.amber.shade200),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.shopping_cart,
+                            size: 16,
+                            color: Colors.amber.shade700,
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            '${activeOrder.items.length} món · ',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.amber.shade900,
+                            ),
+                          ),
+                          Text(
+                            currencyFormatter.format(activeOrder.grandTotal),
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 13,
+                              color: Colors.amber.shade900,
+                            ),
+                          ),
+                          const Spacer(),
+                          Text(
+                            '#${activeOrder.orderCode}',
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: Colors.amber.shade600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                  const Divider(),
+                  // --- Các thao tác quản lý bàn ---
+                  if (table.status == TableStatus.coKhach ||
+                      table.status == TableStatus.dangPhucVu ||
+                      table.status == TableStatus.choThanhToan ||
+                      table.status == TableStatus.daThanhToan) ...[
+                    ListTile(
+                      dense: true,
+                      leading: const Icon(Icons.swap_horiz, color: Colors.blue),
+                      title: const Text('Chuyển bàn'),
+                      onTap: () {
+                        Navigator.pop(ctx);
+                        _showMoveTableDialog(context, table);
+                      },
+                    ),
+                    ListTile(
+                      dense: true,
+                      leading: const Icon(
+                        Icons.merge_type,
+                        color: Colors.purple,
+                      ),
+                      title: const Text('Ghép bàn'),
+                      onTap: () {
+                        Navigator.pop(ctx);
+                        _showMergeTableDialog(context, table);
+                      },
+                    ),
+                    ListTile(
+                      dense: true,
+                      leading: Icon(
+                        Icons.cleaning_services,
+                        color: table.status == TableStatus.daThanhToan
+                            ? Colors.teal
+                            : Colors.grey,
+                      ),
+                      title: Text(
+                        'Dọn bàn',
+                        style: TextStyle(
+                          color: table.status == TableStatus.daThanhToan
+                              ? null
+                              : Colors.grey,
+                        ),
+                      ),
+                      subtitle: Text(
+                        table.status == TableStatus.daThanhToan
+                            ? 'Chuyển bàn về trạng thái trống'
+                            : 'Bàn đang có khách',
+                        style: TextStyle(fontSize: 10, color: Colors.grey),
+                      ),
+                      onTap: table.status == TableStatus.daThanhToan
+                          ? () {
+                              Navigator.pop(ctx);
+                              _showCleanTableDialog(context, table);
+                            }
+                          : null,
                     ),
                   ],
                 ],
               ),
-              const SizedBox(height: 16),
-              // --- Nút GỌI MÓN / THANH TOÁN (trống & có khách đều mở được) ---
-              SizedBox(
-                width: double.infinity,
-                height: 48,
-                child: ElevatedButton.icon(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFD97706),
-                    disabledBackgroundColor: const Color(
-                      0xFFD97706,
-                    ).withValues(alpha: 0.4),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  icon: Icon(
-                    table.status == TableStatus.dangDon
-                        ? Icons.cleaning_services
-                        : (table.status == TableStatus.daThanhToan
-                            ? Icons.check_circle_outline
-                            : (activeOrder != null
-                                ? Icons.payment
-                                : Icons.add_shopping_cart)),
-                    color: Colors.white,
-                    size: 20,
-                  ),
-                  label: Text(
-                    table.status == TableStatus.dangDon
-                        ? 'Bàn đang dọn'
-                        : (table.status == TableStatus.daThanhToan
-                            ? 'Bàn đã thanh toán'
-                            : (activeOrder != null
-                                ? 'Thanh toán'
-                                : 'Gọi món')),
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 15,
-                    ),
-                  ),
-                  onPressed: canAct
-                      ? () {
-                          Navigator.pop(ctx);
-                          if (activeOrder != null) {
-                            _enterOrderForPayment(context, table, activeOrder);
-                          } else {
-                            _showOrderTypePickerDialog(context, table);
-                          }
-                        }
-                      : null,
-                ),
-              ),
-              if (activeOrder != null) ...[
-                const SizedBox(height: 8),
-                // Tóm tắt đơn hàng
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 8,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.amber.shade50,
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.amber.shade200),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.shopping_cart,
-                        size: 16,
-                        color: Colors.amber.shade700,
-                      ),
-                      const SizedBox(width: 6),
-                      Text(
-                        '${activeOrder.items.length} món · ',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.amber.shade900,
-                        ),
-                      ),
-                      Text(
-                        currencyFormatter.format(activeOrder.grandTotal),
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 13,
-                          color: Colors.amber.shade900,
-                        ),
-                      ),
-                      const Spacer(),
-                      Text(
-                        '#${activeOrder.orderCode}',
-                        style: TextStyle(
-                          fontSize: 11,
-                          color: Colors.amber.shade600,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-              const Divider(),
-              // --- Các thao tác quản lý bàn ---
-              if (table.status == TableStatus.coKhach ||
-                  table.status == TableStatus.dangPhucVu ||
-                  table.status == TableStatus.choThanhToan ||
-                  table.status == TableStatus.daThanhToan) ...[
-                ListTile(
-                  dense: true,
-                  leading: const Icon(Icons.swap_horiz, color: Colors.blue),
-                  title: const Text('Chuyển bàn'),
-                  onTap: () {
-                    Navigator.pop(ctx);
-                    _showMoveTableDialog(context, table);
-                  },
-                ),
-                ListTile(
-                  dense: true,
-                  leading: const Icon(Icons.merge_type, color: Colors.purple),
-                  title: const Text('Ghép bàn'),
-                  onTap: () {
-                    Navigator.pop(ctx);
-                    _showMergeTableDialog(context, table);
-                  },
-                ),
-                ListTile(
-                  dense: true,
-                  leading: Icon(
-                    Icons.cleaning_services,
-                    color: table.status == TableStatus.daThanhToan
-                        ? Colors.teal
-                        : Colors.grey,
-                  ),
-                  title: Text(
-                    'Dọn bàn',
-                    style: TextStyle(
-                      color: table.status == TableStatus.daThanhToan
-                          ? null
-                          : Colors.grey,
-                    ),
-                  ),
-                  subtitle: Text(
-                    table.status == TableStatus.daThanhToan
-                        ? 'Chuyển bàn về trạng thái trống'
-                        : 'Bàn đang có khách',
-                    style: TextStyle(fontSize: 10, color: Colors.grey),
-                  ),
-                  onTap: table.status == TableStatus.daThanhToan
-                      ? () {
-                          Navigator.pop(ctx);
-                          _showCleanTableDialog(context, table);
-                        }
-                      : null,
-                ),
-              ],
-            ],
+            ),
           ),
         );
       },
@@ -642,13 +714,15 @@ class _TablesScreenState extends ConsumerState<TablesScreen> {
                 ),
           );
     }
-    ref.read(cafeTabIndexProvider.notifier).state = 1;
+    ref.read(cafeTabIndexProvider.notifier).state = 2;
   }
 
   void _showOrderTypePickerDialog(BuildContext context, CafeTable table) {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true,
+        insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
         title: const Text('Chọn loại phục vụ'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -727,7 +801,7 @@ class _TablesScreenState extends ConsumerState<TablesScreen> {
                     ),
               );
           ref.read(cafeOrdersProvider.notifier).loadOrders();
-          ref.read(cafeTabIndexProvider.notifier).state = 1;
+          ref.read(cafeTabIndexProvider.notifier).state = 2;
         },
         style: OutlinedButton.styleFrom(
           padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
@@ -799,6 +873,8 @@ class _TablesScreenState extends ConsumerState<TablesScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true,
+        insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
         title: Text('Dọn bàn ${table.name}'),
         content: const Text(
           'Xác nhận bàn đã dọn xong? Bàn sẽ chuyển sang trạng thái trống để phục vụ khách tiếp theo.',
@@ -836,6 +912,8 @@ class _TablesScreenState extends ConsumerState<TablesScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true,
+        insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
         title: Text('Chuyển từ ${sourceTable.name} sang:'),
         content: emptyTables.isEmpty
             ? const Text('Không có bàn trống nào để chuyển!')
@@ -870,7 +948,8 @@ class _TablesScreenState extends ConsumerState<TablesScreen> {
   }
 
   Widget _buildOrderDetailPanel(CafeTable? table, CafeOrder? order) {
-    final panelStatus = order != null && table != null && table.status == TableStatus.trong
+    final panelStatus =
+        order != null && table != null && table.status == TableStatus.trong
         ? TableStatus.coKhach
         : table?.status ?? TableStatus.trong;
     if (table == null) {
@@ -1204,6 +1283,8 @@ class _TablesScreenState extends ConsumerState<TablesScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true,
+        insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
         title: Text('Ghép ${table1.name} với bàn:'),
         content: otherTables.isEmpty
             ? const Text('Không có bàn nào khác đang có khách!')

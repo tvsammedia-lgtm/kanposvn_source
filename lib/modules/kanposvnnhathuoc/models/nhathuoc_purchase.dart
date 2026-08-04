@@ -8,6 +8,12 @@ part 'nhathuoc_purchase.g.dart';
 class NhathuocPurchase {
   Id id = Isar.autoIncrement;
 
+  bool isSynced = false;
+  DateTime updatedAt = DateTime.now();
+  DateTime? deletedAt;
+  String deviceId = "";
+  int version = 1;
+
   @Index(unique: true, replace: true)
   String purchaseId = '';
   
@@ -25,6 +31,12 @@ class NhathuocPurchase {
 @collection
 class NhathuocPurchaseDetail {
   Id id = Isar.autoIncrement;
+
+  bool isSynced = false;
+  DateTime updatedAt = DateTime.now();
+  DateTime? deletedAt;
+  String deviceId = "";
+  int version = 1;
   
   String batchNumber = ''; // Số lô
   DateTime? expiryDate; // Hạn sử dụng của lô nhập

@@ -1,111 +1,51 @@
-import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:http/http.dart' as http;
-import '../repositories/garment_repository.dart';
+import 'package:isar/isar.dart';
+import '../../../../core/sync/api_config.dart';
+import '../../../../core/sync/snapshot_sync_engine.dart';
+import '../../../../core/sync/vercel_api_client.dart';
+import '../isar_service.dart';
+import '../models/cut_detail.dart';
+import '../models/cut_header.dart';
+import '../models/thong_so.dart';
+import '../models/user.dart';
 
 final syncServiceProvider = Provider<SyncService>((ref) {
-  return SyncService(ref.watch(garmentRepositoryProvider));
+  return SyncService(ref.watch(isarProvider));
 });
 
 class SyncService {
-  final GarmentRepository repo;
+  final Isar isar;
 
-  SyncService(this.repo);
-
-  // ===== THAY ĐỔI URL NÀY SAU KHI DEPLOY VERCEL =====
-  static const String _baseUrl = 'https://your-app.vercel.app/api/sync';
+  SyncService(this.isar);
 
   Future<SyncResult> syncAll() async {
-    final headers = <String, String>{'Content-Type': 'application/json'};
-    int totalSynced = 0;
-    final errors = <String>[];
+    final engine = SnapshotSyncEngine(
+      apiClient: VercelApiClient(
+        pushUrl: ApiConfig.pushUrl,
+        pullUrl: ApiConfig.pullUrl,
+        apiKey: ApiConfig.syncApiKey,
+      ),
+      appCode: 'kanposvnqlcd',
+      collections: [
+        SnapshotSyncCollection(collection: isar.cutHeaders, keyField: 'idGen'),
+        SnapshotSyncCollection(collection: isar.cutDetails),
+        SnapshotSyncCollection(collection: isar.thongSos),
+        SnapshotSyncCollection(collection: isar.users, keyField: 'username'),
+      ],
+    );
 
     try {
-      // 1. Lấy tất cả CutHeader
-      final cutHeaders = await repo.getAllCutHeaders();
-      if (cutHeaders.isNotEmpty) {
-        final body = jsonEncode({
-          'table': 'cut_headers',
-          'records': cutHeaders.map((h) => {
-            'id_gen': h.idGen,
-            'cut_no': h.cutNo,
-            'po_no': h.poNo,
-            'start_bundle': h.startBundle,
-            'from_op': h.fromOp,
-            'to_op': h.toOp,
-            'date_create': h.dateCreate.toIso8601String(),
-            'size_labels': h.sizeLabels,
-          }).toList(),
-        });
-        final resp = await http.post(Uri.parse(_baseUrl), headers: headers, body: body);
-        if (resp.statusCode == 200) {
-          totalSynced += cutHeaders.length;
-        } else {
-          errors.add('cut_headers: ${resp.statusCode} ${resp.body}');
-        }
-      }
-
-      // 2. Lấy tất cả CutDetail
-      final cutDetails = await repo.getAllCutDetails();
-      if (cutDetails.isNotEmpty) {
-        final body = jsonEncode({
-          'table': 'cut_details',
-          'records': cutDetails.map((d) => {
-            'id_gen': d.idGen,
-            'gen': d.gen,
-            'cut_no': d.cutNo,
-            'po_no': d.poNo,
-            'size': d.size,
-            'color': d.color,
-            'start_bundle': d.startBundle,
-            'op_no': d.opNo,
-            'qty': d.qty,
-            'cut_no1': d.cutNo1,
-            'po_no1': d.poNo1,
-            'size1': d.size1,
-            'start_bundle1': d.startBundle1,
-            'op_no1': d.opNo1,
-            'qty1': d.qty1,
-          }).toList(),
-        });
-        final resp = await http.post(Uri.parse(_baseUrl), headers: headers, body: body);
-        if (resp.statusCode == 200) {
-          totalSynced += cutDetails.length;
-        } else {
-          errors.add('cut_details: ${resp.statusCode} ${resp.body}');
-        }
-      }
-
-      // 3. Lấy tất cả ThongSo
-      final thongSos = await repo.getAllThongSos();
-      if (thongSos.isNotEmpty) {
-        final body = jsonEncode({
-          'table': 'thong_sos',
-          'records': thongSos.map((t) => {
-            'id_gen': t.idGen,
-            'po_no': t.poNo,
-            'bundle_no': t.bundleNo,
-            'pieces': t.pieces,
-          }).toList(),
-        });
-        final resp = await http.post(Uri.parse(_baseUrl), headers: headers, body: body);
-        if (resp.statusCode == 200) {
-          totalSynced += thongSos.length;
-        } else {
-          errors.add('thong_sos: ${resp.statusCode} ${resp.body}');
-        }
-      }
-
+      final result = await engine.sync();
       return SyncResult(
-        success: errors.isEmpty,
-        syncedRecords: totalSynced,
-        errors: errors,
+        success: result.success,
+        syncedRecords: result.pushed + result.pulled,
+        errors: result.success ? <String>[] : <String>[result.message],
       );
     } catch (e) {
       return SyncResult(
         success: false,
-        syncedRecords: totalSynced,
-        errors: ['Lỗi kết nối: $e'],
+        syncedRecords: 0,
+        errors: <String>['Lỗi kết nối: $e'],
       );
     }
   }

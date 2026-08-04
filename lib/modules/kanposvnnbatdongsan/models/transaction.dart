@@ -5,6 +5,8 @@ part 'transaction.g.dart';
 @collection
 class TransactionRecord {
   Id id = Isar.autoIncrement;
+  DateTime? deletedAt;
+  String deviceId = "";
 
   @Index(unique: true, replace: true)
   String? remoteId;

@@ -19,8 +19,19 @@ export default function RolePermissionsPage() {
   const [perms, setPerms] = useState<RolePerm[]>([]);
   const [selectedApp, setSelectedApp] = useState('');
   const [saved, setSaved] = useState(false);
+  const [currentUser, setCurrentUser] = useState<{ email: string } | null>(null);
 
   const token = typeof window !== 'undefined' ? localStorage.getItem('admin_token') : '';
+
+  useEffect(() => {
+    const userData = localStorage.getItem('admin_user');
+    if (userData) {
+      setCurrentUser(JSON.parse(userData));
+    }
+  }, []);
+
+  const isSuperAdmin = currentUser?.email === 'admin@kanposvn.com';
+  const isCafeAdmin = currentUser?.email === 'admin@kanposvncafe.com';
 
   useEffect(() => {
     fetch('/api/apps', { headers: { Authorization: `Bearer ${token}` } }).then(r => r.json()).then(setApps);
@@ -33,6 +44,14 @@ export default function RolePermissionsPage() {
   };
 
   const toggle = async (appCode: string, roleName: string, field: 'can_view' | 'can_edit' | 'can_delete') => {
+    if (!isSuperAdmin && !isCafeAdmin) {
+      alert('Chi super admin moi co thay doi quyen role');
+      return;
+    }
+    if (isCafeAdmin && appCode !== 'kanposvncafe') {
+      alert('Cafe admin chi co thay doi quyen kanposvncafe');
+      return;
+    }
     const current = getPerm(appCode, roleName);
     const next: RolePerm = current
       ? { ...current, [field]: !current[field] }

@@ -5,6 +5,8 @@ part 'broker.g.dart';
 @collection
 class Broker {
   Id id = Isar.autoIncrement;
+  DateTime? deletedAt;
+  String deviceId = "";
 
   @Index(unique: true, replace: true)
   String? remoteId;

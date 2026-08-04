@@ -1,42 +1,40 @@
-import 'dart:convert';
-import 'package:dio/dio.dart';
-import 'package:isar/isar.dart';
+import '../../../core/sync/snapshot_sync_engine.dart';
+import '../../../core/sync/vercel_api_client.dart';
+import '../models/vantai_customer.dart';
+import '../models/vantai_expense.dart';
+import '../models/vantai_route.dart';
+import '../models/vantai_shipment.dart';
+import '../models/vantai_ticket.dart';
+import '../models/vantai_trip.dart';
+import '../models/vantai_vehicle.dart';
 import 'vantai_isar_service.dart';
-import '../models/vantai_sync_model.dart';
 
 class VantaiNeonSyncService {
   final VantaiIsarService _isarService;
-  final Dio _dio = Dio();
 
   VantaiNeonSyncService(this._isarService);
 
   Future<void> triggerSync(String apiUrl, String apiKey) async {
-    final db = await _isarService.db;
-    
-    final queue = await db.vantaiSyncQueues.where().filter().isSyncedEqualTo(false).findAll();
-    
-    for (var item in queue) {
-      try {
-        final payload = jsonDecode(item.payload);
-        final endpoint = '$apiUrl/vantai/${item.entityType}';
-        
-        if (item.action == 'INSERT' || item.action == 'UPDATE') {
-           await _dio.post(endpoint, data: payload, options: Options(headers: {'Authorization': 'Bearer $apiKey'}));
-        } else if (item.action == 'DELETE') {
-           await _dio.delete('$endpoint/${item.entityId}', options: Options(headers: {'Authorization': 'Bearer $apiKey'}));
-        }
-        
-        await db.writeTxn(() async {
-          item.isSynced = true;
-          await db.vantaiSyncQueues.put(item);
-        });
-      } catch (e) {
-        await db.writeTxn(() async {
-          item.retryCount += 1;
-          item.lastError = e.toString();
-          await db.vantaiSyncQueues.put(item);
-        });
-      }
-    }
+    final isar = await _isarService.db;
+
+    final engine = SnapshotSyncEngine(
+      apiClient: VercelApiClient(
+        pushUrl: '$apiUrl/api/sync/push',
+        pullUrl: '$apiUrl/api/sync/pull',
+        apiKey: apiKey,
+      ),
+      appCode: 'kanposvnbanvevantai',
+      collections: [
+        SnapshotSyncCollection(collection: isar.vantaiRoutes, keyField: 'routeId'),
+        SnapshotSyncCollection(collection: isar.vantaiVehicles, keyField: 'vehicleId'),
+        SnapshotSyncCollection(collection: isar.vantaiCustomers, keyField: 'customerId'),
+        SnapshotSyncCollection(collection: isar.vantaiTickets, keyField: 'ticketId'),
+        SnapshotSyncCollection(collection: isar.vantaiTrips, keyField: 'tripId'),
+        SnapshotSyncCollection(collection: isar.vantaiShipments, keyField: 'shipmentId'),
+        SnapshotSyncCollection(collection: isar.vantaiExpenses, keyField: 'expenseId'),
+      ],
+    );
+
+    await engine.sync();
   }
 }

@@ -17,52 +17,77 @@ const BidaSessionSchema = CollectionSchema(
   name: r'BidaSession',
   id: -8532099458227148930,
   properties: {
-    r'endTime': PropertySchema(
+    r'deletedAt': PropertySchema(
       id: 0,
+      name: r'deletedAt',
+      type: IsarType.dateTime,
+    ),
+    r'deviceId': PropertySchema(
+      id: 1,
+      name: r'deviceId',
+      type: IsarType.string,
+    ),
+    r'endTime': PropertySchema(
+      id: 2,
       name: r'endTime',
       type: IsarType.dateTime,
     ),
     r'grandTotal': PropertySchema(
-      id: 1,
+      id: 3,
       name: r'grandTotal',
       type: IsarType.double,
     ),
     r'hourlyPrice': PropertySchema(
-      id: 2,
+      id: 4,
       name: r'hourlyPrice',
       type: IsarType.double,
     ),
+    r'isSynced': PropertySchema(
+      id: 5,
+      name: r'isSynced',
+      type: IsarType.bool,
+    ),
     r'orderLines': PropertySchema(
-      id: 3,
+      id: 6,
       name: r'orderLines',
       type: IsarType.objectList,
       target: r'BidaOrderLine',
     ),
     r'sessionId': PropertySchema(
-      id: 4,
+      id: 7,
       name: r'sessionId',
       type: IsarType.string,
     ),
     r'startTime': PropertySchema(
-      id: 5,
+      id: 8,
       name: r'startTime',
       type: IsarType.dateTime,
     ),
     r'status': PropertySchema(
-      id: 6,
+      id: 9,
       name: r'status',
       type: IsarType.byte,
       enumMap: _BidaSessionstatusEnumValueMap,
     ),
     r'totalItemCost': PropertySchema(
-      id: 7,
+      id: 10,
       name: r'totalItemCost',
       type: IsarType.double,
     ),
     r'totalTimeCost': PropertySchema(
-      id: 8,
+      id: 11,
       name: r'totalTimeCost',
       type: IsarType.double,
+    ),
+    r'updatedAt': PropertySchema(
+      id: 12,
+      name: r'updatedAt',
+      type: IsarType.dateTime,
+    ),
+    r'version': PropertySchema(
+      id: 13,
+      name: r'version',
+      type: IsarType.long,
     )
   },
   estimateSize: _bidaSessionEstimateSize,
@@ -106,6 +131,7 @@ int _bidaSessionEstimateSize(
   Map<Type, List<int>> allOffsets,
 ) {
   var bytesCount = offsets.last;
+  bytesCount += 3 + object.deviceId.length * 3;
   bytesCount += 3 + object.orderLines.length * 3;
   {
     final offsets = allOffsets[BidaOrderLine]!;
@@ -125,20 +151,25 @@ void _bidaSessionSerialize(
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
-  writer.writeDateTime(offsets[0], object.endTime);
-  writer.writeDouble(offsets[1], object.grandTotal);
-  writer.writeDouble(offsets[2], object.hourlyPrice);
+  writer.writeDateTime(offsets[0], object.deletedAt);
+  writer.writeString(offsets[1], object.deviceId);
+  writer.writeDateTime(offsets[2], object.endTime);
+  writer.writeDouble(offsets[3], object.grandTotal);
+  writer.writeDouble(offsets[4], object.hourlyPrice);
+  writer.writeBool(offsets[5], object.isSynced);
   writer.writeObjectList<BidaOrderLine>(
-    offsets[3],
+    offsets[6],
     allOffsets,
     BidaOrderLineSchema.serialize,
     object.orderLines,
   );
-  writer.writeString(offsets[4], object.sessionId);
-  writer.writeDateTime(offsets[5], object.startTime);
-  writer.writeByte(offsets[6], object.status.index);
-  writer.writeDouble(offsets[7], object.totalItemCost);
-  writer.writeDouble(offsets[8], object.totalTimeCost);
+  writer.writeString(offsets[7], object.sessionId);
+  writer.writeDateTime(offsets[8], object.startTime);
+  writer.writeByte(offsets[9], object.status.index);
+  writer.writeDouble(offsets[10], object.totalItemCost);
+  writer.writeDouble(offsets[11], object.totalTimeCost);
+  writer.writeDateTime(offsets[12], object.updatedAt);
+  writer.writeLong(offsets[13], object.version);
 }
 
 BidaSession _bidaSessionDeserialize(
@@ -148,22 +179,27 @@ BidaSession _bidaSessionDeserialize(
   Map<Type, List<int>> allOffsets,
 ) {
   final object = BidaSession();
-  object.endTime = reader.readDateTimeOrNull(offsets[0]);
-  object.hourlyPrice = reader.readDouble(offsets[2]);
+  object.deletedAt = reader.readDateTimeOrNull(offsets[0]);
+  object.deviceId = reader.readString(offsets[1]);
+  object.endTime = reader.readDateTimeOrNull(offsets[2]);
+  object.hourlyPrice = reader.readDouble(offsets[4]);
   object.id = id;
+  object.isSynced = reader.readBool(offsets[5]);
   object.orderLines = reader.readObjectList<BidaOrderLine>(
-        offsets[3],
+        offsets[6],
         BidaOrderLineSchema.deserialize,
         allOffsets,
         BidaOrderLine(),
       ) ??
       [];
-  object.sessionId = reader.readString(offsets[4]);
-  object.startTime = reader.readDateTimeOrNull(offsets[5]);
+  object.sessionId = reader.readString(offsets[7]);
+  object.startTime = reader.readDateTimeOrNull(offsets[8]);
   object.status =
-      _BidaSessionstatusValueEnumMap[reader.readByteOrNull(offsets[6])] ??
+      _BidaSessionstatusValueEnumMap[reader.readByteOrNull(offsets[9])] ??
           BidaSessionStatus.OPEN;
-  object.totalTimeCost = reader.readDouble(offsets[8]);
+  object.totalTimeCost = reader.readDouble(offsets[11]);
+  object.updatedAt = reader.readDateTime(offsets[12]);
+  object.version = reader.readLong(offsets[13]);
   return object;
 }
 
@@ -177,10 +213,16 @@ P _bidaSessionDeserializeProp<P>(
     case 0:
       return (reader.readDateTimeOrNull(offset)) as P;
     case 1:
-      return (reader.readDouble(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 2:
-      return (reader.readDouble(offset)) as P;
+      return (reader.readDateTimeOrNull(offset)) as P;
     case 3:
+      return (reader.readDouble(offset)) as P;
+    case 4:
+      return (reader.readDouble(offset)) as P;
+    case 5:
+      return (reader.readBool(offset)) as P;
+    case 6:
       return (reader.readObjectList<BidaOrderLine>(
             offset,
             BidaOrderLineSchema.deserialize,
@@ -188,17 +230,21 @@ P _bidaSessionDeserializeProp<P>(
             BidaOrderLine(),
           ) ??
           []) as P;
-    case 4:
+    case 7:
       return (reader.readString(offset)) as P;
-    case 5:
+    case 8:
       return (reader.readDateTimeOrNull(offset)) as P;
-    case 6:
+    case 9:
       return (_BidaSessionstatusValueEnumMap[reader.readByteOrNull(offset)] ??
           BidaSessionStatus.OPEN) as P;
-    case 7:
+    case 10:
       return (reader.readDouble(offset)) as P;
-    case 8:
+    case 11:
       return (reader.readDouble(offset)) as P;
+    case 12:
+      return (reader.readDateTime(offset)) as P;
+    case 13:
+      return (reader.readLong(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
   }
@@ -409,6 +455,215 @@ extension BidaSessionQueryWhere
 
 extension BidaSessionQueryFilter
     on QueryBuilder<BidaSession, BidaSession, QFilterCondition> {
+  QueryBuilder<BidaSession, BidaSession, QAfterFilterCondition>
+      deletedAtIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'deletedAt',
+      ));
+    });
+  }
+
+  QueryBuilder<BidaSession, BidaSession, QAfterFilterCondition>
+      deletedAtIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'deletedAt',
+      ));
+    });
+  }
+
+  QueryBuilder<BidaSession, BidaSession, QAfterFilterCondition>
+      deletedAtEqualTo(DateTime? value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'deletedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<BidaSession, BidaSession, QAfterFilterCondition>
+      deletedAtGreaterThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'deletedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<BidaSession, BidaSession, QAfterFilterCondition>
+      deletedAtLessThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'deletedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<BidaSession, BidaSession, QAfterFilterCondition>
+      deletedAtBetween(
+    DateTime? lower,
+    DateTime? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'deletedAt',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<BidaSession, BidaSession, QAfterFilterCondition> deviceIdEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BidaSession, BidaSession, QAfterFilterCondition>
+      deviceIdGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BidaSession, BidaSession, QAfterFilterCondition>
+      deviceIdLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BidaSession, BidaSession, QAfterFilterCondition> deviceIdBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'deviceId',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BidaSession, BidaSession, QAfterFilterCondition>
+      deviceIdStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BidaSession, BidaSession, QAfterFilterCondition>
+      deviceIdEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BidaSession, BidaSession, QAfterFilterCondition>
+      deviceIdContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BidaSession, BidaSession, QAfterFilterCondition> deviceIdMatches(
+      String pattern,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'deviceId',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BidaSession, BidaSession, QAfterFilterCondition>
+      deviceIdIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'deviceId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<BidaSession, BidaSession, QAfterFilterCondition>
+      deviceIdIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'deviceId',
+        value: '',
+      ));
+    });
+  }
+
   QueryBuilder<BidaSession, BidaSession, QAfterFilterCondition>
       endTimeIsNull() {
     return QueryBuilder.apply(this, (query) {
@@ -662,6 +917,16 @@ extension BidaSessionQueryFilter
         includeLower: includeLower,
         upper: upper,
         includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<BidaSession, BidaSession, QAfterFilterCondition> isSyncedEqualTo(
+      bool value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'isSynced',
+        value: value,
       ));
     });
   }
@@ -1150,6 +1415,116 @@ extension BidaSessionQueryFilter
       ));
     });
   }
+
+  QueryBuilder<BidaSession, BidaSession, QAfterFilterCondition>
+      updatedAtEqualTo(DateTime value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'updatedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<BidaSession, BidaSession, QAfterFilterCondition>
+      updatedAtGreaterThan(
+    DateTime value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'updatedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<BidaSession, BidaSession, QAfterFilterCondition>
+      updatedAtLessThan(
+    DateTime value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'updatedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<BidaSession, BidaSession, QAfterFilterCondition>
+      updatedAtBetween(
+    DateTime lower,
+    DateTime upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'updatedAt',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<BidaSession, BidaSession, QAfterFilterCondition> versionEqualTo(
+      int value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'version',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<BidaSession, BidaSession, QAfterFilterCondition>
+      versionGreaterThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'version',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<BidaSession, BidaSession, QAfterFilterCondition> versionLessThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'version',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<BidaSession, BidaSession, QAfterFilterCondition> versionBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'version',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
 }
 
 extension BidaSessionQueryObject
@@ -1180,6 +1555,30 @@ extension BidaSessionQueryLinks
 
 extension BidaSessionQuerySortBy
     on QueryBuilder<BidaSession, BidaSession, QSortBy> {
+  QueryBuilder<BidaSession, BidaSession, QAfterSortBy> sortByDeletedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<BidaSession, BidaSession, QAfterSortBy> sortByDeletedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<BidaSession, BidaSession, QAfterSortBy> sortByDeviceId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<BidaSession, BidaSession, QAfterSortBy> sortByDeviceIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.desc);
+    });
+  }
+
   QueryBuilder<BidaSession, BidaSession, QAfterSortBy> sortByEndTime() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'endTime', Sort.asc);
@@ -1213,6 +1612,18 @@ extension BidaSessionQuerySortBy
   QueryBuilder<BidaSession, BidaSession, QAfterSortBy> sortByHourlyPriceDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'hourlyPrice', Sort.desc);
+    });
+  }
+
+  QueryBuilder<BidaSession, BidaSession, QAfterSortBy> sortByIsSynced() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.asc);
+    });
+  }
+
+  QueryBuilder<BidaSession, BidaSession, QAfterSortBy> sortByIsSyncedDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.desc);
     });
   }
 
@@ -1277,10 +1688,58 @@ extension BidaSessionQuerySortBy
       return query.addSortBy(r'totalTimeCost', Sort.desc);
     });
   }
+
+  QueryBuilder<BidaSession, BidaSession, QAfterSortBy> sortByUpdatedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'updatedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<BidaSession, BidaSession, QAfterSortBy> sortByUpdatedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'updatedAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<BidaSession, BidaSession, QAfterSortBy> sortByVersion() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.asc);
+    });
+  }
+
+  QueryBuilder<BidaSession, BidaSession, QAfterSortBy> sortByVersionDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.desc);
+    });
+  }
 }
 
 extension BidaSessionQuerySortThenBy
     on QueryBuilder<BidaSession, BidaSession, QSortThenBy> {
+  QueryBuilder<BidaSession, BidaSession, QAfterSortBy> thenByDeletedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<BidaSession, BidaSession, QAfterSortBy> thenByDeletedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<BidaSession, BidaSession, QAfterSortBy> thenByDeviceId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<BidaSession, BidaSession, QAfterSortBy> thenByDeviceIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.desc);
+    });
+  }
+
   QueryBuilder<BidaSession, BidaSession, QAfterSortBy> thenByEndTime() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'endTime', Sort.asc);
@@ -1326,6 +1785,18 @@ extension BidaSessionQuerySortThenBy
   QueryBuilder<BidaSession, BidaSession, QAfterSortBy> thenByIdDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'id', Sort.desc);
+    });
+  }
+
+  QueryBuilder<BidaSession, BidaSession, QAfterSortBy> thenByIsSynced() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.asc);
+    });
+  }
+
+  QueryBuilder<BidaSession, BidaSession, QAfterSortBy> thenByIsSyncedDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.desc);
     });
   }
 
@@ -1390,10 +1861,47 @@ extension BidaSessionQuerySortThenBy
       return query.addSortBy(r'totalTimeCost', Sort.desc);
     });
   }
+
+  QueryBuilder<BidaSession, BidaSession, QAfterSortBy> thenByUpdatedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'updatedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<BidaSession, BidaSession, QAfterSortBy> thenByUpdatedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'updatedAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<BidaSession, BidaSession, QAfterSortBy> thenByVersion() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.asc);
+    });
+  }
+
+  QueryBuilder<BidaSession, BidaSession, QAfterSortBy> thenByVersionDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.desc);
+    });
+  }
 }
 
 extension BidaSessionQueryWhereDistinct
     on QueryBuilder<BidaSession, BidaSession, QDistinct> {
+  QueryBuilder<BidaSession, BidaSession, QDistinct> distinctByDeletedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'deletedAt');
+    });
+  }
+
+  QueryBuilder<BidaSession, BidaSession, QDistinct> distinctByDeviceId(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'deviceId', caseSensitive: caseSensitive);
+    });
+  }
+
   QueryBuilder<BidaSession, BidaSession, QDistinct> distinctByEndTime() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'endTime');
@@ -1409,6 +1917,12 @@ extension BidaSessionQueryWhereDistinct
   QueryBuilder<BidaSession, BidaSession, QDistinct> distinctByHourlyPrice() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'hourlyPrice');
+    });
+  }
+
+  QueryBuilder<BidaSession, BidaSession, QDistinct> distinctByIsSynced() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'isSynced');
     });
   }
 
@@ -1442,6 +1956,18 @@ extension BidaSessionQueryWhereDistinct
       return query.addDistinctBy(r'totalTimeCost');
     });
   }
+
+  QueryBuilder<BidaSession, BidaSession, QDistinct> distinctByUpdatedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'updatedAt');
+    });
+  }
+
+  QueryBuilder<BidaSession, BidaSession, QDistinct> distinctByVersion() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'version');
+    });
+  }
 }
 
 extension BidaSessionQueryProperty
@@ -1449,6 +1975,18 @@ extension BidaSessionQueryProperty
   QueryBuilder<BidaSession, int, QQueryOperations> idProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'id');
+    });
+  }
+
+  QueryBuilder<BidaSession, DateTime?, QQueryOperations> deletedAtProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'deletedAt');
+    });
+  }
+
+  QueryBuilder<BidaSession, String, QQueryOperations> deviceIdProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'deviceId');
     });
   }
 
@@ -1467,6 +2005,12 @@ extension BidaSessionQueryProperty
   QueryBuilder<BidaSession, double, QQueryOperations> hourlyPriceProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'hourlyPrice');
+    });
+  }
+
+  QueryBuilder<BidaSession, bool, QQueryOperations> isSyncedProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'isSynced');
     });
   }
 
@@ -1505,6 +2049,18 @@ extension BidaSessionQueryProperty
   QueryBuilder<BidaSession, double, QQueryOperations> totalTimeCostProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'totalTimeCost');
+    });
+  }
+
+  QueryBuilder<BidaSession, DateTime, QQueryOperations> updatedAtProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'updatedAt');
+    });
+  }
+
+  QueryBuilder<BidaSession, int, QQueryOperations> versionProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'version');
     });
   }
 }

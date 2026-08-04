@@ -18,20 +18,45 @@ const NhathuocPrescriptionTemplateSchema = CollectionSchema(
   name: r'NhathuocPrescriptionTemplate',
   id: 6451451531811350586,
   properties: {
-    r'diseaseName': PropertySchema(
+    r'deletedAt': PropertySchema(
       id: 0,
+      name: r'deletedAt',
+      type: IsarType.dateTime,
+    ),
+    r'deviceId': PropertySchema(
+      id: 1,
+      name: r'deviceId',
+      type: IsarType.string,
+    ),
+    r'diseaseName': PropertySchema(
+      id: 2,
       name: r'diseaseName',
       type: IsarType.string,
     ),
+    r'isSynced': PropertySchema(
+      id: 3,
+      name: r'isSynced',
+      type: IsarType.bool,
+    ),
     r'notes': PropertySchema(
-      id: 1,
+      id: 4,
       name: r'notes',
       type: IsarType.string,
     ),
     r'templateId': PropertySchema(
-      id: 2,
+      id: 5,
       name: r'templateId',
       type: IsarType.string,
+    ),
+    r'updatedAt': PropertySchema(
+      id: 6,
+      name: r'updatedAt',
+      type: IsarType.dateTime,
+    ),
+    r'version': PropertySchema(
+      id: 7,
+      name: r'version',
+      type: IsarType.long,
     )
   },
   estimateSize: _nhathuocPrescriptionTemplateEstimateSize,
@@ -76,6 +101,7 @@ int _nhathuocPrescriptionTemplateEstimateSize(
   Map<Type, List<int>> allOffsets,
 ) {
   var bytesCount = offsets.last;
+  bytesCount += 3 + object.deviceId.length * 3;
   bytesCount += 3 + object.diseaseName.length * 3;
   bytesCount += 3 + object.notes.length * 3;
   bytesCount += 3 + object.templateId.length * 3;
@@ -88,9 +114,14 @@ void _nhathuocPrescriptionTemplateSerialize(
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
-  writer.writeString(offsets[0], object.diseaseName);
-  writer.writeString(offsets[1], object.notes);
-  writer.writeString(offsets[2], object.templateId);
+  writer.writeDateTime(offsets[0], object.deletedAt);
+  writer.writeString(offsets[1], object.deviceId);
+  writer.writeString(offsets[2], object.diseaseName);
+  writer.writeBool(offsets[3], object.isSynced);
+  writer.writeString(offsets[4], object.notes);
+  writer.writeString(offsets[5], object.templateId);
+  writer.writeDateTime(offsets[6], object.updatedAt);
+  writer.writeLong(offsets[7], object.version);
 }
 
 NhathuocPrescriptionTemplate _nhathuocPrescriptionTemplateDeserialize(
@@ -100,10 +131,15 @@ NhathuocPrescriptionTemplate _nhathuocPrescriptionTemplateDeserialize(
   Map<Type, List<int>> allOffsets,
 ) {
   final object = NhathuocPrescriptionTemplate();
-  object.diseaseName = reader.readString(offsets[0]);
+  object.deletedAt = reader.readDateTimeOrNull(offsets[0]);
+  object.deviceId = reader.readString(offsets[1]);
+  object.diseaseName = reader.readString(offsets[2]);
   object.id = id;
-  object.notes = reader.readString(offsets[1]);
-  object.templateId = reader.readString(offsets[2]);
+  object.isSynced = reader.readBool(offsets[3]);
+  object.notes = reader.readString(offsets[4]);
+  object.templateId = reader.readString(offsets[5]);
+  object.updatedAt = reader.readDateTime(offsets[6]);
+  object.version = reader.readLong(offsets[7]);
   return object;
 }
 
@@ -115,11 +151,21 @@ P _nhathuocPrescriptionTemplateDeserializeProp<P>(
 ) {
   switch (propertyId) {
     case 0:
-      return (reader.readString(offset)) as P;
+      return (reader.readDateTimeOrNull(offset)) as P;
     case 1:
       return (reader.readString(offset)) as P;
     case 2:
       return (reader.readString(offset)) as P;
+    case 3:
+      return (reader.readBool(offset)) as P;
+    case 4:
+      return (reader.readString(offset)) as P;
+    case 5:
+      return (reader.readString(offset)) as P;
+    case 6:
+      return (reader.readDateTime(offset)) as P;
+    case 7:
+      return (reader.readLong(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
   }
@@ -335,6 +381,218 @@ extension NhathuocPrescriptionTemplateQueryFilter on QueryBuilder<
     NhathuocPrescriptionTemplate,
     QFilterCondition> {
   QueryBuilder<NhathuocPrescriptionTemplate, NhathuocPrescriptionTemplate,
+      QAfterFilterCondition> deletedAtIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'deletedAt',
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPrescriptionTemplate, NhathuocPrescriptionTemplate,
+      QAfterFilterCondition> deletedAtIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'deletedAt',
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPrescriptionTemplate, NhathuocPrescriptionTemplate,
+      QAfterFilterCondition> deletedAtEqualTo(DateTime? value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'deletedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPrescriptionTemplate, NhathuocPrescriptionTemplate,
+      QAfterFilterCondition> deletedAtGreaterThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'deletedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPrescriptionTemplate, NhathuocPrescriptionTemplate,
+      QAfterFilterCondition> deletedAtLessThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'deletedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPrescriptionTemplate, NhathuocPrescriptionTemplate,
+      QAfterFilterCondition> deletedAtBetween(
+    DateTime? lower,
+    DateTime? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'deletedAt',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPrescriptionTemplate, NhathuocPrescriptionTemplate,
+      QAfterFilterCondition> deviceIdEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPrescriptionTemplate, NhathuocPrescriptionTemplate,
+      QAfterFilterCondition> deviceIdGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPrescriptionTemplate, NhathuocPrescriptionTemplate,
+      QAfterFilterCondition> deviceIdLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPrescriptionTemplate, NhathuocPrescriptionTemplate,
+      QAfterFilterCondition> deviceIdBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'deviceId',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPrescriptionTemplate, NhathuocPrescriptionTemplate,
+      QAfterFilterCondition> deviceIdStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPrescriptionTemplate, NhathuocPrescriptionTemplate,
+      QAfterFilterCondition> deviceIdEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPrescriptionTemplate, NhathuocPrescriptionTemplate,
+          QAfterFilterCondition>
+      deviceIdContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPrescriptionTemplate, NhathuocPrescriptionTemplate,
+          QAfterFilterCondition>
+      deviceIdMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'deviceId',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPrescriptionTemplate, NhathuocPrescriptionTemplate,
+      QAfterFilterCondition> deviceIdIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'deviceId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPrescriptionTemplate, NhathuocPrescriptionTemplate,
+      QAfterFilterCondition> deviceIdIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'deviceId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPrescriptionTemplate, NhathuocPrescriptionTemplate,
       QAfterFilterCondition> diseaseNameEqualTo(
     String value, {
     bool caseSensitive = true,
@@ -524,6 +782,16 @@ extension NhathuocPrescriptionTemplateQueryFilter on QueryBuilder<
         includeLower: includeLower,
         upper: upper,
         includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPrescriptionTemplate, NhathuocPrescriptionTemplate,
+      QAfterFilterCondition> isSyncedEqualTo(bool value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'isSynced',
+        value: value,
       ));
     });
   }
@@ -803,6 +1071,118 @@ extension NhathuocPrescriptionTemplateQueryFilter on QueryBuilder<
       ));
     });
   }
+
+  QueryBuilder<NhathuocPrescriptionTemplate, NhathuocPrescriptionTemplate,
+      QAfterFilterCondition> updatedAtEqualTo(DateTime value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'updatedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPrescriptionTemplate, NhathuocPrescriptionTemplate,
+      QAfterFilterCondition> updatedAtGreaterThan(
+    DateTime value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'updatedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPrescriptionTemplate, NhathuocPrescriptionTemplate,
+      QAfterFilterCondition> updatedAtLessThan(
+    DateTime value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'updatedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPrescriptionTemplate, NhathuocPrescriptionTemplate,
+      QAfterFilterCondition> updatedAtBetween(
+    DateTime lower,
+    DateTime upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'updatedAt',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPrescriptionTemplate, NhathuocPrescriptionTemplate,
+      QAfterFilterCondition> versionEqualTo(int value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'version',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPrescriptionTemplate, NhathuocPrescriptionTemplate,
+      QAfterFilterCondition> versionGreaterThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'version',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPrescriptionTemplate, NhathuocPrescriptionTemplate,
+      QAfterFilterCondition> versionLessThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'version',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPrescriptionTemplate, NhathuocPrescriptionTemplate,
+      QAfterFilterCondition> versionBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'version',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
 }
 
 extension NhathuocPrescriptionTemplateQueryObject on QueryBuilder<
@@ -880,6 +1260,34 @@ extension NhathuocPrescriptionTemplateQueryLinks on QueryBuilder<
 extension NhathuocPrescriptionTemplateQuerySortBy on QueryBuilder<
     NhathuocPrescriptionTemplate, NhathuocPrescriptionTemplate, QSortBy> {
   QueryBuilder<NhathuocPrescriptionTemplate, NhathuocPrescriptionTemplate,
+      QAfterSortBy> sortByDeletedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocPrescriptionTemplate, NhathuocPrescriptionTemplate,
+      QAfterSortBy> sortByDeletedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<NhathuocPrescriptionTemplate, NhathuocPrescriptionTemplate,
+      QAfterSortBy> sortByDeviceId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocPrescriptionTemplate, NhathuocPrescriptionTemplate,
+      QAfterSortBy> sortByDeviceIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<NhathuocPrescriptionTemplate, NhathuocPrescriptionTemplate,
       QAfterSortBy> sortByDiseaseName() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'diseaseName', Sort.asc);
@@ -890,6 +1298,20 @@ extension NhathuocPrescriptionTemplateQuerySortBy on QueryBuilder<
       QAfterSortBy> sortByDiseaseNameDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'diseaseName', Sort.desc);
+    });
+  }
+
+  QueryBuilder<NhathuocPrescriptionTemplate, NhathuocPrescriptionTemplate,
+      QAfterSortBy> sortByIsSynced() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocPrescriptionTemplate, NhathuocPrescriptionTemplate,
+      QAfterSortBy> sortByIsSyncedDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.desc);
     });
   }
 
@@ -920,10 +1342,66 @@ extension NhathuocPrescriptionTemplateQuerySortBy on QueryBuilder<
       return query.addSortBy(r'templateId', Sort.desc);
     });
   }
+
+  QueryBuilder<NhathuocPrescriptionTemplate, NhathuocPrescriptionTemplate,
+      QAfterSortBy> sortByUpdatedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'updatedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocPrescriptionTemplate, NhathuocPrescriptionTemplate,
+      QAfterSortBy> sortByUpdatedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'updatedAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<NhathuocPrescriptionTemplate, NhathuocPrescriptionTemplate,
+      QAfterSortBy> sortByVersion() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocPrescriptionTemplate, NhathuocPrescriptionTemplate,
+      QAfterSortBy> sortByVersionDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.desc);
+    });
+  }
 }
 
 extension NhathuocPrescriptionTemplateQuerySortThenBy on QueryBuilder<
     NhathuocPrescriptionTemplate, NhathuocPrescriptionTemplate, QSortThenBy> {
+  QueryBuilder<NhathuocPrescriptionTemplate, NhathuocPrescriptionTemplate,
+      QAfterSortBy> thenByDeletedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocPrescriptionTemplate, NhathuocPrescriptionTemplate,
+      QAfterSortBy> thenByDeletedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<NhathuocPrescriptionTemplate, NhathuocPrescriptionTemplate,
+      QAfterSortBy> thenByDeviceId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocPrescriptionTemplate, NhathuocPrescriptionTemplate,
+      QAfterSortBy> thenByDeviceIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.desc);
+    });
+  }
+
   QueryBuilder<NhathuocPrescriptionTemplate, NhathuocPrescriptionTemplate,
       QAfterSortBy> thenByDiseaseName() {
     return QueryBuilder.apply(this, (query) {
@@ -949,6 +1427,20 @@ extension NhathuocPrescriptionTemplateQuerySortThenBy on QueryBuilder<
       QAfterSortBy> thenByIdDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'id', Sort.desc);
+    });
+  }
+
+  QueryBuilder<NhathuocPrescriptionTemplate, NhathuocPrescriptionTemplate,
+      QAfterSortBy> thenByIsSynced() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocPrescriptionTemplate, NhathuocPrescriptionTemplate,
+      QAfterSortBy> thenByIsSyncedDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.desc);
     });
   }
 
@@ -979,14 +1471,63 @@ extension NhathuocPrescriptionTemplateQuerySortThenBy on QueryBuilder<
       return query.addSortBy(r'templateId', Sort.desc);
     });
   }
+
+  QueryBuilder<NhathuocPrescriptionTemplate, NhathuocPrescriptionTemplate,
+      QAfterSortBy> thenByUpdatedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'updatedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocPrescriptionTemplate, NhathuocPrescriptionTemplate,
+      QAfterSortBy> thenByUpdatedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'updatedAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<NhathuocPrescriptionTemplate, NhathuocPrescriptionTemplate,
+      QAfterSortBy> thenByVersion() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocPrescriptionTemplate, NhathuocPrescriptionTemplate,
+      QAfterSortBy> thenByVersionDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.desc);
+    });
+  }
 }
 
 extension NhathuocPrescriptionTemplateQueryWhereDistinct on QueryBuilder<
     NhathuocPrescriptionTemplate, NhathuocPrescriptionTemplate, QDistinct> {
   QueryBuilder<NhathuocPrescriptionTemplate, NhathuocPrescriptionTemplate,
+      QDistinct> distinctByDeletedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'deletedAt');
+    });
+  }
+
+  QueryBuilder<NhathuocPrescriptionTemplate, NhathuocPrescriptionTemplate,
+      QDistinct> distinctByDeviceId({bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'deviceId', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<NhathuocPrescriptionTemplate, NhathuocPrescriptionTemplate,
       QDistinct> distinctByDiseaseName({bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'diseaseName', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<NhathuocPrescriptionTemplate, NhathuocPrescriptionTemplate,
+      QDistinct> distinctByIsSynced() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'isSynced');
     });
   }
 
@@ -1003,6 +1544,20 @@ extension NhathuocPrescriptionTemplateQueryWhereDistinct on QueryBuilder<
       return query.addDistinctBy(r'templateId', caseSensitive: caseSensitive);
     });
   }
+
+  QueryBuilder<NhathuocPrescriptionTemplate, NhathuocPrescriptionTemplate,
+      QDistinct> distinctByUpdatedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'updatedAt');
+    });
+  }
+
+  QueryBuilder<NhathuocPrescriptionTemplate, NhathuocPrescriptionTemplate,
+      QDistinct> distinctByVersion() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'version');
+    });
+  }
 }
 
 extension NhathuocPrescriptionTemplateQueryProperty on QueryBuilder<
@@ -1016,10 +1571,31 @@ extension NhathuocPrescriptionTemplateQueryProperty on QueryBuilder<
     });
   }
 
+  QueryBuilder<NhathuocPrescriptionTemplate, DateTime?, QQueryOperations>
+      deletedAtProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'deletedAt');
+    });
+  }
+
+  QueryBuilder<NhathuocPrescriptionTemplate, String, QQueryOperations>
+      deviceIdProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'deviceId');
+    });
+  }
+
   QueryBuilder<NhathuocPrescriptionTemplate, String, QQueryOperations>
       diseaseNameProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'diseaseName');
+    });
+  }
+
+  QueryBuilder<NhathuocPrescriptionTemplate, bool, QQueryOperations>
+      isSyncedProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'isSynced');
     });
   }
 
@@ -1034,6 +1610,20 @@ extension NhathuocPrescriptionTemplateQueryProperty on QueryBuilder<
       templateIdProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'templateId');
+    });
+  }
+
+  QueryBuilder<NhathuocPrescriptionTemplate, DateTime, QQueryOperations>
+      updatedAtProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'updatedAt');
+    });
+  }
+
+  QueryBuilder<NhathuocPrescriptionTemplate, int, QQueryOperations>
+      versionProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'version');
     });
   }
 }
@@ -1055,10 +1645,35 @@ const NhathuocPrescriptionTemplateDetailSchema = CollectionSchema(
       name: r'defaultQuantity',
       type: IsarType.double,
     ),
-    r'dosageInstructions': PropertySchema(
+    r'deletedAt': PropertySchema(
       id: 1,
+      name: r'deletedAt',
+      type: IsarType.dateTime,
+    ),
+    r'deviceId': PropertySchema(
+      id: 2,
+      name: r'deviceId',
+      type: IsarType.string,
+    ),
+    r'dosageInstructions': PropertySchema(
+      id: 3,
       name: r'dosageInstructions',
       type: IsarType.string,
+    ),
+    r'isSynced': PropertySchema(
+      id: 4,
+      name: r'isSynced',
+      type: IsarType.bool,
+    ),
+    r'updatedAt': PropertySchema(
+      id: 5,
+      name: r'updatedAt',
+      type: IsarType.dateTime,
+    ),
+    r'version': PropertySchema(
+      id: 6,
+      name: r'version',
+      type: IsarType.long,
     )
   },
   estimateSize: _nhathuocPrescriptionTemplateDetailEstimateSize,
@@ -1094,6 +1709,7 @@ int _nhathuocPrescriptionTemplateDetailEstimateSize(
   Map<Type, List<int>> allOffsets,
 ) {
   var bytesCount = offsets.last;
+  bytesCount += 3 + object.deviceId.length * 3;
   bytesCount += 3 + object.dosageInstructions.length * 3;
   return bytesCount;
 }
@@ -1105,7 +1721,12 @@ void _nhathuocPrescriptionTemplateDetailSerialize(
   Map<Type, List<int>> allOffsets,
 ) {
   writer.writeDouble(offsets[0], object.defaultQuantity);
-  writer.writeString(offsets[1], object.dosageInstructions);
+  writer.writeDateTime(offsets[1], object.deletedAt);
+  writer.writeString(offsets[2], object.deviceId);
+  writer.writeString(offsets[3], object.dosageInstructions);
+  writer.writeBool(offsets[4], object.isSynced);
+  writer.writeDateTime(offsets[5], object.updatedAt);
+  writer.writeLong(offsets[6], object.version);
 }
 
 NhathuocPrescriptionTemplateDetail
@@ -1117,8 +1738,13 @@ NhathuocPrescriptionTemplateDetail
 ) {
   final object = NhathuocPrescriptionTemplateDetail();
   object.defaultQuantity = reader.readDouble(offsets[0]);
-  object.dosageInstructions = reader.readString(offsets[1]);
+  object.deletedAt = reader.readDateTimeOrNull(offsets[1]);
+  object.deviceId = reader.readString(offsets[2]);
+  object.dosageInstructions = reader.readString(offsets[3]);
   object.id = id;
+  object.isSynced = reader.readBool(offsets[4]);
+  object.updatedAt = reader.readDateTime(offsets[5]);
+  object.version = reader.readLong(offsets[6]);
   return object;
 }
 
@@ -1132,7 +1758,17 @@ P _nhathuocPrescriptionTemplateDetailDeserializeProp<P>(
     case 0:
       return (reader.readDouble(offset)) as P;
     case 1:
+      return (reader.readDateTimeOrNull(offset)) as P;
+    case 2:
       return (reader.readString(offset)) as P;
+    case 3:
+      return (reader.readString(offset)) as P;
+    case 4:
+      return (reader.readBool(offset)) as P;
+    case 5:
+      return (reader.readDateTime(offset)) as P;
+    case 6:
+      return (reader.readLong(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
   }
@@ -1322,6 +1958,246 @@ extension NhathuocPrescriptionTemplateDetailQueryFilter on QueryBuilder<
         upper: upper,
         includeUpper: includeUpper,
         epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<
+      NhathuocPrescriptionTemplateDetail,
+      NhathuocPrescriptionTemplateDetail,
+      QAfterFilterCondition> deletedAtIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'deletedAt',
+      ));
+    });
+  }
+
+  QueryBuilder<
+      NhathuocPrescriptionTemplateDetail,
+      NhathuocPrescriptionTemplateDetail,
+      QAfterFilterCondition> deletedAtIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'deletedAt',
+      ));
+    });
+  }
+
+  QueryBuilder<
+      NhathuocPrescriptionTemplateDetail,
+      NhathuocPrescriptionTemplateDetail,
+      QAfterFilterCondition> deletedAtEqualTo(DateTime? value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'deletedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<
+      NhathuocPrescriptionTemplateDetail,
+      NhathuocPrescriptionTemplateDetail,
+      QAfterFilterCondition> deletedAtGreaterThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'deletedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<
+      NhathuocPrescriptionTemplateDetail,
+      NhathuocPrescriptionTemplateDetail,
+      QAfterFilterCondition> deletedAtLessThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'deletedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<
+      NhathuocPrescriptionTemplateDetail,
+      NhathuocPrescriptionTemplateDetail,
+      QAfterFilterCondition> deletedAtBetween(
+    DateTime? lower,
+    DateTime? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'deletedAt',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<
+      NhathuocPrescriptionTemplateDetail,
+      NhathuocPrescriptionTemplateDetail,
+      QAfterFilterCondition> deviceIdEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<
+      NhathuocPrescriptionTemplateDetail,
+      NhathuocPrescriptionTemplateDetail,
+      QAfterFilterCondition> deviceIdGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<
+      NhathuocPrescriptionTemplateDetail,
+      NhathuocPrescriptionTemplateDetail,
+      QAfterFilterCondition> deviceIdLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<
+      NhathuocPrescriptionTemplateDetail,
+      NhathuocPrescriptionTemplateDetail,
+      QAfterFilterCondition> deviceIdBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'deviceId',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<
+      NhathuocPrescriptionTemplateDetail,
+      NhathuocPrescriptionTemplateDetail,
+      QAfterFilterCondition> deviceIdStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<
+      NhathuocPrescriptionTemplateDetail,
+      NhathuocPrescriptionTemplateDetail,
+      QAfterFilterCondition> deviceIdEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPrescriptionTemplateDetail,
+          NhathuocPrescriptionTemplateDetail, QAfterFilterCondition>
+      deviceIdContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPrescriptionTemplateDetail,
+          NhathuocPrescriptionTemplateDetail, QAfterFilterCondition>
+      deviceIdMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'deviceId',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<
+      NhathuocPrescriptionTemplateDetail,
+      NhathuocPrescriptionTemplateDetail,
+      QAfterFilterCondition> deviceIdIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'deviceId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<
+      NhathuocPrescriptionTemplateDetail,
+      NhathuocPrescriptionTemplateDetail,
+      QAfterFilterCondition> deviceIdIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'deviceId',
+        value: '',
       ));
     });
   }
@@ -1537,6 +2413,144 @@ extension NhathuocPrescriptionTemplateDetailQueryFilter on QueryBuilder<
       ));
     });
   }
+
+  QueryBuilder<
+      NhathuocPrescriptionTemplateDetail,
+      NhathuocPrescriptionTemplateDetail,
+      QAfterFilterCondition> isSyncedEqualTo(bool value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'isSynced',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<
+      NhathuocPrescriptionTemplateDetail,
+      NhathuocPrescriptionTemplateDetail,
+      QAfterFilterCondition> updatedAtEqualTo(DateTime value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'updatedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<
+      NhathuocPrescriptionTemplateDetail,
+      NhathuocPrescriptionTemplateDetail,
+      QAfterFilterCondition> updatedAtGreaterThan(
+    DateTime value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'updatedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<
+      NhathuocPrescriptionTemplateDetail,
+      NhathuocPrescriptionTemplateDetail,
+      QAfterFilterCondition> updatedAtLessThan(
+    DateTime value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'updatedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<
+      NhathuocPrescriptionTemplateDetail,
+      NhathuocPrescriptionTemplateDetail,
+      QAfterFilterCondition> updatedAtBetween(
+    DateTime lower,
+    DateTime upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'updatedAt',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<
+      NhathuocPrescriptionTemplateDetail,
+      NhathuocPrescriptionTemplateDetail,
+      QAfterFilterCondition> versionEqualTo(int value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'version',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<
+      NhathuocPrescriptionTemplateDetail,
+      NhathuocPrescriptionTemplateDetail,
+      QAfterFilterCondition> versionGreaterThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'version',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<
+      NhathuocPrescriptionTemplateDetail,
+      NhathuocPrescriptionTemplateDetail,
+      QAfterFilterCondition> versionLessThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'version',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPrescriptionTemplateDetail,
+      NhathuocPrescriptionTemplateDetail, QAfterFilterCondition> versionBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'version',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
 }
 
 extension NhathuocPrescriptionTemplateDetailQueryObject on QueryBuilder<
@@ -1606,6 +2620,34 @@ extension NhathuocPrescriptionTemplateDetailQuerySortBy on QueryBuilder<
     });
   }
 
+  QueryBuilder<NhathuocPrescriptionTemplateDetail,
+      NhathuocPrescriptionTemplateDetail, QAfterSortBy> sortByDeletedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocPrescriptionTemplateDetail,
+      NhathuocPrescriptionTemplateDetail, QAfterSortBy> sortByDeletedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<NhathuocPrescriptionTemplateDetail,
+      NhathuocPrescriptionTemplateDetail, QAfterSortBy> sortByDeviceId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocPrescriptionTemplateDetail,
+      NhathuocPrescriptionTemplateDetail, QAfterSortBy> sortByDeviceIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.desc);
+    });
+  }
+
   QueryBuilder<
       NhathuocPrescriptionTemplateDetail,
       NhathuocPrescriptionTemplateDetail,
@@ -1621,6 +2663,48 @@ extension NhathuocPrescriptionTemplateDetailQuerySortBy on QueryBuilder<
       QAfterSortBy> sortByDosageInstructionsDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'dosageInstructions', Sort.desc);
+    });
+  }
+
+  QueryBuilder<NhathuocPrescriptionTemplateDetail,
+      NhathuocPrescriptionTemplateDetail, QAfterSortBy> sortByIsSynced() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocPrescriptionTemplateDetail,
+      NhathuocPrescriptionTemplateDetail, QAfterSortBy> sortByIsSyncedDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.desc);
+    });
+  }
+
+  QueryBuilder<NhathuocPrescriptionTemplateDetail,
+      NhathuocPrescriptionTemplateDetail, QAfterSortBy> sortByUpdatedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'updatedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocPrescriptionTemplateDetail,
+      NhathuocPrescriptionTemplateDetail, QAfterSortBy> sortByUpdatedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'updatedAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<NhathuocPrescriptionTemplateDetail,
+      NhathuocPrescriptionTemplateDetail, QAfterSortBy> sortByVersion() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocPrescriptionTemplateDetail,
+      NhathuocPrescriptionTemplateDetail, QAfterSortBy> sortByVersionDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.desc);
     });
   }
 }
@@ -1644,6 +2728,34 @@ extension NhathuocPrescriptionTemplateDetailQuerySortThenBy on QueryBuilder<
       QAfterSortBy> thenByDefaultQuantityDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'defaultQuantity', Sort.desc);
+    });
+  }
+
+  QueryBuilder<NhathuocPrescriptionTemplateDetail,
+      NhathuocPrescriptionTemplateDetail, QAfterSortBy> thenByDeletedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocPrescriptionTemplateDetail,
+      NhathuocPrescriptionTemplateDetail, QAfterSortBy> thenByDeletedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<NhathuocPrescriptionTemplateDetail,
+      NhathuocPrescriptionTemplateDetail, QAfterSortBy> thenByDeviceId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocPrescriptionTemplateDetail,
+      NhathuocPrescriptionTemplateDetail, QAfterSortBy> thenByDeviceIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.desc);
     });
   }
 
@@ -1678,6 +2790,48 @@ extension NhathuocPrescriptionTemplateDetailQuerySortThenBy on QueryBuilder<
       return query.addSortBy(r'id', Sort.desc);
     });
   }
+
+  QueryBuilder<NhathuocPrescriptionTemplateDetail,
+      NhathuocPrescriptionTemplateDetail, QAfterSortBy> thenByIsSynced() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocPrescriptionTemplateDetail,
+      NhathuocPrescriptionTemplateDetail, QAfterSortBy> thenByIsSyncedDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.desc);
+    });
+  }
+
+  QueryBuilder<NhathuocPrescriptionTemplateDetail,
+      NhathuocPrescriptionTemplateDetail, QAfterSortBy> thenByUpdatedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'updatedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocPrescriptionTemplateDetail,
+      NhathuocPrescriptionTemplateDetail, QAfterSortBy> thenByUpdatedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'updatedAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<NhathuocPrescriptionTemplateDetail,
+      NhathuocPrescriptionTemplateDetail, QAfterSortBy> thenByVersion() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocPrescriptionTemplateDetail,
+      NhathuocPrescriptionTemplateDetail, QAfterSortBy> thenByVersionDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.desc);
+    });
+  }
 }
 
 extension NhathuocPrescriptionTemplateDetailQueryWhereDistinct on QueryBuilder<
@@ -1693,6 +2847,22 @@ extension NhathuocPrescriptionTemplateDetailQueryWhereDistinct on QueryBuilder<
     });
   }
 
+  QueryBuilder<NhathuocPrescriptionTemplateDetail,
+      NhathuocPrescriptionTemplateDetail, QDistinct> distinctByDeletedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'deletedAt');
+    });
+  }
+
+  QueryBuilder<
+      NhathuocPrescriptionTemplateDetail,
+      NhathuocPrescriptionTemplateDetail,
+      QDistinct> distinctByDeviceId({bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'deviceId', caseSensitive: caseSensitive);
+    });
+  }
+
   QueryBuilder<
       NhathuocPrescriptionTemplateDetail,
       NhathuocPrescriptionTemplateDetail,
@@ -1700,6 +2870,27 @@ extension NhathuocPrescriptionTemplateDetailQueryWhereDistinct on QueryBuilder<
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'dosageInstructions',
           caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<NhathuocPrescriptionTemplateDetail,
+      NhathuocPrescriptionTemplateDetail, QDistinct> distinctByIsSynced() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'isSynced');
+    });
+  }
+
+  QueryBuilder<NhathuocPrescriptionTemplateDetail,
+      NhathuocPrescriptionTemplateDetail, QDistinct> distinctByUpdatedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'updatedAt');
+    });
+  }
+
+  QueryBuilder<NhathuocPrescriptionTemplateDetail,
+      NhathuocPrescriptionTemplateDetail, QDistinct> distinctByVersion() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'version');
     });
   }
 }
@@ -1722,10 +2913,45 @@ extension NhathuocPrescriptionTemplateDetailQueryProperty on QueryBuilder<
     });
   }
 
+  QueryBuilder<NhathuocPrescriptionTemplateDetail, DateTime?, QQueryOperations>
+      deletedAtProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'deletedAt');
+    });
+  }
+
+  QueryBuilder<NhathuocPrescriptionTemplateDetail, String, QQueryOperations>
+      deviceIdProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'deviceId');
+    });
+  }
+
   QueryBuilder<NhathuocPrescriptionTemplateDetail, String, QQueryOperations>
       dosageInstructionsProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'dosageInstructions');
+    });
+  }
+
+  QueryBuilder<NhathuocPrescriptionTemplateDetail, bool, QQueryOperations>
+      isSyncedProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'isSynced');
+    });
+  }
+
+  QueryBuilder<NhathuocPrescriptionTemplateDetail, DateTime, QQueryOperations>
+      updatedAtProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'updatedAt');
+    });
+  }
+
+  QueryBuilder<NhathuocPrescriptionTemplateDetail, int, QQueryOperations>
+      versionProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'version');
     });
   }
 }

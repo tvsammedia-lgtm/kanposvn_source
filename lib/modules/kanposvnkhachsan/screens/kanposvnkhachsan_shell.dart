@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/providers.dart';
 import '../../../core/router/module_selector_screen.dart';
 import '../../../core/sync/api_config.dart';
 import '../providers/hotel_providers.dart';
@@ -103,13 +104,11 @@ class _KanPosVNKhachSanShellState extends ConsumerState<KanPosVNKhachSanShell> {
             },
           ),
           IconButton(
-            icon: const Icon(Icons.swap_horiz),
-            tooltip: 'Đổi Module',
-            onPressed: () {
+            icon: const Icon(Icons.logout),
+            tooltip: 'Thoát',
+            onPressed: () async {
+              await ref.read(authServiceProvider).signOut();
               ref.read(selectedModuleProvider.notifier).state = null;
-              Navigator.of(context).pushReplacement(
-                MaterialPageRoute(builder: (_) => const ModuleSelectorScreen()),
-              );
             },
           ),
         ],

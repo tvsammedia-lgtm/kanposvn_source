@@ -6,6 +6,12 @@ part 'vlxd_product.g.dart';
 class VlxdProductCategory {
   Id id = Isar.autoIncrement;
 
+  bool isSynced = false;
+  DateTime updatedAt = DateTime.now();
+  DateTime? deletedAt;
+  String deviceId = "";
+  int version = 1;
+
   @Index(unique: true, replace: true)
   String categoryId = ''; // For sync
 
@@ -16,6 +22,11 @@ class VlxdProductCategory {
 @collection
 class VlxdProduct {
   Id id = Isar.autoIncrement;
+
+  bool isSynced = false;
+  DateTime? deletedAt;
+  String deviceId = "";
+  int version = 1;
 
   @Index(unique: true, replace: true)
   String productId = ''; // For sync

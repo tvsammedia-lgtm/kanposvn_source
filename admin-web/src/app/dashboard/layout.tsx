@@ -31,6 +31,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     { href: '/dashboard/users', label: 'Quan ly Users', icon: '👥' },
     { href: '/dashboard/permissions', label: 'Quyen User - Apps', icon: '🔐' },
     { href: '/dashboard/role-permissions', label: 'Quyen Roles', icon: '🛡️' },
+    ...(user?.email === 'admin@kanposvn.com' || user?.email === 'admin@kanposvncafe.com' ? [{ href: '/dashboard/sync', label: 'Dong bo', icon: '🔄' }] : []),
     { href: '/dashboard/logs', label: 'Nhat ky', icon: '📝' },
   ];
 

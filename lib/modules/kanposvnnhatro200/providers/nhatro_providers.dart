@@ -4,6 +4,7 @@ import '../repositories/nhatro_isar_db.dart';
 import '../services/nhatro_sync_service.dart';
 import '../models/room.dart';
 import '../models/tenant.dart';
+import '../models/contract.dart';
 
 final nhatroIsarProvider = FutureProvider<Isar>((ref) async {
   return await NhaTroIsarDB.getInstance();
@@ -21,4 +22,9 @@ final roomsProvider = FutureProvider<List<Room>>((ref) async {
 final tenantsProvider = FutureProvider<List<Tenant>>((ref) async {
   final isar = await ref.watch(nhatroIsarProvider.future);
   return await isar.tenants.where().findAll();
+});
+
+final contractsProvider = FutureProvider<List<Contract>>((ref) async {
+  final isar = await ref.watch(nhatroIsarProvider.future);
+  return await isar.contracts.where().findAll();
 });

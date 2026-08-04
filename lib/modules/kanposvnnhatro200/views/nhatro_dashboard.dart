@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/providers.dart';
+import '../../../core/router/module_selector_screen.dart';
 import '../providers/nhatro_providers.dart';
 import '../services/nhatro_seed_data.dart';
 import 'room_list_screen.dart';
+import 'nhatro_sales_report_screen.dart';
+import 'nhatro_sync_screen.dart';
 
 class NhaTroDashboard extends ConsumerStatefulWidget {
   const NhaTroDashboard({super.key});
@@ -65,7 +69,15 @@ class _NhaTroDashboardState extends ConsumerState<NhaTroDashboard> {
                 const SnackBar(content: Text('Đang đồng bộ...')),
               );
             },
-          )
+          ),
+          IconButton(
+            icon: const Icon(Icons.logout),
+            tooltip: 'Thoát',
+            onPressed: () async {
+              await ref.read(authServiceProvider).signOut();
+              ref.read(selectedModuleProvider.notifier).state = null;
+            },
+          ),
         ],
       ),
       body: Padding(
@@ -81,6 +93,12 @@ class _NhaTroDashboardState extends ConsumerState<NhaTroDashboard> {
             _buildDashboardCard(context, 'Khách thuê', Icons.people, Colors.green, tenantCount, () {}),
             _buildDashboardCard(context, 'Hợp đồng', Icons.description, Colors.orange, null, () {}),
             _buildDashboardCard(context, 'Thu tiền', Icons.attach_money, Colors.purple, null, () {}),
+            _buildDashboardCard(context, 'Báo cáo', Icons.bar_chart, Colors.teal, null, () {
+              Navigator.push(context, MaterialPageRoute(builder: (context) => const NhaTroSalesReportScreen()));
+            }),
+            _buildDashboardCard(context, 'Đồng bộ', Icons.sync, Colors.indigo, null, () {
+              Navigator.push(context, MaterialPageRoute(builder: (context) => const NhaTroSyncScreen()));
+            }),
           ],
         ),
       ),

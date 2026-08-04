@@ -6,6 +6,7 @@ import '../../../core/providers.dart';
 import '../../../core/router/module_selector_screen.dart';
 import '../providers/cafe_providers.dart';
 import '../services/cafe_seed_data.dart';
+import 'floor_table_management_screen.dart';
 import 'tables_screen.dart';
 import 'pos_order_screen.dart';
 import 'menu_recipe_screen.dart';
@@ -18,6 +19,7 @@ import 'purchase_import_screen.dart';
 import 'voucher_screen.dart';
 import 'order_history_screen.dart';
 import 'backup_restore_screen.dart';
+import 'cafe_sales_report_screen.dart';
 
 class KanPosVNCafeShell extends ConsumerStatefulWidget {
   const KanPosVNCafeShell({super.key});
@@ -40,7 +42,7 @@ class _KanPosVNCafeShellState extends ConsumerState<KanPosVNCafeShell> {
       final db = DatabaseService.instance;
       await CafeSeedData.seedIfEmpty(db);
     } catch (e) {
-      debugPrint('CAFE INIT ERROR: $e');
+      // ignore init errors
     } finally {
       if (mounted) {
         setState(() => _isInit = true);
@@ -50,70 +52,96 @@ class _KanPosVNCafeShellState extends ConsumerState<KanPosVNCafeShell> {
 
   static final List<_CafeTab> _allTabs = [
     const _CafeTab(
+      id: 'tables',
       screen: TablesScreen(),
       label: 'Sơ đồ Bàn',
       shortLabel: 'Bàn',
       icon: Icons.table_restaurant,
     ),
     const _CafeTab(
+      id: 'floor_table_management',
+      screen: FloorTableManagementScreen(),
+      label: 'Quản lý Tầng/Bàn',
+      shortLabel: 'QL Tầng/Bàn',
+      icon: Icons.view_kanban,
+    ),
+    const _CafeTab(
+      id: 'pos',
       screen: PosOrderScreen(),
       label: 'Bán hàng',
       shortLabel: 'POS',
       icon: Icons.point_of_sale,
     ),
     const _CafeTab(
+      id: 'dashboard',
       screen: DashboardReportsScreen(),
       label: 'Dashboard',
       shortLabel: 'Báo cáo',
       icon: Icons.dashboard,
     ),
     const _CafeTab(
+      id: 'menu',
       screen: MenuRecipeScreen(),
       label: 'Menu & Recipe',
       shortLabel: 'Menu',
       icon: Icons.restaurant_menu,
     ),
     const _CafeTab(
+      id: 'inventory',
       screen: InventoryScreen(),
       label: 'Kho Hàng',
       shortLabel: 'Kho',
       icon: Icons.inventory_2,
     ),
     const _CafeTab(
+      id: 'finance',
       screen: FinanceAccountingScreen(),
       label: 'Thu Chi & KT',
       shortLabel: 'KT',
       icon: Icons.account_balance,
     ),
     const _CafeTab(
+      id: 'customers',
       screen: CustomerSupplierScreen(),
       label: 'KH & NCC',
       icon: Icons.people,
     ),
     const _CafeTab(
+      id: 'purchase',
       screen: PurchaseImportScreen(),
       label: 'Nhập hàng',
       icon: Icons.add_shopping_cart,
     ),
     const _CafeTab(
+      id: 'voucher',
       screen: VoucherScreen(),
       label: 'Phiếu Thu/Chi',
       icon: Icons.receipt,
     ),
     const _CafeTab(
+      id: 'sync_neon',
       screen: SyncNeonScreen(),
       label: 'Vercel Neon',
       icon: Icons.cloud_sync,
     ),
     const _CafeTab(
+      id: 'order_history',
       screen: OrderHistoryScreen(),
       label: 'Tra cứu hóa đơn',
       icon: Icons.search,
     ),
     const _CafeTab(
+      id: 'backup_restore',
       screen: BackupRestoreScreen(),
       label: 'Backup/Restore',
       icon: Icons.backup,
+    ),
+    const _CafeTab(
+      id: 'sales_report',
+      screen: CafeSalesReportScreen(),
+      label: 'Báo Cáo Bán Hàng',
+      shortLabel: 'BCBH',
+      icon: Icons.bar_chart,
     ),
   ];
 
@@ -125,13 +153,23 @@ class _KanPosVNCafeShellState extends ConsumerState<KanPosVNCafeShell> {
       );
     }
 
-    final isDesktop = MediaQuery.of(context).size.width > 800;
+
+    final isDesktop = MediaQuery.of(context).size.width > 600;
     final selectedIndex = ref.watch(cafeTabIndexProvider);
     final auth = ref.watch(authServiceProvider);
     final tabs = auth.isManager ? _allTabs : _allTabs.sublist(0, 2);
     final safeIndex = selectedIndex < tabs.length ? selectedIndex : 0;
-    final mobileTabs = tabs.length > 6 ? tabs.sublist(0, 6) : tabs;
-    final mobileSafeIndex = safeIndex < mobileTabs.length ? safeIndex : 0;
+    final mobileTabs = tabs;
+    final mobileSafeIndex = safeIndex;
+    // Ensure active tab id is set on initial display — do this after tabs are constructed
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      try {
+        final currentActive = ref.read(cafeActiveTabIdProvider);
+        if (currentActive == null) {
+          ref.read(cafeActiveTabIdProvider.notifier).state = tabs[safeIndex].id;
+        }
+      } catch (_) {}
+    });
 
     return Scaffold(
       appBar: AppBar(
@@ -181,16 +219,6 @@ class _KanPosVNCafeShellState extends ConsumerState<KanPosVNCafeShell> {
             },
           ),
           IconButton(
-            icon: const Icon(Icons.swap_horiz),
-            tooltip: 'Đổi Module',
-            onPressed: () {
-              ref.read(selectedModuleProvider.notifier).state = null;
-              Navigator.of(context).pushReplacement(
-                MaterialPageRoute(builder: (_) => const ModuleSelectorScreen()),
-              );
-            },
-          ),
-          IconButton(
             icon: const Icon(Icons.person),
             tooltip: 'Đổi tài khoản',
             onPressed: () async {
@@ -214,8 +242,12 @@ class _KanPosVNCafeShellState extends ConsumerState<KanPosVNCafeShell> {
             NavigationRail(
               scrollable: true,
               selectedIndex: safeIndex,
-                onDestinationSelected: (index) =>
-                    ref.read(cafeTabIndexProvider.notifier).state = index,
+                onDestinationSelected: (index) {
+                 ref.read(cafeTabIndexProvider.notifier).state = index;
+                 try {
+                   ref.read(cafeActiveTabIdProvider.notifier).state = tabs[index].id;
+                 } catch (_) {}
+                },
                 labelType: NavigationRailLabelType.all,
                 selectedIconTheme: const IconThemeData(color: Color(0xFFD97706)),
                 selectedLabelTextStyle: const TextStyle(
@@ -238,8 +270,12 @@ class _KanPosVNCafeShellState extends ConsumerState<KanPosVNCafeShell> {
           ? null
           : BottomNavigationBar(
               currentIndex: mobileSafeIndex,
-              onTap: (index) =>
-                  ref.read(cafeTabIndexProvider.notifier).state = index,
+              onTap: (index) {
+                 ref.read(cafeTabIndexProvider.notifier).state = index;
+                 try {
+                   ref.read(cafeActiveTabIdProvider.notifier).state = tabs[index].id;
+                 } catch (_) {}
+               },
               selectedItemColor: const Color(0xFFD97706),
               unselectedItemColor: Colors.grey,
               type: BottomNavigationBarType.fixed,
@@ -256,12 +292,14 @@ class _KanPosVNCafeShellState extends ConsumerState<KanPosVNCafeShell> {
 }
 
 class _CafeTab {
+  final String id;
   final Widget screen;
   final String label;
   final IconData icon;
   final String? shortLabel;
 
   const _CafeTab({
+    required this.id,
     required this.screen,
     required this.label,
     required this.icon,

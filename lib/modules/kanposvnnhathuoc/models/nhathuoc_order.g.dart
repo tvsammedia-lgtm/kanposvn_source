@@ -17,41 +17,66 @@ const NhathuocOrderSchema = CollectionSchema(
   name: r'NhathuocOrder',
   id: -4171428376196864819,
   properties: {
-    r'notes': PropertySchema(
+    r'deletedAt': PropertySchema(
       id: 0,
+      name: r'deletedAt',
+      type: IsarType.dateTime,
+    ),
+    r'deviceId': PropertySchema(
+      id: 1,
+      name: r'deviceId',
+      type: IsarType.string,
+    ),
+    r'isSynced': PropertySchema(
+      id: 2,
+      name: r'isSynced',
+      type: IsarType.bool,
+    ),
+    r'notes': PropertySchema(
+      id: 3,
       name: r'notes',
       type: IsarType.string,
     ),
     r'orderCode': PropertySchema(
-      id: 1,
+      id: 4,
       name: r'orderCode',
       type: IsarType.string,
     ),
     r'orderDate': PropertySchema(
-      id: 2,
+      id: 5,
       name: r'orderDate',
       type: IsarType.dateTime,
     ),
     r'orderId': PropertySchema(
-      id: 3,
+      id: 6,
       name: r'orderId',
       type: IsarType.string,
     ),
     r'prescriptionImage': PropertySchema(
-      id: 4,
+      id: 7,
       name: r'prescriptionImage',
       type: IsarType.string,
     ),
     r'status': PropertySchema(
-      id: 5,
+      id: 8,
       name: r'status',
       type: IsarType.byte,
       enumMap: _NhathuocOrderstatusEnumValueMap,
     ),
     r'totalAmount': PropertySchema(
-      id: 6,
+      id: 9,
       name: r'totalAmount',
       type: IsarType.double,
+    ),
+    r'updatedAt': PropertySchema(
+      id: 10,
+      name: r'updatedAt',
+      type: IsarType.dateTime,
+    ),
+    r'version': PropertySchema(
+      id: 11,
+      name: r'version',
+      type: IsarType.long,
     )
   },
   estimateSize: _nhathuocOrderEstimateSize,
@@ -102,6 +127,7 @@ int _nhathuocOrderEstimateSize(
   Map<Type, List<int>> allOffsets,
 ) {
   var bytesCount = offsets.last;
+  bytesCount += 3 + object.deviceId.length * 3;
   bytesCount += 3 + object.notes.length * 3;
   bytesCount += 3 + object.orderCode.length * 3;
   bytesCount += 3 + object.orderId.length * 3;
@@ -115,13 +141,18 @@ void _nhathuocOrderSerialize(
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
-  writer.writeString(offsets[0], object.notes);
-  writer.writeString(offsets[1], object.orderCode);
-  writer.writeDateTime(offsets[2], object.orderDate);
-  writer.writeString(offsets[3], object.orderId);
-  writer.writeString(offsets[4], object.prescriptionImage);
-  writer.writeByte(offsets[5], object.status.index);
-  writer.writeDouble(offsets[6], object.totalAmount);
+  writer.writeDateTime(offsets[0], object.deletedAt);
+  writer.writeString(offsets[1], object.deviceId);
+  writer.writeBool(offsets[2], object.isSynced);
+  writer.writeString(offsets[3], object.notes);
+  writer.writeString(offsets[4], object.orderCode);
+  writer.writeDateTime(offsets[5], object.orderDate);
+  writer.writeString(offsets[6], object.orderId);
+  writer.writeString(offsets[7], object.prescriptionImage);
+  writer.writeByte(offsets[8], object.status.index);
+  writer.writeDouble(offsets[9], object.totalAmount);
+  writer.writeDateTime(offsets[10], object.updatedAt);
+  writer.writeLong(offsets[11], object.version);
 }
 
 NhathuocOrder _nhathuocOrderDeserialize(
@@ -131,16 +162,21 @@ NhathuocOrder _nhathuocOrderDeserialize(
   Map<Type, List<int>> allOffsets,
 ) {
   final object = NhathuocOrder();
+  object.deletedAt = reader.readDateTimeOrNull(offsets[0]);
+  object.deviceId = reader.readString(offsets[1]);
   object.id = id;
-  object.notes = reader.readString(offsets[0]);
-  object.orderCode = reader.readString(offsets[1]);
-  object.orderDate = reader.readDateTimeOrNull(offsets[2]);
-  object.orderId = reader.readString(offsets[3]);
-  object.prescriptionImage = reader.readString(offsets[4]);
+  object.isSynced = reader.readBool(offsets[2]);
+  object.notes = reader.readString(offsets[3]);
+  object.orderCode = reader.readString(offsets[4]);
+  object.orderDate = reader.readDateTimeOrNull(offsets[5]);
+  object.orderId = reader.readString(offsets[6]);
+  object.prescriptionImage = reader.readString(offsets[7]);
   object.status =
-      _NhathuocOrderstatusValueEnumMap[reader.readByteOrNull(offsets[5])] ??
+      _NhathuocOrderstatusValueEnumMap[reader.readByteOrNull(offsets[8])] ??
           NhathuocOrderStatus.PENDING;
-  object.totalAmount = reader.readDouble(offsets[6]);
+  object.totalAmount = reader.readDouble(offsets[9]);
+  object.updatedAt = reader.readDateTime(offsets[10]);
+  object.version = reader.readLong(offsets[11]);
   return object;
 }
 
@@ -152,20 +188,30 @@ P _nhathuocOrderDeserializeProp<P>(
 ) {
   switch (propertyId) {
     case 0:
-      return (reader.readString(offset)) as P;
+      return (reader.readDateTimeOrNull(offset)) as P;
     case 1:
       return (reader.readString(offset)) as P;
     case 2:
-      return (reader.readDateTimeOrNull(offset)) as P;
+      return (reader.readBool(offset)) as P;
     case 3:
       return (reader.readString(offset)) as P;
     case 4:
       return (reader.readString(offset)) as P;
     case 5:
+      return (reader.readDateTimeOrNull(offset)) as P;
+    case 6:
+      return (reader.readString(offset)) as P;
+    case 7:
+      return (reader.readString(offset)) as P;
+    case 8:
       return (_NhathuocOrderstatusValueEnumMap[reader.readByteOrNull(offset)] ??
           NhathuocOrderStatus.PENDING) as P;
-    case 6:
+    case 9:
       return (reader.readDouble(offset)) as P;
+    case 10:
+      return (reader.readDateTime(offset)) as P;
+    case 11:
+      return (reader.readLong(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
   }
@@ -382,6 +428,216 @@ extension NhathuocOrderQueryWhere
 
 extension NhathuocOrderQueryFilter
     on QueryBuilder<NhathuocOrder, NhathuocOrder, QFilterCondition> {
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterFilterCondition>
+      deletedAtIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'deletedAt',
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterFilterCondition>
+      deletedAtIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'deletedAt',
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterFilterCondition>
+      deletedAtEqualTo(DateTime? value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'deletedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterFilterCondition>
+      deletedAtGreaterThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'deletedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterFilterCondition>
+      deletedAtLessThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'deletedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterFilterCondition>
+      deletedAtBetween(
+    DateTime? lower,
+    DateTime? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'deletedAt',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterFilterCondition>
+      deviceIdEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterFilterCondition>
+      deviceIdGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterFilterCondition>
+      deviceIdLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterFilterCondition>
+      deviceIdBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'deviceId',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterFilterCondition>
+      deviceIdStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterFilterCondition>
+      deviceIdEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterFilterCondition>
+      deviceIdContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterFilterCondition>
+      deviceIdMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'deviceId',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterFilterCondition>
+      deviceIdIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'deviceId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterFilterCondition>
+      deviceIdIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'deviceId',
+        value: '',
+      ));
+    });
+  }
+
   QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterFilterCondition> idEqualTo(
       Id value) {
     return QueryBuilder.apply(this, (query) {
@@ -432,6 +688,16 @@ extension NhathuocOrderQueryFilter
         includeLower: includeLower,
         upper: upper,
         includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterFilterCondition>
+      isSyncedEqualTo(bool value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'isSynced',
+        value: value,
       ));
     });
   }
@@ -1175,6 +1441,118 @@ extension NhathuocOrderQueryFilter
       ));
     });
   }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterFilterCondition>
+      updatedAtEqualTo(DateTime value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'updatedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterFilterCondition>
+      updatedAtGreaterThan(
+    DateTime value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'updatedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterFilterCondition>
+      updatedAtLessThan(
+    DateTime value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'updatedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterFilterCondition>
+      updatedAtBetween(
+    DateTime lower,
+    DateTime upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'updatedAt',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterFilterCondition>
+      versionEqualTo(int value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'version',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterFilterCondition>
+      versionGreaterThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'version',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterFilterCondition>
+      versionLessThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'version',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterFilterCondition>
+      versionBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'version',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
 }
 
 extension NhathuocOrderQueryObject
@@ -1260,6 +1638,45 @@ extension NhathuocOrderQueryLinks
 
 extension NhathuocOrderQuerySortBy
     on QueryBuilder<NhathuocOrder, NhathuocOrder, QSortBy> {
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterSortBy> sortByDeletedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterSortBy>
+      sortByDeletedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterSortBy> sortByDeviceId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterSortBy>
+      sortByDeviceIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterSortBy> sortByIsSynced() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterSortBy>
+      sortByIsSyncedDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.desc);
+    });
+  }
+
   QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterSortBy> sortByNotes() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'notes', Sort.asc);
@@ -1348,10 +1765,61 @@ extension NhathuocOrderQuerySortBy
       return query.addSortBy(r'totalAmount', Sort.desc);
     });
   }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterSortBy> sortByUpdatedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'updatedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterSortBy>
+      sortByUpdatedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'updatedAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterSortBy> sortByVersion() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterSortBy> sortByVersionDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.desc);
+    });
+  }
 }
 
 extension NhathuocOrderQuerySortThenBy
     on QueryBuilder<NhathuocOrder, NhathuocOrder, QSortThenBy> {
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterSortBy> thenByDeletedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterSortBy>
+      thenByDeletedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterSortBy> thenByDeviceId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterSortBy>
+      thenByDeviceIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.desc);
+    });
+  }
+
   QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterSortBy> thenById() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'id', Sort.asc);
@@ -1361,6 +1829,19 @@ extension NhathuocOrderQuerySortThenBy
   QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterSortBy> thenByIdDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'id', Sort.desc);
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterSortBy> thenByIsSynced() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterSortBy>
+      thenByIsSyncedDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.desc);
     });
   }
 
@@ -1452,10 +1933,54 @@ extension NhathuocOrderQuerySortThenBy
       return query.addSortBy(r'totalAmount', Sort.desc);
     });
   }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterSortBy> thenByUpdatedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'updatedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterSortBy>
+      thenByUpdatedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'updatedAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterSortBy> thenByVersion() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterSortBy> thenByVersionDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.desc);
+    });
+  }
 }
 
 extension NhathuocOrderQueryWhereDistinct
     on QueryBuilder<NhathuocOrder, NhathuocOrder, QDistinct> {
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QDistinct> distinctByDeletedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'deletedAt');
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QDistinct> distinctByDeviceId(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'deviceId', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QDistinct> distinctByIsSynced() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'isSynced');
+    });
+  }
+
   QueryBuilder<NhathuocOrder, NhathuocOrder, QDistinct> distinctByNotes(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
@@ -1503,6 +2028,18 @@ extension NhathuocOrderQueryWhereDistinct
       return query.addDistinctBy(r'totalAmount');
     });
   }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QDistinct> distinctByUpdatedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'updatedAt');
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QDistinct> distinctByVersion() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'version');
+    });
+  }
 }
 
 extension NhathuocOrderQueryProperty
@@ -1510,6 +2047,24 @@ extension NhathuocOrderQueryProperty
   QueryBuilder<NhathuocOrder, int, QQueryOperations> idProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'id');
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, DateTime?, QQueryOperations> deletedAtProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'deletedAt');
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, String, QQueryOperations> deviceIdProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'deviceId');
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, bool, QQueryOperations> isSyncedProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'isSynced');
     });
   }
 
@@ -1556,6 +2111,18 @@ extension NhathuocOrderQueryProperty
       return query.addPropertyName(r'totalAmount');
     });
   }
+
+  QueryBuilder<NhathuocOrder, DateTime, QQueryOperations> updatedAtProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'updatedAt');
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, int, QQueryOperations> versionProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'version');
+    });
+  }
 }
 
 // coverage:ignore-file
@@ -1570,25 +2137,50 @@ const NhathuocOrderDetailSchema = CollectionSchema(
   name: r'NhathuocOrderDetail',
   id: 6709964161299964761,
   properties: {
-    r'dosageInstructions': PropertySchema(
+    r'deletedAt': PropertySchema(
       id: 0,
+      name: r'deletedAt',
+      type: IsarType.dateTime,
+    ),
+    r'deviceId': PropertySchema(
+      id: 1,
+      name: r'deviceId',
+      type: IsarType.string,
+    ),
+    r'dosageInstructions': PropertySchema(
+      id: 2,
       name: r'dosageInstructions',
       type: IsarType.string,
     ),
+    r'isSynced': PropertySchema(
+      id: 3,
+      name: r'isSynced',
+      type: IsarType.bool,
+    ),
     r'quantity': PropertySchema(
-      id: 1,
+      id: 4,
       name: r'quantity',
       type: IsarType.double,
     ),
     r'total': PropertySchema(
-      id: 2,
+      id: 5,
       name: r'total',
       type: IsarType.double,
     ),
     r'unitPrice': PropertySchema(
-      id: 3,
+      id: 6,
       name: r'unitPrice',
       type: IsarType.double,
+    ),
+    r'updatedAt': PropertySchema(
+      id: 7,
+      name: r'updatedAt',
+      type: IsarType.dateTime,
+    ),
+    r'version': PropertySchema(
+      id: 8,
+      name: r'version',
+      type: IsarType.long,
     )
   },
   estimateSize: _nhathuocOrderDetailEstimateSize,
@@ -1624,6 +2216,7 @@ int _nhathuocOrderDetailEstimateSize(
   Map<Type, List<int>> allOffsets,
 ) {
   var bytesCount = offsets.last;
+  bytesCount += 3 + object.deviceId.length * 3;
   bytesCount += 3 + object.dosageInstructions.length * 3;
   return bytesCount;
 }
@@ -1634,10 +2227,15 @@ void _nhathuocOrderDetailSerialize(
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
-  writer.writeString(offsets[0], object.dosageInstructions);
-  writer.writeDouble(offsets[1], object.quantity);
-  writer.writeDouble(offsets[2], object.total);
-  writer.writeDouble(offsets[3], object.unitPrice);
+  writer.writeDateTime(offsets[0], object.deletedAt);
+  writer.writeString(offsets[1], object.deviceId);
+  writer.writeString(offsets[2], object.dosageInstructions);
+  writer.writeBool(offsets[3], object.isSynced);
+  writer.writeDouble(offsets[4], object.quantity);
+  writer.writeDouble(offsets[5], object.total);
+  writer.writeDouble(offsets[6], object.unitPrice);
+  writer.writeDateTime(offsets[7], object.updatedAt);
+  writer.writeLong(offsets[8], object.version);
 }
 
 NhathuocOrderDetail _nhathuocOrderDetailDeserialize(
@@ -1647,11 +2245,16 @@ NhathuocOrderDetail _nhathuocOrderDetailDeserialize(
   Map<Type, List<int>> allOffsets,
 ) {
   final object = NhathuocOrderDetail();
-  object.dosageInstructions = reader.readString(offsets[0]);
+  object.deletedAt = reader.readDateTimeOrNull(offsets[0]);
+  object.deviceId = reader.readString(offsets[1]);
+  object.dosageInstructions = reader.readString(offsets[2]);
   object.id = id;
-  object.quantity = reader.readDouble(offsets[1]);
-  object.total = reader.readDouble(offsets[2]);
-  object.unitPrice = reader.readDouble(offsets[3]);
+  object.isSynced = reader.readBool(offsets[3]);
+  object.quantity = reader.readDouble(offsets[4]);
+  object.total = reader.readDouble(offsets[5]);
+  object.unitPrice = reader.readDouble(offsets[6]);
+  object.updatedAt = reader.readDateTime(offsets[7]);
+  object.version = reader.readLong(offsets[8]);
   return object;
 }
 
@@ -1663,13 +2266,23 @@ P _nhathuocOrderDetailDeserializeProp<P>(
 ) {
   switch (propertyId) {
     case 0:
-      return (reader.readString(offset)) as P;
+      return (reader.readDateTimeOrNull(offset)) as P;
     case 1:
-      return (reader.readDouble(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 2:
-      return (reader.readDouble(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 3:
+      return (reader.readBool(offset)) as P;
+    case 4:
       return (reader.readDouble(offset)) as P;
+    case 5:
+      return (reader.readDouble(offset)) as P;
+    case 6:
+      return (reader.readDouble(offset)) as P;
+    case 7:
+      return (reader.readDateTime(offset)) as P;
+    case 8:
+      return (reader.readLong(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
   }
@@ -1774,6 +2387,216 @@ extension NhathuocOrderDetailQueryWhere
 
 extension NhathuocOrderDetailQueryFilter on QueryBuilder<NhathuocOrderDetail,
     NhathuocOrderDetail, QFilterCondition> {
+  QueryBuilder<NhathuocOrderDetail, NhathuocOrderDetail, QAfterFilterCondition>
+      deletedAtIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'deletedAt',
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocOrderDetail, NhathuocOrderDetail, QAfterFilterCondition>
+      deletedAtIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'deletedAt',
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocOrderDetail, NhathuocOrderDetail, QAfterFilterCondition>
+      deletedAtEqualTo(DateTime? value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'deletedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocOrderDetail, NhathuocOrderDetail, QAfterFilterCondition>
+      deletedAtGreaterThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'deletedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocOrderDetail, NhathuocOrderDetail, QAfterFilterCondition>
+      deletedAtLessThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'deletedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocOrderDetail, NhathuocOrderDetail, QAfterFilterCondition>
+      deletedAtBetween(
+    DateTime? lower,
+    DateTime? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'deletedAt',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocOrderDetail, NhathuocOrderDetail, QAfterFilterCondition>
+      deviceIdEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocOrderDetail, NhathuocOrderDetail, QAfterFilterCondition>
+      deviceIdGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocOrderDetail, NhathuocOrderDetail, QAfterFilterCondition>
+      deviceIdLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocOrderDetail, NhathuocOrderDetail, QAfterFilterCondition>
+      deviceIdBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'deviceId',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocOrderDetail, NhathuocOrderDetail, QAfterFilterCondition>
+      deviceIdStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocOrderDetail, NhathuocOrderDetail, QAfterFilterCondition>
+      deviceIdEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocOrderDetail, NhathuocOrderDetail, QAfterFilterCondition>
+      deviceIdContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocOrderDetail, NhathuocOrderDetail, QAfterFilterCondition>
+      deviceIdMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'deviceId',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocOrderDetail, NhathuocOrderDetail, QAfterFilterCondition>
+      deviceIdIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'deviceId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocOrderDetail, NhathuocOrderDetail, QAfterFilterCondition>
+      deviceIdIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'deviceId',
+        value: '',
+      ));
+    });
+  }
+
   QueryBuilder<NhathuocOrderDetail, NhathuocOrderDetail, QAfterFilterCondition>
       dosageInstructionsEqualTo(
     String value, {
@@ -1962,6 +2785,16 @@ extension NhathuocOrderDetailQueryFilter on QueryBuilder<NhathuocOrderDetail,
         includeLower: includeLower,
         upper: upper,
         includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocOrderDetail, NhathuocOrderDetail, QAfterFilterCondition>
+      isSyncedEqualTo(bool value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'isSynced',
+        value: value,
       ));
     });
   }
@@ -2163,6 +2996,118 @@ extension NhathuocOrderDetailQueryFilter on QueryBuilder<NhathuocOrderDetail,
       ));
     });
   }
+
+  QueryBuilder<NhathuocOrderDetail, NhathuocOrderDetail, QAfterFilterCondition>
+      updatedAtEqualTo(DateTime value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'updatedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocOrderDetail, NhathuocOrderDetail, QAfterFilterCondition>
+      updatedAtGreaterThan(
+    DateTime value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'updatedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocOrderDetail, NhathuocOrderDetail, QAfterFilterCondition>
+      updatedAtLessThan(
+    DateTime value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'updatedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocOrderDetail, NhathuocOrderDetail, QAfterFilterCondition>
+      updatedAtBetween(
+    DateTime lower,
+    DateTime upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'updatedAt',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocOrderDetail, NhathuocOrderDetail, QAfterFilterCondition>
+      versionEqualTo(int value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'version',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocOrderDetail, NhathuocOrderDetail, QAfterFilterCondition>
+      versionGreaterThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'version',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocOrderDetail, NhathuocOrderDetail, QAfterFilterCondition>
+      versionLessThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'version',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocOrderDetail, NhathuocOrderDetail, QAfterFilterCondition>
+      versionBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'version',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
 }
 
 extension NhathuocOrderDetailQueryObject on QueryBuilder<NhathuocOrderDetail,
@@ -2202,6 +3147,34 @@ extension NhathuocOrderDetailQueryLinks on QueryBuilder<NhathuocOrderDetail,
 extension NhathuocOrderDetailQuerySortBy
     on QueryBuilder<NhathuocOrderDetail, NhathuocOrderDetail, QSortBy> {
   QueryBuilder<NhathuocOrderDetail, NhathuocOrderDetail, QAfterSortBy>
+      sortByDeletedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocOrderDetail, NhathuocOrderDetail, QAfterSortBy>
+      sortByDeletedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<NhathuocOrderDetail, NhathuocOrderDetail, QAfterSortBy>
+      sortByDeviceId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocOrderDetail, NhathuocOrderDetail, QAfterSortBy>
+      sortByDeviceIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<NhathuocOrderDetail, NhathuocOrderDetail, QAfterSortBy>
       sortByDosageInstructions() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'dosageInstructions', Sort.asc);
@@ -2212,6 +3185,20 @@ extension NhathuocOrderDetailQuerySortBy
       sortByDosageInstructionsDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'dosageInstructions', Sort.desc);
+    });
+  }
+
+  QueryBuilder<NhathuocOrderDetail, NhathuocOrderDetail, QAfterSortBy>
+      sortByIsSynced() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocOrderDetail, NhathuocOrderDetail, QAfterSortBy>
+      sortByIsSyncedDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.desc);
     });
   }
 
@@ -2256,10 +3243,66 @@ extension NhathuocOrderDetailQuerySortBy
       return query.addSortBy(r'unitPrice', Sort.desc);
     });
   }
+
+  QueryBuilder<NhathuocOrderDetail, NhathuocOrderDetail, QAfterSortBy>
+      sortByUpdatedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'updatedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocOrderDetail, NhathuocOrderDetail, QAfterSortBy>
+      sortByUpdatedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'updatedAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<NhathuocOrderDetail, NhathuocOrderDetail, QAfterSortBy>
+      sortByVersion() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocOrderDetail, NhathuocOrderDetail, QAfterSortBy>
+      sortByVersionDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.desc);
+    });
+  }
 }
 
 extension NhathuocOrderDetailQuerySortThenBy
     on QueryBuilder<NhathuocOrderDetail, NhathuocOrderDetail, QSortThenBy> {
+  QueryBuilder<NhathuocOrderDetail, NhathuocOrderDetail, QAfterSortBy>
+      thenByDeletedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocOrderDetail, NhathuocOrderDetail, QAfterSortBy>
+      thenByDeletedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<NhathuocOrderDetail, NhathuocOrderDetail, QAfterSortBy>
+      thenByDeviceId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocOrderDetail, NhathuocOrderDetail, QAfterSortBy>
+      thenByDeviceIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.desc);
+    });
+  }
+
   QueryBuilder<NhathuocOrderDetail, NhathuocOrderDetail, QAfterSortBy>
       thenByDosageInstructions() {
     return QueryBuilder.apply(this, (query) {
@@ -2285,6 +3328,20 @@ extension NhathuocOrderDetailQuerySortThenBy
       thenByIdDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'id', Sort.desc);
+    });
+  }
+
+  QueryBuilder<NhathuocOrderDetail, NhathuocOrderDetail, QAfterSortBy>
+      thenByIsSynced() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocOrderDetail, NhathuocOrderDetail, QAfterSortBy>
+      thenByIsSyncedDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.desc);
     });
   }
 
@@ -2329,15 +3386,64 @@ extension NhathuocOrderDetailQuerySortThenBy
       return query.addSortBy(r'unitPrice', Sort.desc);
     });
   }
+
+  QueryBuilder<NhathuocOrderDetail, NhathuocOrderDetail, QAfterSortBy>
+      thenByUpdatedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'updatedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocOrderDetail, NhathuocOrderDetail, QAfterSortBy>
+      thenByUpdatedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'updatedAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<NhathuocOrderDetail, NhathuocOrderDetail, QAfterSortBy>
+      thenByVersion() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocOrderDetail, NhathuocOrderDetail, QAfterSortBy>
+      thenByVersionDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.desc);
+    });
+  }
 }
 
 extension NhathuocOrderDetailQueryWhereDistinct
     on QueryBuilder<NhathuocOrderDetail, NhathuocOrderDetail, QDistinct> {
   QueryBuilder<NhathuocOrderDetail, NhathuocOrderDetail, QDistinct>
+      distinctByDeletedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'deletedAt');
+    });
+  }
+
+  QueryBuilder<NhathuocOrderDetail, NhathuocOrderDetail, QDistinct>
+      distinctByDeviceId({bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'deviceId', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<NhathuocOrderDetail, NhathuocOrderDetail, QDistinct>
       distinctByDosageInstructions({bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'dosageInstructions',
           caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<NhathuocOrderDetail, NhathuocOrderDetail, QDistinct>
+      distinctByIsSynced() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'isSynced');
     });
   }
 
@@ -2361,6 +3467,20 @@ extension NhathuocOrderDetailQueryWhereDistinct
       return query.addDistinctBy(r'unitPrice');
     });
   }
+
+  QueryBuilder<NhathuocOrderDetail, NhathuocOrderDetail, QDistinct>
+      distinctByUpdatedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'updatedAt');
+    });
+  }
+
+  QueryBuilder<NhathuocOrderDetail, NhathuocOrderDetail, QDistinct>
+      distinctByVersion() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'version');
+    });
+  }
 }
 
 extension NhathuocOrderDetailQueryProperty
@@ -2371,10 +3491,30 @@ extension NhathuocOrderDetailQueryProperty
     });
   }
 
+  QueryBuilder<NhathuocOrderDetail, DateTime?, QQueryOperations>
+      deletedAtProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'deletedAt');
+    });
+  }
+
+  QueryBuilder<NhathuocOrderDetail, String, QQueryOperations>
+      deviceIdProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'deviceId');
+    });
+  }
+
   QueryBuilder<NhathuocOrderDetail, String, QQueryOperations>
       dosageInstructionsProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'dosageInstructions');
+    });
+  }
+
+  QueryBuilder<NhathuocOrderDetail, bool, QQueryOperations> isSyncedProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'isSynced');
     });
   }
 
@@ -2395,6 +3535,19 @@ extension NhathuocOrderDetailQueryProperty
       unitPriceProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'unitPrice');
+    });
+  }
+
+  QueryBuilder<NhathuocOrderDetail, DateTime, QQueryOperations>
+      updatedAtProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'updatedAt');
+    });
+  }
+
+  QueryBuilder<NhathuocOrderDetail, int, QQueryOperations> versionProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'version');
     });
   }
 }

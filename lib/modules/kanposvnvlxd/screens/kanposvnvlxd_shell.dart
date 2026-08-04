@@ -8,6 +8,7 @@ import 'vlxd_inventory_screen.dart';
 import 'vlxd_contracts_screen.dart';
 import 'vlxd_finance_screen.dart';
 import 'vlxd_dashboard_screen.dart';
+import 'vlxd_sales_report_screen.dart';
 
 class KanPosVNVlxdShell extends ConsumerStatefulWidget {
   const KanPosVNVlxdShell({super.key});
@@ -42,6 +43,7 @@ class _KanPosVNVlxdShellState extends ConsumerState<KanPosVNVlxdShell> {
     const VlxdInventoryScreen(),
     const VlxdFinanceScreen(),
     const VlxdSyncScreen(),
+    const VlxdSalesReportScreen(),
   ];
 
   @override
@@ -68,6 +70,7 @@ class _KanPosVNVlxdShellState extends ConsumerState<KanPosVNVlxdShell> {
               NavigationRailDestination(icon: Icon(Icons.inventory), label: Text('Kho Hàng')),
               NavigationRailDestination(icon: Icon(Icons.account_balance_wallet), label: Text('Thu Chi & Nợ')),
               NavigationRailDestination(icon: Icon(Icons.sync), label: Text('Đồng Bộ')),
+              NavigationRailDestination(icon: Icon(Icons.bar_chart), label: Text('Báo Cáo')),
             ],
           ),
           const VerticalDivider(thickness: 1, width: 1),

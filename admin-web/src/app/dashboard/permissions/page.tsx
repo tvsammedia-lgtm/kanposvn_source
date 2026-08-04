@@ -27,8 +27,19 @@ export default function PermissionsPage() {
   const [userPerms, setUserPerms] = useState<UserPerm[]>([]);
   const [selectedUser, setSelectedUser] = useState<string>('');
   const [saved, setSaved] = useState(false);
+  const [currentUser, setCurrentUser] = useState<{ email: string } | null>(null);
 
   const token = typeof window !== 'undefined' ? localStorage.getItem('admin_token') : '';
+
+  useEffect(() => {
+    const userData = localStorage.getItem('admin_user');
+    if (userData) {
+      setCurrentUser(JSON.parse(userData));
+    }
+  }, []);
+
+  const isSuperAdmin = currentUser?.email === 'admin@kanposvn.com';
+  const isCafeAdmin = currentUser?.email === 'admin@kanposvncafe.com';
 
   useEffect(() => {
     fetch('/api/users', { headers: { Authorization: `Bearer ${token}` } }).then(r => r.json()).then((data: User[]) => setUsers(data));
@@ -49,6 +60,14 @@ export default function PermissionsPage() {
   };
 
   const toggleApp = (app: App) => {
+    if (!isSuperAdmin && !isCafeAdmin) {
+      alert('Chi super admin moi co thay doi quyen');
+      return;
+    }
+    if (isCafeAdmin && app.app_code !== 'kanposvncafe') {
+      alert('Cafe admin chi co thay doi quyen kanposvncafe');
+      return;
+    }
     const existing = getPerm(app.app_code);
     if (existing) {
       setUserPerms(userPerms.filter(p => p.app_code !== app.app_code));
@@ -66,6 +85,14 @@ export default function PermissionsPage() {
   };
 
   const setRole = (appCode: string, roleId: string) => {
+    if (!isSuperAdmin && !isCafeAdmin) {
+      alert('Chi super admin moi co thay doi quyen');
+      return;
+    }
+    if (isCafeAdmin && appCode !== 'kanposvncafe') {
+      alert('Cafe admin chi co thay doi quyen kanposvncafe');
+      return;
+    }
     const role = roles.find(r => r.id === roleId);
     setUserPerms(userPerms.map(p =>
       p.app_code === appCode ? { ...p, role_id: roleId, role_name: role?.role_name || '' } : p
@@ -73,6 +100,10 @@ export default function PermissionsPage() {
   };
 
   const savePermissions = async () => {
+    if (!isSuperAdmin && !isCafeAdmin) {
+      alert('Chi super admin moi co thay doi quyen');
+      return;
+    }
     const perms = userPerms.map(p => ({
       app_id: p.app_id,
       role_id: p.role_id,

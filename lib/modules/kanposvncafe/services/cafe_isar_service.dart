@@ -32,6 +32,18 @@ class CafeIsarService {
     await _db.saveItem('cafe_tables', table.id, table.toJson());
   }
 
+  Future<void> deleteTable(String id) async {
+    await _db.deleteItem('cafe_tables', id);
+  }
+
+  Future<void> deleteArea(String id) async {
+    final tablesToDelete = getTables().where((t) => t.areaId == id).toList();
+    for (final table in tablesToDelete) {
+      await deleteTable(table.id);
+    }
+    await _db.deleteItem('cafe_areas', id);
+  }
+
   // --- MENU CATEGORIES & ITEMS ---
   List<CafeCategory> getCategories() {
     final list = _db.getCollection('cafe_categories');

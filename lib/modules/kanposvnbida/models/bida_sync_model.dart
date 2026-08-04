@@ -6,6 +6,11 @@ part 'bida_sync_model.g.dart';
 class BidaSyncQueue {
   Id id = Isar.autoIncrement;
 
+  DateTime updatedAt = DateTime.now();
+  DateTime? deletedAt;
+  String deviceId = "";
+  int version = 1;
+
   String entityType = '';
   String action = ''; // insert, update, delete
   String payload = ''; // JSON string

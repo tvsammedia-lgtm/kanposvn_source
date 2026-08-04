@@ -37,64 +37,74 @@ const TransactionRecordSchema = CollectionSchema(
       name: r'commission',
       type: IsarType.double,
     ),
-    r'finalPrice': PropertySchema(
+    r'deletedAt': PropertySchema(
       id: 4,
+      name: r'deletedAt',
+      type: IsarType.dateTime,
+    ),
+    r'deviceId': PropertySchema(
+      id: 5,
+      name: r'deviceId',
+      type: IsarType.string,
+    ),
+    r'finalPrice': PropertySchema(
+      id: 6,
       name: r'finalPrice',
       type: IsarType.double,
     ),
     r'floorFee': PropertySchema(
-      id: 5,
+      id: 7,
       name: r'floorFee',
       type: IsarType.double,
     ),
     r'isSynced': PropertySchema(
-      id: 6,
+      id: 8,
       name: r'isSynced',
       type: IsarType.bool,
     ),
     r'notes': PropertySchema(
-      id: 7,
+      id: 9,
       name: r'notes',
       type: IsarType.string,
     ),
     r'propertyId': PropertySchema(
-      id: 8,
+      id: 10,
       name: r'propertyId',
       type: IsarType.string,
     ),
     r'remoteId': PropertySchema(
-      id: 9,
+      id: 11,
       name: r'remoteId',
       type: IsarType.string,
     ),
     r'sellerId': PropertySchema(
-      id: 10,
+      id: 12,
       name: r'sellerId',
       type: IsarType.string,
     ),
     r'status': PropertySchema(
-      id: 11,
+      id: 13,
       name: r'status',
       type: IsarType.string,
       enumMap: _TransactionRecordstatusEnumValueMap,
     ),
     r'transactionCode': PropertySchema(
-      id: 12,
+      id: 14,
       name: r'transactionCode',
       type: IsarType.string,
     ),
     r'transactionDate': PropertySchema(
-      id: 13,
+      id: 15,
       name: r'transactionDate',
       type: IsarType.dateTime,
     ),
     r'updatedAt': PropertySchema(
-      id: 14,
+      id: 16,
       name: r'updatedAt',
       type: IsarType.dateTime,
     ),
     r'version': PropertySchema(
-      id: 15,
+      id: 17,
       name: r'version',
       type: IsarType.long,
     )
@@ -145,6 +155,7 @@ int _transactionRecordEstimateSize(
       bytesCount += 3 + value.length * 3;
     }
   }
+  bytesCount += 3 + object.deviceId.length * 3;
   {
     final value = object.notes;
     if (value != null) {
@@ -189,18 +200,20 @@ void _transactionRecordSerialize(
   writer.writeString(offsets[1], object.brokerId);
   writer.writeString(offsets[2], object.buyerId);
   writer.writeDouble(offsets[3], object.commission);
-  writer.writeDouble(offsets[4], object.finalPrice);
-  writer.writeDouble(offsets[5], object.floorFee);
-  writer.writeBool(offsets[6], object.isSynced);
-  writer.writeString(offsets[7], object.notes);
-  writer.writeString(offsets[8], object.propertyId);
-  writer.writeString(offsets[9], object.remoteId);
-  writer.writeString(offsets[10], object.sellerId);
-  writer.writeString(offsets[11], object.status.name);
-  writer.writeString(offsets[12], object.transactionCode);
-  writer.writeDateTime(offsets[13], object.transactionDate);
-  writer.writeDateTime(offsets[14], object.updatedAt);
-  writer.writeLong(offsets[15], object.version);
+  writer.writeDateTime(offsets[4], object.deletedAt);
+  writer.writeString(offsets[5], object.deviceId);
+  writer.writeDouble(offsets[6], object.finalPrice);
+  writer.writeDouble(offsets[7], object.floorFee);
+  writer.writeBool(offsets[8], object.isSynced);
+  writer.writeString(offsets[9], object.notes);
+  writer.writeString(offsets[10], object.propertyId);
+  writer.writeString(offsets[11], object.remoteId);
+  writer.writeString(offsets[12], object.sellerId);
+  writer.writeString(offsets[13], object.status.name);
+  writer.writeString(offsets[14], object.transactionCode);
+  writer.writeDateTime(offsets[15], object.transactionDate);
+  writer.writeDateTime(offsets[16], object.updatedAt);
+  writer.writeLong(offsets[17], object.version);
 }
 
 TransactionRecord _transactionRecordDeserialize(
@@ -214,21 +227,23 @@ TransactionRecord _transactionRecordDeserialize(
   object.brokerId = reader.readStringOrNull(offsets[1]);
   object.buyerId = reader.readStringOrNull(offsets[2]);
   object.commission = reader.readDoubleOrNull(offsets[3]);
-  object.finalPrice = reader.readDoubleOrNull(offsets[4]);
-  object.floorFee = reader.readDoubleOrNull(offsets[5]);
+  object.deletedAt = reader.readDateTimeOrNull(offsets[4]);
+  object.deviceId = reader.readString(offsets[5]);
+  object.finalPrice = reader.readDoubleOrNull(offsets[6]);
+  object.floorFee = reader.readDoubleOrNull(offsets[7]);
   object.id = id;
-  object.isSynced = reader.readBool(offsets[6]);
-  object.notes = reader.readStringOrNull(offsets[7]);
-  object.propertyId = reader.readStringOrNull(offsets[8]);
-  object.remoteId = reader.readStringOrNull(offsets[9]);
-  object.sellerId = reader.readStringOrNull(offsets[10]);
+  object.isSynced = reader.readBool(offsets[8]);
+  object.notes = reader.readStringOrNull(offsets[9]);
+  object.propertyId = reader.readStringOrNull(offsets[10]);
+  object.remoteId = reader.readStringOrNull(offsets[11]);
+  object.sellerId = reader.readStringOrNull(offsets[12]);
   object.status = _TransactionRecordstatusValueEnumMap[
-          reader.readStringOrNull(offsets[11])] ??
+          reader.readStringOrNull(offsets[13])] ??
       TransactionStatus.negotiating;
-  object.transactionCode = reader.readStringOrNull(offsets[12]);
-  object.transactionDate = reader.readDateTimeOrNull(offsets[13]);
-  object.updatedAt = reader.readDateTimeOrNull(offsets[14]);
-  object.version = reader.readLongOrNull(offsets[15]);
+  object.transactionCode = reader.readStringOrNull(offsets[14]);
+  object.transactionDate = reader.readDateTimeOrNull(offsets[15]);
+  object.updatedAt = reader.readDateTimeOrNull(offsets[16]);
+  object.version = reader.readLongOrNull(offsets[17]);
   return object;
 }
 
@@ -248,30 +263,34 @@ P _transactionRecordDeserializeProp<P>(
     case 3:
       return (reader.readDoubleOrNull(offset)) as P;
     case 4:
-      return (reader.readDoubleOrNull(offset)) as P;
+      return (reader.readDateTimeOrNull(offset)) as P;
     case 5:
-      return (reader.readDoubleOrNull(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 6:
-      return (reader.readBool(offset)) as P;
+      return (reader.readDoubleOrNull(offset)) as P;
     case 7:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readDoubleOrNull(offset)) as P;
     case 8:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readBool(offset)) as P;
     case 9:
       return (reader.readStringOrNull(offset)) as P;
     case 10:
       return (reader.readStringOrNull(offset)) as P;
     case 11:
-      return (_TransactionRecordstatusValueEnumMap[
-              reader.readStringOrNull(offset)] ??
-          TransactionStatus.negotiating) as P;
+      return (reader.readStringOrNull(offset)) as P;
     case 12:
       return (reader.readStringOrNull(offset)) as P;
     case 13:
-      return (reader.readDateTimeOrNull(offset)) as P;
+      return (_TransactionRecordstatusValueEnumMap[
+              reader.readStringOrNull(offset)] ??
+          TransactionStatus.negotiating) as P;
     case 14:
-      return (reader.readDateTimeOrNull(offset)) as P;
+      return (reader.readStringOrNull(offset)) as P;
     case 15:
+      return (reader.readDateTimeOrNull(offset)) as P;
+    case 16:
+      return (reader.readDateTimeOrNull(offset)) as P;
+    case 17:
       return (reader.readLongOrNull(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -984,6 +1003,216 @@ extension TransactionRecordQueryFilter
         upper: upper,
         includeUpper: includeUpper,
         epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<TransactionRecord, TransactionRecord, QAfterFilterCondition>
+      deletedAtIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'deletedAt',
+      ));
+    });
+  }
+
+  QueryBuilder<TransactionRecord, TransactionRecord, QAfterFilterCondition>
+      deletedAtIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'deletedAt',
+      ));
+    });
+  }
+
+  QueryBuilder<TransactionRecord, TransactionRecord, QAfterFilterCondition>
+      deletedAtEqualTo(DateTime? value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'deletedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<TransactionRecord, TransactionRecord, QAfterFilterCondition>
+      deletedAtGreaterThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'deletedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<TransactionRecord, TransactionRecord, QAfterFilterCondition>
+      deletedAtLessThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'deletedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<TransactionRecord, TransactionRecord, QAfterFilterCondition>
+      deletedAtBetween(
+    DateTime? lower,
+    DateTime? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'deletedAt',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<TransactionRecord, TransactionRecord, QAfterFilterCondition>
+      deviceIdEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TransactionRecord, TransactionRecord, QAfterFilterCondition>
+      deviceIdGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TransactionRecord, TransactionRecord, QAfterFilterCondition>
+      deviceIdLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TransactionRecord, TransactionRecord, QAfterFilterCondition>
+      deviceIdBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'deviceId',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TransactionRecord, TransactionRecord, QAfterFilterCondition>
+      deviceIdStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TransactionRecord, TransactionRecord, QAfterFilterCondition>
+      deviceIdEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TransactionRecord, TransactionRecord, QAfterFilterCondition>
+      deviceIdContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TransactionRecord, TransactionRecord, QAfterFilterCondition>
+      deviceIdMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'deviceId',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TransactionRecord, TransactionRecord, QAfterFilterCondition>
+      deviceIdIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'deviceId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<TransactionRecord, TransactionRecord, QAfterFilterCondition>
+      deviceIdIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'deviceId',
+        value: '',
       ));
     });
   }
@@ -2416,6 +2645,34 @@ extension TransactionRecordQuerySortBy
   }
 
   QueryBuilder<TransactionRecord, TransactionRecord, QAfterSortBy>
+      sortByDeletedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<TransactionRecord, TransactionRecord, QAfterSortBy>
+      sortByDeletedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<TransactionRecord, TransactionRecord, QAfterSortBy>
+      sortByDeviceId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<TransactionRecord, TransactionRecord, QAfterSortBy>
+      sortByDeviceIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<TransactionRecord, TransactionRecord, QAfterSortBy>
       sortByFinalPrice() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'finalPrice', Sort.asc);
@@ -2643,6 +2900,34 @@ extension TransactionRecordQuerySortThenBy
   }
 
   QueryBuilder<TransactionRecord, TransactionRecord, QAfterSortBy>
+      thenByDeletedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<TransactionRecord, TransactionRecord, QAfterSortBy>
+      thenByDeletedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<TransactionRecord, TransactionRecord, QAfterSortBy>
+      thenByDeviceId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<TransactionRecord, TransactionRecord, QAfterSortBy>
+      thenByDeviceIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<TransactionRecord, TransactionRecord, QAfterSortBy>
       thenByFinalPrice() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'finalPrice', Sort.asc);
@@ -2855,6 +3140,20 @@ extension TransactionRecordQueryWhereDistinct
   }
 
   QueryBuilder<TransactionRecord, TransactionRecord, QDistinct>
+      distinctByDeletedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'deletedAt');
+    });
+  }
+
+  QueryBuilder<TransactionRecord, TransactionRecord, QDistinct>
+      distinctByDeviceId({bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'deviceId', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<TransactionRecord, TransactionRecord, QDistinct>
       distinctByFinalPrice() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'finalPrice');
@@ -2972,6 +3271,19 @@ extension TransactionRecordQueryProperty
       commissionProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'commission');
+    });
+  }
+
+  QueryBuilder<TransactionRecord, DateTime?, QQueryOperations>
+      deletedAtProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'deletedAt');
+    });
+  }
+
+  QueryBuilder<TransactionRecord, String, QQueryOperations> deviceIdProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'deviceId');
     });
   }
 

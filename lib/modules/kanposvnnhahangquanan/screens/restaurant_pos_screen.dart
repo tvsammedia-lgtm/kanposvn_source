@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:printing/printing.dart';
 import '../providers/restaurant_providers.dart';
 import 'package:uuid/uuid.dart';
 import '../models/restaurant_table.dart';
@@ -34,7 +37,7 @@ class _RestaurantPosScreenState extends ConsumerState<RestaurantPosScreen> {
         (o) => o != null && o.table.value?.id == widget.table.id && o.status == RestaurantOrderStatus.SERVING,
         orElse: () => null,
       );
-      
+
       setState(() {
         if (activeOrder != null) {
           _currentOrder = activeOrder;
@@ -42,8 +45,8 @@ class _RestaurantPosScreenState extends ConsumerState<RestaurantPosScreen> {
           _currentOrder = RestaurantOrder()
             ..orderId = const Uuid().v4()
             ..createdAt = DateTime.now()
-            ..status = RestaurantOrderStatus.SERVING
-            ..table.value = widget.table;
+            ..status = RestaurantOrderStatus.SERVING;
+          _currentOrder!.table.value = widget.table;
         }
       });
     }
@@ -84,12 +87,88 @@ class _RestaurantPosScreenState extends ConsumerState<RestaurantPosScreen> {
     _currentOrder!.totalAmount = _currentOrder!.details.fold(0, (sum, item) => sum + (item.price * item.quantity));
   }
 
+  Future<void> _printReceipt() async {
+    final pdf = pw.Document();
+
+    pdf.addPage(
+      pw.Page(
+        pageFormat: PdfPageFormat.roll80,
+        margin: const pw.EdgeInsets.all(10),
+        build: (pw.Context context) {
+          return pw.Column(
+            crossAxisAlignment: pw.CrossAxisAlignment.start,
+            children: [
+              pw.Center(
+                child: pw.Text(
+                  'NHÀ HÀNG QUÁN ĂN',
+                  style: pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold),
+                ),
+              ),
+              pw.SizedBox(height: 10),
+              pw.Divider(),
+              pw.SizedBox(height: 5),
+              pw.Text('Mã hóa đơn: ${_currentOrder!.orderId.substring(0, 8)}'),
+              pw.Text('Bàn: ${widget.table.name} (${widget.table.zone})'),
+              pw.Text('Giờ vào: ${_currentOrder!.createdAt != null ? _currentOrder!.createdAt.toString().substring(0, 16) : ''}'),
+              pw.Text('Giờ ra: ${_currentOrder!.closedAt != null ? _currentOrder!.closedAt.toString().substring(0, 16) : ''}'),
+              pw.SizedBox(height: 10),
+              pw.Divider(),
+              pw.SizedBox(height: 5),
+              pw.Text('CHI TIẾT MÓN', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+              pw.SizedBox(height: 5),
+              ..._currentOrder!.details.map((detail) => pw.Padding(
+                padding: const pw.EdgeInsets.only(bottom: 5),
+                child: pw.Row(
+                  mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                  children: [
+                    pw.Expanded(
+                      child: pw.Text('${detail.itemName} x${detail.quantity}'),
+                    ),
+                    pw.Text('${(detail.price * detail.quantity).toStringAsFixed(0)} đ'),
+                  ],
+                ),
+              )),
+              pw.SizedBox(height: 10),
+              pw.Divider(),
+              pw.SizedBox(height: 5),
+              pw.Row(
+                mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                children: [
+                  pw.Text('TỔNG CỘNG:', style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold)),
+                  pw.Text('${_currentOrder!.totalAmount.toStringAsFixed(0)} đ', style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold)),
+                ],
+              ),
+              pw.SizedBox(height: 10),
+              pw.Divider(),
+              pw.SizedBox(height: 10),
+              pw.Center(
+                child: pw.Text(
+                  'Cảm ơn quý khách!',
+                  style: pw.TextStyle(fontSize: 12),
+                ),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+
+    await Printing.layoutPdf(
+      onLayout: (PdfPageFormat format) async => pdf.save(),
+      name: 'HoaDon_${_currentOrder!.orderId.substring(0, 8)}.pdf',
+    );
+  }
+
   Future<void> _saveOrder(bool checkout) async {
     if (checkout) {
       _currentOrder!.status = RestaurantOrderStatus.COMPLETED;
       _currentOrder!.closedAt = DateTime.now();
+      // Print receipt before completing order
+      await _printReceipt();
     }
     await ref.read(restaurantOrdersProvider.notifier).updateOrder(_currentOrder!);
+    // Reload orders to update kitchen screen
+    ref.read(restaurantOrdersProvider.notifier).loadOrders();
     if (mounted) Navigator.pop(context);
   }
 
@@ -106,6 +185,12 @@ class _RestaurantPosScreenState extends ConsumerState<RestaurantPosScreen> {
         title: Text('POS Gọi Món - ${widget.table.name} (${widget.table.zone})', style: const TextStyle(fontWeight: FontWeight.bold)),
         backgroundColor: Colors.orange,
         actions: [
+          TextButton.icon(
+            onPressed: () => _printReceipt(),
+            icon: const Icon(Icons.print, color: Colors.white),
+            label: const Text('IN HÓA ĐƠN', style: TextStyle(color: Colors.white, fontSize: 16)),
+          ),
+          const SizedBox(width: 8),
           TextButton.icon(
             onPressed: () => _saveOrder(false),
             icon: const Icon(Icons.save, color: Colors.white),

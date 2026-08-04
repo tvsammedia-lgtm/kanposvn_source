@@ -4,6 +4,7 @@ import '../module_enum.dart';
 import '../theme/app_colors.dart';
 import '../providers.dart';
 import '../l10n/translations.dart';
+import '../sync/sync_providers.dart';
 
 final selectedModuleProvider = StateProvider<AppModule?>((ref) => null);
 
@@ -81,6 +82,10 @@ class _ModuleSelectorScreenState extends ConsumerState<ModuleSelectorScreen> {
 
       await db.init(module: module);
       ref.read(selectedModuleProvider.notifier).state = module;
+
+      if (module.appCode == 'kanposvncafe' || module.appCode == 'nhansu') {
+        ref.read(syncEngineProvider).triggerSync();
+      }
     } catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

@@ -78,7 +78,7 @@ class CafeBackupRestoreService extends ChangeNotifier {
         triggerSync: false,
       );
     } catch (e) {
-      debugPrint('Backup log save error: $e');
+      // ignore backup log save errors
     }
     notifyListeners();
   }

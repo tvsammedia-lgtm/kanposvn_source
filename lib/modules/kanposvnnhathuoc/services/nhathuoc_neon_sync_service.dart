@@ -1,42 +1,41 @@
-import 'dart:convert';
-import 'package:dio/dio.dart';
-import 'package:isar/isar.dart';
+import '../../../core/sync/snapshot_sync_engine.dart';
+import '../../../core/sync/vercel_api_client.dart';
+import '../models/nhathuoc_medicine.dart';
+import '../models/nhathuoc_order.dart';
+import '../models/nhathuoc_patient.dart';
+import '../models/nhathuoc_prescription.dart';
+import '../models/nhathuoc_purchase.dart';
+import '../models/nhathuoc_supplier.dart';
 import 'nhathuoc_isar_service.dart';
-import '../models/nhathuoc_sync_model.dart';
 
 class NhathuocNeonSyncService {
   final NhathuocIsarService _isarService;
-  final Dio _dio = Dio();
 
   NhathuocNeonSyncService(this._isarService);
 
   Future<void> triggerSync(String apiUrl, String apiKey) async {
-    final db = await _isarService.db;
-    
-    final queue = await db.nhathuocSyncQueues.where().filter().isSyncedEqualTo(false).findAll();
-    
-    for (var item in queue) {
-      try {
-        final payload = jsonDecode(item.payload);
-        final endpoint = '$apiUrl/nhathuoc/${item.entityType}';
-        
-        if (item.action == 'INSERT' || item.action == 'UPDATE') {
-           await _dio.post(endpoint, data: payload, options: Options(headers: {'Authorization': 'Bearer $apiKey'}));
-        } else if (item.action == 'DELETE') {
-           await _dio.delete('$endpoint/${item.entityId}', options: Options(headers: {'Authorization': 'Bearer $apiKey'}));
-        }
-        
-        await db.writeTxn(() async {
-          item.isSynced = true;
-          await db.nhathuocSyncQueues.put(item);
-        });
-      } catch (e) {
-        await db.writeTxn(() async {
-          item.retryCount += 1;
-          item.lastError = e.toString();
-          await db.nhathuocSyncQueues.put(item);
-        });
-      }
-    }
+    final isar = await _isarService.db;
+
+    final engine = SnapshotSyncEngine(
+      apiClient: VercelApiClient(
+        pushUrl: '$apiUrl/api/sync/push',
+        pullUrl: '$apiUrl/api/sync/pull',
+        apiKey: apiKey,
+      ),
+      appCode: 'kanposvnnhathuoc',
+      collections: [
+        SnapshotSyncCollection(collection: isar.nhathuocMedicines, keyField: 'medicineId'),
+        SnapshotSyncCollection(collection: isar.nhathuocPatients, keyField: 'patientId'),
+        SnapshotSyncCollection(collection: isar.nhathuocSuppliers, keyField: 'supplierId'),
+        SnapshotSyncCollection(collection: isar.nhathuocOrders, keyField: 'orderId'),
+        SnapshotSyncCollection(collection: isar.nhathuocOrderDetails),
+        SnapshotSyncCollection(collection: isar.nhathuocPurchases, keyField: 'purchaseId'),
+        SnapshotSyncCollection(collection: isar.nhathuocPurchaseDetails),
+        SnapshotSyncCollection(collection: isar.nhathuocPrescriptionTemplates, keyField: 'templateId'),
+        SnapshotSyncCollection(collection: isar.nhathuocPrescriptionTemplateDetails),
+      ],
+    );
+
+    await engine.sync();
   }
 }

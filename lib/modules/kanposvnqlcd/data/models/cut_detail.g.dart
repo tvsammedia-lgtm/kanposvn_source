@@ -32,64 +32,89 @@ const CutDetailSchema = CollectionSchema(
       name: r'cutNo1',
       type: IsarType.string,
     ),
-    r'gen': PropertySchema(
+    r'deletedAt': PropertySchema(
       id: 3,
+      name: r'deletedAt',
+      type: IsarType.dateTime,
+    ),
+    r'deviceId': PropertySchema(
+      id: 4,
+      name: r'deviceId',
+      type: IsarType.string,
+    ),
+    r'gen': PropertySchema(
+      id: 5,
       name: r'gen',
       type: IsarType.long,
     ),
     r'idGen': PropertySchema(
-      id: 4,
+      id: 6,
       name: r'idGen',
       type: IsarType.long,
     ),
+    r'isSynced': PropertySchema(
+      id: 7,
+      name: r'isSynced',
+      type: IsarType.bool,
+    ),
     r'opNo': PropertySchema(
-      id: 5,
+      id: 8,
       name: r'opNo',
       type: IsarType.long,
     ),
     r'opNo1': PropertySchema(
-      id: 6,
+      id: 9,
       name: r'opNo1',
       type: IsarType.long,
     ),
     r'poNo': PropertySchema(
-      id: 7,
+      id: 10,
       name: r'poNo',
       type: IsarType.string,
     ),
     r'poNo1': PropertySchema(
-      id: 8,
+      id: 11,
       name: r'poNo1',
       type: IsarType.string,
     ),
     r'qty': PropertySchema(
-      id: 9,
+      id: 12,
       name: r'qty',
       type: IsarType.long,
     ),
     r'qty1': PropertySchema(
-      id: 10,
+      id: 13,
       name: r'qty1',
       type: IsarType.long,
     ),
     r'size': PropertySchema(
-      id: 11,
+      id: 14,
       name: r'size',
       type: IsarType.string,
     ),
     r'size1': PropertySchema(
-      id: 12,
+      id: 15,
       name: r'size1',
       type: IsarType.string,
     ),
     r'startBundle': PropertySchema(
-      id: 13,
+      id: 16,
       name: r'startBundle',
       type: IsarType.long,
     ),
     r'startBundle1': PropertySchema(
-      id: 14,
+      id: 17,
       name: r'startBundle1',
+      type: IsarType.long,
+    ),
+    r'updatedAt': PropertySchema(
+      id: 18,
+      name: r'updatedAt',
+      type: IsarType.dateTime,
+    ),
+    r'version': PropertySchema(
+      id: 19,
+      name: r'version',
       type: IsarType.long,
     )
   },
@@ -135,6 +160,7 @@ int _cutDetailEstimateSize(
       bytesCount += 3 + value.length * 3;
     }
   }
+  bytesCount += 3 + object.deviceId.length * 3;
   bytesCount += 3 + object.poNo.length * 3;
   {
     final value = object.poNo1;
@@ -161,18 +187,23 @@ void _cutDetailSerialize(
   writer.writeString(offsets[0], object.color);
   writer.writeString(offsets[1], object.cutNo);
   writer.writeString(offsets[2], object.cutNo1);
-  writer.writeLong(offsets[3], object.gen);
-  writer.writeLong(offsets[4], object.idGen);
-  writer.writeLong(offsets[5], object.opNo);
-  writer.writeLong(offsets[6], object.opNo1);
-  writer.writeString(offsets[7], object.poNo);
-  writer.writeString(offsets[8], object.poNo1);
-  writer.writeLong(offsets[9], object.qty);
-  writer.writeLong(offsets[10], object.qty1);
-  writer.writeString(offsets[11], object.size);
-  writer.writeString(offsets[12], object.size1);
-  writer.writeLong(offsets[13], object.startBundle);
-  writer.writeLong(offsets[14], object.startBundle1);
+  writer.writeDateTime(offsets[3], object.deletedAt);
+  writer.writeString(offsets[4], object.deviceId);
+  writer.writeLong(offsets[5], object.gen);
+  writer.writeLong(offsets[6], object.idGen);
+  writer.writeBool(offsets[7], object.isSynced);
+  writer.writeLong(offsets[8], object.opNo);
+  writer.writeLong(offsets[9], object.opNo1);
+  writer.writeString(offsets[10], object.poNo);
+  writer.writeString(offsets[11], object.poNo1);
+  writer.writeLong(offsets[12], object.qty);
+  writer.writeLong(offsets[13], object.qty1);
+  writer.writeString(offsets[14], object.size);
+  writer.writeString(offsets[15], object.size1);
+  writer.writeLong(offsets[16], object.startBundle);
+  writer.writeLong(offsets[17], object.startBundle1);
+  writer.writeDateTime(offsets[18], object.updatedAt);
+  writer.writeLong(offsets[19], object.version);
 }
 
 CutDetail _cutDetailDeserialize(
@@ -185,19 +216,24 @@ CutDetail _cutDetailDeserialize(
   object.color = reader.readString(offsets[0]);
   object.cutNo = reader.readString(offsets[1]);
   object.cutNo1 = reader.readStringOrNull(offsets[2]);
-  object.gen = reader.readLong(offsets[3]);
+  object.deletedAt = reader.readDateTimeOrNull(offsets[3]);
+  object.deviceId = reader.readString(offsets[4]);
+  object.gen = reader.readLong(offsets[5]);
   object.id = id;
-  object.idGen = reader.readLong(offsets[4]);
-  object.opNo = reader.readLong(offsets[5]);
-  object.opNo1 = reader.readLongOrNull(offsets[6]);
-  object.poNo = reader.readString(offsets[7]);
-  object.poNo1 = reader.readStringOrNull(offsets[8]);
-  object.qty = reader.readLong(offsets[9]);
-  object.qty1 = reader.readLongOrNull(offsets[10]);
-  object.size = reader.readString(offsets[11]);
-  object.size1 = reader.readStringOrNull(offsets[12]);
-  object.startBundle = reader.readLong(offsets[13]);
-  object.startBundle1 = reader.readLongOrNull(offsets[14]);
+  object.idGen = reader.readLong(offsets[6]);
+  object.isSynced = reader.readBool(offsets[7]);
+  object.opNo = reader.readLong(offsets[8]);
+  object.opNo1 = reader.readLongOrNull(offsets[9]);
+  object.poNo = reader.readString(offsets[10]);
+  object.poNo1 = reader.readStringOrNull(offsets[11]);
+  object.qty = reader.readLong(offsets[12]);
+  object.qty1 = reader.readLongOrNull(offsets[13]);
+  object.size = reader.readString(offsets[14]);
+  object.size1 = reader.readStringOrNull(offsets[15]);
+  object.startBundle = reader.readLong(offsets[16]);
+  object.startBundle1 = reader.readLongOrNull(offsets[17]);
+  object.updatedAt = reader.readDateTime(offsets[18]);
+  object.version = reader.readLong(offsets[19]);
   return object;
 }
 
@@ -215,29 +251,39 @@ P _cutDetailDeserializeProp<P>(
     case 2:
       return (reader.readStringOrNull(offset)) as P;
     case 3:
-      return (reader.readLong(offset)) as P;
+      return (reader.readDateTimeOrNull(offset)) as P;
     case 4:
-      return (reader.readLong(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 5:
       return (reader.readLong(offset)) as P;
     case 6:
-      return (reader.readLongOrNull(offset)) as P;
+      return (reader.readLong(offset)) as P;
     case 7:
-      return (reader.readString(offset)) as P;
+      return (reader.readBool(offset)) as P;
     case 8:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readLong(offset)) as P;
     case 9:
-      return (reader.readLong(offset)) as P;
+      return (reader.readLongOrNull(offset)) as P;
     case 10:
-      return (reader.readLongOrNull(offset)) as P;
-    case 11:
       return (reader.readString(offset)) as P;
-    case 12:
+    case 11:
       return (reader.readStringOrNull(offset)) as P;
-    case 13:
+    case 12:
       return (reader.readLong(offset)) as P;
-    case 14:
+    case 13:
       return (reader.readLongOrNull(offset)) as P;
+    case 14:
+      return (reader.readString(offset)) as P;
+    case 15:
+      return (reader.readStringOrNull(offset)) as P;
+    case 16:
+      return (reader.readLong(offset)) as P;
+    case 17:
+      return (reader.readLongOrNull(offset)) as P;
+    case 18:
+      return (reader.readDateTime(offset)) as P;
+    case 19:
+      return (reader.readLong(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
   }
@@ -838,6 +884,208 @@ extension CutDetailQueryFilter
     });
   }
 
+  QueryBuilder<CutDetail, CutDetail, QAfterFilterCondition> deletedAtIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'deletedAt',
+      ));
+    });
+  }
+
+  QueryBuilder<CutDetail, CutDetail, QAfterFilterCondition>
+      deletedAtIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'deletedAt',
+      ));
+    });
+  }
+
+  QueryBuilder<CutDetail, CutDetail, QAfterFilterCondition> deletedAtEqualTo(
+      DateTime? value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'deletedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<CutDetail, CutDetail, QAfterFilterCondition>
+      deletedAtGreaterThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'deletedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<CutDetail, CutDetail, QAfterFilterCondition> deletedAtLessThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'deletedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<CutDetail, CutDetail, QAfterFilterCondition> deletedAtBetween(
+    DateTime? lower,
+    DateTime? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'deletedAt',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<CutDetail, CutDetail, QAfterFilterCondition> deviceIdEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<CutDetail, CutDetail, QAfterFilterCondition> deviceIdGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<CutDetail, CutDetail, QAfterFilterCondition> deviceIdLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<CutDetail, CutDetail, QAfterFilterCondition> deviceIdBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'deviceId',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<CutDetail, CutDetail, QAfterFilterCondition> deviceIdStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<CutDetail, CutDetail, QAfterFilterCondition> deviceIdEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<CutDetail, CutDetail, QAfterFilterCondition> deviceIdContains(
+      String value,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<CutDetail, CutDetail, QAfterFilterCondition> deviceIdMatches(
+      String pattern,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'deviceId',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<CutDetail, CutDetail, QAfterFilterCondition> deviceIdIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'deviceId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<CutDetail, CutDetail, QAfterFilterCondition>
+      deviceIdIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'deviceId',
+        value: '',
+      ));
+    });
+  }
+
   QueryBuilder<CutDetail, CutDetail, QAfterFilterCondition> genEqualTo(
       int value) {
     return QueryBuilder.apply(this, (query) {
@@ -993,6 +1241,16 @@ extension CutDetailQueryFilter
         includeLower: includeLower,
         upper: upper,
         includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<CutDetail, CutDetail, QAfterFilterCondition> isSyncedEqualTo(
+      bool value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'isSynced',
+        value: value,
       ));
     });
   }
@@ -1919,6 +2177,113 @@ extension CutDetailQueryFilter
       ));
     });
   }
+
+  QueryBuilder<CutDetail, CutDetail, QAfterFilterCondition> updatedAtEqualTo(
+      DateTime value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'updatedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<CutDetail, CutDetail, QAfterFilterCondition>
+      updatedAtGreaterThan(
+    DateTime value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'updatedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<CutDetail, CutDetail, QAfterFilterCondition> updatedAtLessThan(
+    DateTime value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'updatedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<CutDetail, CutDetail, QAfterFilterCondition> updatedAtBetween(
+    DateTime lower,
+    DateTime upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'updatedAt',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<CutDetail, CutDetail, QAfterFilterCondition> versionEqualTo(
+      int value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'version',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<CutDetail, CutDetail, QAfterFilterCondition> versionGreaterThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'version',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<CutDetail, CutDetail, QAfterFilterCondition> versionLessThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'version',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<CutDetail, CutDetail, QAfterFilterCondition> versionBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'version',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
 }
 
 extension CutDetailQueryObject
@@ -1964,6 +2329,30 @@ extension CutDetailQuerySortBy on QueryBuilder<CutDetail, CutDetail, QSortBy> {
     });
   }
 
+  QueryBuilder<CutDetail, CutDetail, QAfterSortBy> sortByDeletedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<CutDetail, CutDetail, QAfterSortBy> sortByDeletedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<CutDetail, CutDetail, QAfterSortBy> sortByDeviceId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<CutDetail, CutDetail, QAfterSortBy> sortByDeviceIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.desc);
+    });
+  }
+
   QueryBuilder<CutDetail, CutDetail, QAfterSortBy> sortByGen() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'gen', Sort.asc);
@@ -1985,6 +2374,18 @@ extension CutDetailQuerySortBy on QueryBuilder<CutDetail, CutDetail, QSortBy> {
   QueryBuilder<CutDetail, CutDetail, QAfterSortBy> sortByIdGenDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'idGen', Sort.desc);
+    });
+  }
+
+  QueryBuilder<CutDetail, CutDetail, QAfterSortBy> sortByIsSynced() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.asc);
+    });
+  }
+
+  QueryBuilder<CutDetail, CutDetail, QAfterSortBy> sortByIsSyncedDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.desc);
     });
   }
 
@@ -2107,6 +2508,30 @@ extension CutDetailQuerySortBy on QueryBuilder<CutDetail, CutDetail, QSortBy> {
       return query.addSortBy(r'startBundle1', Sort.desc);
     });
   }
+
+  QueryBuilder<CutDetail, CutDetail, QAfterSortBy> sortByUpdatedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'updatedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<CutDetail, CutDetail, QAfterSortBy> sortByUpdatedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'updatedAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<CutDetail, CutDetail, QAfterSortBy> sortByVersion() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.asc);
+    });
+  }
+
+  QueryBuilder<CutDetail, CutDetail, QAfterSortBy> sortByVersionDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.desc);
+    });
+  }
 }
 
 extension CutDetailQuerySortThenBy
@@ -2147,6 +2572,30 @@ extension CutDetailQuerySortThenBy
     });
   }
 
+  QueryBuilder<CutDetail, CutDetail, QAfterSortBy> thenByDeletedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<CutDetail, CutDetail, QAfterSortBy> thenByDeletedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<CutDetail, CutDetail, QAfterSortBy> thenByDeviceId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<CutDetail, CutDetail, QAfterSortBy> thenByDeviceIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.desc);
+    });
+  }
+
   QueryBuilder<CutDetail, CutDetail, QAfterSortBy> thenByGen() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'gen', Sort.asc);
@@ -2180,6 +2629,18 @@ extension CutDetailQuerySortThenBy
   QueryBuilder<CutDetail, CutDetail, QAfterSortBy> thenByIdGenDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'idGen', Sort.desc);
+    });
+  }
+
+  QueryBuilder<CutDetail, CutDetail, QAfterSortBy> thenByIsSynced() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.asc);
+    });
+  }
+
+  QueryBuilder<CutDetail, CutDetail, QAfterSortBy> thenByIsSyncedDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.desc);
     });
   }
 
@@ -2302,6 +2763,30 @@ extension CutDetailQuerySortThenBy
       return query.addSortBy(r'startBundle1', Sort.desc);
     });
   }
+
+  QueryBuilder<CutDetail, CutDetail, QAfterSortBy> thenByUpdatedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'updatedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<CutDetail, CutDetail, QAfterSortBy> thenByUpdatedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'updatedAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<CutDetail, CutDetail, QAfterSortBy> thenByVersion() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.asc);
+    });
+  }
+
+  QueryBuilder<CutDetail, CutDetail, QAfterSortBy> thenByVersionDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.desc);
+    });
+  }
 }
 
 extension CutDetailQueryWhereDistinct
@@ -2327,6 +2812,19 @@ extension CutDetailQueryWhereDistinct
     });
   }
 
+  QueryBuilder<CutDetail, CutDetail, QDistinct> distinctByDeletedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'deletedAt');
+    });
+  }
+
+  QueryBuilder<CutDetail, CutDetail, QDistinct> distinctByDeviceId(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'deviceId', caseSensitive: caseSensitive);
+    });
+  }
+
   QueryBuilder<CutDetail, CutDetail, QDistinct> distinctByGen() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'gen');
@@ -2336,6 +2834,12 @@ extension CutDetailQueryWhereDistinct
   QueryBuilder<CutDetail, CutDetail, QDistinct> distinctByIdGen() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'idGen');
+    });
+  }
+
+  QueryBuilder<CutDetail, CutDetail, QDistinct> distinctByIsSynced() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'isSynced');
     });
   }
 
@@ -2402,6 +2906,18 @@ extension CutDetailQueryWhereDistinct
       return query.addDistinctBy(r'startBundle1');
     });
   }
+
+  QueryBuilder<CutDetail, CutDetail, QDistinct> distinctByUpdatedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'updatedAt');
+    });
+  }
+
+  QueryBuilder<CutDetail, CutDetail, QDistinct> distinctByVersion() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'version');
+    });
+  }
 }
 
 extension CutDetailQueryProperty
@@ -2430,6 +2946,18 @@ extension CutDetailQueryProperty
     });
   }
 
+  QueryBuilder<CutDetail, DateTime?, QQueryOperations> deletedAtProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'deletedAt');
+    });
+  }
+
+  QueryBuilder<CutDetail, String, QQueryOperations> deviceIdProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'deviceId');
+    });
+  }
+
   QueryBuilder<CutDetail, int, QQueryOperations> genProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'gen');
@@ -2439,6 +2967,12 @@ extension CutDetailQueryProperty
   QueryBuilder<CutDetail, int, QQueryOperations> idGenProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'idGen');
+    });
+  }
+
+  QueryBuilder<CutDetail, bool, QQueryOperations> isSyncedProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'isSynced');
     });
   }
 
@@ -2499,6 +3033,18 @@ extension CutDetailQueryProperty
   QueryBuilder<CutDetail, int?, QQueryOperations> startBundle1Property() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'startBundle1');
+    });
+  }
+
+  QueryBuilder<CutDetail, DateTime, QQueryOperations> updatedAtProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'updatedAt');
+    });
+  }
+
+  QueryBuilder<CutDetail, int, QQueryOperations> versionProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'version');
     });
   }
 }

@@ -14,6 +14,12 @@ enum BidaInventoryTxType {
 class BidaInventoryTx {
   Id id = Isar.autoIncrement;
 
+  bool isSynced = false;
+  DateTime updatedAt = DateTime.now();
+  DateTime? deletedAt;
+  String deviceId = "";
+  int version = 1;
+
   String itemId = '';
   String itemName = '';
   

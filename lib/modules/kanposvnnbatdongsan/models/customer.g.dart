@@ -22,84 +22,94 @@ const CustomerSchema = CollectionSchema(
       name: r'address',
       type: IsarType.string,
     ),
-    r'demandArea': PropertySchema(
+    r'deletedAt': PropertySchema(
       id: 1,
+      name: r'deletedAt',
+      type: IsarType.dateTime,
+    ),
+    r'demandArea': PropertySchema(
+      id: 2,
       name: r'demandArea',
       type: IsarType.double,
     ),
     r'demandCity': PropertySchema(
-      id: 2,
+      id: 3,
       name: r'demandCity',
       type: IsarType.string,
     ),
     r'demandDistrict': PropertySchema(
-      id: 3,
+      id: 4,
       name: r'demandDistrict',
       type: IsarType.string,
     ),
     r'demandPriceFrom': PropertySchema(
-      id: 4,
+      id: 5,
       name: r'demandPriceFrom',
       type: IsarType.double,
     ),
     r'demandPriceTo': PropertySchema(
-      id: 5,
+      id: 6,
       name: r'demandPriceTo',
       type: IsarType.double,
     ),
     r'demandPropertyType': PropertySchema(
-      id: 6,
+      id: 7,
       name: r'demandPropertyType',
       type: IsarType.string,
     ),
     r'demandWard': PropertySchema(
-      id: 7,
+      id: 8,
       name: r'demandWard',
       type: IsarType.string,
     ),
+    r'deviceId': PropertySchema(
+      id: 9,
+      name: r'deviceId',
+      type: IsarType.string,
+    ),
     r'email': PropertySchema(
-      id: 8,
+      id: 10,
       name: r'email',
       type: IsarType.string,
     ),
     r'isSynced': PropertySchema(
-      id: 9,
+      id: 11,
       name: r'isSynced',
       type: IsarType.bool,
     ),
     r'name': PropertySchema(
-      id: 10,
+      id: 12,
       name: r'name',
       type: IsarType.string,
     ),
     r'notes': PropertySchema(
-      id: 11,
+      id: 13,
       name: r'notes',
       type: IsarType.string,
     ),
     r'phone': PropertySchema(
-      id: 12,
+      id: 14,
       name: r'phone',
       type: IsarType.string,
     ),
     r'remoteId': PropertySchema(
-      id: 13,
+      id: 15,
       name: r'remoteId',
       type: IsarType.string,
     ),
     r'type': PropertySchema(
-      id: 14,
+      id: 16,
       name: r'type',
       type: IsarType.string,
       enumMap: _CustomertypeEnumValueMap,
     ),
     r'updatedAt': PropertySchema(
-      id: 15,
+      id: 17,
       name: r'updatedAt',
       type: IsarType.dateTime,
     ),
     r'version': PropertySchema(
-      id: 16,
+      id: 18,
       name: r'version',
       type: IsarType.long,
     )
@@ -168,6 +178,7 @@ int _customerEstimateSize(
       bytesCount += 3 + value.length * 3;
     }
   }
+  bytesCount += 3 + object.deviceId.length * 3;
   {
     final value = object.email;
     if (value != null) {
@@ -209,22 +220,24 @@ void _customerSerialize(
   Map<Type, List<int>> allOffsets,
 ) {
   writer.writeString(offsets[0], object.address);
-  writer.writeDouble(offsets[1], object.demandArea);
-  writer.writeString(offsets[2], object.demandCity);
-  writer.writeString(offsets[3], object.demandDistrict);
-  writer.writeDouble(offsets[4], object.demandPriceFrom);
-  writer.writeDouble(offsets[5], object.demandPriceTo);
-  writer.writeString(offsets[6], object.demandPropertyType);
-  writer.writeString(offsets[7], object.demandWard);
-  writer.writeString(offsets[8], object.email);
-  writer.writeBool(offsets[9], object.isSynced);
-  writer.writeString(offsets[10], object.name);
-  writer.writeString(offsets[11], object.notes);
-  writer.writeString(offsets[12], object.phone);
-  writer.writeString(offsets[13], object.remoteId);
-  writer.writeString(offsets[14], object.type.name);
-  writer.writeDateTime(offsets[15], object.updatedAt);
-  writer.writeLong(offsets[16], object.version);
+  writer.writeDateTime(offsets[1], object.deletedAt);
+  writer.writeDouble(offsets[2], object.demandArea);
+  writer.writeString(offsets[3], object.demandCity);
+  writer.writeString(offsets[4], object.demandDistrict);
+  writer.writeDouble(offsets[5], object.demandPriceFrom);
+  writer.writeDouble(offsets[6], object.demandPriceTo);
+  writer.writeString(offsets[7], object.demandPropertyType);
+  writer.writeString(offsets[8], object.demandWard);
+  writer.writeString(offsets[9], object.deviceId);
+  writer.writeString(offsets[10], object.email);
+  writer.writeBool(offsets[11], object.isSynced);
+  writer.writeString(offsets[12], object.name);
+  writer.writeString(offsets[13], object.notes);
+  writer.writeString(offsets[14], object.phone);
+  writer.writeString(offsets[15], object.remoteId);
+  writer.writeString(offsets[16], object.type.name);
+  writer.writeDateTime(offsets[17], object.updatedAt);
+  writer.writeLong(offsets[18], object.version);
 }
 
 Customer _customerDeserialize(
@@ -235,25 +248,27 @@ Customer _customerDeserialize(
 ) {
   final object = Customer();
   object.address = reader.readStringOrNull(offsets[0]);
-  object.demandArea = reader.readDoubleOrNull(offsets[1]);
-  object.demandCity = reader.readStringOrNull(offsets[2]);
-  object.demandDistrict = reader.readStringOrNull(offsets[3]);
-  object.demandPriceFrom = reader.readDoubleOrNull(offsets[4]);
-  object.demandPriceTo = reader.readDoubleOrNull(offsets[5]);
-  object.demandPropertyType = reader.readStringOrNull(offsets[6]);
-  object.demandWard = reader.readStringOrNull(offsets[7]);
-  object.email = reader.readStringOrNull(offsets[8]);
+  object.deletedAt = reader.readDateTimeOrNull(offsets[1]);
+  object.demandArea = reader.readDoubleOrNull(offsets[2]);
+  object.demandCity = reader.readStringOrNull(offsets[3]);
+  object.demandDistrict = reader.readStringOrNull(offsets[4]);
+  object.demandPriceFrom = reader.readDoubleOrNull(offsets[5]);
+  object.demandPriceTo = reader.readDoubleOrNull(offsets[6]);
+  object.demandPropertyType = reader.readStringOrNull(offsets[7]);
+  object.demandWard = reader.readStringOrNull(offsets[8]);
+  object.deviceId = reader.readString(offsets[9]);
+  object.email = reader.readStringOrNull(offsets[10]);
   object.id = id;
-  object.isSynced = reader.readBool(offsets[9]);
-  object.name = reader.readStringOrNull(offsets[10]);
-  object.notes = reader.readStringOrNull(offsets[11]);
-  object.phone = reader.readStringOrNull(offsets[12]);
-  object.remoteId = reader.readStringOrNull(offsets[13]);
+  object.isSynced = reader.readBool(offsets[11]);
+  object.name = reader.readStringOrNull(offsets[12]);
+  object.notes = reader.readStringOrNull(offsets[13]);
+  object.phone = reader.readStringOrNull(offsets[14]);
+  object.remoteId = reader.readStringOrNull(offsets[15]);
   object.type =
-      _CustomertypeValueEnumMap[reader.readStringOrNull(offsets[14])] ??
+      _CustomertypeValueEnumMap[reader.readStringOrNull(offsets[16])] ??
           CustomerType.buyer;
-  object.updatedAt = reader.readDateTimeOrNull(offsets[15]);
-  object.version = reader.readLongOrNull(offsets[16]);
+  object.updatedAt = reader.readDateTimeOrNull(offsets[17]);
+  object.version = reader.readLongOrNull(offsets[18]);
   return object;
 }
 
@@ -267,37 +282,41 @@ P _customerDeserializeProp<P>(
     case 0:
       return (reader.readStringOrNull(offset)) as P;
     case 1:
-      return (reader.readDoubleOrNull(offset)) as P;
+      return (reader.readDateTimeOrNull(offset)) as P;
     case 2:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readDoubleOrNull(offset)) as P;
     case 3:
       return (reader.readStringOrNull(offset)) as P;
     case 4:
-      return (reader.readDoubleOrNull(offset)) as P;
+      return (reader.readStringOrNull(offset)) as P;
     case 5:
       return (reader.readDoubleOrNull(offset)) as P;
     case 6:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readDoubleOrNull(offset)) as P;
     case 7:
       return (reader.readStringOrNull(offset)) as P;
     case 8:
       return (reader.readStringOrNull(offset)) as P;
     case 9:
-      return (reader.readBool(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 10:
       return (reader.readStringOrNull(offset)) as P;
     case 11:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readBool(offset)) as P;
     case 12:
       return (reader.readStringOrNull(offset)) as P;
     case 13:
       return (reader.readStringOrNull(offset)) as P;
     case 14:
+      return (reader.readStringOrNull(offset)) as P;
+    case 15:
+      return (reader.readStringOrNull(offset)) as P;
+    case 16:
       return (_CustomertypeValueEnumMap[reader.readStringOrNull(offset)] ??
           CustomerType.buyer) as P;
-    case 15:
+    case 17:
       return (reader.readDateTimeOrNull(offset)) as P;
-    case 16:
+    case 18:
       return (reader.readLongOrNull(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -664,6 +683,75 @@ extension CustomerQueryFilter
       return query.addFilterCondition(FilterCondition.greaterThan(
         property: r'address',
         value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterFilterCondition> deletedAtIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'deletedAt',
+      ));
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterFilterCondition> deletedAtIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'deletedAt',
+      ));
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterFilterCondition> deletedAtEqualTo(
+      DateTime? value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'deletedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterFilterCondition> deletedAtGreaterThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'deletedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterFilterCondition> deletedAtLessThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'deletedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterFilterCondition> deletedAtBetween(
+    DateTime? lower,
+    DateTime? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'deletedAt',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
       ));
     });
   }
@@ -1510,6 +1598,136 @@ extension CustomerQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         property: r'demandWard',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterFilterCondition> deviceIdEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterFilterCondition> deviceIdGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterFilterCondition> deviceIdLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterFilterCondition> deviceIdBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'deviceId',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterFilterCondition> deviceIdStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterFilterCondition> deviceIdEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterFilterCondition> deviceIdContains(
+      String value,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterFilterCondition> deviceIdMatches(
+      String pattern,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'deviceId',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterFilterCondition> deviceIdIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'deviceId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterFilterCondition> deviceIdIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'deviceId',
         value: '',
       ));
     });
@@ -2595,6 +2813,18 @@ extension CustomerQuerySortBy on QueryBuilder<Customer, Customer, QSortBy> {
     });
   }
 
+  QueryBuilder<Customer, Customer, QAfterSortBy> sortByDeletedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterSortBy> sortByDeletedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.desc);
+    });
+  }
+
   QueryBuilder<Customer, Customer, QAfterSortBy> sortByDemandArea() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'demandArea', Sort.asc);
@@ -2677,6 +2907,18 @@ extension CustomerQuerySortBy on QueryBuilder<Customer, Customer, QSortBy> {
   QueryBuilder<Customer, Customer, QAfterSortBy> sortByDemandWardDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'demandWard', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterSortBy> sortByDeviceId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterSortBy> sortByDeviceIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.desc);
     });
   }
 
@@ -2803,6 +3045,18 @@ extension CustomerQuerySortThenBy
     });
   }
 
+  QueryBuilder<Customer, Customer, QAfterSortBy> thenByDeletedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterSortBy> thenByDeletedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.desc);
+    });
+  }
+
   QueryBuilder<Customer, Customer, QAfterSortBy> thenByDemandArea() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'demandArea', Sort.asc);
@@ -2885,6 +3139,18 @@ extension CustomerQuerySortThenBy
   QueryBuilder<Customer, Customer, QAfterSortBy> thenByDemandWardDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'demandWard', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterSortBy> thenByDeviceId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterSortBy> thenByDeviceIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.desc);
     });
   }
 
@@ -3018,6 +3284,12 @@ extension CustomerQueryWhereDistinct
     });
   }
 
+  QueryBuilder<Customer, Customer, QDistinct> distinctByDeletedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'deletedAt');
+    });
+  }
+
   QueryBuilder<Customer, Customer, QDistinct> distinctByDemandArea() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'demandArea');
@@ -3063,6 +3335,13 @@ extension CustomerQueryWhereDistinct
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'demandWard', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QDistinct> distinctByDeviceId(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'deviceId', caseSensitive: caseSensitive);
     });
   }
 
@@ -3141,6 +3420,12 @@ extension CustomerQueryProperty
     });
   }
 
+  QueryBuilder<Customer, DateTime?, QQueryOperations> deletedAtProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'deletedAt');
+    });
+  }
+
   QueryBuilder<Customer, double?, QQueryOperations> demandAreaProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'demandArea');
@@ -3181,6 +3466,12 @@ extension CustomerQueryProperty
   QueryBuilder<Customer, String?, QQueryOperations> demandWardProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'demandWard');
+    });
+  }
+
+  QueryBuilder<Customer, String, QQueryOperations> deviceIdProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'deviceId');
     });
   }
 

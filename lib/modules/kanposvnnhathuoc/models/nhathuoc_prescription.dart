@@ -7,6 +7,12 @@ part 'nhathuoc_prescription.g.dart';
 class NhathuocPrescriptionTemplate {
   Id id = Isar.autoIncrement;
 
+  bool isSynced = false;
+  DateTime updatedAt = DateTime.now();
+  DateTime? deletedAt;
+  String deviceId = "";
+  int version = 1;
+
   @Index(unique: true, replace: true)
   String templateId = '';
   
@@ -20,6 +26,12 @@ class NhathuocPrescriptionTemplate {
 @collection
 class NhathuocPrescriptionTemplateDetail {
   Id id = Isar.autoIncrement;
+
+  bool isSynced = false;
+  DateTime updatedAt = DateTime.now();
+  DateTime? deletedAt;
+  String deviceId = "";
+  int version = 1;
   
   double defaultQuantity = 0.0;
   String dosageInstructions = ''; // HDSD (Sáng 1 viên, tối 1 viên...)

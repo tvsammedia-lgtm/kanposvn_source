@@ -1,42 +1,42 @@
-import 'dart:convert';
-import 'package:dio/dio.dart';
-import 'package:isar/isar.dart';
+import '../../../core/sync/snapshot_sync_engine.dart';
+import '../../../core/sync/vercel_api_client.dart';
+import '../models/gara_customer.dart';
+import '../models/gara_finance.dart';
+import '../models/gara_inventory.dart';
+import '../models/gara_product.dart';
+import '../models/gara_repair_order.dart';
+import '../models/gara_supplier.dart';
+import '../models/gara_vehicle.dart';
 import 'gara_isar_service.dart';
-import '../models/gara_sync_model.dart';
 
 class GaraNeonSyncService {
   final GaraIsarService _isarService;
-  final Dio _dio = Dio();
 
   GaraNeonSyncService(this._isarService);
 
   Future<void> triggerSync(String apiUrl, String apiKey) async {
-    final db = await _isarService.db;
-    
-    final queue = await db.garaSyncQueues.where().filter().isSyncedEqualTo(false).findAll();
-    
-    for (var item in queue) {
-      try {
-        final payload = jsonDecode(item.payload);
-        final endpoint = '$apiUrl/gara/${item.entityType}';
-        
-        if (item.action == 'INSERT' || item.action == 'UPDATE') {
-           await _dio.post(endpoint, data: payload, options: Options(headers: {'Authorization': 'Bearer $apiKey'}));
-        } else if (item.action == 'DELETE') {
-           await _dio.delete('$endpoint/${item.entityId}', options: Options(headers: {'Authorization': 'Bearer $apiKey'}));
-        }
-        
-        await db.writeTxn(() async {
-          item.isSynced = true;
-          await db.garaSyncQueues.put(item);
-        });
-      } catch (e) {
-        await db.writeTxn(() async {
-          item.retryCount += 1;
-          item.lastError = e.toString();
-          await db.garaSyncQueues.put(item);
-        });
-      }
-    }
+    final isar = await _isarService.db;
+
+    final engine = SnapshotSyncEngine(
+      apiClient: VercelApiClient(
+        pushUrl: '$apiUrl/api/sync/push',
+        pullUrl: '$apiUrl/api/sync/pull',
+        apiKey: apiKey,
+      ),
+      appCode: 'kanposvngara',
+      collections: [
+        SnapshotSyncCollection(collection: isar.garaCustomers, keyField: 'customerId'),
+        SnapshotSyncCollection(collection: isar.garaVehicles, keyField: 'vehicleId'),
+        SnapshotSyncCollection(collection: isar.garaProducts, keyField: 'productId'),
+        SnapshotSyncCollection(collection: isar.garaRepairOrders, keyField: 'orderId'),
+        SnapshotSyncCollection(collection: isar.garaRepairDetails),
+        SnapshotSyncCollection(collection: isar.garaSuppliers, keyField: 'supplierId'),
+        SnapshotSyncCollection(collection: isar.garaInventoryTransactions, keyField: 'transactionId'),
+        SnapshotSyncCollection(collection: isar.garaInventoryDetails),
+        SnapshotSyncCollection(collection: isar.garaFinanceTransactions, keyField: 'transactionId'),
+      ],
+    );
+
+    await engine.sync();
   }
 }

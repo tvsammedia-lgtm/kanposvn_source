@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/theme/app_theme.dart';
-import 'core/auth/auth_service.dart';
 import 'core/db/database_service.dart';
 import 'core/module_enum.dart';
 import 'core/providers.dart';
@@ -26,14 +25,12 @@ import 'modules/kanposvnnhatro200/views/nhatro_dashboard.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  final auth = AuthService();
   final db = DatabaseService.instance;
   await DatabaseService.openIsar();
 
   runApp(
     ProviderScope(
       overrides: [
-        authServiceProvider.overrideWith((ref) => auth),
         databaseServiceProvider.overrideWith((ref) => db),
       ],
       child: const KanPosVNApp(),
@@ -51,19 +48,45 @@ class KanPosVNApp extends ConsumerStatefulWidget {
 }
 
 class _KanPosVNAppState extends ConsumerState<KanPosVNApp> {
+  bool _sessionLoaded = false;
+
   @override
   void initState() {
     super.initState();
+    ref.read(authServiceProvider).warmUp();
+    _loadAuthSession();
+  }
+
+  Future<void> _loadAuthSession() async {
+    final auth = ref.read(authServiceProvider);
+    await auth.loadSavedSession();
+    if (mounted) {
+      setState(() {
+        _sessionLoaded = true;
+      });
+    }
     _tryAutoSelectModule();
   }
 
   void _tryAutoSelectModule() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (!mounted) return;
       final auth = ref.read(authServiceProvider);
-      if (auth.isAuthenticated && ref.read(selectedModuleProvider) == null) {
+      final db = ref.read(databaseServiceProvider);
+      final selectedModule = ref.read(selectedModuleProvider);
+
+      if (auth.isAuthenticated && selectedModule == null) {
+        if (auth.currentModule != null) {
+          await db.init(module: auth.currentModule!);
+          if (!mounted) return;
+          ref.read(selectedModuleProvider.notifier).state = auth.currentModule;
+          return;
+        }
+
         final match = auth.findMatchingModule();
         if (match != null) {
+          await db.init(module: match);
+          if (!mounted) return;
           ref.read(selectedModuleProvider.notifier).state = match;
         }
       }
@@ -75,15 +98,42 @@ class _KanPosVNAppState extends ConsumerState<KanPosVNApp> {
     final selectedModule = ref.watch(selectedModuleProvider);
     final auth = ref.watch(authServiceProvider);
 
+    // Show loading indicator while checking session
+    if (!_sessionLoaded) {
+      return MaterialApp(
+        title: 'KanPosVN',
+        debugShowCheckedModeBanner: false,
+        theme: AppTheme.lightTheme,
+        home: const Scaffold(
+          body: Center(child: CircularProgressIndicator()),
+        ),
+      );
+    }
+
+    // Always show login screen if not authenticated
+    if (!auth.isAuthenticated) {
+      return MaterialApp(
+        title: 'KanPosVN',
+        debugShowCheckedModeBanner: false,
+        theme: AppTheme.lightTheme,
+        locale: const Locale('vi'),
+        supportedLocales: const [Locale('vi'), Locale('en')],
+        localizationsDelegates: const [
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        home: const LoginScreen(),
+      );
+    }
+
     Widget home;
     if (const bool.fromEnvironment('TEST_QLCD')) {
       home = const _MainShell(module: AppModule.kanposvnqlcd);
     } else if (selectedModule != null) {
       home = _MainShell(module: selectedModule);
-    } else if (auth.isAuthenticated) {
-      home = const _AutoSelectWrapper();
     } else {
-      home = const LoginScreen();
+      home = const _AutoSelectWrapper();
     }
 
     return MaterialApp(
@@ -91,10 +141,7 @@ class _KanPosVNAppState extends ConsumerState<KanPosVNApp> {
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
       locale: const Locale('vi'),
-      supportedLocales: const [
-        Locale('vi'),
-        Locale('en'),
-      ],
+      supportedLocales: const [Locale('vi'), Locale('en')],
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
@@ -116,14 +163,6 @@ class _AutoSelectWrapperState extends ConsumerState<_AutoSelectWrapper> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
-      final auth = ref.read(authServiceProvider);
-      final match = auth.findMatchingModule();
-      if (match != null) {
-        ref.read(selectedModuleProvider.notifier).state = match;
-      }
-    });
   }
 
   @override

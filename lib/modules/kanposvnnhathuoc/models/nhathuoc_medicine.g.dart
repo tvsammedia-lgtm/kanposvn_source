@@ -38,45 +38,70 @@ const NhathuocMedicineSchema = CollectionSchema(
       name: r'currentStock',
       type: IsarType.double,
     ),
-    r'dosageForm': PropertySchema(
+    r'deletedAt': PropertySchema(
       id: 4,
+      name: r'deletedAt',
+      type: IsarType.dateTime,
+    ),
+    r'deviceId': PropertySchema(
+      id: 5,
+      name: r'deviceId',
+      type: IsarType.string,
+    ),
+    r'dosageForm': PropertySchema(
+      id: 6,
       name: r'dosageForm',
       type: IsarType.string,
     ),
     r'expiryDate': PropertySchema(
-      id: 5,
+      id: 7,
       name: r'expiryDate',
       type: IsarType.dateTime,
     ),
     r'isPrescriptionRequired': PropertySchema(
-      id: 6,
+      id: 8,
       name: r'isPrescriptionRequired',
       type: IsarType.bool,
     ),
+    r'isSynced': PropertySchema(
+      id: 9,
+      name: r'isSynced',
+      type: IsarType.bool,
+    ),
     r'medicineId': PropertySchema(
-      id: 7,
+      id: 10,
       name: r'medicineId',
       type: IsarType.string,
     ),
     r'name': PropertySchema(
-      id: 8,
+      id: 11,
       name: r'name',
       type: IsarType.string,
     ),
     r'purchasePrice': PropertySchema(
-      id: 9,
+      id: 12,
       name: r'purchasePrice',
       type: IsarType.double,
     ),
     r'retailPrice': PropertySchema(
-      id: 10,
+      id: 13,
       name: r'retailPrice',
       type: IsarType.double,
     ),
     r'unit': PropertySchema(
-      id: 11,
+      id: 14,
       name: r'unit',
       type: IsarType.string,
+    ),
+    r'updatedAt': PropertySchema(
+      id: 15,
+      name: r'updatedAt',
+      type: IsarType.dateTime,
+    ),
+    r'version': PropertySchema(
+      id: 16,
+      name: r'version',
+      type: IsarType.long,
     )
   },
   estimateSize: _nhathuocMedicineEstimateSize,
@@ -115,6 +140,7 @@ int _nhathuocMedicineEstimateSize(
   var bytesCount = offsets.last;
   bytesCount += 3 + object.activeIngredient.length * 3;
   bytesCount += 3 + object.barcode.length * 3;
+  bytesCount += 3 + object.deviceId.length * 3;
   bytesCount += 3 + object.dosageForm.length * 3;
   bytesCount += 3 + object.medicineId.length * 3;
   bytesCount += 3 + object.name.length * 3;
@@ -132,14 +158,19 @@ void _nhathuocMedicineSerialize(
   writer.writeString(offsets[1], object.barcode);
   writer.writeByte(offsets[2], object.category.index);
   writer.writeDouble(offsets[3], object.currentStock);
-  writer.writeString(offsets[4], object.dosageForm);
-  writer.writeDateTime(offsets[5], object.expiryDate);
-  writer.writeBool(offsets[6], object.isPrescriptionRequired);
-  writer.writeString(offsets[7], object.medicineId);
-  writer.writeString(offsets[8], object.name);
-  writer.writeDouble(offsets[9], object.purchasePrice);
-  writer.writeDouble(offsets[10], object.retailPrice);
-  writer.writeString(offsets[11], object.unit);
+  writer.writeDateTime(offsets[4], object.deletedAt);
+  writer.writeString(offsets[5], object.deviceId);
+  writer.writeString(offsets[6], object.dosageForm);
+  writer.writeDateTime(offsets[7], object.expiryDate);
+  writer.writeBool(offsets[8], object.isPrescriptionRequired);
+  writer.writeBool(offsets[9], object.isSynced);
+  writer.writeString(offsets[10], object.medicineId);
+  writer.writeString(offsets[11], object.name);
+  writer.writeDouble(offsets[12], object.purchasePrice);
+  writer.writeDouble(offsets[13], object.retailPrice);
+  writer.writeString(offsets[14], object.unit);
+  writer.writeDateTime(offsets[15], object.updatedAt);
+  writer.writeLong(offsets[16], object.version);
 }
 
 NhathuocMedicine _nhathuocMedicineDeserialize(
@@ -155,15 +186,20 @@ NhathuocMedicine _nhathuocMedicineDeserialize(
           reader.readByteOrNull(offsets[2])] ??
       MedicineCategory.ANTIBIOTIC;
   object.currentStock = reader.readDouble(offsets[3]);
-  object.dosageForm = reader.readString(offsets[4]);
-  object.expiryDate = reader.readDateTimeOrNull(offsets[5]);
+  object.deletedAt = reader.readDateTimeOrNull(offsets[4]);
+  object.deviceId = reader.readString(offsets[5]);
+  object.dosageForm = reader.readString(offsets[6]);
+  object.expiryDate = reader.readDateTimeOrNull(offsets[7]);
   object.id = id;
-  object.isPrescriptionRequired = reader.readBool(offsets[6]);
-  object.medicineId = reader.readString(offsets[7]);
-  object.name = reader.readString(offsets[8]);
-  object.purchasePrice = reader.readDouble(offsets[9]);
-  object.retailPrice = reader.readDouble(offsets[10]);
-  object.unit = reader.readString(offsets[11]);
+  object.isPrescriptionRequired = reader.readBool(offsets[8]);
+  object.isSynced = reader.readBool(offsets[9]);
+  object.medicineId = reader.readString(offsets[10]);
+  object.name = reader.readString(offsets[11]);
+  object.purchasePrice = reader.readDouble(offsets[12]);
+  object.retailPrice = reader.readDouble(offsets[13]);
+  object.unit = reader.readString(offsets[14]);
+  object.updatedAt = reader.readDateTime(offsets[15]);
+  object.version = reader.readLong(offsets[16]);
   return object;
 }
 
@@ -185,21 +221,31 @@ P _nhathuocMedicineDeserializeProp<P>(
     case 3:
       return (reader.readDouble(offset)) as P;
     case 4:
-      return (reader.readString(offset)) as P;
-    case 5:
       return (reader.readDateTimeOrNull(offset)) as P;
+    case 5:
+      return (reader.readString(offset)) as P;
     case 6:
-      return (reader.readBool(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 7:
-      return (reader.readString(offset)) as P;
+      return (reader.readDateTimeOrNull(offset)) as P;
     case 8:
-      return (reader.readString(offset)) as P;
+      return (reader.readBool(offset)) as P;
     case 9:
-      return (reader.readDouble(offset)) as P;
+      return (reader.readBool(offset)) as P;
     case 10:
-      return (reader.readDouble(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 11:
       return (reader.readString(offset)) as P;
+    case 12:
+      return (reader.readDouble(offset)) as P;
+    case 13:
+      return (reader.readDouble(offset)) as P;
+    case 14:
+      return (reader.readString(offset)) as P;
+    case 15:
+      return (reader.readDateTime(offset)) as P;
+    case 16:
+      return (reader.readLong(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
   }
@@ -813,6 +859,216 @@ extension NhathuocMedicineQueryFilter
   }
 
   QueryBuilder<NhathuocMedicine, NhathuocMedicine, QAfterFilterCondition>
+      deletedAtIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'deletedAt',
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocMedicine, NhathuocMedicine, QAfterFilterCondition>
+      deletedAtIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'deletedAt',
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocMedicine, NhathuocMedicine, QAfterFilterCondition>
+      deletedAtEqualTo(DateTime? value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'deletedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocMedicine, NhathuocMedicine, QAfterFilterCondition>
+      deletedAtGreaterThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'deletedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocMedicine, NhathuocMedicine, QAfterFilterCondition>
+      deletedAtLessThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'deletedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocMedicine, NhathuocMedicine, QAfterFilterCondition>
+      deletedAtBetween(
+    DateTime? lower,
+    DateTime? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'deletedAt',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocMedicine, NhathuocMedicine, QAfterFilterCondition>
+      deviceIdEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocMedicine, NhathuocMedicine, QAfterFilterCondition>
+      deviceIdGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocMedicine, NhathuocMedicine, QAfterFilterCondition>
+      deviceIdLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocMedicine, NhathuocMedicine, QAfterFilterCondition>
+      deviceIdBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'deviceId',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocMedicine, NhathuocMedicine, QAfterFilterCondition>
+      deviceIdStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocMedicine, NhathuocMedicine, QAfterFilterCondition>
+      deviceIdEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocMedicine, NhathuocMedicine, QAfterFilterCondition>
+      deviceIdContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocMedicine, NhathuocMedicine, QAfterFilterCondition>
+      deviceIdMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'deviceId',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocMedicine, NhathuocMedicine, QAfterFilterCondition>
+      deviceIdIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'deviceId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocMedicine, NhathuocMedicine, QAfterFilterCondition>
+      deviceIdIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'deviceId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocMedicine, NhathuocMedicine, QAfterFilterCondition>
       dosageFormEqualTo(
     String value, {
     bool caseSensitive = true,
@@ -1083,6 +1339,16 @@ extension NhathuocMedicineQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'isPrescriptionRequired',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocMedicine, NhathuocMedicine, QAfterFilterCondition>
+      isSyncedEqualTo(bool value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'isSynced',
         value: value,
       ));
     });
@@ -1627,6 +1893,118 @@ extension NhathuocMedicineQueryFilter
       ));
     });
   }
+
+  QueryBuilder<NhathuocMedicine, NhathuocMedicine, QAfterFilterCondition>
+      updatedAtEqualTo(DateTime value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'updatedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocMedicine, NhathuocMedicine, QAfterFilterCondition>
+      updatedAtGreaterThan(
+    DateTime value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'updatedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocMedicine, NhathuocMedicine, QAfterFilterCondition>
+      updatedAtLessThan(
+    DateTime value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'updatedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocMedicine, NhathuocMedicine, QAfterFilterCondition>
+      updatedAtBetween(
+    DateTime lower,
+    DateTime upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'updatedAt',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocMedicine, NhathuocMedicine, QAfterFilterCondition>
+      versionEqualTo(int value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'version',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocMedicine, NhathuocMedicine, QAfterFilterCondition>
+      versionGreaterThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'version',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocMedicine, NhathuocMedicine, QAfterFilterCondition>
+      versionLessThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'version',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocMedicine, NhathuocMedicine, QAfterFilterCondition>
+      versionBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'version',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
 }
 
 extension NhathuocMedicineQueryObject
@@ -1694,6 +2072,34 @@ extension NhathuocMedicineQuerySortBy
   }
 
   QueryBuilder<NhathuocMedicine, NhathuocMedicine, QAfterSortBy>
+      sortByDeletedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocMedicine, NhathuocMedicine, QAfterSortBy>
+      sortByDeletedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<NhathuocMedicine, NhathuocMedicine, QAfterSortBy>
+      sortByDeviceId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocMedicine, NhathuocMedicine, QAfterSortBy>
+      sortByDeviceIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<NhathuocMedicine, NhathuocMedicine, QAfterSortBy>
       sortByDosageForm() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'dosageForm', Sort.asc);
@@ -1732,6 +2138,20 @@ extension NhathuocMedicineQuerySortBy
       sortByIsPrescriptionRequiredDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'isPrescriptionRequired', Sort.desc);
+    });
+  }
+
+  QueryBuilder<NhathuocMedicine, NhathuocMedicine, QAfterSortBy>
+      sortByIsSynced() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocMedicine, NhathuocMedicine, QAfterSortBy>
+      sortByIsSyncedDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.desc);
     });
   }
 
@@ -1802,6 +2222,34 @@ extension NhathuocMedicineQuerySortBy
       return query.addSortBy(r'unit', Sort.desc);
     });
   }
+
+  QueryBuilder<NhathuocMedicine, NhathuocMedicine, QAfterSortBy>
+      sortByUpdatedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'updatedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocMedicine, NhathuocMedicine, QAfterSortBy>
+      sortByUpdatedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'updatedAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<NhathuocMedicine, NhathuocMedicine, QAfterSortBy>
+      sortByVersion() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocMedicine, NhathuocMedicine, QAfterSortBy>
+      sortByVersionDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.desc);
+    });
+  }
 }
 
 extension NhathuocMedicineQuerySortThenBy
@@ -1863,6 +2311,34 @@ extension NhathuocMedicineQuerySortThenBy
   }
 
   QueryBuilder<NhathuocMedicine, NhathuocMedicine, QAfterSortBy>
+      thenByDeletedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocMedicine, NhathuocMedicine, QAfterSortBy>
+      thenByDeletedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<NhathuocMedicine, NhathuocMedicine, QAfterSortBy>
+      thenByDeviceId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocMedicine, NhathuocMedicine, QAfterSortBy>
+      thenByDeviceIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<NhathuocMedicine, NhathuocMedicine, QAfterSortBy>
       thenByDosageForm() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'dosageForm', Sort.asc);
@@ -1914,6 +2390,20 @@ extension NhathuocMedicineQuerySortThenBy
       thenByIsPrescriptionRequiredDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'isPrescriptionRequired', Sort.desc);
+    });
+  }
+
+  QueryBuilder<NhathuocMedicine, NhathuocMedicine, QAfterSortBy>
+      thenByIsSynced() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocMedicine, NhathuocMedicine, QAfterSortBy>
+      thenByIsSyncedDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.desc);
     });
   }
 
@@ -1984,6 +2474,34 @@ extension NhathuocMedicineQuerySortThenBy
       return query.addSortBy(r'unit', Sort.desc);
     });
   }
+
+  QueryBuilder<NhathuocMedicine, NhathuocMedicine, QAfterSortBy>
+      thenByUpdatedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'updatedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocMedicine, NhathuocMedicine, QAfterSortBy>
+      thenByUpdatedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'updatedAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<NhathuocMedicine, NhathuocMedicine, QAfterSortBy>
+      thenByVersion() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocMedicine, NhathuocMedicine, QAfterSortBy>
+      thenByVersionDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.desc);
+    });
+  }
 }
 
 extension NhathuocMedicineQueryWhereDistinct
@@ -2018,6 +2536,20 @@ extension NhathuocMedicineQueryWhereDistinct
   }
 
   QueryBuilder<NhathuocMedicine, NhathuocMedicine, QDistinct>
+      distinctByDeletedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'deletedAt');
+    });
+  }
+
+  QueryBuilder<NhathuocMedicine, NhathuocMedicine, QDistinct>
+      distinctByDeviceId({bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'deviceId', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<NhathuocMedicine, NhathuocMedicine, QDistinct>
       distinctByDosageForm({bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'dosageForm', caseSensitive: caseSensitive);
@@ -2035,6 +2567,13 @@ extension NhathuocMedicineQueryWhereDistinct
       distinctByIsPrescriptionRequired() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'isPrescriptionRequired');
+    });
+  }
+
+  QueryBuilder<NhathuocMedicine, NhathuocMedicine, QDistinct>
+      distinctByIsSynced() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'isSynced');
     });
   }
 
@@ -2070,6 +2609,20 @@ extension NhathuocMedicineQueryWhereDistinct
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'unit', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<NhathuocMedicine, NhathuocMedicine, QDistinct>
+      distinctByUpdatedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'updatedAt');
+    });
+  }
+
+  QueryBuilder<NhathuocMedicine, NhathuocMedicine, QDistinct>
+      distinctByVersion() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'version');
     });
   }
 }
@@ -2109,6 +2662,19 @@ extension NhathuocMedicineQueryProperty
     });
   }
 
+  QueryBuilder<NhathuocMedicine, DateTime?, QQueryOperations>
+      deletedAtProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'deletedAt');
+    });
+  }
+
+  QueryBuilder<NhathuocMedicine, String, QQueryOperations> deviceIdProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'deviceId');
+    });
+  }
+
   QueryBuilder<NhathuocMedicine, String, QQueryOperations>
       dosageFormProperty() {
     return QueryBuilder.apply(this, (query) {
@@ -2127,6 +2693,12 @@ extension NhathuocMedicineQueryProperty
       isPrescriptionRequiredProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'isPrescriptionRequired');
+    });
+  }
+
+  QueryBuilder<NhathuocMedicine, bool, QQueryOperations> isSyncedProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'isSynced');
     });
   }
 
@@ -2160,6 +2732,19 @@ extension NhathuocMedicineQueryProperty
   QueryBuilder<NhathuocMedicine, String, QQueryOperations> unitProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'unit');
+    });
+  }
+
+  QueryBuilder<NhathuocMedicine, DateTime, QQueryOperations>
+      updatedAtProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'updatedAt');
+    });
+  }
+
+  QueryBuilder<NhathuocMedicine, int, QQueryOperations> versionProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'version');
     });
   }
 }

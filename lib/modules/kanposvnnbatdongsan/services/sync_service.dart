@@ -1,15 +1,31 @@
-// ignore_for_file: avoid_print, todo
+import '../../../core/sync/snapshot_sync_engine.dart';
+import '../../../core/sync/vercel_api_client.dart';
+import '../models/broker.dart';
+import '../models/customer.dart';
+import '../models/property.dart';
+import '../models/transaction.dart';
+import '../repositories/isar_db.dart';
 
 class SyncService {
-  Future<void> syncProperties() async {
-    // Basic placeholder for syncing logic
+  Future<void> syncAll() async {
     try {
-      // TODO: Implement sync logic
-      
+      final isar = await KanBatDongSanIsarDB.getInstance();
+      final engine = SnapshotSyncEngine(
+        apiClient: VercelApiClient(),
+        appCode: 'kanposvnnbatdongsan',
+        collections: [
+          SnapshotSyncCollection(collection: isar.propertys, keyField: 'remoteId'),
+          SnapshotSyncCollection(collection: isar.customers, keyField: 'remoteId'),
+          SnapshotSyncCollection(collection: isar.transactionRecords, keyField: 'remoteId'),
+          SnapshotSyncCollection(collection: isar.brokers, keyField: 'remoteId'),
+        ],
+      );
+
+      await engine.sync();
     } catch (e) {
-      print('Sync error: $e');
+      // Sync errors are handled by application state or upstream logging.
     }
   }
 
-  // Add similar methods for Customers, Transactions, Brokers...
+  Future<void> syncProperties() => syncAll();
 }

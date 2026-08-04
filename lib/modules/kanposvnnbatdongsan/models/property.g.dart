@@ -42,88 +42,98 @@ const propertySchema = CollectionSchema(
       name: r'brokerId',
       type: IsarType.string,
     ),
-    r'description': PropertySchema(
+    r'deletedAt': PropertySchema(
       id: 5,
+      name: r'deletedAt',
+      type: IsarType.dateTime,
+    ),
+    r'description': PropertySchema(
+      id: 6,
       name: r'description',
       type: IsarType.string,
     ),
+    r'deviceId': PropertySchema(
+      id: 7,
+      name: r'deviceId',
+      type: IsarType.string,
+    ),
     r'district': PropertySchema(
-      id: 6,
+      id: 8,
       name: r'district',
       type: IsarType.string,
     ),
     r'features': PropertySchema(
-      id: 7,
+      id: 9,
       name: r'features',
       type: IsarType.stringList,
     ),
     r'floors': PropertySchema(
-      id: 8,
+      id: 10,
       name: r'floors',
       type: IsarType.long,
     ),
     r'isSynced': PropertySchema(
-      id: 9,
+      id: 11,
       name: r'isSynced',
       type: IsarType.bool,
     ),
     r'legalStatus': PropertySchema(
-      id: 10,
+      id: 12,
       name: r'legalStatus',
       type: IsarType.string,
     ),
     r'length': PropertySchema(
-      id: 11,
+      id: 13,
       name: r'length',
       type: IsarType.double,
     ),
     r'ownerId': PropertySchema(
-      id: 12,
+      id: 14,
       name: r'ownerId',
       type: IsarType.string,
     ),
     r'price': PropertySchema(
-      id: 13,
+      id: 15,
       name: r'price',
       type: IsarType.double,
     ),
     r'propertyType': PropertySchema(
-      id: 14,
+      id: 16,
       name: r'propertyType',
       type: IsarType.string,
     ),
     r'province': PropertySchema(
-      id: 15,
+      id: 17,
       name: r'province',
       type: IsarType.string,
     ),
     r'remoteId': PropertySchema(
-      id: 16,
+      id: 18,
       name: r'remoteId',
       type: IsarType.string,
     ),
     r'title': PropertySchema(
-      id: 17,
+      id: 19,
       name: r'title',
       type: IsarType.string,
     ),
     r'updatedAt': PropertySchema(
-      id: 18,
+      id: 20,
       name: r'updatedAt',
       type: IsarType.dateTime,
     ),
     r'version': PropertySchema(
-      id: 19,
+      id: 21,
       name: r'version',
       type: IsarType.long,
     ),
     r'ward': PropertySchema(
-      id: 20,
+      id: 22,
       name: r'ward',
       type: IsarType.string,
     ),
     r'width': PropertySchema(
-      id: 21,
+      id: 23,
       name: r'width',
       type: IsarType.double,
     )
@@ -180,6 +190,7 @@ int _propertyEstimateSize(
       bytesCount += 3 + value.length * 3;
     }
   }
+  bytesCount += 3 + object.deviceId.length * 3;
   {
     final value = object.district;
     if (value != null) {
@@ -254,23 +265,25 @@ void _propertySerialize(
   writer.writeLong(offsets[2], object.bathrooms);
   writer.writeLong(offsets[3], object.bedrooms);
   writer.writeString(offsets[4], object.brokerId);
-  writer.writeString(offsets[5], object.description);
-  writer.writeString(offsets[6], object.district);
-  writer.writeStringList(offsets[7], object.features);
-  writer.writeLong(offsets[8], object.floors);
-  writer.writeBool(offsets[9], object.isSynced);
-  writer.writeString(offsets[10], object.legalStatus);
-  writer.writeDouble(offsets[11], object.length);
-  writer.writeString(offsets[12], object.ownerId);
-  writer.writeDouble(offsets[13], object.price);
-  writer.writeString(offsets[14], object.propertyType);
-  writer.writeString(offsets[15], object.province);
-  writer.writeString(offsets[16], object.remoteId);
-  writer.writeString(offsets[17], object.title);
-  writer.writeDateTime(offsets[18], object.updatedAt);
-  writer.writeLong(offsets[19], object.version);
-  writer.writeString(offsets[20], object.ward);
-  writer.writeDouble(offsets[21], object.width);
+  writer.writeDateTime(offsets[5], object.deletedAt);
+  writer.writeString(offsets[6], object.description);
+  writer.writeString(offsets[7], object.deviceId);
+  writer.writeString(offsets[8], object.district);
+  writer.writeStringList(offsets[9], object.features);
+  writer.writeLong(offsets[10], object.floors);
+  writer.writeBool(offsets[11], object.isSynced);
+  writer.writeString(offsets[12], object.legalStatus);
+  writer.writeDouble(offsets[13], object.length);
+  writer.writeString(offsets[14], object.ownerId);
+  writer.writeDouble(offsets[15], object.price);
+  writer.writeString(offsets[16], object.propertyType);
+  writer.writeString(offsets[17], object.province);
+  writer.writeString(offsets[18], object.remoteId);
+  writer.writeString(offsets[19], object.title);
+  writer.writeDateTime(offsets[20], object.updatedAt);
+  writer.writeLong(offsets[21], object.version);
+  writer.writeString(offsets[22], object.ward);
+  writer.writeDouble(offsets[23], object.width);
 }
 
 Property _propertyDeserialize(
@@ -285,24 +298,26 @@ Property _propertyDeserialize(
   object.bathrooms = reader.readLongOrNull(offsets[2]);
   object.bedrooms = reader.readLongOrNull(offsets[3]);
   object.brokerId = reader.readStringOrNull(offsets[4]);
-  object.description = reader.readStringOrNull(offsets[5]);
-  object.district = reader.readStringOrNull(offsets[6]);
-  object.features = reader.readStringList(offsets[7]);
-  object.floors = reader.readLongOrNull(offsets[8]);
+  object.deletedAt = reader.readDateTimeOrNull(offsets[5]);
+  object.description = reader.readStringOrNull(offsets[6]);
+  object.deviceId = reader.readString(offsets[7]);
+  object.district = reader.readStringOrNull(offsets[8]);
+  object.features = reader.readStringList(offsets[9]);
+  object.floors = reader.readLongOrNull(offsets[10]);
   object.id = id;
-  object.isSynced = reader.readBool(offsets[9]);
-  object.legalStatus = reader.readStringOrNull(offsets[10]);
-  object.length = reader.readDoubleOrNull(offsets[11]);
-  object.ownerId = reader.readStringOrNull(offsets[12]);
-  object.price = reader.readDoubleOrNull(offsets[13]);
-  object.propertyType = reader.readStringOrNull(offsets[14]);
-  object.province = reader.readStringOrNull(offsets[15]);
-  object.remoteId = reader.readStringOrNull(offsets[16]);
-  object.title = reader.readStringOrNull(offsets[17]);
-  object.updatedAt = reader.readDateTimeOrNull(offsets[18]);
-  object.version = reader.readLongOrNull(offsets[19]);
-  object.ward = reader.readStringOrNull(offsets[20]);
-  object.width = reader.readDoubleOrNull(offsets[21]);
+  object.isSynced = reader.readBool(offsets[11]);
+  object.legalStatus = reader.readStringOrNull(offsets[12]);
+  object.length = reader.readDoubleOrNull(offsets[13]);
+  object.ownerId = reader.readStringOrNull(offsets[14]);
+  object.price = reader.readDoubleOrNull(offsets[15]);
+  object.propertyType = reader.readStringOrNull(offsets[16]);
+  object.province = reader.readStringOrNull(offsets[17]);
+  object.remoteId = reader.readStringOrNull(offsets[18]);
+  object.title = reader.readStringOrNull(offsets[19]);
+  object.updatedAt = reader.readDateTimeOrNull(offsets[20]);
+  object.version = reader.readLongOrNull(offsets[21]);
+  object.ward = reader.readStringOrNull(offsets[22]);
+  object.width = reader.readDoubleOrNull(offsets[23]);
   return object;
 }
 
@@ -324,19 +339,19 @@ P _propertyDeserializeProp<P>(
     case 4:
       return (reader.readStringOrNull(offset)) as P;
     case 5:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readDateTimeOrNull(offset)) as P;
     case 6:
       return (reader.readStringOrNull(offset)) as P;
     case 7:
-      return (reader.readStringList(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 8:
-      return (reader.readLongOrNull(offset)) as P;
-    case 9:
-      return (reader.readBool(offset)) as P;
-    case 10:
       return (reader.readStringOrNull(offset)) as P;
+    case 9:
+      return (reader.readStringList(offset)) as P;
+    case 10:
+      return (reader.readLongOrNull(offset)) as P;
     case 11:
-      return (reader.readDoubleOrNull(offset)) as P;
+      return (reader.readBool(offset)) as P;
     case 12:
       return (reader.readStringOrNull(offset)) as P;
     case 13:
@@ -344,18 +359,22 @@ P _propertyDeserializeProp<P>(
     case 14:
       return (reader.readStringOrNull(offset)) as P;
     case 15:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readDoubleOrNull(offset)) as P;
     case 16:
       return (reader.readStringOrNull(offset)) as P;
     case 17:
       return (reader.readStringOrNull(offset)) as P;
     case 18:
-      return (reader.readDateTimeOrNull(offset)) as P;
-    case 19:
-      return (reader.readLongOrNull(offset)) as P;
-    case 20:
       return (reader.readStringOrNull(offset)) as P;
+    case 19:
+      return (reader.readStringOrNull(offset)) as P;
+    case 20:
+      return (reader.readDateTimeOrNull(offset)) as P;
     case 21:
+      return (reader.readLongOrNull(offset)) as P;
+    case 22:
+      return (reader.readStringOrNull(offset)) as P;
+    case 23:
       return (reader.readDoubleOrNull(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -1079,6 +1098,75 @@ extension PropertyQueryFilter
     });
   }
 
+  QueryBuilder<Property, Property, QAfterFilterCondition> deletedAtIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'deletedAt',
+      ));
+    });
+  }
+
+  QueryBuilder<Property, Property, QAfterFilterCondition> deletedAtIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'deletedAt',
+      ));
+    });
+  }
+
+  QueryBuilder<Property, Property, QAfterFilterCondition> deletedAtEqualTo(
+      DateTime? value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'deletedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Property, Property, QAfterFilterCondition> deletedAtGreaterThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'deletedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Property, Property, QAfterFilterCondition> deletedAtLessThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'deletedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Property, Property, QAfterFilterCondition> deletedAtBetween(
+    DateTime? lower,
+    DateTime? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'deletedAt',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
   QueryBuilder<Property, Property, QAfterFilterCondition> descriptionIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNull(
@@ -1223,6 +1311,136 @@ extension PropertyQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         property: r'description',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<Property, Property, QAfterFilterCondition> deviceIdEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Property, Property, QAfterFilterCondition> deviceIdGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Property, Property, QAfterFilterCondition> deviceIdLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Property, Property, QAfterFilterCondition> deviceIdBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'deviceId',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Property, Property, QAfterFilterCondition> deviceIdStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Property, Property, QAfterFilterCondition> deviceIdEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Property, Property, QAfterFilterCondition> deviceIdContains(
+      String value,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Property, Property, QAfterFilterCondition> deviceIdMatches(
+      String pattern,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'deviceId',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Property, Property, QAfterFilterCondition> deviceIdIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'deviceId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<Property, Property, QAfterFilterCondition> deviceIdIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'deviceId',
         value: '',
       ));
     });
@@ -3213,6 +3431,18 @@ extension PropertyQuerySortBy on QueryBuilder<Property, Property, QSortBy> {
     });
   }
 
+  QueryBuilder<Property, Property, QAfterSortBy> sortByDeletedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Property, Property, QAfterSortBy> sortByDeletedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.desc);
+    });
+  }
+
   QueryBuilder<Property, Property, QAfterSortBy> sortByDescription() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'description', Sort.asc);
@@ -3222,6 +3452,18 @@ extension PropertyQuerySortBy on QueryBuilder<Property, Property, QSortBy> {
   QueryBuilder<Property, Property, QAfterSortBy> sortByDescriptionDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'description', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Property, Property, QAfterSortBy> sortByDeviceId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Property, Property, QAfterSortBy> sortByDeviceIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.desc);
     });
   }
 
@@ -3468,6 +3710,18 @@ extension PropertyQuerySortThenBy
     });
   }
 
+  QueryBuilder<Property, Property, QAfterSortBy> thenByDeletedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Property, Property, QAfterSortBy> thenByDeletedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.desc);
+    });
+  }
+
   QueryBuilder<Property, Property, QAfterSortBy> thenByDescription() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'description', Sort.asc);
@@ -3477,6 +3731,18 @@ extension PropertyQuerySortThenBy
   QueryBuilder<Property, Property, QAfterSortBy> thenByDescriptionDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'description', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Property, Property, QAfterSortBy> thenByDeviceId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Property, Property, QAfterSortBy> thenByDeviceIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.desc);
     });
   }
 
@@ -3707,10 +3973,23 @@ extension PropertyQueryWhereDistinct
     });
   }
 
+  QueryBuilder<Property, Property, QDistinct> distinctByDeletedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'deletedAt');
+    });
+  }
+
   QueryBuilder<Property, Property, QDistinct> distinctByDescription(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'description', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<Property, Property, QDistinct> distinctByDeviceId(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'deviceId', caseSensitive: caseSensitive);
     });
   }
 
@@ -3857,9 +4136,21 @@ extension PropertyQueryProperty
     });
   }
 
+  QueryBuilder<Property, DateTime?, QQueryOperations> deletedAtProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'deletedAt');
+    });
+  }
+
   QueryBuilder<Property, String?, QQueryOperations> descriptionProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'description');
+    });
+  }
+
+  QueryBuilder<Property, String, QQueryOperations> deviceIdProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'deviceId');
     });
   }
 

@@ -1,9 +1,11 @@
-import 'dart:convert';
-import 'package:http/http.dart' as http;
-import 'package:isar/isar.dart';
-
+import '../../../core/sync/snapshot_sync_engine.dart';
+import '../../../core/sync/vercel_api_client.dart';
+import '../models/vlxd_finance.dart';
+import '../models/vlxd_inventory.dart';
+import '../models/vlxd_order.dart';
+import '../models/vlxd_partner.dart';
+import '../models/vlxd_product.dart';
 import 'vlxd_isar_service.dart';
-import '../models/vlxd_sync_model.dart';
 
 class SyncLogEntry {
   final String action;
@@ -29,79 +31,45 @@ class VlxdNeonSyncService {
     if (_syncLogs.length > 100) _syncLogs.removeLast();
   }
 
-  Future<VlxdSyncConfig?> _getConfig() async {
-    final isar = await _isarService.db;
-    return await isar.vlxdSyncConfigs.where().findFirst();
-  }
-
   Future<bool> triggerSync(String vercelApiUrl, String apiKey) async {
     if (_isSyncing) return false;
     _isSyncing = true;
     try {
-      addLog('Bắt đầu đồng bộ', true, 'Đang chuẩn bị dữ liệu gửi lên Vercel API (Neon DB)...');
+      addLog('Bắt đầu đồng bộ', true, 'Đang đồng bộ full snapshot lên Vercel API (Neon DB)...');
 
       final isar = await _isarService.db;
-      final pendingItems = await isar.vlxdSyncQueues.filter().isSyncingEqualTo(false).findAll();
+      final engine = SnapshotSyncEngine(
+        apiClient: VercelApiClient(
+          pushUrl: '$vercelApiUrl/api/sync/push',
+          pullUrl: '$vercelApiUrl/api/sync/pull',
+          apiKey: apiKey,
+        ),
+        appCode: 'kanposvnvlxd',
+        collections: [
+          SnapshotSyncCollection(collection: isar.vlxdProductCategorys, keyField: 'categoryId'),
+          SnapshotSyncCollection(collection: isar.vlxdProducts, keyField: 'productId'),
+          SnapshotSyncCollection(collection: isar.vlxdWarehouses, keyField: 'warehouseId'),
+          SnapshotSyncCollection(collection: isar.vlxdInventoryStocks, keyField: 'stockId'),
+          SnapshotSyncCollection(collection: isar.vlxdInventoryTransactions, keyField: 'transactionId'),
+          SnapshotSyncCollection(collection: isar.vlxdInventoryTransactionDetails),
+          SnapshotSyncCollection(collection: isar.vlxdCustomers, keyField: 'customerId'),
+          SnapshotSyncCollection(collection: isar.vlxdSuppliers, keyField: 'supplierId'),
+          SnapshotSyncCollection(collection: isar.vlxdOrders, keyField: 'orderId'),
+          SnapshotSyncCollection(collection: isar.vlxdOrderDetails),
+          SnapshotSyncCollection(collection: isar.vlxdDeliveryTickets, keyField: 'ticketId'),
+          SnapshotSyncCollection(collection: isar.vlxdFinanceTransactions, keyField: 'transactionId'),
+        ],
+      );
 
-      if (pendingItems.isEmpty) {
-        addLog('Đồng bộ Push', true, 'Không có thay đổi nào cần đẩy lên máy chủ');
+      final result = await engine.sync();
+
+      if (result.success) {
+        addLog('Hoàn tất', true, result.message);
+        return true;
       } else {
-        final payload = {
-          'appCode': 'kanposvnvlxd',
-          'timestamp': DateTime.now().toIso8601String(),
-          'items': pendingItems.map((i) => {
-            'id': i.id,
-            'operationId': i.operationId,
-            'collectionName': i.collectionName,
-            'operationType': i.operationType,
-            'payload': i.payload,
-            'createdAt': i.createdAt.toIso8601String(),
-          }).toList(),
-        };
-
-        bool pushSuccess = false;
-        try {
-          final uri = Uri.parse('$vercelApiUrl/api/sync/push');
-          final res = await http.post(
-            uri,
-            headers: {
-              'Authorization': 'Bearer $apiKey',
-              'Content-Type': 'application/json',
-            },
-            body: jsonEncode(payload),
-          ).timeout(const Duration(seconds: 7));
-
-          if (res.statusCode == 200 || res.statusCode == 201) {
-            pushSuccess = true;
-          }
-        } catch (_) {
-          pushSuccess = true; // Fallback for offline demo
-        }
-
-        if (pushSuccess) {
-          final processedIds = pendingItems.map((e) => e.id).toList();
-          await isar.writeTxn(() async {
-            await isar.vlxdSyncQueues.deleteAll(processedIds);
-          });
-          addLog('Đồng bộ Push thành công', true, 'Đã đồng bộ ${pendingItems.length} bản ghi');
-        }
+        addLog('Lỗi đồng bộ', false, result.message);
+        return false;
       }
-
-      addLog('Đồng bộ Pull', true, 'Đang kiểm tra dữ liệu tải về...');
-      
-      var config = await _getConfig();
-      if (config == null) {
-        config = VlxdSyncConfig()..lastSyncTime = DateTime.now();
-      } else {
-        config.lastSyncTime = DateTime.now();
-      }
-      
-      await isar.writeTxn(() async {
-        await isar.vlxdSyncConfigs.put(config!);
-      });
-
-      addLog('Hoàn tất', true, 'Quá trình đồng bộ hoàn tất.');
-      return true;
     } catch (e) {
       addLog('Lỗi đồng bộ', false, e.toString());
       return false;

@@ -19,6 +19,12 @@ enum VlxdInventoryTransactionType {
 class VlxdWarehouse {
   Id id = Isar.autoIncrement;
 
+  bool isSynced = false;
+  DateTime updatedAt = DateTime.now();
+  DateTime? deletedAt;
+  String deviceId = "";
+  int version = 1;
+
   @Index(unique: true, replace: true)
   String warehouseId = '';
 
@@ -29,6 +35,11 @@ class VlxdWarehouse {
 @collection
 class VlxdInventoryStock {
   Id id = Isar.autoIncrement;
+
+  bool isSynced = false;
+  DateTime? deletedAt;
+  String deviceId = "";
+  int version = 1;
 
   @Index(unique: true, replace: true)
   String stockId = '';
@@ -46,6 +57,12 @@ class VlxdInventoryStock {
 @collection
 class VlxdInventoryTransaction {
   Id id = Isar.autoIncrement;
+
+  bool isSynced = false;
+  DateTime updatedAt = DateTime.now();
+  DateTime? deletedAt;
+  String deviceId = "";
+  int version = 1;
 
   @Index(unique: true, replace: true)
   String transactionId = '';
@@ -66,6 +83,12 @@ class VlxdInventoryTransaction {
 @collection
 class VlxdInventoryTransactionDetail {
   Id id = Isar.autoIncrement;
+
+  bool isSynced = false;
+  DateTime updatedAt = DateTime.now();
+  DateTime? deletedAt;
+  String deviceId = "";
+  int version = 1;
 
   final transaction = IsarLink<VlxdInventoryTransaction>();
   final product = IsarLink<VlxdProduct>();

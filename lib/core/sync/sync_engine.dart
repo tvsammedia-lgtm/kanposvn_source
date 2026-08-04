@@ -141,7 +141,7 @@ class SyncEngine extends ChangeNotifier {
         }
         merged++;
       } catch (e) {
-        debugPrint('Merge error for record: $e');
+        // ignore merge errors
       }
     }
 

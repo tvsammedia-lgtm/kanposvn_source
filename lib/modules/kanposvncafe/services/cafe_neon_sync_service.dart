@@ -22,6 +22,76 @@ class CafeNeonSyncService {
     if (_syncLogs.length > 100) _syncLogs.removeLast();
   }
 
+  Future<void> _pullChanges(CafeSyncConfig config) async {
+    try {
+      final uri = Uri.parse(
+        '${config.vercelApiUrl}/api/sync/pull?appCode=kanposvncafe&apiKey=${config.apiKey}',
+      );
+      final response = await http
+          .get(
+            uri,
+            headers: {
+              'Authorization': 'Bearer ${config.apiKey}',
+              'Content-Type': 'application/json',
+            },
+          )
+          .timeout(const Duration(seconds: 7));
+
+      if (response.statusCode != 200) {
+        addLog(
+          'Đồng bộ Pull',
+          false,
+          'Vercel Endpoint trả về HTTP ${response.statusCode}',
+        );
+        return;
+      }
+
+      final res = jsonDecode(response.body) as Map<String, dynamic>;
+      final records = (res['records'] as List<dynamic>?) ?? [];
+
+      if (records.isEmpty) {
+        addLog('Đồng bộ Pull', true, 'Không có dữ liệu mới từ Neon DB');
+        return;
+      }
+
+      int merged = 0;
+      for (final raw in records) {
+        try {
+          final record = raw as Map<String, dynamic>;
+          final collection = record['collection'] as String?;
+          final itemId = record['itemId'] as String?;
+          final data = record['data'] as Map<String, dynamic>?;
+          final operation = record['operation'] as String? ?? 'UPSERT';
+
+          if (collection == null || data == null) continue;
+
+          if (operation == 'DELETE') {
+            await _db.deleteItem(collection, itemId ?? '', triggerSync: false);
+          } else {
+            data['isSynced'] = true;
+            data['pulledFromCloud'] = true;
+            await _db.saveItem(
+              collection,
+              itemId ?? data['id'] as String,
+              data,
+              triggerSync: false,
+            );
+          }
+          merged++;
+        } catch (e) {
+          // ignore merge errors
+        }
+      }
+      addLog('Đồng bộ Pull', true, 'Đã merge $merged/${records.length} bản ghi từ Neon DB');
+    } catch (e) {
+      addLog(
+        'Đồng bộ Pull',
+        false,
+        'Lỗi kết nối khi pull: $e (giữ chế độ Offline First)',
+      );
+    }
+  }
+
   Future<bool> testConnection(CafeSyncConfig config) async {
     try {
       final uri = Uri.parse('${config.vercelApiUrl}/api/health');
@@ -89,11 +159,11 @@ class CafeNeonSyncService {
           'items': pendingItems
               .map(
                 (i) => {
-                  'id': i.id,
-                  'entityName': i.entityName,
-                  'operation': i.operation,
-                  'data': i.data,
-                  'timestamp': i.timestamp.toIso8601String(),
+                  'operationId': i.id,
+                  'collectionName': i.entityName,
+                  'operationType': i.operation,
+                  'payload': i.data,
+                  'createdAt': i.timestamp.toIso8601String(),
                 },
               )
               .toList(),
@@ -115,10 +185,19 @@ class CafeNeonSyncService {
 
           if (res.statusCode == 200 || res.statusCode == 201) {
             pushSuccess = true;
+          } else {
+            addLog(
+              'Đồng bộ Push',
+              false,
+              'Vercel Endpoint trả về HTTP ${res.statusCode}',
+            );
           }
-        } catch (_) {
-          // If remote API is offline, simulate batch processing for seamless offline UX
-          pushSuccess = true;
+        } catch (e) {
+          addLog(
+            'Đồng bộ Push',
+            false,
+            'Lỗi kết nối khi push: $e (giữ trong queue để thử lại)',
+          );
         }
 
         if (pushSuccess) {
@@ -138,6 +217,7 @@ class CafeNeonSyncService {
         true,
         'Đang kiểm tra dữ liệu mới từ Vercel API / Neon DB...',
       );
+      await _pullChanges(config);
       final updatedConfig = config.copyWith(lastSyncedAt: DateTime.now());
       await _isarService.saveSyncConfig(updatedConfig);
       addLog(

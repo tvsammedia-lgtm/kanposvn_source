@@ -5,6 +5,8 @@ part 'property.g.dart';
 @collection
 class Property {
   Id id = Isar.autoIncrement; // Local ID
+  DateTime? deletedAt;
+  String deviceId = "";
   
   @Index(unique: true, replace: true)
   String? remoteId; // Neon DB ID

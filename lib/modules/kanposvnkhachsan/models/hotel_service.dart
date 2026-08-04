@@ -6,6 +6,11 @@ part 'hotel_service.g.dart';
 @collection
 class HotelServiceItem {
   Id id = Isar.autoIncrement;
+  bool isSynced = false;
+  DateTime updatedAt = DateTime.now();
+  DateTime? deletedAt;
+  String deviceId = "";
+  int version = 1;
 
   @Index(unique: true, replace: true)
   String itemId = ''; // UUID for sync
@@ -19,6 +24,11 @@ class HotelServiceItem {
 @collection
 class RoomServiceOrderItem {
   Id id = Isar.autoIncrement;
+  bool isSynced = false;
+  DateTime updatedAt = DateTime.now();
+  DateTime? deletedAt;
+  String deviceId = "";
+  int version = 1;
 
   @Index(unique: true, replace: true)
   String orderItemId = '';

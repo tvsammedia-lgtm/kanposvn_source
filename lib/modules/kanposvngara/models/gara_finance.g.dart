@@ -23,31 +23,56 @@ const GaraFinanceTransactionSchema = CollectionSchema(
       name: r'amount',
       type: IsarType.double,
     ),
-    r'description': PropertySchema(
+    r'deletedAt': PropertySchema(
       id: 1,
+      name: r'deletedAt',
+      type: IsarType.dateTime,
+    ),
+    r'description': PropertySchema(
+      id: 2,
       name: r'description',
       type: IsarType.string,
     ),
+    r'deviceId': PropertySchema(
+      id: 3,
+      name: r'deviceId',
+      type: IsarType.string,
+    ),
     r'documentCode': PropertySchema(
-      id: 2,
+      id: 4,
       name: r'documentCode',
       type: IsarType.string,
     ),
+    r'isSynced': PropertySchema(
+      id: 5,
+      name: r'isSynced',
+      type: IsarType.bool,
+    ),
     r'transactionDate': PropertySchema(
-      id: 3,
+      id: 6,
       name: r'transactionDate',
       type: IsarType.dateTime,
     ),
     r'transactionId': PropertySchema(
-      id: 4,
+      id: 7,
       name: r'transactionId',
       type: IsarType.string,
     ),
     r'type': PropertySchema(
-      id: 5,
+      id: 8,
       name: r'type',
       type: IsarType.byte,
       enumMap: _GaraFinanceTransactiontypeEnumValueMap,
+    ),
+    r'updatedAt': PropertySchema(
+      id: 9,
+      name: r'updatedAt',
+      type: IsarType.dateTime,
+    ),
+    r'version': PropertySchema(
+      id: 10,
+      name: r'version',
+      type: IsarType.long,
     )
   },
   estimateSize: _garaFinanceTransactionEstimateSize,
@@ -98,6 +123,7 @@ int _garaFinanceTransactionEstimateSize(
 ) {
   var bytesCount = offsets.last;
   bytesCount += 3 + object.description.length * 3;
+  bytesCount += 3 + object.deviceId.length * 3;
   bytesCount += 3 + object.documentCode.length * 3;
   bytesCount += 3 + object.transactionId.length * 3;
   return bytesCount;
@@ -110,11 +136,16 @@ void _garaFinanceTransactionSerialize(
   Map<Type, List<int>> allOffsets,
 ) {
   writer.writeDouble(offsets[0], object.amount);
-  writer.writeString(offsets[1], object.description);
-  writer.writeString(offsets[2], object.documentCode);
-  writer.writeDateTime(offsets[3], object.transactionDate);
-  writer.writeString(offsets[4], object.transactionId);
-  writer.writeByte(offsets[5], object.type.index);
+  writer.writeDateTime(offsets[1], object.deletedAt);
+  writer.writeString(offsets[2], object.description);
+  writer.writeString(offsets[3], object.deviceId);
+  writer.writeString(offsets[4], object.documentCode);
+  writer.writeBool(offsets[5], object.isSynced);
+  writer.writeDateTime(offsets[6], object.transactionDate);
+  writer.writeString(offsets[7], object.transactionId);
+  writer.writeByte(offsets[8], object.type.index);
+  writer.writeDateTime(offsets[9], object.updatedAt);
+  writer.writeLong(offsets[10], object.version);
 }
 
 GaraFinanceTransaction _garaFinanceTransactionDeserialize(
@@ -125,14 +156,19 @@ GaraFinanceTransaction _garaFinanceTransactionDeserialize(
 ) {
   final object = GaraFinanceTransaction();
   object.amount = reader.readDouble(offsets[0]);
-  object.description = reader.readString(offsets[1]);
-  object.documentCode = reader.readString(offsets[2]);
+  object.deletedAt = reader.readDateTimeOrNull(offsets[1]);
+  object.description = reader.readString(offsets[2]);
+  object.deviceId = reader.readString(offsets[3]);
+  object.documentCode = reader.readString(offsets[4]);
   object.id = id;
-  object.transactionDate = reader.readDateTimeOrNull(offsets[3]);
-  object.transactionId = reader.readString(offsets[4]);
+  object.isSynced = reader.readBool(offsets[5]);
+  object.transactionDate = reader.readDateTimeOrNull(offsets[6]);
+  object.transactionId = reader.readString(offsets[7]);
   object.type = _GaraFinanceTransactiontypeValueEnumMap[
-          reader.readByteOrNull(offsets[5])] ??
+          reader.readByteOrNull(offsets[8])] ??
       GaraFinanceTransactionType.RECEIPT;
+  object.updatedAt = reader.readDateTime(offsets[9]);
+  object.version = reader.readLong(offsets[10]);
   return object;
 }
 
@@ -146,17 +182,27 @@ P _garaFinanceTransactionDeserializeProp<P>(
     case 0:
       return (reader.readDouble(offset)) as P;
     case 1:
-      return (reader.readString(offset)) as P;
+      return (reader.readDateTimeOrNull(offset)) as P;
     case 2:
       return (reader.readString(offset)) as P;
     case 3:
-      return (reader.readDateTimeOrNull(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 4:
       return (reader.readString(offset)) as P;
     case 5:
+      return (reader.readBool(offset)) as P;
+    case 6:
+      return (reader.readDateTimeOrNull(offset)) as P;
+    case 7:
+      return (reader.readString(offset)) as P;
+    case 8:
       return (_GaraFinanceTransactiontypeValueEnumMap[
               reader.readByteOrNull(offset)] ??
           GaraFinanceTransactionType.RECEIPT) as P;
+    case 9:
+      return (reader.readDateTime(offset)) as P;
+    case 10:
+      return (reader.readLong(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
   }
@@ -443,6 +489,80 @@ extension GaraFinanceTransactionQueryFilter on QueryBuilder<
   }
 
   QueryBuilder<GaraFinanceTransaction, GaraFinanceTransaction,
+      QAfterFilterCondition> deletedAtIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'deletedAt',
+      ));
+    });
+  }
+
+  QueryBuilder<GaraFinanceTransaction, GaraFinanceTransaction,
+      QAfterFilterCondition> deletedAtIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'deletedAt',
+      ));
+    });
+  }
+
+  QueryBuilder<GaraFinanceTransaction, GaraFinanceTransaction,
+      QAfterFilterCondition> deletedAtEqualTo(DateTime? value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'deletedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<GaraFinanceTransaction, GaraFinanceTransaction,
+      QAfterFilterCondition> deletedAtGreaterThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'deletedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<GaraFinanceTransaction, GaraFinanceTransaction,
+      QAfterFilterCondition> deletedAtLessThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'deletedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<GaraFinanceTransaction, GaraFinanceTransaction,
+      QAfterFilterCondition> deletedAtBetween(
+    DateTime? lower,
+    DateTime? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'deletedAt',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<GaraFinanceTransaction, GaraFinanceTransaction,
       QAfterFilterCondition> descriptionEqualTo(
     String value, {
     bool caseSensitive = true,
@@ -575,6 +695,144 @@ extension GaraFinanceTransactionQueryFilter on QueryBuilder<
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         property: r'description',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<GaraFinanceTransaction, GaraFinanceTransaction,
+      QAfterFilterCondition> deviceIdEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<GaraFinanceTransaction, GaraFinanceTransaction,
+      QAfterFilterCondition> deviceIdGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<GaraFinanceTransaction, GaraFinanceTransaction,
+      QAfterFilterCondition> deviceIdLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<GaraFinanceTransaction, GaraFinanceTransaction,
+      QAfterFilterCondition> deviceIdBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'deviceId',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<GaraFinanceTransaction, GaraFinanceTransaction,
+      QAfterFilterCondition> deviceIdStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<GaraFinanceTransaction, GaraFinanceTransaction,
+      QAfterFilterCondition> deviceIdEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<GaraFinanceTransaction, GaraFinanceTransaction,
+          QAfterFilterCondition>
+      deviceIdContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<GaraFinanceTransaction, GaraFinanceTransaction,
+          QAfterFilterCondition>
+      deviceIdMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'deviceId',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<GaraFinanceTransaction, GaraFinanceTransaction,
+      QAfterFilterCondition> deviceIdIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'deviceId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<GaraFinanceTransaction, GaraFinanceTransaction,
+      QAfterFilterCondition> deviceIdIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'deviceId',
         value: '',
       ));
     });
@@ -770,6 +1028,16 @@ extension GaraFinanceTransactionQueryFilter on QueryBuilder<
         includeLower: includeLower,
         upper: upper,
         includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<GaraFinanceTransaction, GaraFinanceTransaction,
+      QAfterFilterCondition> isSyncedEqualTo(bool value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'isSynced',
+        value: value,
       ));
     });
   }
@@ -1041,6 +1309,118 @@ extension GaraFinanceTransactionQueryFilter on QueryBuilder<
       ));
     });
   }
+
+  QueryBuilder<GaraFinanceTransaction, GaraFinanceTransaction,
+      QAfterFilterCondition> updatedAtEqualTo(DateTime value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'updatedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<GaraFinanceTransaction, GaraFinanceTransaction,
+      QAfterFilterCondition> updatedAtGreaterThan(
+    DateTime value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'updatedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<GaraFinanceTransaction, GaraFinanceTransaction,
+      QAfterFilterCondition> updatedAtLessThan(
+    DateTime value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'updatedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<GaraFinanceTransaction, GaraFinanceTransaction,
+      QAfterFilterCondition> updatedAtBetween(
+    DateTime lower,
+    DateTime upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'updatedAt',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<GaraFinanceTransaction, GaraFinanceTransaction,
+      QAfterFilterCondition> versionEqualTo(int value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'version',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<GaraFinanceTransaction, GaraFinanceTransaction,
+      QAfterFilterCondition> versionGreaterThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'version',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<GaraFinanceTransaction, GaraFinanceTransaction,
+      QAfterFilterCondition> versionLessThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'version',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<GaraFinanceTransaction, GaraFinanceTransaction,
+      QAfterFilterCondition> versionBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'version',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
 }
 
 extension GaraFinanceTransactionQueryObject on QueryBuilder<
@@ -1094,6 +1474,20 @@ extension GaraFinanceTransactionQuerySortBy
   }
 
   QueryBuilder<GaraFinanceTransaction, GaraFinanceTransaction, QAfterSortBy>
+      sortByDeletedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<GaraFinanceTransaction, GaraFinanceTransaction, QAfterSortBy>
+      sortByDeletedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<GaraFinanceTransaction, GaraFinanceTransaction, QAfterSortBy>
       sortByDescription() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'description', Sort.asc);
@@ -1108,6 +1502,20 @@ extension GaraFinanceTransactionQuerySortBy
   }
 
   QueryBuilder<GaraFinanceTransaction, GaraFinanceTransaction, QAfterSortBy>
+      sortByDeviceId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<GaraFinanceTransaction, GaraFinanceTransaction, QAfterSortBy>
+      sortByDeviceIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<GaraFinanceTransaction, GaraFinanceTransaction, QAfterSortBy>
       sortByDocumentCode() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'documentCode', Sort.asc);
@@ -1118,6 +1526,20 @@ extension GaraFinanceTransactionQuerySortBy
       sortByDocumentCodeDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'documentCode', Sort.desc);
+    });
+  }
+
+  QueryBuilder<GaraFinanceTransaction, GaraFinanceTransaction, QAfterSortBy>
+      sortByIsSynced() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.asc);
+    });
+  }
+
+  QueryBuilder<GaraFinanceTransaction, GaraFinanceTransaction, QAfterSortBy>
+      sortByIsSyncedDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.desc);
     });
   }
 
@@ -1162,6 +1584,34 @@ extension GaraFinanceTransactionQuerySortBy
       return query.addSortBy(r'type', Sort.desc);
     });
   }
+
+  QueryBuilder<GaraFinanceTransaction, GaraFinanceTransaction, QAfterSortBy>
+      sortByUpdatedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'updatedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<GaraFinanceTransaction, GaraFinanceTransaction, QAfterSortBy>
+      sortByUpdatedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'updatedAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<GaraFinanceTransaction, GaraFinanceTransaction, QAfterSortBy>
+      sortByVersion() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.asc);
+    });
+  }
+
+  QueryBuilder<GaraFinanceTransaction, GaraFinanceTransaction, QAfterSortBy>
+      sortByVersionDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.desc);
+    });
+  }
 }
 
 extension GaraFinanceTransactionQuerySortThenBy on QueryBuilder<
@@ -1181,6 +1631,20 @@ extension GaraFinanceTransactionQuerySortThenBy on QueryBuilder<
   }
 
   QueryBuilder<GaraFinanceTransaction, GaraFinanceTransaction, QAfterSortBy>
+      thenByDeletedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<GaraFinanceTransaction, GaraFinanceTransaction, QAfterSortBy>
+      thenByDeletedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<GaraFinanceTransaction, GaraFinanceTransaction, QAfterSortBy>
       thenByDescription() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'description', Sort.asc);
@@ -1191,6 +1655,20 @@ extension GaraFinanceTransactionQuerySortThenBy on QueryBuilder<
       thenByDescriptionDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'description', Sort.desc);
+    });
+  }
+
+  QueryBuilder<GaraFinanceTransaction, GaraFinanceTransaction, QAfterSortBy>
+      thenByDeviceId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<GaraFinanceTransaction, GaraFinanceTransaction, QAfterSortBy>
+      thenByDeviceIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.desc);
     });
   }
 
@@ -1219,6 +1697,20 @@ extension GaraFinanceTransactionQuerySortThenBy on QueryBuilder<
       thenByIdDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'id', Sort.desc);
+    });
+  }
+
+  QueryBuilder<GaraFinanceTransaction, GaraFinanceTransaction, QAfterSortBy>
+      thenByIsSynced() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.asc);
+    });
+  }
+
+  QueryBuilder<GaraFinanceTransaction, GaraFinanceTransaction, QAfterSortBy>
+      thenByIsSyncedDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.desc);
     });
   }
 
@@ -1263,6 +1755,34 @@ extension GaraFinanceTransactionQuerySortThenBy on QueryBuilder<
       return query.addSortBy(r'type', Sort.desc);
     });
   }
+
+  QueryBuilder<GaraFinanceTransaction, GaraFinanceTransaction, QAfterSortBy>
+      thenByUpdatedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'updatedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<GaraFinanceTransaction, GaraFinanceTransaction, QAfterSortBy>
+      thenByUpdatedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'updatedAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<GaraFinanceTransaction, GaraFinanceTransaction, QAfterSortBy>
+      thenByVersion() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.asc);
+    });
+  }
+
+  QueryBuilder<GaraFinanceTransaction, GaraFinanceTransaction, QAfterSortBy>
+      thenByVersionDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.desc);
+    });
+  }
 }
 
 extension GaraFinanceTransactionQueryWhereDistinct
@@ -1275,6 +1795,13 @@ extension GaraFinanceTransactionQueryWhereDistinct
   }
 
   QueryBuilder<GaraFinanceTransaction, GaraFinanceTransaction, QDistinct>
+      distinctByDeletedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'deletedAt');
+    });
+  }
+
+  QueryBuilder<GaraFinanceTransaction, GaraFinanceTransaction, QDistinct>
       distinctByDescription({bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'description', caseSensitive: caseSensitive);
@@ -1282,9 +1809,23 @@ extension GaraFinanceTransactionQueryWhereDistinct
   }
 
   QueryBuilder<GaraFinanceTransaction, GaraFinanceTransaction, QDistinct>
+      distinctByDeviceId({bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'deviceId', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<GaraFinanceTransaction, GaraFinanceTransaction, QDistinct>
       distinctByDocumentCode({bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'documentCode', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<GaraFinanceTransaction, GaraFinanceTransaction, QDistinct>
+      distinctByIsSynced() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'isSynced');
     });
   }
 
@@ -1309,6 +1850,20 @@ extension GaraFinanceTransactionQueryWhereDistinct
       return query.addDistinctBy(r'type');
     });
   }
+
+  QueryBuilder<GaraFinanceTransaction, GaraFinanceTransaction, QDistinct>
+      distinctByUpdatedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'updatedAt');
+    });
+  }
+
+  QueryBuilder<GaraFinanceTransaction, GaraFinanceTransaction, QDistinct>
+      distinctByVersion() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'version');
+    });
+  }
 }
 
 extension GaraFinanceTransactionQueryProperty on QueryBuilder<
@@ -1326,6 +1881,13 @@ extension GaraFinanceTransactionQueryProperty on QueryBuilder<
     });
   }
 
+  QueryBuilder<GaraFinanceTransaction, DateTime?, QQueryOperations>
+      deletedAtProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'deletedAt');
+    });
+  }
+
   QueryBuilder<GaraFinanceTransaction, String, QQueryOperations>
       descriptionProperty() {
     return QueryBuilder.apply(this, (query) {
@@ -1334,9 +1896,23 @@ extension GaraFinanceTransactionQueryProperty on QueryBuilder<
   }
 
   QueryBuilder<GaraFinanceTransaction, String, QQueryOperations>
+      deviceIdProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'deviceId');
+    });
+  }
+
+  QueryBuilder<GaraFinanceTransaction, String, QQueryOperations>
       documentCodeProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'documentCode');
+    });
+  }
+
+  QueryBuilder<GaraFinanceTransaction, bool, QQueryOperations>
+      isSyncedProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'isSynced');
     });
   }
 
@@ -1358,6 +1934,20 @@ extension GaraFinanceTransactionQueryProperty on QueryBuilder<
       QQueryOperations> typeProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'type');
+    });
+  }
+
+  QueryBuilder<GaraFinanceTransaction, DateTime, QQueryOperations>
+      updatedAtProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'updatedAt');
+    });
+  }
+
+  QueryBuilder<GaraFinanceTransaction, int, QQueryOperations>
+      versionProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'version');
     });
   }
 }

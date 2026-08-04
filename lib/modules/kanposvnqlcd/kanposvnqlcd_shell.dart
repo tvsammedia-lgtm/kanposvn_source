@@ -33,9 +33,9 @@ class _KanPosVNQlcdShellState extends ConsumerState<KanPosVNQlcdShell> {
         ref.read(authProvider.notifier).setUser(user);
       }
       if (mounted) setState(() => _ready = true);
-      debugPrint('QLCD MODULE READY user=${user?.username}');
+      // module ready
     } catch (e) {
-      debugPrint('KanPosVN QLCD Isar init error: $e');
+      // ignore isar init errors
     }
   }
 

@@ -15,6 +15,12 @@ enum GaraInventoryTransactionType {
 class GaraInventoryTransaction {
   Id id = Isar.autoIncrement;
 
+  bool isSynced = false;
+  DateTime updatedAt = DateTime.now();
+  DateTime? deletedAt;
+  String deviceId = "";
+  int version = 1;
+
   @Index(unique: true, replace: true)
   String transactionId = '';
   
@@ -32,6 +38,12 @@ class GaraInventoryTransaction {
 @collection
 class GaraInventoryDetail {
   Id id = Isar.autoIncrement;
+
+  bool isSynced = false;
+  DateTime updatedAt = DateTime.now();
+  DateTime? deletedAt;
+  String deviceId = "";
+  int version = 1;
   
   double quantity = 0.0;
   double unitPrice = 0.0;

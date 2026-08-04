@@ -5,6 +5,12 @@ part 'vlxd_sync_model.g.dart';
 @collection
 class VlxdSyncQueue {
   Id id = Isar.autoIncrement;
+
+  bool isSynced = false;
+  DateTime updatedAt = DateTime.now();
+  DateTime? deletedAt;
+  String deviceId = "";
+  int version = 1;
   
   @Index(unique: true, replace: true)
   String operationId = ''; // A unique ID for the operation to prevent duplicate syncs
@@ -25,6 +31,12 @@ class VlxdSyncQueue {
 @collection
 class VlxdSyncConfig {
   Id id = Isar.autoIncrement;
+
+  bool isSynced = false;
+  DateTime updatedAt = DateTime.now();
+  DateTime? deletedAt;
+  String deviceId = "";
+  int version = 1;
   
   String lastSyncToken = '';
   

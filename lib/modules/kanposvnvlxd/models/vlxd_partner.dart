@@ -17,6 +17,11 @@ enum CustomerType {
 class VlxdCustomer {
   Id id = Isar.autoIncrement;
 
+  bool isSynced = false;
+  DateTime? deletedAt;
+  String deviceId = "";
+  int version = 1;
+
   @Index(unique: true, replace: true)
   String customerId = '';
 
@@ -40,6 +45,11 @@ class VlxdCustomer {
 @collection
 class VlxdSupplier {
   Id id = Isar.autoIncrement;
+
+  bool isSynced = false;
+  DateTime? deletedAt;
+  String deviceId = "";
+  int version = 1;
 
   @Index(unique: true, replace: true)
   String supplierId = '';

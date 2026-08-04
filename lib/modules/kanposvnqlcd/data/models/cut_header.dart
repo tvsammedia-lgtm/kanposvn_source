@@ -6,6 +6,12 @@ part 'cut_header.g.dart';
 class CutHeader {
   Id id = Isar.autoIncrement;
 
+  bool isSynced = false;
+  DateTime updatedAt = DateTime.now();
+  DateTime? deletedAt;
+  String deviceId = "";
+  int version = 1;
+
   @Index(unique: true)
   late int idGen;          // tương ứng ID_GEN, tự sinh tăng dần
 

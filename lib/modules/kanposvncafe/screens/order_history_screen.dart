@@ -8,6 +8,8 @@ import '../models/cafe_order.dart';
 import '../providers/cafe_providers.dart';
 import '../services/bill_printer.dart';
 
+enum _DateBasis { created, printed }
+
 class OrderHistoryScreen extends ConsumerStatefulWidget {
   const OrderHistoryScreen({super.key});
 
@@ -19,6 +21,8 @@ class _OrderHistoryScreenState extends ConsumerState<OrderHistoryScreen> {
   DateTime _fromDate = DateTime.now();
   DateTime _toDate = DateTime.now();
   List<CafeOrder> _filteredOrders = [];
+  final _searchController = TextEditingController();
+  _DateBasis _dateBasis = _DateBasis.created;
 
   final _currency = NumberFormat.currency(locale: 'vi_VN', symbol: 'đ');
 
@@ -28,11 +32,27 @@ class _OrderHistoryScreenState extends ConsumerState<OrderHistoryScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) => _applyFilter());
   }
 
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
   void _applyFilter() {
     final from = DateTime(_fromDate.year, _fromDate.month, _fromDate.day);
-    final to = DateTime(_toDate.year, _toDate.month, _toDate.day + 1);
-    final orders = ref.read(cafeOrdersProvider.notifier).getOrdersByDateRange(from, to);
-    setState(() => _filteredOrders = orders);
+    final endOfDay = DateTime(_toDate.year, _toDate.month, _toDate.day, 23, 59, 59);
+    final keyword = _searchController.text.trim().toLowerCase();
+    final all = ref.read(cafeOrdersProvider);
+    setState(() {
+      _filteredOrders = all.where((o) {
+        final t = _dateBasis == _DateBasis.printed ? o.printedAt : o.createdAt;
+        if (t == null || !t.isAfter(from) || !t.isBefore(endOfDay)) return false;
+        if (keyword.isNotEmpty && !o.orderCode.toLowerCase().contains(keyword)) {
+          return false;
+        }
+        return true;
+      }).toList();
+    });
   }
 
   Future<void> _pickDate({required bool isFrom}) async {
@@ -71,6 +91,8 @@ class _OrderHistoryScreenState extends ConsumerState<OrderHistoryScreen> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text('Ngày: ${DateFormat('dd/MM/yyyy HH:mm').format(order.createdAt)}'),
+                if (order.printedAt != null)
+                  Text('In lúc: ${DateFormat('dd/MM/yyyy HH:mm').format(order.printedAt!)}'),
                 if (order.tableName != null && order.tableName!.isNotEmpty)
                   Text('Bàn: ${order.tableName}'),
                 if (order.customerName.isNotEmpty && order.customerName != 'Khách lẻ')
@@ -117,6 +139,7 @@ class _OrderHistoryScreenState extends ConsumerState<OrderHistoryScreen> {
             label: const Text('In lại', style: TextStyle(color: Colors.white)),
             onPressed: () {
               Navigator.pop(ctx);
+              ref.read(cafeOrdersProvider.notifier).markPrinted(order);
               printBillPdf(order);
             },
           ),
@@ -226,18 +249,67 @@ class _OrderHistoryScreenState extends ConsumerState<OrderHistoryScreen> {
               color: Colors.orange.shade50,
               border: Border(bottom: BorderSide(color: Colors.grey.shade200)),
             ),
-            child: Row(
+            child: Column(
               children: [
-                const Icon(Icons.date_range, size: 20, color: Color(0xFFD97706)),
-                const SizedBox(width: 8),
-                _dateChip(_fromDate, () => _pickDate(isFrom: true)),
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 8),
-                  child: Text('→', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                TextField(
+                  controller: _searchController,
+                  decoration: InputDecoration(
+                    isDense: true,
+                    filled: true,
+                    fillColor: Colors.white,
+                    hintText: 'Tìm theo mã hóa đơn...',
+                    hintStyle: TextStyle(color: Colors.grey.shade500, fontSize: 14),
+                    prefixIcon: const Icon(Icons.search, size: 20, color: Color(0xFFD97706)),
+                    suffixIcon: _searchController.text.isNotEmpty
+                        ? IconButton(
+                            icon: const Icon(Icons.clear, size: 18),
+                            onPressed: () {
+                              _searchController.clear();
+                              _applyFilter();
+                            },
+                          )
+                        : null,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(color: Colors.grey.shade300),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(color: Colors.grey.shade300),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  ),
+                  onChanged: (_) => _applyFilter(),
                 ),
-                _dateChip(_toDate, () => _pickDate(isFrom: false)),
-                const Spacer(),
-                Text('${_filteredOrders.length} đơn', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                const SizedBox(height: 10),
+                Row(
+                  children: [
+                    const Icon(Icons.date_range, size: 20, color: Color(0xFFD97706)),
+                    const SizedBox(width: 8),
+                    _dateChip(_fromDate, () => _pickDate(isFrom: true)),
+                    const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 8),
+                      child: Text('→', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                    ),
+                    _dateChip(_toDate, () => _pickDate(isFrom: false)),
+                    const Spacer(),
+                    Text('${_filteredOrders.length} đơn', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                Row(
+                  children: [
+                    _filterChip(_DateBasis.created, 'Theo ngày tạo'),
+                    const SizedBox(width: 8),
+                    _filterChip(_DateBasis.printed, 'Theo ngày in'),
+                    const Spacer(),
+                    if (_dateBasis == _DateBasis.printed)
+                      Text(
+                        'Khoảng ngày lọc theo thời điểm in',
+                        style: TextStyle(color: Colors.grey.shade500, fontSize: 11),
+                      ),
+                  ],
+                ),
               ],
             ),
           ),
@@ -286,7 +358,9 @@ class _OrderHistoryScreenState extends ConsumerState<OrderHistoryScreen> {
                             style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
                           ),
                           subtitle: Text(
-                            '${DateFormat('dd/MM/yyyy HH:mm').format(order.createdAt)}  •  ${_currency.format(order.grandTotal)}',
+                            order.printedAt != null
+                                ? '${DateFormat('dd/MM/yyyy HH:mm').format(order.createdAt)}  •  ${_currency.format(order.grandTotal)}\nIn lúc: ${DateFormat('dd/MM/yyyy HH:mm').format(order.printedAt!)}'
+                                : '${DateFormat('dd/MM/yyyy HH:mm').format(order.createdAt)}  •  ${_currency.format(order.grandTotal)}',
                             style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
                           ),
                           trailing: Row(
@@ -306,7 +380,10 @@ class _OrderHistoryScreenState extends ConsumerState<OrderHistoryScreen> {
                               IconButton(
                                 icon: const Icon(Icons.print, size: 20, color: Color(0xFFD97706)),
                                 tooltip: 'In lại',
-                                onPressed: () => printBillPdf(order),
+                                onPressed: () {
+                                  ref.read(cafeOrdersProvider.notifier).markPrinted(order);
+                                  printBillPdf(order);
+                                },
                               ),
                             ],
                           ),
@@ -317,6 +394,33 @@ class _OrderHistoryScreenState extends ConsumerState<OrderHistoryScreen> {
                   ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _filterChip(_DateBasis basis, String label) {
+    final selected = _dateBasis == basis;
+    return InkWell(
+      onTap: () {
+        if (selected) return;
+        setState(() => _dateBasis = basis);
+        _applyFilter();
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        decoration: BoxDecoration(
+          color: selected ? const Color(0xFFD97706) : Colors.white,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: selected ? const Color(0xFFD97706) : Colors.grey.shade300),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+            color: selected ? Colors.white : Colors.grey.shade700,
+          ),
+        ),
       ),
     );
   }

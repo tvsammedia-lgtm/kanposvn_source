@@ -6,6 +6,12 @@ part 'thong_so.g.dart';
 class ThongSo {
   Id id = Isar.autoIncrement;
 
+  bool isSynced = false;
+  DateTime updatedAt = DateTime.now();
+  DateTime? deletedAt;
+  String deviceId = "";
+  int version = 1;
+
   @Index()
   late int idGen;
 

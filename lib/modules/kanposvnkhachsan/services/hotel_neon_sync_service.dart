@@ -1,9 +1,15 @@
-import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:isar/isar.dart';
 
+import '../../../core/sync/snapshot_sync_engine.dart';
+import '../../../core/sync/vercel_api_client.dart';
+import '../models/hotel_booking.dart';
+import '../models/hotel_checkin_checkout.dart';
+import '../models/hotel_customer_supplier.dart';
+import '../models/hotel_finance_accounting.dart';
+import '../models/hotel_inventory.dart';
+import '../models/hotel_room.dart';
+import '../models/hotel_service.dart';
 import 'hotel_isar_service.dart';
-import '../models/hotel_sync_model.dart';
 
 class SyncLogEntry {
   final String action;
@@ -27,11 +33,6 @@ class HotelNeonSyncService {
   void addLog(String action, bool success, String message) {
     _syncLogs.insert(0, SyncLogEntry(action: action, success: success, message: message));
     if (_syncLogs.length > 100) _syncLogs.removeLast();
-  }
-
-  Future<HotelSyncConfig?> _getConfig() async {
-    final isar = await _isarService.db;
-    return await isar.hotelSyncConfigs.where().findFirst();
   }
 
   Future<bool> testConnection(String vercelApiUrl, String apiKey) async {
@@ -62,74 +63,43 @@ class HotelNeonSyncService {
     if (_isSyncing) return false;
     _isSyncing = true;
     try {
-      addLog('Bắt đầu đồng bộ', true, 'Đang gửi bản ghi từ Isar SyncQueue lên Vercel Serverless API...');
+      addLog('Bắt đầu đồng bộ', true, 'Đang đồng bộ full snapshot lên Vercel Serverless API...');
 
       final isar = await _isarService.db;
-      final pendingItems = await isar.hotelSyncQueues.filter().isSyncingEqualTo(false).findAll();
+      final engine = SnapshotSyncEngine(
+        apiClient: VercelApiClient(
+          pushUrl: '$vercelApiUrl/api/sync/push',
+          pullUrl: '$vercelApiUrl/api/sync/pull',
+          apiKey: apiKey,
+        ),
+        appCode: 'kanposvnkhachsan',
+        collections: [
+          SnapshotSyncCollection(collection: isar.hotelRooms, keyField: 'roomId'),
+          SnapshotSyncCollection(collection: isar.roomTypes, keyField: 'typeCode'),
+          SnapshotSyncCollection(collection: isar.hotelFloors, keyField: 'floorCode'),
+          SnapshotSyncCollection(collection: isar.roomReservations, keyField: 'reservationId'),
+          SnapshotSyncCollection(collection: isar.roomCheckIns, keyField: 'checkInId'),
+          SnapshotSyncCollection(collection: isar.hotelServiceItems, keyField: 'itemId'),
+          SnapshotSyncCollection(collection: isar.roomServiceOrderItems, keyField: 'orderItemId'),
+          SnapshotSyncCollection(collection: isar.hotelInventoryItems, keyField: 'itemId'),
+          SnapshotSyncCollection(collection: isar.hotelInventoryTransactions, keyField: 'transactionId'),
+          SnapshotSyncCollection(collection: isar.hotelCustomers, keyField: 'customerId'),
+          SnapshotSyncCollection(collection: isar.hotelSuppliers, keyField: 'supplierId'),
+          SnapshotSyncCollection(collection: isar.hotelCashTransactions, keyField: 'transactionId'),
+          SnapshotSyncCollection(collection: isar.hotelShiftReports, keyField: 'reportId'),
+          SnapshotSyncCollection(collection: isar.hotelAccountingSummarys, keyField: 'summaryDate'),
+        ],
+      );
 
-      if (pendingItems.isEmpty) {
-        addLog('Đồng bộ Push', true, 'Không có thay đổi nào mới cần đẩy lên Vercel API');
+      final result = await engine.sync();
+
+      if (result.success) {
+        addLog('Hoàn tất đồng bộ', true, result.message);
+        return true;
       } else {
-        // Prepare Push Payload
-        final payload = {
-          'appCode': 'kanposvnkhachsan',
-          'timestamp': DateTime.now().toIso8601String(),
-          'items': pendingItems.map((i) => {
-            'id': i.id,
-            'operationId': i.operationId,
-            'collectionName': i.collectionName,
-            'operationType': i.operationType,
-            'payload': i.payload,
-            'createdAt': i.createdAt.toIso8601String(),
-          }).toList(),
-        };
-
-        bool pushSuccess = false;
-        try {
-          final uri = Uri.parse('$vercelApiUrl/api/sync/push');
-          final res = await http.post(
-            uri,
-            headers: {
-              'Authorization': 'Bearer $apiKey',
-              'Content-Type': 'application/json',
-            },
-            body: jsonEncode(payload),
-          ).timeout(const Duration(seconds: 7));
-
-          if (res.statusCode == 200 || res.statusCode == 201) {
-            pushSuccess = true;
-          }
-        } catch (_) {
-          // Fallback - simulate successful batch for offline
-          pushSuccess = true;
-        }
-
-        if (pushSuccess) {
-          final processedIds = pendingItems.map((e) => e.id).toList();
-          await isar.writeTxn(() async {
-            await isar.hotelSyncQueues.deleteAll(processedIds);
-          });
-          addLog('Đồng bộ Push thành công', true, 'Đã đẩy thành công ${pendingItems.length} thao tác lên Neon DB');
-        }
+        addLog('Lỗi đồng bộ', false, result.message);
+        return false;
       }
-
-      // Pull updates step
-      addLog('Đồng bộ Pull', true, 'Đang kiểm tra dữ liệu mới từ Vercel API / Neon DB...');
-      
-      var config = await _getConfig();
-      if (config == null) {
-        config = HotelSyncConfig()..lastSyncTime = DateTime.now();
-      } else {
-        config.lastSyncTime = DateTime.now();
-      }
-      
-      await isar.writeTxn(() async {
-        await isar.hotelSyncConfigs.put(config!);
-      });
-
-      addLog('Hoàn tất đồng bộ', true, 'Đã cập nhật trạng thái đồng bộ thành công vào ${DateTime.now().hour}:${DateTime.now().minute}');
-
-      return true;
     } catch (e) {
       addLog('Lỗi đồng bộ', false, 'Thao tác thất bại: $e');
       return false;

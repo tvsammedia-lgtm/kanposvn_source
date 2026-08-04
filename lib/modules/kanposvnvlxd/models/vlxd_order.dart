@@ -28,6 +28,12 @@ enum PaymentMethod {
 class VlxdOrder {
   Id id = Isar.autoIncrement;
 
+  bool isSynced = false;
+  DateTime updatedAt = DateTime.now();
+  DateTime? deletedAt;
+  String deviceId = "";
+  int version = 1;
+
   @Index(unique: true, replace: true)
   String orderId = '';
 
@@ -61,6 +67,12 @@ class VlxdOrder {
 class VlxdOrderDetail {
   Id id = Isar.autoIncrement;
 
+  bool isSynced = false;
+  DateTime updatedAt = DateTime.now();
+  DateTime? deletedAt;
+  String deviceId = "";
+  int version = 1;
+
   final order = IsarLink<VlxdOrder>();
   final product = IsarLink<VlxdProduct>();
 
@@ -75,6 +87,12 @@ class VlxdOrderDetail {
 @collection
 class VlxdDeliveryTicket {
   Id id = Isar.autoIncrement;
+
+  bool isSynced = false;
+  DateTime updatedAt = DateTime.now();
+  DateTime? deletedAt;
+  String deviceId = "";
+  int version = 1;
 
   @Index(unique: true, replace: true)
   String ticketId = '';

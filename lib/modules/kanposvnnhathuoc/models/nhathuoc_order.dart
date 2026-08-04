@@ -17,6 +17,12 @@ enum NhathuocOrderStatus {
 class NhathuocOrder {
   Id id = Isar.autoIncrement;
 
+  bool isSynced = false;
+  DateTime updatedAt = DateTime.now();
+  DateTime? deletedAt;
+  String deviceId = "";
+  int version = 1;
+
   @Index(unique: true, replace: true)
   String orderId = '';
   
@@ -41,6 +47,12 @@ class NhathuocOrder {
 @collection
 class NhathuocOrderDetail {
   Id id = Isar.autoIncrement;
+
+  bool isSynced = false;
+  DateTime updatedAt = DateTime.now();
+  DateTime? deletedAt;
+  String deviceId = "";
+  int version = 1;
   
   double quantity = 0;
   double unitPrice = 0;

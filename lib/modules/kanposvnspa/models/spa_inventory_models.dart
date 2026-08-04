@@ -15,6 +15,12 @@ enum SpaProductCategory {
 class SpaProduct {
   Id id = Isar.autoIncrement;
 
+  bool isSynced = false;
+  DateTime updatedAt = DateTime.now();
+  DateTime? deletedAt;
+  String deviceId = "";
+  int version = 1;
+
   @Index(unique: true, replace: true)
   String productId = '';
 
@@ -39,6 +45,12 @@ enum SpaInventoryTxType {
 @collection
 class SpaInventoryTx {
   Id id = Isar.autoIncrement;
+
+  bool isSynced = false;
+  DateTime updatedAt = DateTime.now();
+  DateTime? deletedAt;
+  String deviceId = "";
+  int version = 1;
 
   String productId = '';
   String productName = '';

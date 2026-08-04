@@ -6,6 +6,12 @@ part 'restaurant_inventory_models.g.dart';
 class RestaurantIngredient {
   Id id = Isar.autoIncrement;
 
+  bool isSynced = false;
+  DateTime updatedAt = DateTime.now();
+  DateTime? deletedAt;
+  String deviceId = "";
+  int version = 1;
+
   @Index(unique: true, replace: true)
   String ingredientId = '';
 
@@ -27,6 +33,12 @@ enum RestaurantInventoryTxType {
 @collection
 class RestaurantInventoryTx {
   Id id = Isar.autoIncrement;
+
+  bool isSynced = false;
+  DateTime updatedAt = DateTime.now();
+  DateTime? deletedAt;
+  String deviceId = "";
+  int version = 1;
 
   String ingredientId = '';
   String ingredientName = '';

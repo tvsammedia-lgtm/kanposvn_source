@@ -16,6 +16,29 @@ class RestaurantKitchenScreen extends ConsumerWidget {
         title: const Text('Màn Hình Bếp (KDS)'),
         backgroundColor: Colors.red[800],
         foregroundColor: Colors.white,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            tooltip: 'Làm mới',
+            onPressed: () {
+              ref.read(restaurantOrdersProvider.notifier).loadOrders();
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.bug_report),
+            tooltip: 'Debug - Hiện tất cả',
+            onPressed: () {
+              _showDebugDialog(context, ref);
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.build),
+            tooltip: 'Fix - Reset món chờ nấu',
+            onPressed: () {
+              _fixPendingOrders(context, ref);
+            },
+          ),
+        ],
       ),
       body: ordersAsync.when(
         data: (orders) {
@@ -35,7 +58,7 @@ class RestaurantKitchenScreen extends ConsumerWidget {
               }
             }
           }
-          
+
           if (kitchenItems.isEmpty) {
             return const Center(child: Text('Không có món nào đang chờ nấu.', style: TextStyle(fontSize: 18, color: Colors.grey)));
           }
@@ -112,5 +135,87 @@ class RestaurantKitchenScreen extends ConsumerWidget {
         error: (err, _) => Center(child: Text('Lỗi: $err')),
       ),
     );
+  }
+
+  void _showDebugDialog(BuildContext context, WidgetRef ref) {
+    final ordersAsync = ref.read(restaurantOrdersProvider);
+    if (ordersAsync is AsyncData) {
+      final orders = ordersAsync.value ?? [];
+      showDialog(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: const Text('Debug - Tất cả Orders'),
+          content: SizedBox(
+            width: double.maxFinite,
+            height: 400,
+            child: ListView.builder(
+              itemCount: orders.length,
+              itemBuilder: (context, index) {
+                final order = orders[index];
+                return Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Order ID: ${order.orderId}'),
+                        Text('Status: ${order.status.label}'),
+                        Text('Table: ${order.table.value?.name ?? "N/A"}'),
+                        Text('Table ID: ${order.table.value?.id}'),
+                        Text('Details count: ${order.details.length}'),
+                        const SizedBox(height: 4),
+                        ...order.details.map((detail) => Padding(
+                          padding: const EdgeInsets.only(left: 8.0),
+                          child: Text('  - ${detail.itemName} x${detail.quantity} (${detail.status.label})'),
+                        )),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('Đóng'),
+            ),
+          ],
+        ),
+      );
+    }
+  }
+
+  void _fixPendingOrders(BuildContext context, WidgetRef ref) async {
+    final ordersAsync = ref.read(restaurantOrdersProvider);
+    if (ordersAsync is AsyncData) {
+      final orders = ordersAsync.value ?? [];
+      int fixedCount = 0;
+
+      for (var order in orders) {
+        if (order.status == RestaurantOrderStatus.SERVING && order.details.isNotEmpty) {
+          bool needsFix = false;
+          for (var detail in order.details) {
+            if (detail.status == RestaurantOrderItemStatus.DONE) {
+              detail.status = RestaurantOrderItemStatus.PENDING;
+              needsFix = true;
+            }
+          }
+          if (needsFix) {
+            await ref.read(restaurantOrdersProvider.notifier).updateOrder(order);
+            fixedCount++;
+          }
+        }
+      }
+
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Đã reset $fixedCount orders về trạng thái chờ nấu'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    }
   }
 }

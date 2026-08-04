@@ -45,8 +45,19 @@ export default function UsersPage() {
   const [newPassword, setNewPassword] = useState('');
   const [pwError, setPwError] = useState('');
   const [pwSuccess, setPwSuccess] = useState('');
+  const [currentUser, setCurrentUser] = useState<{ email: string; role?: string } | null>(null);
 
   const token = typeof window !== 'undefined' ? localStorage.getItem('admin_token') : '';
+
+  useEffect(() => {
+    const userData = localStorage.getItem('admin_user');
+    if (userData) {
+      setCurrentUser(JSON.parse(userData));
+    }
+  }, []);
+
+  const isSuperAdmin = currentUser?.email === 'admin@kanposvn.com';
+  const isCafeAdmin = currentUser?.email === 'admin@kanposvncafe.com';
 
   const loadUsers = async () => {
     setLoading(true);
@@ -89,6 +100,10 @@ export default function UsersPage() {
   };
 
   const toggleActive = async (user: User) => {
+    if (!isSuperAdmin && !isCafeAdmin) {
+      alert('Chi super admin moi co thay doi trang thai user khac');
+      return;
+    }
     await fetch(`/api/users/${user.id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
@@ -98,6 +113,14 @@ export default function UsersPage() {
   };
 
   const deleteUser = async (userId: string, email: string) => {
+    if (!isSuperAdmin) {
+      alert('Chi super admin moi co xoa user');
+      return;
+    }
+    if (email === 'admin@kanposvn.com' || email === 'admin@kanposvncafe.com') {
+      alert('Khong the xoa admin');
+      return;
+    }
     if (!confirm(`Xac nhan xoa user ${email}?`)) return;
     await fetch(`/api/users/${userId}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } });
     loadUsers();
@@ -143,7 +166,9 @@ export default function UsersPage() {
     <div>
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Quan ly Users</h1>
-        <button onClick={() => { setShowCreate(true); setForm(EMPTY_FORM); }} className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">+ Tao User moi</button>
+        {(isSuperAdmin || isCafeAdmin) && (
+          <button onClick={() => { setShowCreate(true); setForm(EMPTY_FORM); }} className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">+ Tao User moi</button>
+        )}
       </div>
 
       {showCreate && (
@@ -225,10 +250,14 @@ export default function UsersPage() {
                   <td className="px-4 py-3">
                     <div className="flex gap-1">
                       <button onClick={() => { setChangingPwUser(u); setNewPassword(''); setPwError(''); setPwSuccess(''); }} className="text-xs px-2 py-1 rounded bg-yellow-100 text-yellow-600 hover:bg-yellow-200">Doi MK</button>
-                      <button onClick={() => toggleActive(u)} className={`text-xs px-2 py-1 rounded ${u.active ? 'bg-red-100 text-red-600 hover:bg-red-200' : 'bg-green-100 text-green-600 hover:bg-green-200'}`}>
-                        {u.active ? 'Khoa' : 'Mo'}
-                      </button>
-                      <button onClick={() => deleteUser(u.id, u.email)} className="text-xs px-2 py-1 rounded bg-red-100 text-red-600 hover:bg-red-200">Xoa</button>
+                      {(isSuperAdmin || isCafeAdmin) && (
+                        <button onClick={() => toggleActive(u)} className={`text-xs px-2 py-1 rounded ${u.active ? 'bg-red-100 text-red-600 hover:bg-red-200' : 'bg-green-100 text-green-600 hover:bg-green-200'}`}>
+                          {u.active ? 'Khoa' : 'Mo'}
+                        </button>
+                      )}
+                      {isSuperAdmin && u.email !== 'admin@kanposvn.com' && u.email !== 'admin@kanposvncafe.com' && (
+                        <button onClick={() => deleteUser(u.id, u.email)} className="text-xs px-2 py-1 rounded bg-red-100 text-red-600 hover:bg-red-200">Xoa</button>
+                      )}
                     </div>
                   </td>
                 </tr>

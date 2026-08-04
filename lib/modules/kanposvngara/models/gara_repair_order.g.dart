@@ -22,51 +22,76 @@ const GaraRepairOrderSchema = CollectionSchema(
       name: r'currentKm',
       type: IsarType.long,
     ),
-    r'notes': PropertySchema(
+    r'deletedAt': PropertySchema(
       id: 1,
+      name: r'deletedAt',
+      type: IsarType.dateTime,
+    ),
+    r'deviceId': PropertySchema(
+      id: 2,
+      name: r'deviceId',
+      type: IsarType.string,
+    ),
+    r'isSynced': PropertySchema(
+      id: 3,
+      name: r'isSynced',
+      type: IsarType.bool,
+    ),
+    r'notes': PropertySchema(
+      id: 4,
       name: r'notes',
       type: IsarType.string,
     ),
     r'orderCode': PropertySchema(
-      id: 2,
+      id: 5,
       name: r'orderCode',
       type: IsarType.string,
     ),
     r'orderDate': PropertySchema(
-      id: 3,
+      id: 6,
       name: r'orderDate',
       type: IsarType.dateTime,
     ),
     r'orderId': PropertySchema(
-      id: 4,
+      id: 7,
       name: r'orderId',
       type: IsarType.string,
     ),
     r'paidAmount': PropertySchema(
-      id: 5,
+      id: 8,
       name: r'paidAmount',
       type: IsarType.double,
     ),
     r'status': PropertySchema(
-      id: 6,
+      id: 9,
       name: r'status',
       type: IsarType.byte,
       enumMap: _GaraRepairOrderstatusEnumValueMap,
     ),
     r'subTotal': PropertySchema(
-      id: 7,
+      id: 10,
       name: r'subTotal',
       type: IsarType.double,
     ),
     r'totalAmount': PropertySchema(
-      id: 8,
+      id: 11,
       name: r'totalAmount',
       type: IsarType.double,
     ),
+    r'updatedAt': PropertySchema(
+      id: 12,
+      name: r'updatedAt',
+      type: IsarType.dateTime,
+    ),
     r'vehicleCondition': PropertySchema(
-      id: 9,
+      id: 13,
       name: r'vehicleCondition',
       type: IsarType.string,
+    ),
+    r'version': PropertySchema(
+      id: 14,
+      name: r'version',
+      type: IsarType.long,
     )
   },
   estimateSize: _garaRepairOrderEstimateSize,
@@ -123,6 +148,7 @@ int _garaRepairOrderEstimateSize(
   Map<Type, List<int>> allOffsets,
 ) {
   var bytesCount = offsets.last;
+  bytesCount += 3 + object.deviceId.length * 3;
   bytesCount += 3 + object.notes.length * 3;
   bytesCount += 3 + object.orderCode.length * 3;
   bytesCount += 3 + object.orderId.length * 3;
@@ -137,15 +163,20 @@ void _garaRepairOrderSerialize(
   Map<Type, List<int>> allOffsets,
 ) {
   writer.writeLong(offsets[0], object.currentKm);
-  writer.writeString(offsets[1], object.notes);
-  writer.writeString(offsets[2], object.orderCode);
-  writer.writeDateTime(offsets[3], object.orderDate);
-  writer.writeString(offsets[4], object.orderId);
-  writer.writeDouble(offsets[5], object.paidAmount);
-  writer.writeByte(offsets[6], object.status.index);
-  writer.writeDouble(offsets[7], object.subTotal);
-  writer.writeDouble(offsets[8], object.totalAmount);
-  writer.writeString(offsets[9], object.vehicleCondition);
+  writer.writeDateTime(offsets[1], object.deletedAt);
+  writer.writeString(offsets[2], object.deviceId);
+  writer.writeBool(offsets[3], object.isSynced);
+  writer.writeString(offsets[4], object.notes);
+  writer.writeString(offsets[5], object.orderCode);
+  writer.writeDateTime(offsets[6], object.orderDate);
+  writer.writeString(offsets[7], object.orderId);
+  writer.writeDouble(offsets[8], object.paidAmount);
+  writer.writeByte(offsets[9], object.status.index);
+  writer.writeDouble(offsets[10], object.subTotal);
+  writer.writeDouble(offsets[11], object.totalAmount);
+  writer.writeDateTime(offsets[12], object.updatedAt);
+  writer.writeString(offsets[13], object.vehicleCondition);
+  writer.writeLong(offsets[14], object.version);
 }
 
 GaraRepairOrder _garaRepairOrderDeserialize(
@@ -156,18 +187,23 @@ GaraRepairOrder _garaRepairOrderDeserialize(
 ) {
   final object = GaraRepairOrder();
   object.currentKm = reader.readLong(offsets[0]);
+  object.deletedAt = reader.readDateTimeOrNull(offsets[1]);
+  object.deviceId = reader.readString(offsets[2]);
   object.id = id;
-  object.notes = reader.readString(offsets[1]);
-  object.orderCode = reader.readString(offsets[2]);
-  object.orderDate = reader.readDateTimeOrNull(offsets[3]);
-  object.orderId = reader.readString(offsets[4]);
-  object.paidAmount = reader.readDouble(offsets[5]);
+  object.isSynced = reader.readBool(offsets[3]);
+  object.notes = reader.readString(offsets[4]);
+  object.orderCode = reader.readString(offsets[5]);
+  object.orderDate = reader.readDateTimeOrNull(offsets[6]);
+  object.orderId = reader.readString(offsets[7]);
+  object.paidAmount = reader.readDouble(offsets[8]);
   object.status =
-      _GaraRepairOrderstatusValueEnumMap[reader.readByteOrNull(offsets[6])] ??
+      _GaraRepairOrderstatusValueEnumMap[reader.readByteOrNull(offsets[9])] ??
           GaraOrderStatus.RECEPTION;
-  object.subTotal = reader.readDouble(offsets[7]);
-  object.totalAmount = reader.readDouble(offsets[8]);
-  object.vehicleCondition = reader.readString(offsets[9]);
+  object.subTotal = reader.readDouble(offsets[10]);
+  object.totalAmount = reader.readDouble(offsets[11]);
+  object.updatedAt = reader.readDateTime(offsets[12]);
+  object.vehicleCondition = reader.readString(offsets[13]);
+  object.version = reader.readLong(offsets[14]);
   return object;
 }
 
@@ -181,25 +217,35 @@ P _garaRepairOrderDeserializeProp<P>(
     case 0:
       return (reader.readLong(offset)) as P;
     case 1:
-      return (reader.readString(offset)) as P;
+      return (reader.readDateTimeOrNull(offset)) as P;
     case 2:
       return (reader.readString(offset)) as P;
     case 3:
-      return (reader.readDateTimeOrNull(offset)) as P;
+      return (reader.readBool(offset)) as P;
     case 4:
       return (reader.readString(offset)) as P;
     case 5:
-      return (reader.readDouble(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 6:
-      return (_GaraRepairOrderstatusValueEnumMap[
-              reader.readByteOrNull(offset)] ??
-          GaraOrderStatus.RECEPTION) as P;
+      return (reader.readDateTimeOrNull(offset)) as P;
     case 7:
-      return (reader.readDouble(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 8:
       return (reader.readDouble(offset)) as P;
     case 9:
+      return (_GaraRepairOrderstatusValueEnumMap[
+              reader.readByteOrNull(offset)] ??
+          GaraOrderStatus.RECEPTION) as P;
+    case 10:
+      return (reader.readDouble(offset)) as P;
+    case 11:
+      return (reader.readDouble(offset)) as P;
+    case 12:
+      return (reader.readDateTime(offset)) as P;
+    case 13:
       return (reader.readString(offset)) as P;
+    case 14:
+      return (reader.readLong(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
   }
@@ -476,6 +522,216 @@ extension GaraRepairOrderQueryFilter
   }
 
   QueryBuilder<GaraRepairOrder, GaraRepairOrder, QAfterFilterCondition>
+      deletedAtIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'deletedAt',
+      ));
+    });
+  }
+
+  QueryBuilder<GaraRepairOrder, GaraRepairOrder, QAfterFilterCondition>
+      deletedAtIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'deletedAt',
+      ));
+    });
+  }
+
+  QueryBuilder<GaraRepairOrder, GaraRepairOrder, QAfterFilterCondition>
+      deletedAtEqualTo(DateTime? value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'deletedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<GaraRepairOrder, GaraRepairOrder, QAfterFilterCondition>
+      deletedAtGreaterThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'deletedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<GaraRepairOrder, GaraRepairOrder, QAfterFilterCondition>
+      deletedAtLessThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'deletedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<GaraRepairOrder, GaraRepairOrder, QAfterFilterCondition>
+      deletedAtBetween(
+    DateTime? lower,
+    DateTime? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'deletedAt',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<GaraRepairOrder, GaraRepairOrder, QAfterFilterCondition>
+      deviceIdEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<GaraRepairOrder, GaraRepairOrder, QAfterFilterCondition>
+      deviceIdGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<GaraRepairOrder, GaraRepairOrder, QAfterFilterCondition>
+      deviceIdLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<GaraRepairOrder, GaraRepairOrder, QAfterFilterCondition>
+      deviceIdBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'deviceId',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<GaraRepairOrder, GaraRepairOrder, QAfterFilterCondition>
+      deviceIdStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<GaraRepairOrder, GaraRepairOrder, QAfterFilterCondition>
+      deviceIdEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<GaraRepairOrder, GaraRepairOrder, QAfterFilterCondition>
+      deviceIdContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<GaraRepairOrder, GaraRepairOrder, QAfterFilterCondition>
+      deviceIdMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'deviceId',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<GaraRepairOrder, GaraRepairOrder, QAfterFilterCondition>
+      deviceIdIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'deviceId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<GaraRepairOrder, GaraRepairOrder, QAfterFilterCondition>
+      deviceIdIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'deviceId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<GaraRepairOrder, GaraRepairOrder, QAfterFilterCondition>
       idEqualTo(Id value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
@@ -527,6 +783,16 @@ extension GaraRepairOrderQueryFilter
         includeLower: includeLower,
         upper: upper,
         includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<GaraRepairOrder, GaraRepairOrder, QAfterFilterCondition>
+      isSyncedEqualTo(bool value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'isSynced',
+        value: value,
       ));
     });
   }
@@ -1268,6 +1534,62 @@ extension GaraRepairOrderQueryFilter
   }
 
   QueryBuilder<GaraRepairOrder, GaraRepairOrder, QAfterFilterCondition>
+      updatedAtEqualTo(DateTime value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'updatedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<GaraRepairOrder, GaraRepairOrder, QAfterFilterCondition>
+      updatedAtGreaterThan(
+    DateTime value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'updatedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<GaraRepairOrder, GaraRepairOrder, QAfterFilterCondition>
+      updatedAtLessThan(
+    DateTime value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'updatedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<GaraRepairOrder, GaraRepairOrder, QAfterFilterCondition>
+      updatedAtBetween(
+    DateTime lower,
+    DateTime upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'updatedAt',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<GaraRepairOrder, GaraRepairOrder, QAfterFilterCondition>
       vehicleConditionEqualTo(
     String value, {
     bool caseSensitive = true,
@@ -1402,6 +1724,62 @@ extension GaraRepairOrderQueryFilter
       ));
     });
   }
+
+  QueryBuilder<GaraRepairOrder, GaraRepairOrder, QAfterFilterCondition>
+      versionEqualTo(int value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'version',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<GaraRepairOrder, GaraRepairOrder, QAfterFilterCondition>
+      versionGreaterThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'version',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<GaraRepairOrder, GaraRepairOrder, QAfterFilterCondition>
+      versionLessThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'version',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<GaraRepairOrder, GaraRepairOrder, QAfterFilterCondition>
+      versionBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'version',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
 }
 
 extension GaraRepairOrderQueryObject
@@ -1515,6 +1893,48 @@ extension GaraRepairOrderQuerySortBy
     });
   }
 
+  QueryBuilder<GaraRepairOrder, GaraRepairOrder, QAfterSortBy>
+      sortByDeletedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<GaraRepairOrder, GaraRepairOrder, QAfterSortBy>
+      sortByDeletedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<GaraRepairOrder, GaraRepairOrder, QAfterSortBy>
+      sortByDeviceId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<GaraRepairOrder, GaraRepairOrder, QAfterSortBy>
+      sortByDeviceIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<GaraRepairOrder, GaraRepairOrder, QAfterSortBy>
+      sortByIsSynced() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.asc);
+    });
+  }
+
+  QueryBuilder<GaraRepairOrder, GaraRepairOrder, QAfterSortBy>
+      sortByIsSyncedDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.desc);
+    });
+  }
+
   QueryBuilder<GaraRepairOrder, GaraRepairOrder, QAfterSortBy> sortByNotes() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'notes', Sort.asc);
@@ -1625,6 +2045,20 @@ extension GaraRepairOrderQuerySortBy
   }
 
   QueryBuilder<GaraRepairOrder, GaraRepairOrder, QAfterSortBy>
+      sortByUpdatedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'updatedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<GaraRepairOrder, GaraRepairOrder, QAfterSortBy>
+      sortByUpdatedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'updatedAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<GaraRepairOrder, GaraRepairOrder, QAfterSortBy>
       sortByVehicleCondition() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'vehicleCondition', Sort.asc);
@@ -1635,6 +2069,19 @@ extension GaraRepairOrderQuerySortBy
       sortByVehicleConditionDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'vehicleCondition', Sort.desc);
+    });
+  }
+
+  QueryBuilder<GaraRepairOrder, GaraRepairOrder, QAfterSortBy> sortByVersion() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.asc);
+    });
+  }
+
+  QueryBuilder<GaraRepairOrder, GaraRepairOrder, QAfterSortBy>
+      sortByVersionDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.desc);
     });
   }
 }
@@ -1655,6 +2102,34 @@ extension GaraRepairOrderQuerySortThenBy
     });
   }
 
+  QueryBuilder<GaraRepairOrder, GaraRepairOrder, QAfterSortBy>
+      thenByDeletedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<GaraRepairOrder, GaraRepairOrder, QAfterSortBy>
+      thenByDeletedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<GaraRepairOrder, GaraRepairOrder, QAfterSortBy>
+      thenByDeviceId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<GaraRepairOrder, GaraRepairOrder, QAfterSortBy>
+      thenByDeviceIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.desc);
+    });
+  }
+
   QueryBuilder<GaraRepairOrder, GaraRepairOrder, QAfterSortBy> thenById() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'id', Sort.asc);
@@ -1664,6 +2139,20 @@ extension GaraRepairOrderQuerySortThenBy
   QueryBuilder<GaraRepairOrder, GaraRepairOrder, QAfterSortBy> thenByIdDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'id', Sort.desc);
+    });
+  }
+
+  QueryBuilder<GaraRepairOrder, GaraRepairOrder, QAfterSortBy>
+      thenByIsSynced() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.asc);
+    });
+  }
+
+  QueryBuilder<GaraRepairOrder, GaraRepairOrder, QAfterSortBy>
+      thenByIsSyncedDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.desc);
     });
   }
 
@@ -1777,6 +2266,20 @@ extension GaraRepairOrderQuerySortThenBy
   }
 
   QueryBuilder<GaraRepairOrder, GaraRepairOrder, QAfterSortBy>
+      thenByUpdatedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'updatedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<GaraRepairOrder, GaraRepairOrder, QAfterSortBy>
+      thenByUpdatedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'updatedAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<GaraRepairOrder, GaraRepairOrder, QAfterSortBy>
       thenByVehicleCondition() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'vehicleCondition', Sort.asc);
@@ -1789,6 +2292,19 @@ extension GaraRepairOrderQuerySortThenBy
       return query.addSortBy(r'vehicleCondition', Sort.desc);
     });
   }
+
+  QueryBuilder<GaraRepairOrder, GaraRepairOrder, QAfterSortBy> thenByVersion() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.asc);
+    });
+  }
+
+  QueryBuilder<GaraRepairOrder, GaraRepairOrder, QAfterSortBy>
+      thenByVersionDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.desc);
+    });
+  }
 }
 
 extension GaraRepairOrderQueryWhereDistinct
@@ -1797,6 +2313,27 @@ extension GaraRepairOrderQueryWhereDistinct
       distinctByCurrentKm() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'currentKm');
+    });
+  }
+
+  QueryBuilder<GaraRepairOrder, GaraRepairOrder, QDistinct>
+      distinctByDeletedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'deletedAt');
+    });
+  }
+
+  QueryBuilder<GaraRepairOrder, GaraRepairOrder, QDistinct> distinctByDeviceId(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'deviceId', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<GaraRepairOrder, GaraRepairOrder, QDistinct>
+      distinctByIsSynced() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'isSynced');
     });
   }
 
@@ -1856,10 +2393,24 @@ extension GaraRepairOrderQueryWhereDistinct
   }
 
   QueryBuilder<GaraRepairOrder, GaraRepairOrder, QDistinct>
+      distinctByUpdatedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'updatedAt');
+    });
+  }
+
+  QueryBuilder<GaraRepairOrder, GaraRepairOrder, QDistinct>
       distinctByVehicleCondition({bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'vehicleCondition',
           caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<GaraRepairOrder, GaraRepairOrder, QDistinct>
+      distinctByVersion() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'version');
     });
   }
 }
@@ -1875,6 +2426,25 @@ extension GaraRepairOrderQueryProperty
   QueryBuilder<GaraRepairOrder, int, QQueryOperations> currentKmProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'currentKm');
+    });
+  }
+
+  QueryBuilder<GaraRepairOrder, DateTime?, QQueryOperations>
+      deletedAtProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'deletedAt');
+    });
+  }
+
+  QueryBuilder<GaraRepairOrder, String, QQueryOperations> deviceIdProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'deviceId');
+    });
+  }
+
+  QueryBuilder<GaraRepairOrder, bool, QQueryOperations> isSyncedProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'isSynced');
     });
   }
 
@@ -1929,10 +2499,23 @@ extension GaraRepairOrderQueryProperty
     });
   }
 
+  QueryBuilder<GaraRepairOrder, DateTime, QQueryOperations>
+      updatedAtProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'updatedAt');
+    });
+  }
+
   QueryBuilder<GaraRepairOrder, String, QQueryOperations>
       vehicleConditionProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'vehicleCondition');
+    });
+  }
+
+  QueryBuilder<GaraRepairOrder, int, QQueryOperations> versionProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'version');
     });
   }
 }
@@ -1948,20 +2531,45 @@ const GaraRepairDetailSchema = CollectionSchema(
   name: r'GaraRepairDetail',
   id: -5959616353557577921,
   properties: {
-    r'quantity': PropertySchema(
+    r'deletedAt': PropertySchema(
       id: 0,
+      name: r'deletedAt',
+      type: IsarType.dateTime,
+    ),
+    r'deviceId': PropertySchema(
+      id: 1,
+      name: r'deviceId',
+      type: IsarType.string,
+    ),
+    r'isSynced': PropertySchema(
+      id: 2,
+      name: r'isSynced',
+      type: IsarType.bool,
+    ),
+    r'quantity': PropertySchema(
+      id: 3,
       name: r'quantity',
       type: IsarType.double,
     ),
     r'total': PropertySchema(
-      id: 1,
+      id: 4,
       name: r'total',
       type: IsarType.double,
     ),
     r'unitPrice': PropertySchema(
-      id: 2,
+      id: 5,
       name: r'unitPrice',
       type: IsarType.double,
+    ),
+    r'updatedAt': PropertySchema(
+      id: 6,
+      name: r'updatedAt',
+      type: IsarType.dateTime,
+    ),
+    r'version': PropertySchema(
+      id: 7,
+      name: r'version',
+      type: IsarType.long,
     )
   },
   estimateSize: _garaRepairDetailEstimateSize,
@@ -1997,6 +2605,7 @@ int _garaRepairDetailEstimateSize(
   Map<Type, List<int>> allOffsets,
 ) {
   var bytesCount = offsets.last;
+  bytesCount += 3 + object.deviceId.length * 3;
   return bytesCount;
 }
 
@@ -2006,9 +2615,14 @@ void _garaRepairDetailSerialize(
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
-  writer.writeDouble(offsets[0], object.quantity);
-  writer.writeDouble(offsets[1], object.total);
-  writer.writeDouble(offsets[2], object.unitPrice);
+  writer.writeDateTime(offsets[0], object.deletedAt);
+  writer.writeString(offsets[1], object.deviceId);
+  writer.writeBool(offsets[2], object.isSynced);
+  writer.writeDouble(offsets[3], object.quantity);
+  writer.writeDouble(offsets[4], object.total);
+  writer.writeDouble(offsets[5], object.unitPrice);
+  writer.writeDateTime(offsets[6], object.updatedAt);
+  writer.writeLong(offsets[7], object.version);
 }
 
 GaraRepairDetail _garaRepairDetailDeserialize(
@@ -2018,10 +2632,15 @@ GaraRepairDetail _garaRepairDetailDeserialize(
   Map<Type, List<int>> allOffsets,
 ) {
   final object = GaraRepairDetail();
+  object.deletedAt = reader.readDateTimeOrNull(offsets[0]);
+  object.deviceId = reader.readString(offsets[1]);
   object.id = id;
-  object.quantity = reader.readDouble(offsets[0]);
-  object.total = reader.readDouble(offsets[1]);
-  object.unitPrice = reader.readDouble(offsets[2]);
+  object.isSynced = reader.readBool(offsets[2]);
+  object.quantity = reader.readDouble(offsets[3]);
+  object.total = reader.readDouble(offsets[4]);
+  object.unitPrice = reader.readDouble(offsets[5]);
+  object.updatedAt = reader.readDateTime(offsets[6]);
+  object.version = reader.readLong(offsets[7]);
   return object;
 }
 
@@ -2033,11 +2652,21 @@ P _garaRepairDetailDeserializeProp<P>(
 ) {
   switch (propertyId) {
     case 0:
-      return (reader.readDouble(offset)) as P;
+      return (reader.readDateTimeOrNull(offset)) as P;
     case 1:
-      return (reader.readDouble(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 2:
+      return (reader.readBool(offset)) as P;
+    case 3:
       return (reader.readDouble(offset)) as P;
+    case 4:
+      return (reader.readDouble(offset)) as P;
+    case 5:
+      return (reader.readDouble(offset)) as P;
+    case 6:
+      return (reader.readDateTime(offset)) as P;
+    case 7:
+      return (reader.readLong(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
   }
@@ -2142,6 +2771,216 @@ extension GaraRepairDetailQueryWhere
 extension GaraRepairDetailQueryFilter
     on QueryBuilder<GaraRepairDetail, GaraRepairDetail, QFilterCondition> {
   QueryBuilder<GaraRepairDetail, GaraRepairDetail, QAfterFilterCondition>
+      deletedAtIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'deletedAt',
+      ));
+    });
+  }
+
+  QueryBuilder<GaraRepairDetail, GaraRepairDetail, QAfterFilterCondition>
+      deletedAtIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'deletedAt',
+      ));
+    });
+  }
+
+  QueryBuilder<GaraRepairDetail, GaraRepairDetail, QAfterFilterCondition>
+      deletedAtEqualTo(DateTime? value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'deletedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<GaraRepairDetail, GaraRepairDetail, QAfterFilterCondition>
+      deletedAtGreaterThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'deletedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<GaraRepairDetail, GaraRepairDetail, QAfterFilterCondition>
+      deletedAtLessThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'deletedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<GaraRepairDetail, GaraRepairDetail, QAfterFilterCondition>
+      deletedAtBetween(
+    DateTime? lower,
+    DateTime? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'deletedAt',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<GaraRepairDetail, GaraRepairDetail, QAfterFilterCondition>
+      deviceIdEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<GaraRepairDetail, GaraRepairDetail, QAfterFilterCondition>
+      deviceIdGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<GaraRepairDetail, GaraRepairDetail, QAfterFilterCondition>
+      deviceIdLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<GaraRepairDetail, GaraRepairDetail, QAfterFilterCondition>
+      deviceIdBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'deviceId',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<GaraRepairDetail, GaraRepairDetail, QAfterFilterCondition>
+      deviceIdStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<GaraRepairDetail, GaraRepairDetail, QAfterFilterCondition>
+      deviceIdEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<GaraRepairDetail, GaraRepairDetail, QAfterFilterCondition>
+      deviceIdContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'deviceId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<GaraRepairDetail, GaraRepairDetail, QAfterFilterCondition>
+      deviceIdMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'deviceId',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<GaraRepairDetail, GaraRepairDetail, QAfterFilterCondition>
+      deviceIdIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'deviceId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<GaraRepairDetail, GaraRepairDetail, QAfterFilterCondition>
+      deviceIdIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'deviceId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<GaraRepairDetail, GaraRepairDetail, QAfterFilterCondition>
       idEqualTo(Id value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
@@ -2193,6 +3032,16 @@ extension GaraRepairDetailQueryFilter
         includeLower: includeLower,
         upper: upper,
         includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<GaraRepairDetail, GaraRepairDetail, QAfterFilterCondition>
+      isSyncedEqualTo(bool value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'isSynced',
+        value: value,
       ));
     });
   }
@@ -2394,6 +3243,118 @@ extension GaraRepairDetailQueryFilter
       ));
     });
   }
+
+  QueryBuilder<GaraRepairDetail, GaraRepairDetail, QAfterFilterCondition>
+      updatedAtEqualTo(DateTime value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'updatedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<GaraRepairDetail, GaraRepairDetail, QAfterFilterCondition>
+      updatedAtGreaterThan(
+    DateTime value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'updatedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<GaraRepairDetail, GaraRepairDetail, QAfterFilterCondition>
+      updatedAtLessThan(
+    DateTime value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'updatedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<GaraRepairDetail, GaraRepairDetail, QAfterFilterCondition>
+      updatedAtBetween(
+    DateTime lower,
+    DateTime upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'updatedAt',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<GaraRepairDetail, GaraRepairDetail, QAfterFilterCondition>
+      versionEqualTo(int value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'version',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<GaraRepairDetail, GaraRepairDetail, QAfterFilterCondition>
+      versionGreaterThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'version',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<GaraRepairDetail, GaraRepairDetail, QAfterFilterCondition>
+      versionLessThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'version',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<GaraRepairDetail, GaraRepairDetail, QAfterFilterCondition>
+      versionBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'version',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
 }
 
 extension GaraRepairDetailQueryObject
@@ -2432,6 +3393,48 @@ extension GaraRepairDetailQueryLinks
 
 extension GaraRepairDetailQuerySortBy
     on QueryBuilder<GaraRepairDetail, GaraRepairDetail, QSortBy> {
+  QueryBuilder<GaraRepairDetail, GaraRepairDetail, QAfterSortBy>
+      sortByDeletedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<GaraRepairDetail, GaraRepairDetail, QAfterSortBy>
+      sortByDeletedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<GaraRepairDetail, GaraRepairDetail, QAfterSortBy>
+      sortByDeviceId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<GaraRepairDetail, GaraRepairDetail, QAfterSortBy>
+      sortByDeviceIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<GaraRepairDetail, GaraRepairDetail, QAfterSortBy>
+      sortByIsSynced() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.asc);
+    });
+  }
+
+  QueryBuilder<GaraRepairDetail, GaraRepairDetail, QAfterSortBy>
+      sortByIsSyncedDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.desc);
+    });
+  }
+
   QueryBuilder<GaraRepairDetail, GaraRepairDetail, QAfterSortBy>
       sortByQuantity() {
     return QueryBuilder.apply(this, (query) {
@@ -2472,10 +3475,66 @@ extension GaraRepairDetailQuerySortBy
       return query.addSortBy(r'unitPrice', Sort.desc);
     });
   }
+
+  QueryBuilder<GaraRepairDetail, GaraRepairDetail, QAfterSortBy>
+      sortByUpdatedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'updatedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<GaraRepairDetail, GaraRepairDetail, QAfterSortBy>
+      sortByUpdatedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'updatedAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<GaraRepairDetail, GaraRepairDetail, QAfterSortBy>
+      sortByVersion() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.asc);
+    });
+  }
+
+  QueryBuilder<GaraRepairDetail, GaraRepairDetail, QAfterSortBy>
+      sortByVersionDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.desc);
+    });
+  }
 }
 
 extension GaraRepairDetailQuerySortThenBy
     on QueryBuilder<GaraRepairDetail, GaraRepairDetail, QSortThenBy> {
+  QueryBuilder<GaraRepairDetail, GaraRepairDetail, QAfterSortBy>
+      thenByDeletedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<GaraRepairDetail, GaraRepairDetail, QAfterSortBy>
+      thenByDeletedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deletedAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<GaraRepairDetail, GaraRepairDetail, QAfterSortBy>
+      thenByDeviceId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<GaraRepairDetail, GaraRepairDetail, QAfterSortBy>
+      thenByDeviceIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deviceId', Sort.desc);
+    });
+  }
+
   QueryBuilder<GaraRepairDetail, GaraRepairDetail, QAfterSortBy> thenById() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'id', Sort.asc);
@@ -2486,6 +3545,20 @@ extension GaraRepairDetailQuerySortThenBy
       thenByIdDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'id', Sort.desc);
+    });
+  }
+
+  QueryBuilder<GaraRepairDetail, GaraRepairDetail, QAfterSortBy>
+      thenByIsSynced() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.asc);
+    });
+  }
+
+  QueryBuilder<GaraRepairDetail, GaraRepairDetail, QAfterSortBy>
+      thenByIsSyncedDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSynced', Sort.desc);
     });
   }
 
@@ -2529,10 +3602,59 @@ extension GaraRepairDetailQuerySortThenBy
       return query.addSortBy(r'unitPrice', Sort.desc);
     });
   }
+
+  QueryBuilder<GaraRepairDetail, GaraRepairDetail, QAfterSortBy>
+      thenByUpdatedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'updatedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<GaraRepairDetail, GaraRepairDetail, QAfterSortBy>
+      thenByUpdatedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'updatedAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<GaraRepairDetail, GaraRepairDetail, QAfterSortBy>
+      thenByVersion() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.asc);
+    });
+  }
+
+  QueryBuilder<GaraRepairDetail, GaraRepairDetail, QAfterSortBy>
+      thenByVersionDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'version', Sort.desc);
+    });
+  }
 }
 
 extension GaraRepairDetailQueryWhereDistinct
     on QueryBuilder<GaraRepairDetail, GaraRepairDetail, QDistinct> {
+  QueryBuilder<GaraRepairDetail, GaraRepairDetail, QDistinct>
+      distinctByDeletedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'deletedAt');
+    });
+  }
+
+  QueryBuilder<GaraRepairDetail, GaraRepairDetail, QDistinct>
+      distinctByDeviceId({bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'deviceId', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<GaraRepairDetail, GaraRepairDetail, QDistinct>
+      distinctByIsSynced() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'isSynced');
+    });
+  }
+
   QueryBuilder<GaraRepairDetail, GaraRepairDetail, QDistinct>
       distinctByQuantity() {
     return QueryBuilder.apply(this, (query) {
@@ -2553,6 +3675,20 @@ extension GaraRepairDetailQueryWhereDistinct
       return query.addDistinctBy(r'unitPrice');
     });
   }
+
+  QueryBuilder<GaraRepairDetail, GaraRepairDetail, QDistinct>
+      distinctByUpdatedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'updatedAt');
+    });
+  }
+
+  QueryBuilder<GaraRepairDetail, GaraRepairDetail, QDistinct>
+      distinctByVersion() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'version');
+    });
+  }
 }
 
 extension GaraRepairDetailQueryProperty
@@ -2560,6 +3696,25 @@ extension GaraRepairDetailQueryProperty
   QueryBuilder<GaraRepairDetail, int, QQueryOperations> idProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'id');
+    });
+  }
+
+  QueryBuilder<GaraRepairDetail, DateTime?, QQueryOperations>
+      deletedAtProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'deletedAt');
+    });
+  }
+
+  QueryBuilder<GaraRepairDetail, String, QQueryOperations> deviceIdProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'deviceId');
+    });
+  }
+
+  QueryBuilder<GaraRepairDetail, bool, QQueryOperations> isSyncedProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'isSynced');
     });
   }
 
@@ -2578,6 +3733,19 @@ extension GaraRepairDetailQueryProperty
   QueryBuilder<GaraRepairDetail, double, QQueryOperations> unitPriceProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'unitPrice');
+    });
+  }
+
+  QueryBuilder<GaraRepairDetail, DateTime, QQueryOperations>
+      updatedAtProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'updatedAt');
+    });
+  }
+
+  QueryBuilder<GaraRepairDetail, int, QQueryOperations> versionProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'version');
     });
   }
 }

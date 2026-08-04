@@ -5,6 +5,11 @@ part 'hotel_sync_model.g.dart';
 @collection
 class HotelSyncQueue {
   Id id = Isar.autoIncrement;
+  bool isSynced = false;
+  DateTime updatedAt = DateTime.now();
+  DateTime? deletedAt;
+  String deviceId = "";
+  int version = 1;
   
   @Index(unique: true, replace: true)
   String operationId = ''; // A unique ID for the operation to prevent duplicate syncs
@@ -25,6 +30,11 @@ class HotelSyncQueue {
 @collection
 class HotelSyncConfig {
   Id id = Isar.autoIncrement;
+  bool isSynced = false;
+  DateTime updatedAt = DateTime.now();
+  DateTime? deletedAt;
+  String deviceId = "";
+  int version = 1;
   
   String lastSyncToken = ''; // E.g., a timestamp or ID from Neon
   

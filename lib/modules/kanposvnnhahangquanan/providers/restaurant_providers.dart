@@ -63,6 +63,10 @@ class RestaurantOrdersNotifier extends StateNotifier<AsyncValue<List<RestaurantO
       state = const AsyncValue.loading();
       final db = await _isarService.db;
       final data = await db.restaurantOrders.where().findAll();
+      // Load table links for each order
+      for (var order in data) {
+        await order.table.load();
+      }
       state = AsyncValue.data(data);
     } catch (e, st) {
       state = AsyncValue.error(e, st);
@@ -73,9 +77,13 @@ class RestaurantOrdersNotifier extends StateNotifier<AsyncValue<List<RestaurantO
     try {
       final db = await _isarService.db;
       await db.writeTxn(() async {
-        await db.restaurantOrders.put(order);
-        await order.table.save();
-        
+        // Save the table first if it's linked
+        if (order.table.value != null) {
+          await db.restaurantTables.put(order.table.value!);
+        }
+        // Then save the order
+      await db.restaurantOrders.put(order);
+ 
         if (order.table.value != null) {
            final bed = order.table.value!;
            if (order.status == RestaurantOrderStatus.COMPLETED) {
@@ -91,8 +99,7 @@ class RestaurantOrdersNotifier extends StateNotifier<AsyncValue<List<RestaurantO
       ref.read(restaurantDashboardProvider.notifier).loadDashboard();
     } catch (e, st) {
       state = AsyncValue.error(e, st);
-    }
-  }
+    }  }
 
   late Ref ref;
   void setRef(Ref r) => ref = r;
