@@ -20,7 +20,8 @@ class SettingsScreen extends ConsumerWidget {
     final license = ref.watch(licenseServiceProvider);
 
     final licenseStatus = license.status;
-    final appCode = auth.currentModule?.appCode ?? syncEngine.appCode;
+    final appCode = auth.licenseAppCode;
+    final syncAppCode = auth.currentModule?.appCode ?? syncEngine.appCode;
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -113,7 +114,7 @@ class SettingsScreen extends ConsumerWidget {
                                 : 'Kiểm tra phiên bản mới từ server'),
                         onTap: update.isChecking
                             ? null
-                            : () => _checkUpdate(context, ref, appCode),
+                            : () => _checkUpdate(context, ref, syncAppCode),
                       ),
                     ],
                   ),

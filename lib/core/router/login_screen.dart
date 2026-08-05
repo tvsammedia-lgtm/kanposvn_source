@@ -15,7 +15,7 @@ class LoginScreen extends ConsumerStatefulWidget {
 }
 
 class _LoginScreenState extends ConsumerState<LoginScreen> {
-  final _emailController = TextEditingController();
+  final _identifierController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
   bool _isLoading = false;
@@ -29,13 +29,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   @override
   void dispose() {
-    _emailController.dispose();
+    _identifierController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
 
   Future<void> _login() async {
-    if (_emailController.text.isEmpty || _passwordController.text.isEmpty) {
+    if (_identifierController.text.isEmpty || _passwordController.text.isEmpty) {
       setState(() => _error = 'login_empty_fields'.tr);
       return;
     }
@@ -47,10 +47,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
     try {
       final auth = ref.read(authServiceProvider);
-      final email = _emailController.text.trim();
+      final identifier = _identifierController.text.trim();
       final password = _passwordController.text;
 
-      final success = await auth.signIn(email: email, password: password);
+      final success = await auth.signIn(
+        identifier: identifier,
+        password: password,
+      );
       if (!mounted) return;
 
       if (!success) {
@@ -58,6 +61,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           _isLoading = false;
           _error = auth.errorMessage ?? 'login_failed'.tr;
         });
+        return;
+      }
+
+      // Cửa hàng (đăng ký qua Web/Zalo): vào thẳng POS, không cần chọn module.
+      if (auth.isStoreUser) {
+        await _initStoreLogin();
         return;
       }
 
@@ -87,6 +96,35 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       setState(() {
         _isLoading = false;
         _error = 'Đăng nhập gặp lỗi. Vui lòng thử lại: $e';
+      });
+    }
+  }
+
+  Future<void> _initStoreLogin() async {
+    try {
+      final db = ref.read(databaseServiceProvider);
+      final auth = ref.read(authServiceProvider);
+      final storeId = auth.storeId;
+      if (storeId == null) {
+        if (!mounted) return;
+        setState(() {
+          _isLoading = false;
+          _error = 'Không xác định được cửa hàng';
+        });
+        return;
+      }
+      await db.initStore(storeId: storeId, module: auth.defaultStoreModule);
+      if (!mounted) return;
+      ref.read(selectedModuleProvider.notifier).state = auth.defaultStoreModule;
+      setState(() {
+        _isLoading = false;
+      });
+    } catch (e) {
+      // ignore store init errors
+      if (!mounted) return;
+      setState(() {
+        _isLoading = false;
+        _error = 'Khởi tạo dữ liệu gặp lỗi: $e';
       });
     }
   }
@@ -189,17 +227,17 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 ),
                 const SizedBox(height: 32),
                 TextField(
-                  controller: _emailController,
+                  controller: _identifierController,
                   keyboardType: TextInputType.emailAddress,
                   style: TextStyle(color: AppColors.textLight, fontSize: 14),
                   decoration: InputDecoration(
-                    hintText: 'email'.tr,
+                    hintText: 'login_identifier_hint'.tr,
                     hintStyle: TextStyle(
                       color: AppColors.textMuted,
                       fontSize: 13,
                     ),
                     prefixIcon: Icon(
-                      Icons.email_outlined,
+                      Icons.badge_outlined,
                       color: AppColors.textMuted,
                       size: 18,
                     ),

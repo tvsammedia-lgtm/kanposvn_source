@@ -18,36 +18,27 @@ export async function POST(req: NextRequest) {
   try {
     const sql = getSql();
     const body = await req.json();
-    const { email, password, app_code, app } = body;
+    const { email, phone, password, app_code, app } = body;
     const appCode = app_code || app;
 
-    if (!email || !password) {
+    if ((!email && !phone) || !password) {
       return NextResponse.json(
-        { error: 'Email và mật khẩu là bắt buộc' },
+        { error: 'Email/SĐT và mật khẩu là bắt buộc' },
         { status: 400, headers: corsHeaders() },
       );
     }
 
-    const [userRows, permRows] = await Promise.all([
-      sql`SELECT * FROM users WHERE email = ${email}`,
-      sql`
-        SELECT a.app_code, a.app_name, r.role_name, p.can_login
-        FROM user_permissions p
-        JOIN users u ON u.id = p.user_id
-        JOIN apps a ON a.id = p.app_id
-        JOIN roles r ON r.id = p.role_id
-        WHERE u.email = ${email}
-      `,
-    ]);
-    const result = userRows;
-    if (result.length === 0) {
+    const [user] = email
+      ? await sql`SELECT * FROM users WHERE email = ${email}`
+      : await sql`SELECT * FROM users WHERE phone = ${phone}`;
+
+    if (!user) {
       return NextResponse.json(
         { error: 'Email hoặc mật khẩu không đúng' },
         { status: 401, headers: corsHeaders() },
       );
     }
 
-    const user = result[0];
     if (!user.active) {
       return NextResponse.json(
         { error: 'Tài khoản đã bị khóa' },
@@ -63,7 +54,13 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const allPerms = permRows;
+    const allPerms = await sql`
+      SELECT a.app_code, a.app_name, r.role_name, p.can_login
+      FROM user_permissions p
+      JOIN apps a ON a.id = p.app_id
+      JOIN roles r ON r.id = p.role_id
+      WHERE p.user_id = ${user.id}
+    `;
 
     if (appCode) {
       const appPerm = allPerms.find(
@@ -91,6 +88,18 @@ export async function POST(req: NextRequest) {
 
     const token = signToken({ id: user.id, email: user.email, role: isAdmin ? 'admin' : 'user' });
 
+    // Thong tin cua hang (dang ky qua Web / Zalo Mini App)
+    const [store] = await sql`SELECT id, name, phone FROM stores WHERE owner_user_id = ${user.id}`;
+    let license = null;
+    if (store) {
+      const licRows = await sql`
+        SELECT plan, status, expires_at FROM licenses
+        WHERE user_id = ${user.id} AND app_code = ${'pos'}
+        ORDER BY started_at DESC LIMIT 1
+      `;
+      license = licRows[0] || null;
+    }
+
     return NextResponse.json(
       {
         user: {
@@ -98,8 +107,8 @@ export async function POST(req: NextRequest) {
           name: user.full_name,
           full_name: user.full_name,
           email: user.email,
-          role: isAdmin ? 'admin' : 'user',
           phone: user.phone ?? '',
+          role: isAdmin ? 'admin' : 'user',
           shop_name: user.shop_name ?? '',
           shop_address: user.shop_address ?? '',
           subscription_plan: user.subscription_plan ?? '',
@@ -108,6 +117,10 @@ export async function POST(req: NextRequest) {
         },
         token,
         permissions,
+        storeId: store?.id ?? null,
+        storeName: store?.name ?? null,
+        trial: license?.plan === 'trial',
+        expiresAt: license?.expires_at ?? null,
       },
       { headers: corsHeaders() },
     );

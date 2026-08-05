@@ -28,3 +28,7 @@ export function newOrderCode() {
 
 // Gioi han so thiet bi (device) duoc phep chay tren 1 license
 export const MAX_DEVICES = 2;
+
+// Trial 30 ngay khi dang ky cua hang qua Web / Zalo Mini App
+export const STORE_TRIAL_DAYS = 30;
+export const STORE_LICENSE_APP_CODE = 'pos';

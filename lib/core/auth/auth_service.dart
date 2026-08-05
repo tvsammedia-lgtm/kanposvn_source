@@ -10,6 +10,13 @@ class AuthService extends ChangeNotifier {
   static const _kUserKey = 'auth_user';
   static const _kPermissionsKey = 'auth_permissions';
   static const _kCurrentAppCodeKey = 'auth_current_app_code';
+  static const _kStoreIdKey = 'auth_store_id';
+  static const _kStoreNameKey = 'auth_store_name';
+  static const _kTrialKey = 'auth_trial';
+  static const _kExpiresAtKey = 'auth_expires_at';
+
+  /// App code dùng cho license của cửa hàng (đăng ký qua Web/Zalo).
+  static const String storeLicenseAppCode = 'pos';
 
   final http.Client _client = http.Client();
 
@@ -18,6 +25,28 @@ class AuthService extends ChangeNotifier {
 
   String? _token;
   String? get token => _token;
+
+  String? _storeId;
+  String? get storeId => _storeId;
+
+  String? _storeName;
+  String? get storeName => _storeName;
+
+  bool _isStoreTrial = false;
+  bool get isTrial => _isStoreTrial;
+
+  DateTime? _licenseExpiresAt;
+  DateTime? get licenseExpiresAt => _licenseExpiresAt;
+
+  /// User đăng ký cửa hàng qua Web/Zalo: không cần chọn module/app.
+  bool get isStoreUser => _storeId != null;
+
+  /// Module mặc định hiển thị cho cửa hàng (POS chung).
+  AppModule get defaultStoreModule => AppModule.kanposvncafe;
+
+  /// App code dùng khi kiểm tra license trên server.
+  String get licenseAppCode =>
+      isStoreUser ? storeLicenseAppCode : (_currentAppCode ?? 'kanposvn');
 
   bool _isLoading = false;
   bool get isLoading => _isLoading;
@@ -43,7 +72,7 @@ class AuthService extends ChangeNotifier {
   AuthService();
 
   Future<bool> signIn({
-    required String email,
+    required String identifier,
     required String password,
     AppModule? module,
   }) async {
@@ -52,7 +81,12 @@ class AuthService extends ChangeNotifier {
     notifyListeners();
     try {
       final url = '${ApiConfig.baseUrl}/api/auth/login';
-      final body = <String, dynamic>{'email': email, 'password': password};
+      final body = <String, dynamic>{'password': password};
+      if (identifier.contains('@')) {
+        body['email'] = identifier.trim();
+      } else {
+        body['phone'] = identifier.trim();
+      }
       if (module != null) body['app_code'] = module.appCode;
       final response = await _client
           .post(
@@ -70,6 +104,12 @@ class AuthService extends ChangeNotifier {
         _permissions = List<Map<String, dynamic>>.from(
           data['permissions'] ?? [],
         );
+        _storeId = data['storeId']?.toString();
+        _storeName = data['storeName']?.toString();
+        _isStoreTrial = data['trial'] == true;
+        _licenseExpiresAt = data['expiresAt'] != null
+            ? DateTime.tryParse(data['expiresAt'].toString())
+            : null;
         if (module != null) {
           _currentModule = module;
           _currentAppCode = module.appCode;
@@ -190,6 +230,10 @@ class AuthService extends ChangeNotifier {
     _permissions = [];
     _currentModule = null;
     _currentAppCode = null;
+    _storeId = null;
+    _storeName = null;
+    _isStoreTrial = false;
+    _licenseExpiresAt = null;
     await _clearSession();
     notifyListeners();
   }
@@ -224,6 +268,13 @@ class AuthService extends ChangeNotifier {
       _currentModule = restoredModule != null && canLoginTo(restoredModule)
           ? restoredModule
           : null;
+
+      _storeId = prefs.getString(_kStoreIdKey);
+      _storeName = prefs.getString(_kStoreNameKey);
+      _isStoreTrial = prefs.getBool(_kTrialKey) ?? false;
+      final expiresStr = prefs.getString(_kExpiresAtKey);
+      _licenseExpiresAt = expiresStr != null ? DateTime.tryParse(expiresStr) : null;
+
       notifyListeners();
       return isAuthenticated;
     } catch (e) {
@@ -244,6 +295,22 @@ class AuthService extends ChangeNotifier {
     } else {
       await prefs.remove(_kCurrentAppCodeKey);
     }
+    if (_storeId != null) {
+      await prefs.setString(_kStoreIdKey, _storeId!);
+    } else {
+      await prefs.remove(_kStoreIdKey);
+    }
+    if (_storeName != null) {
+      await prefs.setString(_kStoreNameKey, _storeName!);
+    } else {
+      await prefs.remove(_kStoreNameKey);
+    }
+    await prefs.setBool(_kTrialKey, _isStoreTrial);
+    if (_licenseExpiresAt != null) {
+      await prefs.setString(_kExpiresAtKey, _licenseExpiresAt!.toIso8601String());
+    } else {
+      await prefs.remove(_kExpiresAtKey);
+    }
   }
 
   Future<void> _clearSession() async {
@@ -252,6 +319,10 @@ class AuthService extends ChangeNotifier {
     await prefs.remove(_kUserKey);
     await prefs.remove(_kPermissionsKey);
     await prefs.remove(_kCurrentAppCodeKey);
+    await prefs.remove(_kStoreIdKey);
+    await prefs.remove(_kStoreNameKey);
+    await prefs.remove(_kTrialKey);
+    await prefs.remove(_kExpiresAtKey);
   }
 
   AppModule? _moduleFromAppCode(String appCode) {

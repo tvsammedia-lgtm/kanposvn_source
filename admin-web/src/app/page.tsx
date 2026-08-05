@@ -1,6 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -92,6 +93,21 @@ export default function LoginPage() {
             {loading ? 'Đang đăng nhập...' : 'ĐĂNG NHẬP'}
           </button>
         </form>
+
+        <div className="mt-6 text-center text-sm text-gray-500 space-y-1">
+          <div>
+            Là chủ cửa hàng?{' '}
+            <Link href="/login" className="text-blue-600 font-medium hover:underline">
+              Đăng nhập bằng SĐT
+            </Link>
+          </div>
+          <div>
+            Đăng ký cửa hàng mới?{' '}
+            <Link href="/register" className="text-blue-600 font-medium hover:underline">
+              Đăng ký
+            </Link>
+          </div>
+        </div>
       </div>
     </div>
   );

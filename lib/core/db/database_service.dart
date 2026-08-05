@@ -43,6 +43,35 @@ class DatabaseService extends ChangeNotifier {
     return _staticIsar!;
   }
 
+  /// Mở database riêng của cửa hàng: `isar_store_<storeId>`.
+  static Future<Isar> openStoreIsar(String storeId) async {
+    final dir = await getApplicationDocumentsDirectory();
+    return Isar.open(
+      [DataEntitySchema],
+      directory: dir.path,
+      name: 'isar_store_$storeId',
+    );
+  }
+
+  /// Khởi tạo database theo cửa hàng (đăng ký qua Web/Zalo Mini App).
+  /// Không cần tạo app mới — mỗi cửa hàng có 1 Isar local riêng.
+  Future<void> initStore({
+    required String storeId,
+    AppModule module = AppModule.kanposvncafe,
+    Isar? isar,
+  }) async {
+    _currentModule = module;
+    _currentAppCode = module.appCode;
+    if (isar != null && isar.isOpen) {
+      _isar = isar;
+    } else {
+      _isar = await openStoreIsar(storeId);
+    }
+    _isInitialized = true;
+    await _loadFromIsar();
+    notifyListeners();
+  }
+
   Future<void> init({required AppModule module, Isar? isar}) async {
     _currentModule = module;
     _currentAppCode = module.appCode;

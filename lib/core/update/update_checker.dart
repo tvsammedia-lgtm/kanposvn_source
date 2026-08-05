@@ -51,8 +51,9 @@ class _UpdateAndLicenseCheckerState
     final token = ref.read(authServiceProvider).token;
     if (token == null || token.isEmpty) return;
 
+    final auth = ref.read(authServiceProvider);
     final license = ref.read(licenseServiceProvider);
-    await license.check(token: token, appCode: widget.appCode);
+    await license.check(token: token, appCode: auth.licenseAppCode);
     if (!mounted) return;
 
     final status = license.status;

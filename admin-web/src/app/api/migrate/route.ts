@@ -31,6 +31,7 @@ export async function POST(req: NextRequest) {
   const results: string[] = [];
 
   const migrations: [string, string][] = [
+    ['role', "ALTER TABLE users ADD COLUMN IF NOT EXISTS role VARCHAR(50) DEFAULT 'user'"],
     ['birth_year', 'ALTER TABLE users ADD COLUMN IF NOT EXISTS birth_year INTEGER DEFAULT NULL'],
     ['phone', "ALTER TABLE users ADD COLUMN IF NOT EXISTS phone VARCHAR(20) DEFAULT ''"],
     ['cccd', "ALTER TABLE users ADD COLUMN IF NOT EXISTS cccd VARCHAR(50) DEFAULT ''"],
@@ -66,11 +67,26 @@ export async function POST(req: NextRequest) {
       last_check_at TIMESTAMP WITH TIME ZONE,
       UNIQUE(user_id, app_code, device_id)
     )`],
-    ['orders_indexes', `CREATE INDEX IF NOT EXISTS idx_orders_user ON orders(user_id);
-      CREATE INDEX IF NOT EXISTS idx_orders_code ON orders(order_code);
-      CREATE INDEX IF NOT EXISTS idx_licenses_user ON licenses(user_id);
-      CREATE INDEX IF NOT EXISTS idx_licenses_app ON licenses(app_code);
-      CREATE INDEX IF NOT EXISTS idx_licenses_device ON licenses(device_id)`],
+    ['orders_index_user', 'CREATE INDEX IF NOT EXISTS idx_orders_user ON orders(user_id)'],
+    ['orders_index_code', 'CREATE INDEX IF NOT EXISTS idx_orders_code ON orders(order_code)'],
+    ['licenses_index_user', 'CREATE INDEX IF NOT EXISTS idx_licenses_user ON licenses(user_id)'],
+    ['licenses_index_app', 'CREATE INDEX IF NOT EXISTS idx_licenses_app ON licenses(app_code)'],
+    ['licenses_index_device', 'CREATE INDEX IF NOT EXISTS idx_licenses_device ON licenses(device_id)'],
+    ['stores_table', `CREATE TABLE IF NOT EXISTS stores (
+      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      name VARCHAR(255) NOT NULL,
+      phone VARCHAR(20) NOT NULL,
+      owner_user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+      created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+      UNIQUE(phone)
+    )`],
+    ['stores_index_phone', 'CREATE INDEX IF NOT EXISTS idx_stores_phone ON stores(phone)'],
+    ['stores_index_owner', 'CREATE INDEX IF NOT EXISTS idx_stores_owner ON stores(owner_user_id)'],
+    ['licenses_store_id', 'ALTER TABLE licenses ADD COLUMN IF NOT EXISTS store_id UUID REFERENCES stores(id)'],
+    ['licenses_index_store', 'CREATE INDEX IF NOT EXISTS idx_licenses_store ON licenses(store_id)'],
+    ['pos_app', `INSERT INTO apps (app_code, app_name, description, package_name, platform)
+      SELECT 'pos', 'KanPosVN', 'POS cho cửa hàng đăng ký qua Web/Zalo', 'kanposvn.pos', 'mobile'
+      WHERE NOT EXISTS (SELECT 1 FROM apps WHERE app_code = 'pos')`],
   ];
 
   for (const [name, sqlStr] of migrations) {

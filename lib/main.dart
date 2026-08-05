@@ -77,6 +77,21 @@ class _KanPosVNAppState extends ConsumerState<KanPosVNApp> {
       final selectedModule = ref.read(selectedModuleProvider);
 
       if (auth.isAuthenticated && selectedModule == null) {
+        // Cửa hàng đăng ký qua Web/Zalo: vào thẳng POS, dùng DB riêng của cửa hàng.
+        if (auth.isStoreUser) {
+          final storeId = auth.storeId;
+          if (storeId != null) {
+            await db.initStore(
+              storeId: storeId,
+              module: auth.defaultStoreModule,
+            );
+            if (!mounted) return;
+            ref.read(selectedModuleProvider.notifier).state =
+                auth.defaultStoreModule;
+          }
+          return;
+        }
+
         if (auth.currentModule != null) {
           await db.init(module: auth.currentModule!);
           if (!mounted) return;
