@@ -307,7 +307,7 @@ class _NhaThuocFinancialScreenState extends State<NhaThuocFinancialScreen> {
                   style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15)),
               const Spacer(),
               StatusBadge(
-                label: '${AppFormatters.formatCurrency(_totalExpenses)}',
+                label: AppFormatters.formatCurrency(_totalExpenses),
                 color: AppColors.danger,
               ),
             ],

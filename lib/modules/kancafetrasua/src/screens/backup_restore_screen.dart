@@ -166,7 +166,6 @@ class _BackupRestoreScreenState extends ConsumerState<BackupRestoreScreen> {
     setState(() => _isProcessing = true);
     try {
       final db = ref.read(dbProvider);
-      final currency = NumberFormat.currency(locale: 'vi_VN', symbol: 'đ');
       final dateTime = DateFormat('dd/MM/yyyy HH:mm');
 
       final buffer = StringBuffer();

@@ -458,7 +458,7 @@ class _RevenueManagementScreenState extends ConsumerState<RevenueManagementScree
                                 ],
                               ),
                             );
-                          }).toList(),
+                          }),
                         ]),
                         
                         const SizedBox(height: 16),
@@ -597,56 +597,6 @@ class _RevenueManagementScreenState extends ConsumerState<RevenueManagementScree
             value,
             style: TextStyle(
               fontSize: isBold ? 18 : 13,
-              fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
-              color: color,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDetailRow(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            width: 120,
-            child: Text(
-              label,
-              style: const TextStyle(color: Colors.grey, fontSize: 13),
-            ),
-          ),
-          Expanded(
-            child: Text(
-              value,
-              style: const TextStyle(fontSize: 13),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSummaryRow(String label, String value, [Color? color, bool isBold = false]) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: isBold ? 15 : 13,
-              fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
-            ),
-          ),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: isBold ? 15 : 13,
               fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
               color: color,
             ),

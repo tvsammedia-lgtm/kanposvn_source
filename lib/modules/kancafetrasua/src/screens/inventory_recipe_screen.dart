@@ -419,7 +419,6 @@ class _InventoryRecipeScreenState extends ConsumerState<InventoryRecipeScreen>
             onPressed: () {
               // Remove from inventory list and recipes
               final db = ref.read(dbProvider);
-              final updatedInventory = db.inventory.where((i) => i.id != item.id).toList();
               // Update all recipes that use this ingredient
               for (var recipe in db.recipes) {
                 final updatedIngredients = recipe.ingredients.where((ing) => ing.inventoryItemId != item.id).toList();
@@ -582,7 +581,6 @@ class _InventoryRecipeScreenState extends ConsumerState<InventoryRecipeScreen>
   void _showAddIngredientDialog(BuildContext context, StateSetter setModal, List<InventoryItemModel> inventory, List<RecipeIngredient> ingredients) {
     String? selectedId;
     final qtyCtrl = TextEditingController(text: '1');
-    String selectedUnit = 'kg';
 
     showDialog(
       context: context,
@@ -599,8 +597,6 @@ class _InventoryRecipeScreenState extends ConsumerState<InventoryRecipeScreen>
                 items: inventory.map((i) => DropdownMenuItem(value: i.id, child: Text(i.name))).toList(),
                 onChanged: (v) {
                   set(() => selectedId = v);
-                  final item = inventory.firstWhere((i) => i.id == v);
-                  selectedUnit = item.unit;
                 },
               ),
               const SizedBox(height: 10),

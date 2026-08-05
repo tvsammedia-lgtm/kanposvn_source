@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../core/l10n/translations.dart';
 import '../../../core/theme/app_colors.dart';
-import '../../../core/utils/formatters.dart';
 import '../../../core/utils/id_generator.dart';
 import '../../../core/widgets/common_widgets.dart';
 

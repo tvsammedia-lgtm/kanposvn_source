@@ -441,7 +441,9 @@ class CafeFinancialScreen extends ConsumerWidget {
           ElevatedButton(
             onPressed: () {
               if (descController.text.isEmpty ||
-                  amountController.text.isEmpty) return;
+                  amountController.text.isEmpty) {
+                return;
+              }
               final expense = {
                 'id': IdGenerator.generateId('EXP'),
                 'description': descController.text,

@@ -9,7 +9,6 @@ import '../../../core/db/database_service.dart';
 import '../../../core/widgets/common_widgets.dart';
 import '../models/cafe_product_model.dart';
 import '../models/order_model.dart';
-import '../models/table_model.dart';
 
 final cartItemsProvider = StateProvider<List<CafeOrderItem>>((ref) => []);
 final selectedTableProvider = StateProvider<String?>((ref) => null);

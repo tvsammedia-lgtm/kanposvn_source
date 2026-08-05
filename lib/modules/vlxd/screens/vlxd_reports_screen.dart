@@ -56,7 +56,6 @@ class VlxdReportsScreen extends ConsumerWidget {
       final items = o['items'] as List<dynamic>?;
       if (items == null) continue;
       for (var item in items) {
-        final productName = item['productName'] as String? ?? '';
         final total = ((item['totalPrice'] as num?) ?? 0).toDouble();
         final product = products.firstWhere(
           (p) => p['id'] == item['productId'],

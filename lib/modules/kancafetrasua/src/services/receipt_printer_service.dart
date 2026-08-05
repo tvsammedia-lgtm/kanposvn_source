@@ -46,7 +46,7 @@ class ReceiptPrinterService {
 
       // Toppings
       if (item.selectedToppings.isNotEmpty) {
-        String toppingsStr = ' + ' + item.selectedToppings.map((t) => t.name).join(', ');
+        String toppingsStr = ' + ${item.selectedToppings.map((t) => t.name).join(', ')}';
         buffer.writeln('  $toppingsStr');
       }
 

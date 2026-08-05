@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import '../../../core/l10n/translations.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/formatters.dart';
@@ -9,17 +8,15 @@ class _CartItem {
   String medicineId;
   String name;
   String unit;
-  int quantity;
+  int quantity = 1;
   double unitPrice;
-  double discount;
+  double discount = 0;
 
   _CartItem({
     required this.medicineId,
     required this.name,
     this.unit = 'Hộp',
-    this.quantity = 1,
     required this.unitPrice,
-    this.discount = 0,
   });
 
   double get totalPrice => (unitPrice * quantity) - discount;

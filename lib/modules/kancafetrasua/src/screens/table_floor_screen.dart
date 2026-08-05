@@ -225,7 +225,6 @@ class TableFloorScreen extends ConsumerWidget {
 
   // ===== AREA ACTIONS (Edit / Delete) =====
   void _showAreaActions(BuildContext context, WidgetRef ref, AreaModel area) {
-    final db = ref.read(dbProvider);
     final tableCount = ref.read(tablesProvider).where((t) => t.areaId == area.id).length;
 
     showModalBottomSheet(
@@ -468,7 +467,6 @@ class TableFloorScreen extends ConsumerWidget {
 
   // ===== TABLE ACTIONS =====
   void _showTableActions(BuildContext context, WidgetRef ref, TableModel table) {
-    final currency = NumberFormat.currency(locale: 'vi_VN', symbol: 'đ');
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,

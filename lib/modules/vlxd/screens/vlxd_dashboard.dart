@@ -15,7 +15,6 @@ class VlxdDashboard extends ConsumerWidget {
     final db = DatabaseService.instance;
     final products = db.getCollection('products');
     final orders = db.getCollection('saleOrders');
-    final warehouses = db.getCollection('warehouses');
 
     final totalProducts = products.length;
     final totalStockValue = products.fold<double>(

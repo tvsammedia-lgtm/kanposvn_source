@@ -203,7 +203,6 @@ class CartNotifier extends StateNotifier<CartState> {
         prefix = 'HDGH';
         break;
       case OrderType.atTable:
-      default:
         prefix = 'HD';
         break;
     }
@@ -463,7 +462,6 @@ class CartNotifier extends StateNotifier<CartState> {
       }
     }
 
-    final resultTable = state.selectedTable;
     clearCart();
     return resultOrder;
   }
