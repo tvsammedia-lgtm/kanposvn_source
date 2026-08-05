@@ -12,6 +12,7 @@ class AuthService extends ChangeNotifier {
   static const _kCurrentAppCodeKey = 'auth_current_app_code';
   static const _kStoreIdKey = 'auth_store_id';
   static const _kStoreNameKey = 'auth_store_name';
+  static const _kStorePhoneKey = 'auth_store_phone';
   static const _kStoreAppCodeKey = 'auth_store_app_code';
   static const _kTrialKey = 'auth_trial';
   static const _kExpiresAtKey = 'auth_expires_at';
@@ -32,6 +33,9 @@ class AuthService extends ChangeNotifier {
 
   String? _storeName;
   String? get storeName => _storeName;
+
+  String? _storePhone;
+  String? get storePhone => _storePhone;
 
   bool _isStoreTrial = false;
   bool get isTrial => _isStoreTrial;
@@ -118,6 +122,7 @@ class AuthService extends ChangeNotifier {
         );
         _storeId = data['storeId']?.toString();
         _storeName = data['storeName']?.toString();
+        _storePhone = data['storePhone']?.toString();
         _storeAppCode = data['appCode']?.toString() ?? data['app_code']?.toString();
         _isStoreTrial = data['trial'] == true;
         _licenseExpiresAt = data['expiresAt'] != null
@@ -245,6 +250,7 @@ class AuthService extends ChangeNotifier {
     _currentAppCode = null;
     _storeId = null;
     _storeName = null;
+    _storePhone = null;
     _storeAppCode = null;
     _isStoreTrial = false;
     _licenseExpiresAt = null;
@@ -286,6 +292,7 @@ class AuthService extends ChangeNotifier {
 
       _storeId = prefs.getString(_kStoreIdKey);
       _storeName = prefs.getString(_kStoreNameKey);
+      _storePhone = prefs.getString(_kStorePhoneKey);
       _storeAppCode = prefs.getString(_kStoreAppCodeKey);
       _isStoreTrial = prefs.getBool(_kTrialKey) ?? false;
       final expiresStr = prefs.getString(_kExpiresAtKey);
@@ -321,6 +328,11 @@ class AuthService extends ChangeNotifier {
     } else {
       await prefs.remove(_kStoreNameKey);
     }
+    if (_storePhone != null) {
+      await prefs.setString(_kStorePhoneKey, _storePhone!);
+    } else {
+      await prefs.remove(_kStorePhoneKey);
+    }
     if (_storeAppCode != null) {
       await prefs.setString(_kStoreAppCodeKey, _storeAppCode!);
     } else {
@@ -342,6 +354,7 @@ class AuthService extends ChangeNotifier {
     await prefs.remove(_kCurrentAppCodeKey);
     await prefs.remove(_kStoreIdKey);
     await prefs.remove(_kStoreNameKey);
+    await prefs.remove(_kStorePhoneKey);
     await prefs.remove(_kStoreAppCodeKey);
     await prefs.remove(_kTrialKey);
     await prefs.remove(_kExpiresAtKey);
@@ -352,6 +365,18 @@ class AuthService extends ChangeNotifier {
       if (module.appCode == appCode) return module;
     }
     return null;
+  }
+
+  /// Tên cửa hàng đã đăng ký (dùng cho in hóa đơn, phiếu chi...).
+  static Future<String?> loadSavedStoreName() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_kStoreNameKey);
+  }
+
+  /// SĐT cửa hàng đã đăng ký (dùng cho in hóa đơn, phiếu chi...).
+  static Future<String?> loadSavedStorePhone() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_kStorePhoneKey);
   }
 
   Future<String?> loadSavedAppCode() async => null;

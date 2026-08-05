@@ -2,12 +2,15 @@ import 'package:intl/intl.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
+import '../../../core/auth/auth_service.dart';
 import '../models/cafe_finance_accounting.dart';
 
 final _currency = NumberFormat.currency(locale: 'vi_VN', symbol: 'đ');
 final _dateFmt = DateFormat('dd/MM/yyyy HH:mm');
 
 Future<void> printExpenseVoucher(CashTransaction tx) async {
+  final storeName = await AuthService.loadSavedStoreName();
+  final storePhone = await AuthService.loadSavedStorePhone();
   pw.Font? font;
   pw.Font? fontBold;
   try {
@@ -38,10 +41,17 @@ Future<void> printExpenseVoucher(CashTransaction tx) async {
         children: [
           pw.Center(
             child: pw.Text(
-              'KANPOSVN',
+              storeName ?? 'KANPOSVN',
               style: pw.TextStyle(font: fontBold, fontSize: 14, fontWeight: pw.FontWeight.bold),
             ),
           ),
+          if (storePhone != null && storePhone.isNotEmpty)
+            pw.Center(
+              child: pw.Text(
+                'ĐT: $storePhone',
+                style: pw.TextStyle(fontSize: 8),
+              ),
+            ),
           pw.Center(
             child: pw.Text(
               'PHIẾU CHI',
@@ -115,6 +125,8 @@ Future<void> printExpenseSummary({
   required DateTime from,
   required DateTime to,
 }) async {
+  final storeName = await AuthService.loadSavedStoreName();
+  final storePhone = await AuthService.loadSavedStorePhone();
   pw.Font? font;
   pw.Font? fontBold;
   try {
@@ -162,10 +174,17 @@ Future<void> printExpenseSummary({
         children: [
           pw.Center(
             child: pw.Text(
-              'KANPOSVN',
+              storeName ?? 'KANPOSVN',
               style: pw.TextStyle(font: fontBold, fontSize: 18, fontWeight: pw.FontWeight.bold),
             ),
           ),
+          if (storePhone != null && storePhone.isNotEmpty)
+            pw.Center(
+              child: pw.Text(
+                'ĐT: $storePhone',
+                style: pw.TextStyle(fontSize: 10),
+              ),
+            ),
           pw.Center(
             child: pw.Text(
               'BÁO CÁO TỔNG HỢP PHIẾU CHI',

@@ -6,6 +6,7 @@ import '../models/restaurant_order.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
+import '../../../core/auth/auth_service.dart';
 
 class BillSearchScreen extends ConsumerStatefulWidget {
   const BillSearchScreen({super.key});
@@ -65,6 +66,8 @@ class _BillSearchScreenState extends ConsumerState<BillSearchScreen> {
   }
 
   Future<void> _printReceipt(RestaurantOrder order) async {
+    final storeName = await AuthService.loadSavedStoreName();
+    final storePhone = await AuthService.loadSavedStorePhone();
     final pdf = pw.Document();
 
     pdf.addPage(
@@ -77,10 +80,17 @@ class _BillSearchScreenState extends ConsumerState<BillSearchScreen> {
             children: [
               pw.Center(
                 child: pw.Text(
-                  'NHÀ HÀNG QUÁN ĂN',
+                  storeName ?? 'NHÀ HÀNG QUÁN ĂN',
                   style: pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold),
                 ),
               ),
+              if (storePhone != null && storePhone.isNotEmpty)
+                pw.Center(
+                  child: pw.Text(
+                    'ĐT: $storePhone',
+                    style: pw.TextStyle(fontSize: 10),
+                  ),
+                ),
               pw.SizedBox(height: 10),
               pw.Divider(),
               pw.SizedBox(height: 5),

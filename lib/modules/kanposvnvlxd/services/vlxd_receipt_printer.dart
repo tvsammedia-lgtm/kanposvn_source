@@ -3,11 +3,14 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 import 'package:qr/qr.dart';
+import '../../../core/auth/auth_service.dart';
 import '../models/vlxd_order.dart';
 
 final _currency = NumberFormat.currency(locale: 'vi_VN', symbol: 'đ');
 
 Future<void> printVlxdReceiptPdf(VlxdOrder order, List<VlxdOrderDetail> details) async {
+  final storeName = await AuthService.loadSavedStoreName();
+  final storePhone = await AuthService.loadSavedStorePhone();
   pw.Font? font;
   pw.Font? fontBold;
   try {
@@ -37,7 +40,9 @@ Future<void> printVlxdReceiptPdf(VlxdOrder order, List<VlxdOrderDetail> details)
       build: (ctx) => pw.Column(
         crossAxisAlignment: pw.CrossAxisAlignment.start,
         children: [
-          pw.Center(child: pw.Text('KANPOSVN VLXD', style: pw.TextStyle(font: fontBold, fontSize: 14, fontWeight: pw.FontWeight.bold))),
+          pw.Center(child: pw.Text(storeName ?? 'KANPOSVN VLXD', style: pw.TextStyle(font: fontBold, fontSize: 14, fontWeight: pw.FontWeight.bold))),
+          if (storePhone != null && storePhone.isNotEmpty)
+            pw.Center(child: pw.Text('ĐT: $storePhone', style: pw.TextStyle(fontSize: 8))),
           pw.Center(child: pw.Text('HÓA ĐƠN BÁN LẺ', style: pw.TextStyle(font: fontBold, fontSize: 10, fontWeight: pw.FontWeight.bold))),
           pw.SizedBox(height: 3),
           pw.Center(child: pw.Text('=' * width, style: pw.TextStyle(fontSize: 8))),

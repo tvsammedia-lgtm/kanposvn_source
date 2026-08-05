@@ -5,6 +5,7 @@ import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 import '../providers/restaurant_providers.dart';
 import 'package:uuid/uuid.dart';
+import '../../../core/auth/auth_service.dart';
 import '../models/restaurant_table.dart';
 import '../models/restaurant_menu_item.dart';
 import '../models/restaurant_order.dart';
@@ -88,6 +89,8 @@ class _RestaurantPosScreenState extends ConsumerState<RestaurantPosScreen> {
   }
 
   Future<void> _printReceipt() async {
+    final storeName = await AuthService.loadSavedStoreName();
+    final storePhone = await AuthService.loadSavedStorePhone();
     final pdf = pw.Document();
 
     pdf.addPage(
@@ -100,10 +103,17 @@ class _RestaurantPosScreenState extends ConsumerState<RestaurantPosScreen> {
             children: [
               pw.Center(
                 child: pw.Text(
-                  'NHÀ HÀNG QUÁN ĂN',
+                  storeName ?? 'NHÀ HÀNG QUÁN ĂN',
                   style: pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold),
                 ),
               ),
+              if (storePhone != null && storePhone.isNotEmpty)
+                pw.Center(
+                  child: pw.Text(
+                    'ĐT: $storePhone',
+                    style: pw.TextStyle(fontSize: 10),
+                  ),
+                ),
               pw.SizedBox(height: 10),
               pw.Divider(),
               pw.SizedBox(height: 5),

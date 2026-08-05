@@ -119,6 +119,7 @@ export async function POST(req: NextRequest) {
         permissions,
         storeId: store?.id ?? null,
         storeName: store?.name ?? null,
+        storePhone: store?.phone ?? null,
         appCode: license?.app_code ?? null,
         trial: license?.plan === 'trial',
         expiresAt: license?.expires_at ?? null,

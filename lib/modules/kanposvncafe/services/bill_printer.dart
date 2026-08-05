@@ -10,6 +10,7 @@ import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 import 'package:qr/qr.dart';
 import 'package:share_plus/share_plus.dart';
+import '../../../core/auth/auth_service.dart';
 import '../models/cafe_order.dart';
 
 final _currency = NumberFormat.currency(locale: 'vi_VN', symbol: 'đ');
@@ -19,6 +20,8 @@ Future<void> printBillPdf(
   BuildContext? context,
   bool createPdfFileFirst = false,
 }) async {
+  final storeName = await AuthService.loadSavedStoreName();
+  final storePhone = await AuthService.loadSavedStorePhone();
   pw.Font? font;
   pw.Font? fontBold;
   try {
@@ -50,7 +53,7 @@ Future<void> printBillPdf(
         children: [
           pw.Center(
             child: pw.Text(
-              'KANPOSVN',
+              storeName ?? 'KANPOSVN',
               style: pw.TextStyle(
                 font: fontBold,
                 fontSize: 14,
@@ -58,6 +61,13 @@ Future<void> printBillPdf(
               ),
             ),
           ),
+          if (storePhone != null && storePhone.isNotEmpty)
+            pw.Center(
+              child: pw.Text(
+                'ĐT: $storePhone',
+                style: pw.TextStyle(fontSize: 8),
+              ),
+            ),
           pw.Center(
             child: pw.Text(
               'HÓA ĐƠN THANH TOÁN',
