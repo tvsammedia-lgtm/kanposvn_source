@@ -7,6 +7,7 @@ import 'core/module_enum.dart';
 import 'core/providers.dart';
 import 'core/router/login_screen.dart';
 import 'core/router/module_selector_screen.dart';
+import 'core/update/update_checker.dart';
 import 'modules/kanposvncafe/screens/kanposvncafe_shell.dart';
 import 'modules/kanposvnkhachsan/screens/kanposvnkhachsan_shell.dart';
 import 'modules/nhansu/screens/nhansu_shell.dart';
@@ -129,9 +130,15 @@ class _KanPosVNAppState extends ConsumerState<KanPosVNApp> {
 
     Widget home;
     if (const bool.fromEnvironment('TEST_QLCD')) {
-      home = const _MainShell(module: AppModule.kanposvnqlcd);
+      home = UpdateAndLicenseChecker(
+        appCode: AppModule.kanposvnqlcd.appCode,
+        child: const _MainShell(module: AppModule.kanposvnqlcd),
+      );
     } else if (selectedModule != null) {
-      home = _MainShell(module: selectedModule);
+      home = UpdateAndLicenseChecker(
+        appCode: selectedModule.appCode,
+        child: _MainShell(module: selectedModule),
+      );
     } else {
       home = const _AutoSelectWrapper();
     }

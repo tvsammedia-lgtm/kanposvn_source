@@ -9,6 +9,8 @@ class ApiConfig {
 
   static String get pushUrl => '$baseUrl/api/sync/push';
   static String get pullUrl => '$baseUrl/api/sync/pull';
+  static String get updateUrl => '$baseUrl/api/update/latest';
+  static String get licenseCheckUrl => '$baseUrl/api/license/check';
 
   static String getAppName(AppModule module) => module.appCode;
 }

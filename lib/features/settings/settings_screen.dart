@@ -5,6 +5,9 @@ import '../../core/providers.dart';
 import '../../core/sync/sync_providers.dart';
 import '../../core/router/module_selector_screen.dart';
 import '../../core/l10n/translations.dart';
+import '../../core/update/update_checker.dart';
+import '../../core/update/update_providers.dart';
+import '../../core/update/update_service.dart';
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
@@ -13,6 +16,11 @@ class SettingsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final auth = ref.watch(authServiceProvider);
     final syncEngine = ref.watch(syncEngineProvider);
+    final update = ref.watch(updateServiceProvider);
+    final license = ref.watch(licenseServiceProvider);
+
+    final licenseStatus = license.status;
+    final appCode = auth.currentModule?.appCode ?? syncEngine.appCode;
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -69,12 +77,54 @@ class SettingsScreen extends ConsumerWidget {
                   ),
                   const SizedBox(height: 16),
                   _SettingsSection(
+                    title: 'Cập nhật & License',
+                    children: [
+                      _SettingsTile(
+                        icon: licenseStatus?.valid == true
+                            ? Icons.verified
+                            : Icons.gpp_maybe,
+                        title: licenseStatus?.valid == true
+                            ? 'License hợp lệ'
+                            : 'License',
+                        subtitle: licenseStatus == null
+                            ? (license.error ?? 'Chạm để kiểm tra license')
+                            : licenseStatus.valid
+                                ? '${licenseStatus.plan} · còn ${licenseStatus.daysLeft} ngày'
+                                : (licenseStatus.message.isNotEmpty
+                                    ? licenseStatus.message
+                                    : 'Chưa có license'),
+                        onTap: license.isChecking
+                            ? null
+                            : () => _checkLicense(context, ref, appCode),
+                      ),
+                      _SettingsTile(
+                        icon: update.isChecking
+                            ? Icons.cloud_sync
+                            : Icons.system_update,
+                        title: update.isChecking
+                            ? 'Đang kiểm tra...'
+                            : 'Kiểm tra cập nhật',
+                        subtitle: update.error ??
+                            (update.latest != null
+                                ? (isVersionNewer(update.latest!.version,
+                                        UpdateService.currentVersion)
+                                    ? 'Có bản mới v${update.latest!.version}'
+                                    : 'Đang dùng phiên bản mới nhất')
+                                : 'Kiểm tra phiên bản mới từ server'),
+                        onTap: update.isChecking
+                            ? null
+                            : () => _checkUpdate(context, ref, appCode),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  _SettingsSection(
                     title: 'other'.tr,
                     children: [
                       _SettingsTile(
                         icon: Icons.info_outline,
                         title: 'version'.tr,
-                        subtitle: 'KanPosVN v1.0.0',
+                        subtitle: 'KanPosVN v${UpdateService.currentVersion}',
                       ),
                       _SettingsTile(
                         icon: Icons.logout,
@@ -109,6 +159,53 @@ class SettingsScreen extends ConsumerWidget {
         ),
       ),
     );
+  }
+
+  Future<void> _checkUpdate(
+      BuildContext context, WidgetRef ref, String appCode) async {
+    final update = ref.read(updateServiceProvider);
+    final latest = await update.checkForUpdate(appCode: appCode);
+    if (!context.mounted) return;
+    if (latest == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(update.error ?? 'Không có phản hồi từ server')),
+      );
+      return;
+    }
+    if (isVersionNewer(latest.version, UpdateService.currentVersion)) {
+      await showUpdateDialog(context, latest);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Bạn đang dùng phiên bản mới nhất')),
+      );
+    }
+  }
+
+  Future<void> _checkLicense(
+      BuildContext context, WidgetRef ref, String appCode) async {
+    final license = ref.read(licenseServiceProvider);
+    final token = ref.read(authServiceProvider).token;
+    if (token == null || token.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Vui lòng đăng nhập trước')),
+      );
+      return;
+    }
+    final status = await license.check(token: token, appCode: appCode);
+    if (!context.mounted) return;
+    if (status == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(license.error ?? 'Không có phản hồi từ server')),
+      );
+      return;
+    }
+    if (!status.valid) {
+      await showLicenseDialog(context, status);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('License hợp lệ · còn ${status.daysLeft} ngày')),
+      );
+    }
   }
 
   void _showSyncDialog(BuildContext context, WidgetRef ref) {
