@@ -93,9 +93,9 @@ export async function POST(req: NextRequest) {
     let license = null;
     if (store) {
       const licRows = await sql`
-        SELECT plan, status, expires_at FROM licenses
-        WHERE user_id = ${user.id} AND app_code = ${'pos'}
-        ORDER BY started_at DESC LIMIT 1
+        SELECT plan, status, expires_at, app_code FROM licenses
+        WHERE user_id = ${user.id}
+        ORDER BY (store_id = ${store.id}) DESC, started_at DESC LIMIT 1
       `;
       license = licRows[0] || null;
     }
@@ -119,6 +119,7 @@ export async function POST(req: NextRequest) {
         permissions,
         storeId: store?.id ?? null,
         storeName: store?.name ?? null,
+        appCode: license?.app_code ?? null,
         trial: license?.plan === 'trial',
         expiresAt: license?.expires_at ?? null,
       },

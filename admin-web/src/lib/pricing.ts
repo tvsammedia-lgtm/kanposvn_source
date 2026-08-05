@@ -31,4 +31,25 @@ export const MAX_DEVICES = 2;
 
 // Trial 30 ngay khi dang ky cua hang qua Web / Zalo Mini App
 export const STORE_TRIAL_DAYS = 30;
+
+// App code mặc định dùng cho license cua hang (neu khong truyen app_code)
 export const STORE_LICENSE_APP_CODE = 'pos';
+
+// Cac module POS cua hang duoc phep chon khi dang ky (khop AppModule ben Flutter)
+export const STORE_MODULES: { app_code: string; name: string }[] = [
+  { app_code: 'kanposvncafe', name: 'Cafe' },
+  { app_code: 'kanposvnnhahangquanan', name: 'Nhà Hàng / Quán Ăn' },
+  { app_code: 'kanposvnnhathuoc', name: 'Nhà Thuốc' },
+  { app_code: 'kanposvnvlxd', name: 'VLXD' },
+  { app_code: 'kanposvngara', name: 'Gara' },
+  { app_code: 'kanposvnbida', name: 'Quản Lý Bida' },
+  { app_code: 'kanposvnspa', name: 'Spa & Dưỡng Sinh' },
+  { app_code: 'kanposvnkhachsan', name: 'Khách Sạn' },
+  { app_code: 'kanposvnbanvevantai', name: 'Vận Tải & Vé' },
+  { app_code: 'kanposvnqlcd', name: 'QLCD (Cắt Ghép & Vé)' },
+  { app_code: 'kanposvnnhatro200', name: 'Nhà Trọ' },
+  { app_code: 'kanposvnnbatdongsan', name: 'Bất Động Sản' },
+  { app_code: 'nhansu', name: 'Nhân Sự' },
+];
+
+export const STORE_MODULE_CODES = STORE_MODULES.map((m) => m.app_code);

@@ -1,6 +1,7 @@
 'use client';
 import { useState } from 'react';
 import Link from 'next/link';
+import { STORE_MODULES } from '@/lib/pricing';
 
 type RegisterResult = {
   ok: boolean;
@@ -8,6 +9,8 @@ type RegisterResult = {
   userId?: string;
   storeId?: string;
   storeName?: string;
+  appCode?: string;
+  moduleName?: string;
   trial?: boolean;
   expiresAt?: string | null;
   error?: string;
@@ -18,6 +21,7 @@ export default function RegisterPage() {
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
+  const [appCode, setAppCode] = useState<string>('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<RegisterResult | null>(null);
@@ -33,12 +37,16 @@ export default function RegisterPage() {
       setError('Mật khẩu xác nhận không khớp');
       return;
     }
+    if (!appCode) {
+      setError('Vui lòng chọn ngành nghề / module cho cửa hàng');
+      return;
+    }
     setLoading(true);
     try {
       const res = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ store_name: storeName, phone, password }),
+        body: JSON.stringify({ store_name: storeName, phone, password, app_code: appCode }),
       });
       const data: RegisterResult = await res.json();
       if (!res.ok) {
@@ -75,6 +83,7 @@ export default function RegisterPage() {
             <div className="bg-green-50 text-green-700 px-4 py-4 rounded-lg text-sm mb-6">
               <div className="font-semibold text-base mb-1">Đăng ký thành công 🎉</div>
               <div>Cửa hàng: <b>{result.storeName}</b></div>
+              <div>Module: <b>{result.moduleName || result.appCode}</b></div>
               <div>Trial 30 ngày, hết hạn: {result.expiresAt ? new Date(result.expiresAt).toLocaleDateString('vi-VN') : '-'}</div>
             </div>
             <Link href="/login" className="block w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors text-center">
@@ -130,6 +139,26 @@ export default function RegisterPage() {
                   placeholder="Nhập lại mật khẩu"
                   required
                 />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Ngành nghề / Module</label>
+                <div className="grid grid-cols-2 gap-2">
+                  {STORE_MODULES.map((m) => (
+                    <button
+                      key={m.app_code}
+                      type="button"
+                      onClick={() => setAppCode(m.app_code)}
+                      className={`px-3 py-2 rounded-lg border text-left text-sm font-medium transition-colors ${
+                        appCode === m.app_code
+                          ? 'border-green-600 bg-green-50 text-green-700'
+                          : 'border-gray-300 text-gray-700 hover:border-green-400'
+                      }`}
+                    >
+                      {m.name}
+                    </button>
+                  ))}
+                </div>
               </div>
 
               {error && (

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSql } from '@/lib/db';
 import { hashPassword } from '@/lib/auth';
-import { STORE_TRIAL_DAYS, STORE_LICENSE_APP_CODE } from '@/lib/pricing';
+import { STORE_TRIAL_DAYS, STORE_MODULES, STORE_LICENSE_APP_CODE } from '@/lib/pricing';
 
 function corsHeaders() {
   return {
@@ -26,11 +26,20 @@ function isValidPhone(phone: string) {
 export async function POST(req: NextRequest) {
   const sql = getSql();
   try {
-    const { store_name, phone, password } = await req.json();
+    const { store_name, phone, password, app_code } = await req.json();
 
     if (!store_name || !phone || !password) {
       return NextResponse.json(
         { error: 'Tên cửa hàng, SĐT và mật khẩu là bắt buộc' },
+        { status: 400, headers: corsHeaders() },
+      );
+    }
+
+    const appCode = (app_code || STORE_LICENSE_APP_CODE) as string;
+    const moduleInfo = STORE_MODULES.find((m) => m.app_code === appCode);
+    if (!moduleInfo) {
+      return NextResponse.json(
+        { error: `Module "${appCode}" không hợp lệ. Vui lòng chọn ngành nghề.` },
         { status: 400, headers: corsHeaders() },
       );
     }
@@ -79,7 +88,7 @@ export async function POST(req: NextRequest) {
 
     const [license] = await sql`
       INSERT INTO licenses (user_id, store_id, app_code, device_id, plan, status, started_at, expires_at)
-      VALUES (${user.id}, ${store.id}, ${STORE_LICENSE_APP_CODE}, '', 'trial', 'active', ${now.toISOString()}, ${expiresAt.toISOString()})
+      VALUES (${user.id}, ${store.id}, ${appCode}, '', 'trial', 'active', ${now.toISOString()}, ${expiresAt.toISOString()})
       RETURNING plan, expires_at
     `;
 
@@ -90,6 +99,8 @@ export async function POST(req: NextRequest) {
         userId: user.id,
         storeId: store.id,
         storeName,
+        appCode,
+        moduleName: moduleInfo.name,
         trial: true,
         expiresAt: license.expires_at,
       },

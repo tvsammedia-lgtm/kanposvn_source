@@ -12,6 +12,7 @@ class AuthService extends ChangeNotifier {
   static const _kCurrentAppCodeKey = 'auth_current_app_code';
   static const _kStoreIdKey = 'auth_store_id';
   static const _kStoreNameKey = 'auth_store_name';
+  static const _kStoreAppCodeKey = 'auth_store_app_code';
   static const _kTrialKey = 'auth_trial';
   static const _kExpiresAtKey = 'auth_expires_at';
 
@@ -41,12 +42,23 @@ class AuthService extends ChangeNotifier {
   /// User đăng ký cửa hàng qua Web/Zalo: không cần chọn module/app.
   bool get isStoreUser => _storeId != null;
 
-  /// Module mặc định hiển thị cho cửa hàng (POS chung).
-  AppModule get defaultStoreModule => AppModule.kanposvncafe;
+  String? _storeAppCode;
+
+  /// App code module cửa hàng đã chọn lúc đăng ký (vd: kanposvnvlxd).
+  String? get storeAppCode => _storeAppCode;
+
+  /// Module mặc định hiển thị cho cửa hàng (theo ngành đã chọn lúc đăng ký).
+  AppModule get defaultStoreModule {
+    if (_storeAppCode != null) {
+      final m = _moduleFromAppCode(_storeAppCode!);
+      if (m != null) return m;
+    }
+    return AppModule.kanposvncafe;
+  }
 
   /// App code dùng khi kiểm tra license trên server.
   String get licenseAppCode =>
-      isStoreUser ? storeLicenseAppCode : (_currentAppCode ?? 'kanposvn');
+      isStoreUser ? (_storeAppCode ?? storeLicenseAppCode) : (_currentAppCode ?? 'kanposvn');
 
   bool _isLoading = false;
   bool get isLoading => _isLoading;
@@ -106,6 +118,7 @@ class AuthService extends ChangeNotifier {
         );
         _storeId = data['storeId']?.toString();
         _storeName = data['storeName']?.toString();
+        _storeAppCode = data['appCode']?.toString() ?? data['app_code']?.toString();
         _isStoreTrial = data['trial'] == true;
         _licenseExpiresAt = data['expiresAt'] != null
             ? DateTime.tryParse(data['expiresAt'].toString())
@@ -232,10 +245,12 @@ class AuthService extends ChangeNotifier {
     _currentAppCode = null;
     _storeId = null;
     _storeName = null;
+    _storeAppCode = null;
     _isStoreTrial = false;
     _licenseExpiresAt = null;
     await _clearSession();
     notifyListeners();
+    return;
   }
 
   Future<bool> loadSavedSession() async {
@@ -271,6 +286,7 @@ class AuthService extends ChangeNotifier {
 
       _storeId = prefs.getString(_kStoreIdKey);
       _storeName = prefs.getString(_kStoreNameKey);
+      _storeAppCode = prefs.getString(_kStoreAppCodeKey);
       _isStoreTrial = prefs.getBool(_kTrialKey) ?? false;
       final expiresStr = prefs.getString(_kExpiresAtKey);
       _licenseExpiresAt = expiresStr != null ? DateTime.tryParse(expiresStr) : null;
@@ -305,6 +321,11 @@ class AuthService extends ChangeNotifier {
     } else {
       await prefs.remove(_kStoreNameKey);
     }
+    if (_storeAppCode != null) {
+      await prefs.setString(_kStoreAppCodeKey, _storeAppCode!);
+    } else {
+      await prefs.remove(_kStoreAppCodeKey);
+    }
     await prefs.setBool(_kTrialKey, _isStoreTrial);
     if (_licenseExpiresAt != null) {
       await prefs.setString(_kExpiresAtKey, _licenseExpiresAt!.toIso8601String());
@@ -321,6 +342,7 @@ class AuthService extends ChangeNotifier {
     await prefs.remove(_kCurrentAppCodeKey);
     await prefs.remove(_kStoreIdKey);
     await prefs.remove(_kStoreNameKey);
+    await prefs.remove(_kStoreAppCodeKey);
     await prefs.remove(_kTrialKey);
     await prefs.remove(_kExpiresAtKey);
   }

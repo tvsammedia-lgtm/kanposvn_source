@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSql } from '@/lib/db';
+import { STORE_MODULES } from '@/lib/pricing';
 
 const SEED_SECRET = process.env.SEED_SECRET || 'kanposvn_seed_2026';
 
@@ -95,6 +96,20 @@ export async function POST(req: NextRequest) {
       results.push('OK: ' + name);
     } catch (e) {
       results.push('ERR: ' + name + ' -> ' + String(e));
+    }
+  }
+
+  // Seed cac app (module) de cua hang duoc phep chon luc dang ky
+  for (const m of STORE_MODULES) {
+    try {
+      await sql`
+        INSERT INTO apps (app_code, app_name, description, package_name, platform)
+        SELECT ${m.app_code}, ${m.name}, 'POS module dang ky cua hang', '', 'mobile'
+        WHERE NOT EXISTS (SELECT 1 FROM apps WHERE app_code = ${m.app_code})
+      `;
+      results.push('OK: store_app_' + m.app_code);
+    } catch (e) {
+      results.push('ERR: store_app_' + m.app_code + ' -> ' + String(e));
     }
   }
 
