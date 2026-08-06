@@ -1,5 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
+import { isSuperAdminEmail, isCafeAdminEmail } from '@/lib/admin';
 
 interface User { id: string; email: string; full_name: string; }
 interface App { id: string; app_code: string; app_name: string; platform: string; package_name: string; }
@@ -38,8 +39,8 @@ export default function PermissionsPage() {
     }
   }, []);
 
-  const isSuperAdmin = currentUser?.email === 'admin@kanposvn.com';
-  const isCafeAdmin = currentUser?.email === 'admin@kanposvncafe.com';
+  const isSuperAdmin = isSuperAdminEmail(currentUser?.email);
+  const isCafeAdmin = isCafeAdminEmail(currentUser?.email);
 
   useEffect(() => {
     fetch('/api/users', { headers: { Authorization: `Bearer ${token}` } }).then(r => r.json()).then((data: User[]) => setUsers(data));

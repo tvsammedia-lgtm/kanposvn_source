@@ -42,6 +42,7 @@ Future<void> printExpenseVoucher(CashTransaction tx) async {
           pw.Center(
             child: pw.Text(
               storeName ?? 'KANPOSVN',
+              textAlign: pw.TextAlign.center,
               style: pw.TextStyle(font: fontBold, fontSize: 14, fontWeight: pw.FontWeight.bold),
             ),
           ),
@@ -49,6 +50,7 @@ Future<void> printExpenseVoucher(CashTransaction tx) async {
             pw.Center(
               child: pw.Text(
                 'ĐT: $storePhone',
+                textAlign: pw.TextAlign.center,
                 style: pw.TextStyle(fontSize: 8),
               ),
             ),
@@ -175,6 +177,7 @@ Future<void> printExpenseSummary({
           pw.Center(
             child: pw.Text(
               storeName ?? 'KANPOSVN',
+              textAlign: pw.TextAlign.center,
               style: pw.TextStyle(font: fontBold, fontSize: 18, fontWeight: pw.FontWeight.bold),
             ),
           ),
@@ -182,6 +185,7 @@ Future<void> printExpenseSummary({
             pw.Center(
               child: pw.Text(
                 'ĐT: $storePhone',
+                textAlign: pw.TextAlign.center,
                 style: pw.TextStyle(fontSize: 10),
               ),
             ),

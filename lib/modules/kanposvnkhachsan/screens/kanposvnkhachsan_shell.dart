@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/auth/employee_auth.dart';
+import '../../../core/auth/employee_management_screen.dart';
+import '../../../core/auth/employee_role_policy.dart';
 import '../../../core/providers.dart';
 import '../../../core/router/module_selector_screen.dart';
 import '../../../core/sync/api_config.dart';
@@ -42,13 +45,22 @@ class _KanPosVNKhachSanShellState extends ConsumerState<KanPosVNKhachSanShell> {
     }
   }
 
-  final List<Widget> _screens = const [
-    RoomsScreen(),
-    BookingScreen(),
-    CheckinCheckoutScreen(),
-    HotelServicesScreen(),
-    HotelFinanceScreen(),
-    HotelSyncScreen(),
+  static final Map<String, Set<String>> _roleTabs = {
+    EmployeeRoles.cashier: const {'booking', 'checkin', 'services'},
+    EmployeeRoles.sale: const {'booking', 'checkin'},
+    EmployeeRoles.warehouse: const {'services'},
+    EmployeeRoles.accountant: const {'rooms', 'finance'},
+  };
+
+  static final List<({String id, Widget screen, IconData icon, String label})>
+      _allTabs = const [
+    (id: 'rooms', screen: RoomsScreen(), icon: Icons.grid_view, label: 'Sơ đồ phòng'),
+    (id: 'booking', screen: BookingScreen(), icon: Icons.book_online, label: 'Lễ tân / Đặt phòng'),
+    (id: 'checkin', screen: CheckinCheckoutScreen(), icon: Icons.login, label: 'Check-in/Out'),
+    (id: 'services', screen: HotelServicesScreen(), icon: Icons.room_service, label: 'Dịch vụ'),
+    (id: 'finance', screen: HotelFinanceScreen(), icon: Icons.account_balance, label: 'Kế toán'),
+    (id: 'sync', screen: HotelSyncScreen(), icon: Icons.cloud_sync, label: 'Vercel Neon'),
+    (id: 'employees', screen: EmployeeManagementScreen(), icon: Icons.badge, label: 'Quản Lý NV'),
   ];
 
   @override
@@ -58,6 +70,16 @@ class _KanPosVNKhachSanShellState extends ConsumerState<KanPosVNKhachSanShell> {
     }
 
     final isDesktop = MediaQuery.of(context).size.width > 800;
+    final auth = ref.watch(authServiceProvider);
+    final tabs = _allTabs
+        .where((t) => EmployeeRolePolicy.isAllowed(
+              isManager: auth.isManager,
+              role: auth.employeeRole,
+              tabId: t.id,
+              roleTabs: _roleTabs,
+            ))
+        .toList();
+    final safeIndex = _selectedIndex < tabs.length ? _selectedIndex : 0;
 
     return Scaffold(
       appBar: AppBar(
@@ -117,38 +139,31 @@ class _KanPosVNKhachSanShellState extends ConsumerState<KanPosVNKhachSanShell> {
         children: [
           if (isDesktop)
             NavigationRail(
-              selectedIndex: _selectedIndex,
+              selectedIndex: safeIndex,
               onDestinationSelected: (index) => setState(() => _selectedIndex = index),
               labelType: NavigationRailLabelType.all,
               selectedIconTheme: const IconThemeData(color: Color(0xFF0284C7)),
               selectedLabelTextStyle: const TextStyle(color: Color(0xFF0284C7), fontWeight: FontWeight.bold),
-              destinations: const [
-                NavigationRailDestination(icon: Icon(Icons.grid_view), label: Text('Sơ đồ phòng')),
-                NavigationRailDestination(icon: Icon(Icons.book_online), label: Text('Lễ tân / Đặt phòng')),
-                NavigationRailDestination(icon: Icon(Icons.login), label: Text('Check-in/Out')),
-                NavigationRailDestination(icon: Icon(Icons.room_service), label: Text('Dịch vụ')),
-                NavigationRailDestination(icon: Icon(Icons.account_balance), label: Text('Kế toán')),
-                NavigationRailDestination(icon: Icon(Icons.cloud_sync), label: Text('Vercel Neon')),
+              destinations: [
+                for (final t in tabs)
+                  NavigationRailDestination(icon: Icon(t.icon), label: Text(t.label)),
               ],
             ),
           if (isDesktop) const VerticalDivider(thickness: 1, width: 1),
-          Expanded(child: _screens[_selectedIndex]),
+          Expanded(child: tabs[safeIndex].screen),
         ],
       ),
       bottomNavigationBar: isDesktop
           ? null
           : BottomNavigationBar(
-              currentIndex: _selectedIndex,
+              currentIndex: safeIndex,
               onTap: (index) => setState(() => _selectedIndex = index),
               selectedItemColor: const Color(0xFF0284C7),
               unselectedItemColor: Colors.grey,
               type: BottomNavigationBarType.fixed,
-              items: const [
-                BottomNavigationBarItem(icon: Icon(Icons.grid_view), label: 'Phòng'),
-                BottomNavigationBarItem(icon: Icon(Icons.book_online), label: 'Lễ tân'),
-                BottomNavigationBarItem(icon: Icon(Icons.login), label: 'Checkin'),
-                BottomNavigationBarItem(icon: Icon(Icons.room_service), label: 'Dịch vụ'),
-                BottomNavigationBarItem(icon: Icon(Icons.cloud_sync), label: 'Sync'),
+              items: [
+                for (final t in tabs)
+                  BottomNavigationBarItem(icon: Icon(t.icon), label: t.label),
               ],
             ),
     );

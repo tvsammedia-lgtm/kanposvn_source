@@ -145,6 +145,7 @@ class CafeNeonSyncService {
       final pendingItems = _db.syncQueue
           .where((i) => i.status == 'Pending')
           .toList();
+      var pushOk = true;
       if (pendingItems.isEmpty) {
         addLog(
           'Đồng bộ Push',
@@ -155,6 +156,7 @@ class CafeNeonSyncService {
         // Prepare Push Payload
         final payload = {
           'appCode': 'kanposvncafe',
+          'apiKey': config.apiKey,
           'timestamp': DateTime.now().toIso8601String(),
           'items': pendingItems
               .map(
@@ -186,6 +188,7 @@ class CafeNeonSyncService {
           if (res.statusCode == 200 || res.statusCode == 201) {
             pushSuccess = true;
           } else {
+            pushOk = false;
             addLog(
               'Đồng bộ Push',
               false,
@@ -193,6 +196,7 @@ class CafeNeonSyncService {
             );
           }
         } catch (e) {
+          pushOk = false;
           addLog(
             'Đồng bộ Push',
             false,
@@ -207,6 +211,12 @@ class CafeNeonSyncService {
             'Đồng bộ Push thành công',
             true,
             'Đã đẩy thành công ${pendingItems.length} thao tác lên Neon DB',
+          );
+        } else {
+          addLog(
+            'Đồng bộ Push',
+            false,
+            'Đẩy lên thất bại: ${pendingItems.length} thao tác giữ trong Isar SyncQueue',
           );
         }
       }
@@ -226,7 +236,7 @@ class CafeNeonSyncService {
         'Đã cập nhật trạng thái đồng bộ thành công vào ${DateTime.now().hour}:${DateTime.now().minute}',
       );
 
-      return true;
+      return pushOk;
     } catch (e) {
       addLog('Lỗi đồng bộ', false, 'Thao tác thất bại: $e');
       return false;

@@ -46,6 +46,12 @@ export async function POST(req: NextRequest) {
       );
     }
     const app = appRows[0];
+    if (app.show_in_registration === false) {
+      return NextResponse.json(
+        { error: `Module "${appCode}" hiện đang ẩn, chưa mở đăng ký.` },
+        { status: 403, headers: corsHeaders() },
+      );
+    }
 
     let user = null;
     if (phone) {

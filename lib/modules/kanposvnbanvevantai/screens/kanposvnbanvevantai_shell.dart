@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/auth/employee_auth.dart';
+import '../../../core/auth/employee_management_screen.dart';
+import '../../../core/auth/employee_role_policy.dart';
+import '../../../core/providers.dart';
 import '../providers/vantai_providers.dart';
 import '../services/vantai_seed_data.dart';
 import 'vantai_dashboard_screen.dart';
@@ -40,12 +44,21 @@ class _KanPosVNBanvevantaiShellState extends ConsumerState<KanPosVNBanvevantaiSh
     });
   }
 
-  final List<Widget> _screens = [
-    const VantaiDashboardScreen(),
-    const VantaiTicketingScreen(),
-    const VantaiDispatchScreen(),
-    const VantaiShipmentScreen(),
-    const VantaiAccountingScreen(),
+  static final Map<String, Set<String>> _roleTabs = {
+    EmployeeRoles.cashier: const {'ticketing', 'dispatch'},
+    EmployeeRoles.sale: const {'ticketing', 'dispatch'},
+    EmployeeRoles.warehouse: const {'shipment'},
+    EmployeeRoles.accountant: const {'dashboard', 'accounting'},
+  };
+
+  static final List<({String id, Widget screen, IconData icon, String label})>
+      _allTabs = [
+    (id: 'dashboard', screen: const VantaiDashboardScreen(), icon: Icons.dashboard, label: 'Dashboard'),
+    (id: 'ticketing', screen: const VantaiTicketingScreen(), icon: Icons.airplane_ticket, label: 'Bán Vé'),
+    (id: 'dispatch', screen: const VantaiDispatchScreen(), icon: Icons.departure_board, label: 'Điều Xe'),
+    (id: 'shipment', screen: const VantaiShipmentScreen(), icon: Icons.inventory_2, label: 'Nhận Hàng'),
+    (id: 'accounting', screen: const VantaiAccountingScreen(), icon: Icons.account_balance_wallet, label: 'Kế Toán'),
+    (id: 'employees', screen: const EmployeeManagementScreen(), icon: Icons.badge, label: 'Quản Lý NV'),
   ];
 
   @override
@@ -54,28 +67,39 @@ class _KanPosVNBanvevantaiShellState extends ConsumerState<KanPosVNBanvevantaiSh
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
+    final auth = ref.watch(authServiceProvider);
+    final tabs = _allTabs
+        .where((t) => EmployeeRolePolicy.isAllowed(
+              isManager: auth.isManager,
+              role: auth.employeeRole,
+              tabId: t.id,
+              roleTabs: _roleTabs,
+            ))
+        .toList();
+    final safeIndex = _selectedIndex < tabs.length ? _selectedIndex : 0;
+
     return Scaffold(
       body: Row(
         children: [
           NavigationRail(
-            selectedIndex: _selectedIndex,
+            selectedIndex: safeIndex,
             onDestinationSelected: (index) {
               setState(() {
                 _selectedIndex = index;
               });
             },
             labelType: NavigationRailLabelType.all,
-            destinations: const [
-              NavigationRailDestination(icon: Icon(Icons.dashboard), label: Text('Dashboard')),
-              NavigationRailDestination(icon: Icon(Icons.airplane_ticket), label: Text('Bán Vé')),
-              NavigationRailDestination(icon: Icon(Icons.departure_board), label: Text('Điều Xe')),
-              NavigationRailDestination(icon: Icon(Icons.inventory_2), label: Text('Nhận Hàng')),
-              NavigationRailDestination(icon: Icon(Icons.account_balance_wallet), label: Text('Kế Toán')),
+            destinations: [
+              for (final t in tabs)
+                NavigationRailDestination(
+                  icon: Icon(t.icon),
+                  label: Text(t.label),
+                ),
             ],
           ),
           const VerticalDivider(thickness: 1, width: 1),
           Expanded(
-            child: _screens[_selectedIndex],
+            child: tabs[safeIndex].screen,
           ),
         ],
       ),

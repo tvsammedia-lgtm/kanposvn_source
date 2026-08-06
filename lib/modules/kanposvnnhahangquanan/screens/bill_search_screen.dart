@@ -81,6 +81,7 @@ class _BillSearchScreenState extends ConsumerState<BillSearchScreen> {
               pw.Center(
                 child: pw.Text(
                   storeName ?? 'NHÀ HÀNG QUÁN ĂN',
+                  textAlign: pw.TextAlign.center,
                   style: pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold),
                 ),
               ),
@@ -88,6 +89,7 @@ class _BillSearchScreenState extends ConsumerState<BillSearchScreen> {
                 pw.Center(
                   child: pw.Text(
                     'ĐT: $storePhone',
+                    textAlign: pw.TextAlign.center,
                     style: pw.TextStyle(fontSize: 10),
                   ),
                 ),

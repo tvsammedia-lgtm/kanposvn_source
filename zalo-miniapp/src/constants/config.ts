@@ -25,12 +25,13 @@ export interface Plan {
   days: number;
   price: number;
   trial?: boolean;
+  forever?: boolean;
 }
 
 export const PLANS: Plan[] = [
-  { key: "monthly", label: "1 tháng", days: 30, price: 99000 },
-  { key: "quarterly", label: "3 tháng", days: 90, price: 249000 },
-  { key: "yearly", label: "12 tháng", days: 365, price: 899000 },
+  { key: "trial", label: "Dùng thử 7 ngày", days: 7, price: 0, trial: true },
+  { key: "yearly", label: "365 ngày", days: 365, price: 899000 },
+  { key: "forever", label: "Vĩnh Viễn", days: 0, price: 2999000, forever: true },
 ];
 
 export function planOptions(): { value: string; label: string }[] {

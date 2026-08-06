@@ -43,9 +43,9 @@ Future<void> printGaraReceiptPdf(GaraRepairOrder order, List<GaraRepairDetail> d
       build: (ctx) => pw.Column(
         crossAxisAlignment: pw.CrossAxisAlignment.start,
         children: [
-          pw.Center(child: pw.Text(storeName ?? 'KANPOSVN GARA', style: pw.TextStyle(font: fontBold, fontSize: 14, fontWeight: pw.FontWeight.bold))),
+          pw.Center(child: pw.Text(storeName ?? 'KANPOSVN GARA', textAlign: pw.TextAlign.center, style: pw.TextStyle(font: fontBold, fontSize: 14, fontWeight: pw.FontWeight.bold))),
           if (storePhone != null && storePhone.isNotEmpty)
-            pw.Center(child: pw.Text('ĐT: $storePhone', style: pw.TextStyle(fontSize: 8))),
+            pw.Center(child: pw.Text('ĐT: $storePhone', textAlign: pw.TextAlign.center, style: pw.TextStyle(fontSize: 8))),
           pw.Center(child: pw.Text('PHIẾU THANH TOÁN & GIAO XE', style: pw.TextStyle(font: fontBold, fontSize: 10, fontWeight: pw.FontWeight.bold))),
           pw.SizedBox(height: 3),
           pw.Center(child: pw.Text('=' * width, style: pw.TextStyle(fontSize: 8))),

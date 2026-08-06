@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/auth/employee_auth.dart';
+import '../../../core/auth/employee_management_screen.dart';
+import '../../../core/auth/employee_role_policy.dart';
+import '../../../core/providers.dart';
 import '../../../core/sync/api_config.dart';
 import '../providers/vlxd_providers.dart';
 import '../services/vlxd_seed_data.dart';
@@ -36,14 +40,23 @@ class _KanPosVNVlxdShellState extends ConsumerState<KanPosVNVlxdShell> {
     });
   }
 
-  final List<Widget> _screens = [
-    const VlxdDashboardScreen(),
-    const VlxdPosScreen(),
-    const VlxdContractsScreen(),
-    const VlxdInventoryScreen(),
-    const VlxdFinanceScreen(),
-    const VlxdSyncScreen(),
-    const VlxdSalesReportScreen(),
+  static final Map<String, Set<String>> _roleTabs = {
+    EmployeeRoles.cashier: const {'pos', 'finance', 'report'},
+    EmployeeRoles.sale: const {'pos', 'contracts', 'finance', 'report'},
+    EmployeeRoles.warehouse: const {'inventory', 'pos'},
+    EmployeeRoles.accountant: const {'dashboard', 'finance', 'contracts', 'report'},
+  };
+
+  static final List<({String id, Widget screen, IconData icon, String label})>
+      _allTabs = [
+    (id: 'dashboard', screen: const VlxdDashboardScreen(), icon: Icons.dashboard, label: 'Dashboard'),
+    (id: 'pos', screen: const VlxdPosScreen(), icon: Icons.point_of_sale, label: 'Bán Lẻ'),
+    (id: 'contracts', screen: const VlxdContractsScreen(), icon: Icons.assignment, label: 'Hợp Đồng Sỉ'),
+    (id: 'inventory', screen: const VlxdInventoryScreen(), icon: Icons.inventory, label: 'Kho Hàng'),
+    (id: 'finance', screen: const VlxdFinanceScreen(), icon: Icons.account_balance_wallet, label: 'Thu Chi & Nợ'),
+    (id: 'sync', screen: const VlxdSyncScreen(), icon: Icons.sync, label: 'Đồng Bộ'),
+    (id: 'report', screen: const VlxdSalesReportScreen(), icon: Icons.bar_chart, label: 'Báo Cáo'),
+    (id: 'employees', screen: const EmployeeManagementScreen(), icon: Icons.badge, label: 'Quản Lý NV'),
   ];
 
   @override
@@ -52,30 +65,39 @@ class _KanPosVNVlxdShellState extends ConsumerState<KanPosVNVlxdShell> {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
+    final auth = ref.watch(authServiceProvider);
+    final tabs = _allTabs
+        .where((t) => EmployeeRolePolicy.isAllowed(
+              isManager: auth.isManager,
+              role: auth.employeeRole,
+              tabId: t.id,
+              roleTabs: _roleTabs,
+            ))
+        .toList();
+    final safeIndex = _selectedIndex < tabs.length ? _selectedIndex : 0;
+
     return Scaffold(
       body: Row(
         children: [
           NavigationRail(
-            selectedIndex: _selectedIndex,
+            selectedIndex: safeIndex,
             onDestinationSelected: (index) {
               setState(() {
                 _selectedIndex = index;
               });
             },
             labelType: NavigationRailLabelType.all,
-            destinations: const [
-              NavigationRailDestination(icon: Icon(Icons.dashboard), label: Text('Dashboard')),
-              NavigationRailDestination(icon: Icon(Icons.point_of_sale), label: Text('Bán Lẻ')),
-              NavigationRailDestination(icon: Icon(Icons.assignment), label: Text('Hợp Đồng Sỉ')),
-              NavigationRailDestination(icon: Icon(Icons.inventory), label: Text('Kho Hàng')),
-              NavigationRailDestination(icon: Icon(Icons.account_balance_wallet), label: Text('Thu Chi & Nợ')),
-              NavigationRailDestination(icon: Icon(Icons.sync), label: Text('Đồng Bộ')),
-              NavigationRailDestination(icon: Icon(Icons.bar_chart), label: Text('Báo Cáo')),
+            destinations: [
+              for (final t in tabs)
+                NavigationRailDestination(
+                  icon: Icon(t.icon),
+                  label: Text(t.label),
+                ),
             ],
           ),
           const VerticalDivider(thickness: 1, width: 1),
           Expanded(
-            child: _screens[_selectedIndex],
+            child: tabs[safeIndex].screen,
           ),
         ],
       ),

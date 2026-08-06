@@ -97,10 +97,17 @@ class _CuttingEntryScreenState extends ConsumerState<CuttingEntryScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isManager = ref.watch(authServiceProvider).isManager;
     return Scaffold(
       appBar: AppBar(
         title: const Text('Quản lý công đoạn'),
         actions: [
+          if (isManager)
+            IconButton(
+              icon: const Icon(Icons.badge),
+              tooltip: 'Quản lý nhân viên',
+              onPressed: () => context.push('/employees'),
+            ),
           IconButton(
             icon: const Icon(Icons.search),
             tooltip: 'Tìm kiếm đơn',

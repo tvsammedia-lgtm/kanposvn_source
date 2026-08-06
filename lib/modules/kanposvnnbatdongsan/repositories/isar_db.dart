@@ -14,7 +14,7 @@ class KanBatDongSanIsarDB {
     final dir = await getApplicationDocumentsDirectory();
     _isar = await Isar.open(
       [
-        propertySchema,
+        BdsPropertySchema,
         CustomerSchema,
         TransactionRecordSchema,
         BrokerSchema

@@ -5,6 +5,8 @@ import '../providers.dart';
 import '../module_enum.dart';
 import '../l10n/translations.dart';
 import '../sync/sync_providers.dart';
+import '../auth/auth_service.dart';
+import '../auth/employee_auth.dart';
 import 'module_selector_screen.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
@@ -50,11 +52,48 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       final identifier = _identifierController.text.trim();
       final password = _passwordController.text;
 
-      final success = await auth.signIn(
+      // Chủ cửa hàng đăng nhập bằng SĐT đã đăng ký: không kiểm tra tài khoản
+      // nội bộ (Cấp 2) — tránh mở Isar + quét employees làm chậm login.
+      final savedStoreId = await AuthService.loadSavedStoreId();
+      final savedStorePhone = await AuthService.loadSavedStorePhone();
+      final isOwnerPhone = savedStorePhone != null && identifier == savedStorePhone;
+
+      if (!isOwnerPhone && await AuthService.hasOwnerLoggedInOnDevice()) {
+        // Bước 1: thử tài khoản nội bộ (Cấp 2) — xác thực trong Isar, không gọi Cloud.
+        // Chỉ được check trên Isar khi Owner đã từng đăng nhập Cloud trên máy này
+        // (DB cửa hàng đã được khởi tạo + sync dữ liệu employee). Nếu chưa có phiên
+        // Owner thì bỏ qua Isar và chuyển thẳng sang Cloud login ở Bước 2.
+        final localError = await _tryLocalLogin(identifier, password);
+        if (localError != null) {
+          if (!mounted) return;
+          setState(() {
+            _isLoading = false;
+            _error = localError;
+          });
+          return;
+        }
+        if (!mounted) return;
+        if (auth.isEmployeeLogin) return;
+      }
+
+      // Bước 2: đăng nhập Cloud (Owner).
+      // Với owner: mở DB cửa hàng song song với network login để vào app nhanh.
+      final cloudLogin = auth.signIn(
         identifier: identifier,
         password: password,
       );
+      Future<void>? storeInit;
+      if (isOwnerPhone && savedStoreId != null) {
+        storeInit = ref
+            .read(databaseServiceProvider)
+            .initStore(storeId: savedStoreId, module: auth.defaultStoreModule);
+      }
+
+      final success = await cloudLogin;
       if (!mounted) return;
+      if (storeInit != null) {
+        await storeInit;
+      }
 
       if (!success) {
         setState(() {
@@ -97,6 +136,55 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         _isLoading = false;
         _error = 'Đăng nhập gặp lỗi. Vui lòng thử lại: $e';
       });
+    }
+  }
+
+  /// Thử đăng nhập tài khoản nhân viên nội bộ (Isar của cửa hàng).
+  ///
+  /// Trả về `null` nếu thành công hoặc không có tài khoản nội bộ (chuyển sang Cloud).
+  /// Trả về chuỗi lỗi nếu tìm thấy tài khoản nội bộ nhưng sai mật khẩu/bị khóa.
+  Future<String?> _tryLocalLogin(String identifier, String password) async {
+    try {
+      final storeId = await AuthService.loadSavedStoreId();
+      if (storeId == null) return null;
+      var appCode = await AuthService.loadSavedStoreAppCode();
+      appCode ??= ref.read(authServiceProvider).defaultStoreModule.appCode;
+
+      final result = await EmployeeAuthService.login(
+        storeId: storeId,
+        storeAppCode: appCode,
+        username: identifier,
+        password: password,
+      );
+      if (result == EmployeeLoginResult.notFound) return null;
+      if (result == EmployeeLoginResult.inactive) return 'Tài khoản đã bị khóa';
+      if (result == EmployeeLoginResult.wrongPassword) {
+        return 'Mật khẩu không đúng';
+      }
+
+      // Thành công: khôi phục phiên nội bộ + khởi tạo DB cửa hàng.
+      final auth = ref.read(authServiceProvider);
+      final db = ref.read(databaseServiceProvider);
+      final employee = await EmployeeAuthService.findByUsername(
+        storeId: storeId,
+        storeAppCode: appCode,
+        username: identifier,
+      );
+      if (employee == null) return null;
+      await auth.employeeSignIn(
+        storeId: storeId,
+        storeAppCode: appCode,
+        employee: employee.toJson(),
+      );
+      await db.initStore(storeId: storeId, module: auth.defaultStoreModule);
+      if (mounted) {
+        ref.read(selectedModuleProvider.notifier).state =
+            auth.defaultStoreModule;
+      }
+      return null;
+    } catch (e) {
+      // Lỗi đọc DB cửa hàng: không chặn luồng Cloud, để Owner đăng nhập.
+      return null;
     }
   }
 

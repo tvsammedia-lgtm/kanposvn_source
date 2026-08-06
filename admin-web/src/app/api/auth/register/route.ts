@@ -36,10 +36,25 @@ export async function POST(req: NextRequest) {
     }
 
     const appCode = (app_code || STORE_LICENSE_APP_CODE) as string;
+
+    // Module phai ton tai trong apps va dang hien thi cho dang ky
+    const appRows = await sql`
+      SELECT app_code, app_name, show_in_registration FROM apps WHERE app_code = ${appCode}
+    `;
+    const visibleApps = await sql`
+      SELECT app_code FROM apps WHERE show_in_registration = true
+    `;
+    const visibleCodes = visibleApps.length > 0
+      ? new Set(visibleApps.map((a: { app_code: string }) => a.app_code))
+      : new Set(STORE_MODULES.map((m) => m.app_code));
+    const appRow = appRows[0] as { app_code?: string; app_name?: string; show_in_registration?: boolean } | undefined;
+
     const moduleInfo = STORE_MODULES.find((m) => m.app_code === appCode);
-    if (!moduleInfo) {
+    const moduleName = appRow?.app_name || moduleInfo?.name || appCode;
+
+    if (!appRow || !visibleCodes.has(appCode) || appRow.show_in_registration === false) {
       return NextResponse.json(
-        { error: `Module "${appCode}" không hợp lệ. Vui lòng chọn ngành nghề.` },
+        { error: `Module "${appCode}" đang ẩn hoặc không tồn tại. Vui lòng chọn ngành nghề.` },
         { status: 400, headers: corsHeaders() },
       );
     }
@@ -100,7 +115,7 @@ export async function POST(req: NextRequest) {
         storeId: store.id,
         storeName,
         appCode,
-        moduleName: moduleInfo.name,
+        moduleName,
         trial: true,
         expiresAt: license.expires_at,
       },

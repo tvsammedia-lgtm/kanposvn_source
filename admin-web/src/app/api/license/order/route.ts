@@ -47,7 +47,7 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { app_code, plan } = body;
     const appCode = (app_code || 'kanposvncafe') as string;
-    const planInfo = getPlan(plan || 'monthly');
+    const planInfo = getPlan(plan || 'yearly');
 
     const user = await resolveUser(sql, req, body);
     if (!user) {

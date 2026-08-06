@@ -13,7 +13,15 @@ enum AppModule {
   kanposvnbida('KanPosVN Quản Lý Bida', Icons.sports_baseball, Color(0xFF059669)),
   kanposvnnhahangquanan('KanPosVN Nhà Hàng / Quán Ăn', Icons.restaurant, Color(0xFFEA580C)),
   kanposvnnhatro200('KanPosVN Nhà Trọ', Icons.apartment, Color(0xFF06B6D4)),
-  kanposvnspa('KanPosVN Spa & Dưỡng Sinh', Icons.spa, Color(0xFFEC4899));
+  kanposvnspa('KanPosVN Spa & Dưỡng Sinh', Icons.spa, Color(0xFFEC4899)),
+  kanposvntaphoasmmini('KanPosVN Tạp Hóa Mini', Icons.storefront, Color(0xFF14B8A6)),
+  kanposvncrm('KanCRM', Icons.admin_panel_settings, Color(0xFFE11D48)),
+  kanposvngym('KanGYM', Icons.fitness_center, Color(0xFF1E3A8A)),
+  kanposvnparking('Kan Parking', Icons.local_parking, Color(0xFF0F766E)),
+  kanposvnviec('KanViec', Icons.work, Color(0xFF6366F1)),
+  kanposvnride('KanRide', Icons.hail, Color(0xFFFACC15)),
+  kanposvneshop('KanShop', Icons.shopping_bag, Color(0xFFF97316)),
+  kanposvnhrpayroll('KanPosVN HR Payroll (Vận Tải)', Icons.badge, Color(0xFF0EA5E9));
 
   final String label;
   final IconData icon;
@@ -35,6 +43,14 @@ enum AppModule {
       case AppModule.kanposvnnhahangquanan: return 'kanposvnnhahangquanan';
       case AppModule.kanposvnnhatro200: return 'kanposvnnhatro200';
       case AppModule.kanposvnspa: return 'kanposvnspa';
+      case AppModule.kanposvntaphoasmmini: return 'kanposvntaphoasmmini';
+      case AppModule.kanposvncrm: return 'kanposvncrm';
+      case AppModule.kanposvngym: return 'kanposvngym';
+      case AppModule.kanposvnparking: return 'kanposvnparking';
+      case AppModule.kanposvnviec: return 'kanposvnviec';
+      case AppModule.kanposvnride: return 'kanposvnride';
+      case AppModule.kanposvneshop: return 'kanposvneshop';
+      case AppModule.kanposvnhrpayroll: return 'kanposvnhrpayroll';
     }
   }
 
@@ -53,6 +69,14 @@ enum AppModule {
       case AppModule.kanposvnnhahangquanan: return AppModuleType.kanposvnnhahangquanan;
       case AppModule.kanposvnnhatro200: return AppModuleType.kanposvnnhatro200;
       case AppModule.kanposvnspa: return AppModuleType.kanposvnspa;
+      case AppModule.kanposvntaphoasmmini: return AppModuleType.kanposvntaphoasmmini;
+      case AppModule.kanposvncrm: return AppModuleType.kanposvncrm;
+      case AppModule.kanposvngym: return AppModuleType.kanposvngym;
+      case AppModule.kanposvnparking: return AppModuleType.kanposvnparking;
+      case AppModule.kanposvnviec: return AppModuleType.kanposvnviec;
+      case AppModule.kanposvnride: return AppModuleType.kanposvnride;
+      case AppModule.kanposvneshop: return AppModuleType.kanposvneshop;
+      case AppModule.kanposvnhrpayroll: return AppModuleType.kanposvnhrpayroll;
     }
   }
 
@@ -74,7 +98,15 @@ enum AppModuleType {
   kanposvnnhahangquanan('Nhà Hàng / Quán Ăn', Icons.restaurant),
   kanposvnqlcd('KanPosVN QLCD (Cắt Ghép & Vé)', Icons.content_cut),
   kanposvnnbatdongsan('KanPosVN Bất Động Sản', Icons.real_estate_agent),
-  kanposvnnhatro200('KanPosVN Nhà Trọ', Icons.apartment);
+  kanposvnnhatro200('KanPosVN Nhà Trọ', Icons.apartment),
+  kanposvntaphoasmmini('KanPosVN Tạp Hóa Mini', Icons.storefront),
+  kanposvncrm('KanCRM', Icons.admin_panel_settings),
+  kanposvngym('KanGYM', Icons.fitness_center),
+  kanposvnparking('Kan Parking', Icons.local_parking),
+  kanposvnviec('KanViec', Icons.work),
+  kanposvnride('KanRide', Icons.hail),
+  kanposvneshop('KanShop', Icons.shopping_bag),
+  kanposvnhrpayroll('KanPosVN HR Payroll (Vận Tải)', Icons.badge);
 
   final String label;
   final IconData icon;

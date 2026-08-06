@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/auth/employee_management_screen.dart';
 import '../features/auth/controller/auth_controller.dart';
 import '../features/auth/view/user_management_screen.dart';
 import '../features/cutting_entry/view/cutting_entry_screen.dart';
@@ -24,6 +25,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/users',
         builder: (context, state) => const UserManagementScreen(),
+      ),
+      GoRoute(
+        path: '/employees',
+        builder: (context, state) => const EmployeeManagementScreen(),
       ),
       GoRoute(
         path: '/',

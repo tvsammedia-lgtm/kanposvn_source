@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import '../models/cafe_table.dart';
 import '../models/cafe_order.dart';
 import '../providers/cafe_providers.dart';
+import '../cafe_navigation.dart';
 
 class TablesScreen extends ConsumerStatefulWidget {
   const TablesScreen({super.key});
@@ -714,7 +715,7 @@ class _TablesScreenState extends ConsumerState<TablesScreen> {
                 ),
           );
     }
-    ref.read(cafeTabIndexProvider.notifier).state = 2;
+    await openPosForOrder(context, ref);
   }
 
   void _showOrderTypePickerDialog(BuildContext context, CafeTable table) {
@@ -801,7 +802,7 @@ class _TablesScreenState extends ConsumerState<TablesScreen> {
                     ),
               );
           ref.read(cafeOrdersProvider.notifier).loadOrders();
-          ref.read(cafeTabIndexProvider.notifier).state = 2;
+          await openPosForOrder(context, ref);
         },
         style: OutlinedButton.styleFrom(
           padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),

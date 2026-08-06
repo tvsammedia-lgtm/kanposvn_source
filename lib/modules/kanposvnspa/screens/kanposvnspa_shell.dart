@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/auth/employee_auth.dart';
+import '../../../core/auth/employee_management_screen.dart';
+import '../../../core/auth/employee_role_policy.dart';
 import '../../../core/providers.dart';
 import '../../../core/router/module_selector_screen.dart';
 import '../providers/spa_providers.dart';
@@ -47,13 +50,22 @@ class _KanPosVNSpaShellState extends ConsumerState<KanPosVNSpaShell> {
     });
   }
 
-  final List<Widget> _screens = [
-    const SpaBedsScreen(),
-    const SpaDashboardScreen(),
-    const SpaCustomersScreen(),
-    const SpaInventoryScreen(),
-    const SpaSyncScreen(),
-    const SpaSalesReportScreen(),
+  static final Map<String, Set<String>> _roleTabs = {
+    EmployeeRoles.cashier: const {'beds', 'customers'},
+    EmployeeRoles.sale: const {'beds', 'customers'},
+    EmployeeRoles.warehouse: const {'inventory'},
+    EmployeeRoles.accountant: const {'dashboard', 'report'},
+  };
+
+  static final List<({String id, Widget screen, IconData icon, String label})>
+      _allTabs = [
+    (id: 'beds', screen: const SpaBedsScreen(), icon: Icons.grid_view, label: 'Sơ đồ Giường'),
+    (id: 'dashboard', screen: const SpaDashboardScreen(), icon: Icons.dashboard, label: 'Dashboard'),
+    (id: 'customers', screen: const SpaCustomersScreen(), icon: Icons.people, label: 'Khách Hàng'),
+    (id: 'inventory', screen: const SpaInventoryScreen(), icon: Icons.local_pharmacy, label: 'Kho Dược Liệu'),
+    (id: 'sync', screen: const SpaSyncScreen(), icon: Icons.sync, label: 'Đồng Bộ'),
+    (id: 'report', screen: const SpaSalesReportScreen(), icon: Icons.bar_chart, label: 'Báo Cáo'),
+    (id: 'employees', screen: const EmployeeManagementScreen(), icon: Icons.badge, label: 'Quản Lý NV'),
   ];
 
   @override
@@ -61,6 +73,17 @@ class _KanPosVNSpaShellState extends ConsumerState<KanPosVNSpaShell> {
     if (!_isInit) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
+
+    final auth = ref.watch(authServiceProvider);
+    final tabs = _allTabs
+        .where((t) => EmployeeRolePolicy.isAllowed(
+              isManager: auth.isManager,
+              role: auth.employeeRole,
+              tabId: t.id,
+              roleTabs: _roleTabs,
+            ))
+        .toList();
+    final safeIndex = _selectedIndex < tabs.length ? _selectedIndex : 0;
 
     return Scaffold(
       appBar: AppBar(
@@ -79,25 +102,24 @@ class _KanPosVNSpaShellState extends ConsumerState<KanPosVNSpaShell> {
       body: Row(
         children: [
           NavigationRail(
-            selectedIndex: _selectedIndex,
+            selectedIndex: safeIndex,
             onDestinationSelected: (index) {
               setState(() {
                 _selectedIndex = index;
               });
             },
             labelType: NavigationRailLabelType.all,
-            destinations: const [
-              NavigationRailDestination(icon: Icon(Icons.grid_view), label: Text('Sơ đồ Giường')),
-              NavigationRailDestination(icon: Icon(Icons.dashboard), label: Text('Dashboard')),
-              NavigationRailDestination(icon: Icon(Icons.people), label: Text('Khách Hàng')),
-              NavigationRailDestination(icon: Icon(Icons.local_pharmacy), label: Text('Kho Dược Liệu')),
-              NavigationRailDestination(icon: Icon(Icons.sync), label: Text('Đồng Bộ')),
-              NavigationRailDestination(icon: Icon(Icons.bar_chart), label: Text('Báo Cáo')),
+            destinations: [
+              for (final t in tabs)
+                NavigationRailDestination(
+                  icon: Icon(t.icon),
+                  label: Text(t.label),
+                ),
             ],
           ),
           const VerticalDivider(thickness: 1, width: 1),
           Expanded(
-            child: _screens[_selectedIndex],
+            child: tabs[safeIndex].screen,
           ),
         ],
       ),

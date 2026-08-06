@@ -1,5 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
+import { isSuperAdminEmail, isCafeAdminEmail } from '@/lib/admin';
 
 interface App {
   id: string;
@@ -31,8 +32,8 @@ export default function AppsPage() {
     }
   }, []);
 
-  const isSuperAdmin = currentUser?.email === 'admin@kanposvn.com';
-  const isCafeAdmin = currentUser?.email === 'admin@kanposvncafe.com';
+  const isSuperAdmin = isSuperAdminEmail(currentUser?.email);
+  const isCafeAdmin = isCafeAdminEmail(currentUser?.email);
 
   const loadApps = async () => {
     const res = await fetch('/api/apps', { headers: { Authorization: `Bearer ${token}` } });

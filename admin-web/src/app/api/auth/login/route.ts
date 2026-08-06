@@ -39,6 +39,30 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Thong tin cua hang (dang ky qua Web / Zalo Mini App)
+    const [store] = await sql`SELECT id, name, phone FROM stores WHERE owner_user_id = ${user.id}`;
+    let license = null;
+    if (store) {
+      const licRows = await sql`
+        SELECT id, plan, status, expires_at, app_code FROM licenses
+        WHERE user_id = ${user.id}
+        ORDER BY (store_id = ${store.id}) DESC, started_at DESC LIMIT 1
+      `;
+      license = licRows[0] || null;
+    }
+
+    const now = new Date();
+    const expired = license?.expires_at && new Date(license.expires_at as string) < now;
+
+    if (expired) {
+      await sql`UPDATE users SET active = false WHERE id = ${user.id}`;
+      await sql`UPDATE licenses SET status = 'expired' WHERE id = ${license.id}`;
+      return NextResponse.json(
+        { error: 'Gói bản quyền đã hết hạn. Tài khoản đã bị khóa. Vui lòng gia hạn trên Zalo Mini App.' },
+        { status: 403, headers: corsHeaders() },
+      );
+    }
+
     if (!user.active) {
       return NextResponse.json(
         { error: 'Tài khoản đã bị khóa' },
@@ -89,17 +113,6 @@ export async function POST(req: NextRequest) {
     const token = signToken({ id: user.id, email: user.email, role: isAdmin ? 'admin' : 'user' });
 
     // Thong tin cua hang (dang ky qua Web / Zalo Mini App)
-    const [store] = await sql`SELECT id, name, phone FROM stores WHERE owner_user_id = ${user.id}`;
-    let license = null;
-    if (store) {
-      const licRows = await sql`
-        SELECT plan, status, expires_at, app_code FROM licenses
-        WHERE user_id = ${user.id}
-        ORDER BY (store_id = ${store.id}) DESC, started_at DESC LIMIT 1
-      `;
-      license = licRows[0] || null;
-    }
-
     return NextResponse.json(
       {
         user: {
@@ -121,7 +134,9 @@ export async function POST(req: NextRequest) {
         storeName: store?.name ?? null,
         storePhone: store?.phone ?? null,
         appCode: license?.app_code ?? null,
+        plan: license?.plan ?? null,
         trial: license?.plan === 'trial',
+        forever: !license?.expires_at && !!license,
         expiresAt: license?.expires_at ?? null,
       },
       { headers: corsHeaders() },

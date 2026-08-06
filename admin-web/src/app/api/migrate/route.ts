@@ -85,6 +85,7 @@ export async function POST(req: NextRequest) {
     ['stores_index_owner', 'CREATE INDEX IF NOT EXISTS idx_stores_owner ON stores(owner_user_id)'],
     ['licenses_store_id', 'ALTER TABLE licenses ADD COLUMN IF NOT EXISTS store_id UUID REFERENCES stores(id)'],
     ['licenses_index_store', 'CREATE INDEX IF NOT EXISTS idx_licenses_store ON licenses(store_id)'],
+    ['apps_show_in_registration', 'ALTER TABLE apps ADD COLUMN IF NOT EXISTS show_in_registration BOOLEAN NOT NULL DEFAULT true'],
     ['pos_app', `INSERT INTO apps (app_code, app_name, description, package_name, platform)
       SELECT 'pos', 'KanPosVN', 'POS cho cửa hàng đăng ký qua Web/Zalo', 'kanposvn.pos', 'mobile'
       WHERE NOT EXISTS (SELECT 1 FROM apps WHERE app_code = 'pos')`],

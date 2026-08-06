@@ -20,10 +20,20 @@ export async function OPTIONS() {
   return new NextResponse(null, { status: 200, headers: corsHeaders() });
 }
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   const sql = getSql();
+  const registration = req.nextUrl.searchParams.get('registration') === '1';
+  if (registration) {
+    const apps = await sql`
+      SELECT id, app_code, app_name, show_in_registration
+      FROM apps
+      WHERE show_in_registration = true
+      ORDER BY app_name
+    `;
+    return NextResponse.json(apps, { headers: corsHeaders() });
+  }
   const apps = await sql`
-    SELECT id, app_code, app_name, description, package_name, app_url, platform, created_at
+    SELECT id, app_code, app_name, description, package_name, app_url, platform, show_in_registration, created_at
     FROM apps ORDER BY app_name
   `;
   return NextResponse.json(apps, { headers: corsHeaders() });

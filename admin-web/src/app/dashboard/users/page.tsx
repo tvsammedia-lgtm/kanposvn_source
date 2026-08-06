@@ -1,5 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
+import { isSuperAdminEmail, isCafeAdminEmail, isProtectedAdminEmail } from '@/lib/admin';
 
 interface User {
   id: string;
@@ -18,20 +19,25 @@ interface User {
 
 const PLANS = [
   { value: '7', label: '7 ngày' },
-  { value: '30', label: '30 ngày' },
-  { value: '60', label: '60 ngày' },
-  { value: '90', label: '90 ngày' },
   { value: '365', label: '365 ngày' },
+  { value: 'forever', label: 'Vĩnh Viễn' },
 ];
 
-const EMPTY_FORM = { email: '', password: '', full_name: '', birth_year: '', cccd: '', phone: '', subscription_plan: '30' };
+const EMPTY_FORM = { email: '', password: '', full_name: '', birth_year: '', cccd: '', phone: '', subscription_plan: '7' };
 
 function calcEndDate(planDays: string): string {
+  if (planDays === 'forever') return 'Vĩnh Viễn';
   const days = parseInt(planDays) || 0;
   if (days <= 0) return '—';
   const end = new Date();
   end.setDate(end.getDate() + days);
   return end.toLocaleDateString('vi-VN');
+}
+
+function planLabel(plan: string): string {
+  if (!plan) return '-';
+  if (plan === 'forever') return 'Vĩnh Viễn';
+  return `${plan} ngày`;
 }
 
 export default function UsersPage() {
@@ -45,6 +51,10 @@ export default function UsersPage() {
   const [newPassword, setNewPassword] = useState('');
   const [pwError, setPwError] = useState('');
   const [pwSuccess, setPwSuccess] = useState('');
+  const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [editForm, setEditForm] = useState({ email: '', full_name: '', cccd: '', phone: '', subscription_plan: '7' });
+  const [editError, setEditError] = useState('');
+  const [editSuccess, setEditSuccess] = useState('');
   const [currentUser, setCurrentUser] = useState<{ email: string; role?: string } | null>(null);
 
   const token = typeof window !== 'undefined' ? localStorage.getItem('admin_token') : '';
@@ -56,8 +66,8 @@ export default function UsersPage() {
     }
   }, []);
 
-  const isSuperAdmin = currentUser?.email === 'admin@kanposvn.com';
-  const isCafeAdmin = currentUser?.email === 'admin@kanposvncafe.com';
+  const isSuperAdmin = isSuperAdminEmail(currentUser?.email);
+  const isCafeAdmin = isCafeAdminEmail(currentUser?.email);
 
   const loadUsers = async () => {
     setLoading(true);
@@ -117,7 +127,7 @@ export default function UsersPage() {
       alert('Chi super admin moi co xoa user');
       return;
     }
-    if (email === 'admin@kanposvn.com' || email === 'admin@kanposvncafe.com') {
+    if (isProtectedAdminEmail(email)) {
       alert('Khong the xoa admin');
       return;
     }
@@ -142,6 +152,40 @@ export default function UsersPage() {
     setPwSuccess('Da doi mat khau thanh cong!');
     setNewPassword('');
     setTimeout(() => { setChangingPwUser(null); setPwSuccess(''); }, 1500);
+  };
+
+  const openEdit = (u: User) => {
+    if (!isSuperAdmin) {
+      alert('Chi super admin moi co sua thong tin user');
+      return;
+    }
+    setEditForm({
+      email: u.email,
+      full_name: u.full_name || '',
+      cccd: u.cccd || '',
+      phone: u.phone || '',
+      subscription_plan: u.subscription_plan || '7',
+    });
+    setEditingUser(u);
+    setEditError('');
+    setEditSuccess('');
+  };
+
+  const handleEdit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingUser) return;
+    setEditError('');
+    setEditSuccess('');
+    const res = await fetch(`/api/users/${editingUser.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify(editForm),
+    });
+    const data = await res.json();
+    if (!res.ok) { setEditError(data.error || 'Loi khi sua thong tin'); return; }
+    setEditSuccess('Da cap nhat thong tin thanh cong!');
+    loadUsers();
+    setTimeout(() => { setEditingUser(null); setEditSuccess(''); }, 1200);
   };
 
   const permBadges = (perms: User['permissions']) => {
@@ -238,9 +282,9 @@ export default function UsersPage() {
                   <td className="px-4 py-3 text-sm">{u.cccd || '-'}</td>
                   <td className="px-4 py-3 text-sm">{u.phone || '-'}</td>
                   <td className="px-4 py-3 text-sm">
-                    {u.subscription_plan ? `${u.subscription_plan} ngay` : '-'}
+                    {planLabel(u.subscription_plan)}
                   </td>
-                  <td className="px-4 py-3 text-sm">{formatDate(u.subscription_end)}</td>
+                  <td className="px-4 py-3 text-sm">{u.subscription_plan === 'forever' ? 'Vĩnh Viễn' : formatDate(u.subscription_end)}</td>
                   <td className="px-4 py-3">{permBadges(u.permissions)}</td>
                   <td className="px-4 py-3">
                     <span className={`text-xs px-2 py-1 rounded-full ${u.active ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
@@ -250,12 +294,15 @@ export default function UsersPage() {
                   <td className="px-4 py-3">
                     <div className="flex gap-1">
                       <button onClick={() => { setChangingPwUser(u); setNewPassword(''); setPwError(''); setPwSuccess(''); }} className="text-xs px-2 py-1 rounded bg-yellow-100 text-yellow-600 hover:bg-yellow-200">Doi MK</button>
+                      {isSuperAdmin && (
+                        <button onClick={() => openEdit(u)} className="text-xs px-2 py-1 rounded bg-blue-100 text-blue-600 hover:bg-blue-200">Sua</button>
+                      )}
                       {(isSuperAdmin || isCafeAdmin) && (
                         <button onClick={() => toggleActive(u)} className={`text-xs px-2 py-1 rounded ${u.active ? 'bg-red-100 text-red-600 hover:bg-red-200' : 'bg-green-100 text-green-600 hover:bg-green-200'}`}>
                           {u.active ? 'Khoa' : 'Mo'}
                         </button>
                       )}
-                      {isSuperAdmin && u.email !== 'admin@kanposvn.com' && u.email !== 'admin@kanposvncafe.com' && (
+                      {isSuperAdmin && !isProtectedAdminEmail(u.email) && (
                         <button onClick={() => deleteUser(u.id, u.email)} className="text-xs px-2 py-1 rounded bg-red-100 text-red-600 hover:bg-red-200">Xoa</button>
                       )}
                     </div>
@@ -287,6 +334,68 @@ export default function UsersPage() {
               </div>
               {pwError && <div className="text-red-500 text-sm">{pwError}</div>}
               {pwSuccess && <div className="text-green-600 text-sm">{pwSuccess}</div>}
+            </form>
+          </div>
+        </div>
+      )}
+      {editingUser && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl shadow-xl p-6 w-full max-w-lg">
+            <h3 className="font-bold text-lg mb-4">Sua thong tin: {editingUser.email}</h3>
+            <form onSubmit={handleEdit} className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <label className="block">
+                  <span className="text-sm text-gray-600">User (Email)</span>
+                  <input
+                    type="email"
+                    value={editForm.email}
+                    onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
+                    disabled={isProtectedAdminEmail(editingUser.email)}
+                    className="w-full mt-1 border rounded-lg px-4 py-2 disabled:bg-gray-100"
+                    required
+                  />
+                </label>
+                <label className="block">
+                  <span className="text-sm text-gray-600">Ho ten</span>
+                  <input
+                    value={editForm.full_name}
+                    onChange={(e) => setEditForm({ ...editForm, full_name: e.target.value })}
+                    className="w-full mt-1 border rounded-lg px-4 py-2"
+                  />
+                </label>
+                <label className="block">
+                  <span className="text-sm text-gray-600">So DT</span>
+                  <input
+                    value={editForm.phone}
+                    onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })}
+                    className="w-full mt-1 border rounded-lg px-4 py-2"
+                  />
+                </label>
+                <label className="block">
+                  <span className="text-sm text-gray-600">CCCD</span>
+                  <input
+                    value={editForm.cccd}
+                    onChange={(e) => setEditForm({ ...editForm, cccd: e.target.value })}
+                    className="w-full mt-1 border rounded-lg px-4 py-2"
+                  />
+                </label>
+                <label className="block col-span-2">
+                  <span className="text-sm text-gray-600">Goi (so ngay su dung)</span>
+                  <select
+                    value={editForm.subscription_plan}
+                    onChange={(e) => setEditForm({ ...editForm, subscription_plan: e.target.value })}
+                    className="w-full mt-1 border rounded-lg px-4 py-2"
+                  >
+                    {PLANS.map(p => <option key={p.value} value={p.value}>{p.label}</option>)}
+                  </select>
+                </label>
+              </div>
+              <div className="flex gap-2">
+                <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Luu</button>
+                <button type="button" onClick={() => setEditingUser(null)} className="bg-gray-300 px-4 py-2 rounded-lg">Huy</button>
+              </div>
+              {editError && <div className="text-red-500 text-sm">{editError}</div>}
+              {editSuccess && <div className="text-green-600 text-sm">{editSuccess}</div>}
             </form>
           </div>
         </div>

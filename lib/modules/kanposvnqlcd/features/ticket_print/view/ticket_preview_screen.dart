@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
+import '../../../../../core/auth/auth_service.dart';
 import '../../../data/models/cut_detail.dart';
 import '../../../data/repositories/garment_repository.dart';
 
@@ -12,6 +13,8 @@ class TicketPreviewScreen extends ConsumerWidget {
   const TicketPreviewScreen({super.key, required this.idGen});
 
   Future<pw.Document> _generatePdf(List<CutDetail> details) async {
+    final storeName = await AuthService.loadSavedStoreName();
+    final storePhone = await AuthService.loadSavedStorePhone();
     final pdf = pw.Document();
 
     pw.Font? font;
@@ -34,6 +37,22 @@ class TicketPreviewScreen extends ConsumerWidget {
         theme: theme,
         build: (context) {
           return [
+            pw.Center(
+              child: pw.Text(
+                storeName ?? 'KANPOSVN QLCD',
+                textAlign: pw.TextAlign.center,
+                style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold),
+              ),
+            ),
+            if (storePhone != null && storePhone.isNotEmpty)
+              pw.Center(
+                child: pw.Text(
+                  'ĐT: $storePhone',
+                  textAlign: pw.TextAlign.center,
+                  style: pw.TextStyle(fontSize: 10),
+                ),
+              ),
+            pw.SizedBox(height: 6),
             pw.Text('Phiếu in tem - Mã $idGen', style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold)),
             pw.SizedBox(height: 10),
             pw.Table(

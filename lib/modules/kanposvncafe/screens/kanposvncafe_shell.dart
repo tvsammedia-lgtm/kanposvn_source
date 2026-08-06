@@ -1,11 +1,12 @@
-import 'dart:io' show exit;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/auth/employee_management_screen.dart';
 import '../../../core/db/database_service.dart';
 import '../../../core/providers.dart';
 import '../../../core/router/module_selector_screen.dart';
 import '../providers/cafe_providers.dart';
 import '../services/cafe_seed_data.dart';
+import '../services/cafe_permission_service.dart';
 import 'floor_table_management_screen.dart';
 import 'tables_screen.dart';
 import 'pos_order_screen.dart';
@@ -20,6 +21,7 @@ import 'voucher_screen.dart';
 import 'order_history_screen.dart';
 import 'backup_restore_screen.dart';
 import 'cafe_sales_report_screen.dart';
+import 'cafe_permission_screen.dart';
 
 class KanPosVNCafeShell extends ConsumerStatefulWidget {
   const KanPosVNCafeShell({super.key});
@@ -41,6 +43,7 @@ class _KanPosVNCafeShellState extends ConsumerState<KanPosVNCafeShell> {
     try {
       final db = DatabaseService.instance;
       await CafeSeedData.seedIfEmpty(db);
+      ref.read(cafeTabPermissionsProvider.notifier).load(db);
     } catch (e) {
       // ignore init errors
     } finally {
@@ -143,7 +146,37 @@ class _KanPosVNCafeShellState extends ConsumerState<KanPosVNCafeShell> {
       shortLabel: 'BCBH',
       icon: Icons.bar_chart,
     ),
+    const _CafeTab(
+      id: 'employees',
+      screen: EmployeeManagementScreen(),
+      label: 'Quản lý nhân viên',
+      shortLabel: 'NV',
+      icon: Icons.badge,
+    ),
+    const _CafeTab(
+      id: 'permissions',
+      screen: CafePermissionScreen(),
+      label: 'Phân quyền',
+      shortLabel: 'Q.Trị',
+      icon: Icons.admin_panel_settings,
+    ),
   ];
+
+  /// Lọc tab theo role tài khoản (Owner/Manager xem hết, nhân viên xem theo
+  /// cấu hình phân quyền trong màn hình "Phân quyền").
+  static List<_CafeTab> _tabsForRole(
+    bool isManager,
+    String? role,
+    Map<String, Set<String>> permissions,
+  ) {
+    final allowed = allowedTabIdsForRole(isManager, role, permissions);
+    final filtered = _allTabs.where((t) => allowed.contains(t.id)).toList();
+    // An toàn: role không được cấu hình tab nào → ít nhất vẫn thấy Sơ đồ Bàn.
+    if (filtered.isEmpty) {
+      return _allTabs.where((t) => t.id == 'tables').toList();
+    }
+    return filtered;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -156,9 +189,18 @@ class _KanPosVNCafeShellState extends ConsumerState<KanPosVNCafeShell> {
 
     final isDesktop = MediaQuery.of(context).size.width > 600;
     final selectedIndex = ref.watch(cafeTabIndexProvider);
+    final activeTabId = ref.watch(cafeActiveTabIdProvider);
     final auth = ref.watch(authServiceProvider);
-    final tabs = auth.isManager ? _allTabs : _allTabs.sublist(0, 2);
-    final safeIndex = selectedIndex < tabs.length ? selectedIndex : 0;
+    final tabPermissions = ref.watch(cafeTabPermissionsProvider);
+    final tabs = _tabsForRole(auth.isManager, auth.employeeRole, tabPermissions);
+    // Ưu tiên tab theo id (điều hướng bằng tên thay vì index cứng) —
+    // chống lệch index khi danh sách tab bị lọc theo role.
+    final activeIndex =
+        activeTabId != null ? tabs.indexWhere((t) => t.id == activeTabId) : -1;
+    final safeIndex =
+        activeIndex >= 0
+            ? activeIndex
+            : (selectedIndex < tabs.length ? selectedIndex : 0);
     final mobileTabs = tabs;
     final mobileSafeIndex = safeIndex;
     // Ensure active tab id is set on initial display — do this after tabs are constructed
@@ -198,6 +240,33 @@ class _KanPosVNCafeShellState extends ConsumerState<KanPosVNCafeShell> {
           ],
         ),
         actions: [
+          Container(
+            margin: const EdgeInsets.symmetric(horizontal: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            decoration: BoxDecoration(
+              color: Colors.white24,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.person, size: 16, color: Colors.white),
+                const SizedBox(width: 6),
+                ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 200),
+                  child: Text(
+                    auth.displayName,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
+          ),
           IconButton(
             icon: const Icon(Icons.sync),
             tooltip: 'Đồng bộ Neon DB',
@@ -225,13 +294,6 @@ class _KanPosVNCafeShellState extends ConsumerState<KanPosVNCafeShell> {
               final auth = ref.read(authServiceProvider);
               ref.read(selectedModuleProvider.notifier).state = null;
               await auth.signOut();
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.exit_to_app),
-            tooltip: 'Thoát',
-            onPressed: () {
-              exit(0);
             },
           ),
         ],

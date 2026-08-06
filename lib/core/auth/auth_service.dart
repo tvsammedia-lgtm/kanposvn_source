@@ -13,9 +13,13 @@ class AuthService extends ChangeNotifier {
   static const _kStoreIdKey = 'auth_store_id';
   static const _kStoreNameKey = 'auth_store_name';
   static const _kStorePhoneKey = 'auth_store_phone';
+  static const _kOwnerNameKey = 'auth_owner_name';
+  static const _kOwnerPhoneKey = 'auth_owner_phone';
   static const _kStoreAppCodeKey = 'auth_store_app_code';
   static const _kTrialKey = 'auth_trial';
   static const _kExpiresAtKey = 'auth_expires_at';
+  static const _kEmployeeKey = 'auth_employee';
+  static const _kOwnerHasLoggedInKey = 'auth_owner_logged_in';
 
   /// App code dùng cho license của cửa hàng (đăng ký qua Web/Zalo).
   static const String storeLicenseAppCode = 'pos';
@@ -24,6 +28,39 @@ class AuthService extends ChangeNotifier {
 
   Map<String, dynamic>? _user;
   Map<String, dynamic>? get user => _user;
+
+  /// Tài khoản nội bộ (Cấp 2) đang đăng nhập cục bộ — do Owner tạo.
+  Map<String, dynamic>? _employee;
+  Map<String, dynamic>? get employee => _employee;
+
+  /// Đang đăng nhập bằng tài khoản nhân viên nội bộ (không phải Cloud).
+  bool get isEmployeeLogin => _employee != null;
+
+  String? get employeeUsername => _employee?['username']?.toString();
+  String? get employeeFullName => _employee?['fullName']?.toString();
+
+  /// Role nội bộ: Manager / Thu ngân / Bán hàng / Kho / Kế toán.
+  String? get employeeRole => _employee?['role']?.toString();
+
+  /// Tên hiển thị của tài khoản đang đăng nhập (employee nội bộ hoặc user Cloud).
+  String get displayName {
+    if (isEmployeeLogin) {
+      final fullName = employeeFullName;
+      if (fullName != null && fullName.isNotEmpty) return fullName;
+      final username = employeeUsername;
+      if (username != null && username.isNotEmpty) return username;
+    }
+    if (_user != null) {
+      final name = _user?['fullName']?.toString() ??
+          _user?['name']?.toString();
+      if (name != null && name.isNotEmpty) return name;
+      final email = _user?['email']?.toString();
+      if (email != null && email.isNotEmpty) return email;
+      final phone = _user?['phone']?.toString();
+      if (phone != null && phone.isNotEmpty) return phone;
+    }
+    return 'Tài khoản';
+  }
 
   String? _token;
   String? get token => _token;
@@ -43,7 +80,7 @@ class AuthService extends ChangeNotifier {
   DateTime? _licenseExpiresAt;
   DateTime? get licenseExpiresAt => _licenseExpiresAt;
 
-  /// User đăng ký cửa hàng qua Web/Zalo: không cần chọn module/app.
+  /// User đăng ký cửa hàng qua Web/Zalo hoặc tài khoản nội bộ: không cần chọn module/app.
   bool get isStoreUser => _storeId != null;
 
   String? _storeAppCode;
@@ -74,7 +111,7 @@ class AuthService extends ChangeNotifier {
     notifyListeners();
   }
 
-  bool get isAuthenticated => _token != null && _user != null;
+  bool get isAuthenticated => (_token != null && _user != null) || _employee != null;
 
   List<Map<String, dynamic>> _permissions = [];
   List<Map<String, dynamic>> get permissions => List.unmodifiable(_permissions);
@@ -158,6 +195,29 @@ class AuthService extends ChangeNotifier {
     }
   }
 
+  /// Đăng nhập bằng tài khoản nhân viên nội bộ (Cấp 2).
+  ///
+  /// Chỉ xác thực trong Isar của cửa hàng, KHÔNG gọi Cloud.
+  Future<bool> employeeSignIn({
+    required String storeId,
+    required String storeAppCode,
+    required Map<String, dynamic> employee,
+  }) async {
+    _token = null;
+    _user = null;
+    _permissions = [];
+    _currentModule = null;
+    _currentAppCode = storeAppCode;
+    _employee = Map<String, dynamic>.from(employee);
+    _storeId = storeId;
+    _storeAppCode = storeAppCode;
+    _isStoreTrial = false;
+    _licenseExpiresAt = null;
+    await _persistSession();
+    notifyListeners();
+    return true;
+  }
+
   Future<void> warmUp() async {
     try {
       await _client
@@ -187,13 +247,20 @@ class AuthService extends ChangeNotifier {
   }
 
   bool get isManager {
+    // Owner (chủ cửa hàng) và tài khoản nội bộ Manager có toàn quyền.
     if (isCurrentUserAdmin) return true;
+    // Employee nội bộ phải check role TRƯỚC isStoreUser — vì employeeSignIn
+    // cũng gán _storeId (nếu check sau thì mọi employee bị coi là Owner).
+    if (isEmployeeLogin) return employeeRole == 'Manager';
+    if (isStoreUser) return true;
     final role = userRole;
     return role == 'Admin' || role == 'Manager';
   }
 
   bool get isAdmin {
     if (isCurrentUserAdmin) return true;
+    if (isEmployeeLogin) return employeeRole == 'Manager';
+    if (isStoreUser) return true;
     return userRole == 'Admin';
   }
 
@@ -246,6 +313,7 @@ class AuthService extends ChangeNotifier {
     _token = null;
     _user = null;
     _permissions = [];
+    _employee = null;
     _currentModule = null;
     _currentAppCode = null;
     _storeId = null;
@@ -267,7 +335,27 @@ class AuthService extends ChangeNotifier {
       final permissionsJson = prefs.getString(_kPermissionsKey);
       final currentAppCode = prefs.getString(_kCurrentAppCodeKey);
 
+      _storeId = prefs.getString(_kStoreIdKey);
+      _storeName = prefs.getString(_kStoreNameKey);
+      _storePhone = prefs.getString(_kStorePhoneKey);
+      _storeAppCode = prefs.getString(_kStoreAppCodeKey);
+      _isStoreTrial = prefs.getBool(_kTrialKey) ?? false;
+      final expiresStr = prefs.getString(_kExpiresAtKey);
+      _licenseExpiresAt = expiresStr != null ? DateTime.tryParse(expiresStr) : null;
+
+      // Phiên tài khoản nội bộ: không có token Cloud nhưng vẫn hợp lệ.
       if (token == null || userJson == null || permissionsJson == null) {
+        final employeeJson = prefs.getString(_kEmployeeKey);
+        if (employeeJson != null && _storeId != null) {
+          _employee = Map<String, dynamic>.from(jsonDecode(employeeJson));
+          if (_storeAppCode != null) {
+            final restoredModule = _moduleFromAppCode(_storeAppCode!);
+            _currentModule = restoredModule;
+            _currentAppCode = restoredModule?.appCode;
+          }
+          notifyListeners();
+          return isAuthenticated;
+        }
         return false;
       }
 
@@ -290,13 +378,17 @@ class AuthService extends ChangeNotifier {
           ? restoredModule
           : null;
 
-      _storeId = prefs.getString(_kStoreIdKey);
-      _storeName = prefs.getString(_kStoreNameKey);
-      _storePhone = prefs.getString(_kStorePhoneKey);
-      _storeAppCode = prefs.getString(_kStoreAppCodeKey);
-      _isStoreTrial = prefs.getBool(_kTrialKey) ?? false;
-      final expiresStr = prefs.getString(_kExpiresAtKey);
-      _licenseExpiresAt = expiresStr != null ? DateTime.tryParse(expiresStr) : null;
+      // Phiên Cloud đang tồn tại → Owner đã từng đăng nhập trên máy này.
+      await prefs.setBool(_kOwnerHasLoggedInKey, true);
+      // Đồng bộ tên & SĐT Owner vào key riêng (cho các bản cài cũ chưa có).
+      final ownerName = _user?['fullName']?.toString() ?? _user?['name']?.toString();
+      if (ownerName != null && ownerName.isNotEmpty) {
+        await prefs.setString(_kOwnerNameKey, ownerName);
+      }
+      final ownerPhone = _user?['phone']?.toString();
+      if (ownerPhone != null && ownerPhone.isNotEmpty) {
+        await prefs.setString(_kOwnerPhoneKey, ownerPhone);
+      }
 
       notifyListeners();
       return isAuthenticated;
@@ -308,11 +400,32 @@ class AuthService extends ChangeNotifier {
   }
 
   Future<void> _persistSession() async {
-    if (_token == null || _user == null) return;
+    if (!isAuthenticated) return;
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_kTokenKey, _token!);
-    await prefs.setString(_kUserKey, jsonEncode(_user));
-    await prefs.setString(_kPermissionsKey, jsonEncode(_permissions));
+    if (_employee != null) {
+      await prefs.setString(_kEmployeeKey, jsonEncode(_employee));
+      await prefs.remove(_kTokenKey);
+      await prefs.remove(_kUserKey);
+      await prefs.remove(_kPermissionsKey);
+    } else if (_token != null && _user != null) {
+      await prefs.setString(_kTokenKey, _token!);
+      await prefs.setString(_kUserKey, jsonEncode(_user));
+      await prefs.setString(_kPermissionsKey, jsonEncode(_permissions));
+      await prefs.remove(_kEmployeeKey);
+      // Tên & SĐT của Owner (dùng làm tiêu đề in hóa đơn/phiếu chi).
+      final ownerName =
+          _user?['fullName']?.toString() ?? _user?['name']?.toString();
+      if (ownerName != null && ownerName.isNotEmpty) {
+        await prefs.setString(_kOwnerNameKey, ownerName);
+      }
+      final ownerPhone = _user?['phone']?.toString();
+      if (ownerPhone != null && ownerPhone.isNotEmpty) {
+        await prefs.setString(_kOwnerPhoneKey, ownerPhone);
+      }
+      // Owner/Store đã đăng nhập Cloud trên máy này: cờ bền vững cho phép
+      // xác thực tài khoản nội bộ (Cấp 2) trong Isar của cửa hàng sau này.
+      await prefs.setBool(_kOwnerHasLoggedInKey, true);
+    }
     if (_currentAppCode != null) {
       await prefs.setString(_kCurrentAppCodeKey, _currentAppCode!);
     } else {
@@ -351,11 +464,8 @@ class AuthService extends ChangeNotifier {
     await prefs.remove(_kTokenKey);
     await prefs.remove(_kUserKey);
     await prefs.remove(_kPermissionsKey);
+    await prefs.remove(_kEmployeeKey);
     await prefs.remove(_kCurrentAppCodeKey);
-    await prefs.remove(_kStoreIdKey);
-    await prefs.remove(_kStoreNameKey);
-    await prefs.remove(_kStorePhoneKey);
-    await prefs.remove(_kStoreAppCodeKey);
     await prefs.remove(_kTrialKey);
     await prefs.remove(_kExpiresAtKey);
   }
@@ -367,16 +477,45 @@ class AuthService extends ChangeNotifier {
     return null;
   }
 
-  /// Tên cửa hàng đã đăng ký (dùng cho in hóa đơn, phiếu chi...).
+  /// Tên chủ cửa hàng (Owner) đã đăng ký — tiêu đề in hóa đơn, phiếu chi...
+  /// Ưu tiên tên Owner; nếu chưa có thì dùng tên cửa hàng đã lưu.
   static Future<String?> loadSavedStoreName() async {
     final prefs = await SharedPreferences.getInstance();
+    final ownerName = prefs.getString(_kOwnerNameKey);
+    if (ownerName != null && ownerName.isNotEmpty) return ownerName;
     return prefs.getString(_kStoreNameKey);
   }
 
-  /// SĐT cửa hàng đã đăng ký (dùng cho in hóa đơn, phiếu chi...).
+  /// SĐT chủ cửa hàng (Owner) đã đăng ký — dùng cho in hóa đơn, phiếu chi...
+  /// Ưu tiên SĐT Owner; nếu chưa có thì dùng SĐT cửa hàng đã lưu.
   static Future<String?> loadSavedStorePhone() async {
     final prefs = await SharedPreferences.getInstance();
+    final ownerPhone = prefs.getString(_kOwnerPhoneKey);
+    if (ownerPhone != null && ownerPhone.isNotEmpty) return ownerPhone;
     return prefs.getString(_kStorePhoneKey);
+  }
+
+  /// Store ID đã lưu trên máy (dùng để đăng nhập tài khoản nội bộ ngoại tuyến).
+  static Future<String?> loadSavedStoreId() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_kStoreIdKey);
+  }
+
+  /// App code của cửa hàng đã lưu trên máy.
+  static Future<String?> loadSavedStoreAppCode() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_kStoreAppCodeKey);
+  }
+
+  /// Owner đã từng đăng nhập Cloud trên máy này hay chưa.
+  ///
+  /// Cờ bền vững: không bị xóa khi đăng xuất hay khi tài khoản nội bộ (Cấp 2)
+  /// đăng nhập. Chỉ khi cờ này `true` thì DB cửa hàng (Isar) mới được mở để
+  /// xác thực tài khoản nội bộ — đảm bảo employee chỉ được login sau khi
+  /// Owner đã khởi tạo/sync dữ liệu cửa hàng trên máy này.
+  static Future<bool> hasOwnerLoggedInOnDevice() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_kOwnerHasLoggedInKey) ?? false;
   }
 
   Future<String?> loadSavedAppCode() async => null;

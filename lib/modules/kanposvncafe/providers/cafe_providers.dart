@@ -10,6 +10,7 @@ import '../services/cafe_isar_service.dart';
 import 'package:kanposvn/core/db/database_service.dart';
 import '../services/cafe_neon_sync_service.dart';
 import '../services/cafe_backup_restore_service.dart';
+import '../services/cafe_permission_service.dart';
 
 final cafeIsarServiceProvider = Provider<CafeIsarService>(
   (ref) => CafeIsarService(),
@@ -673,3 +674,27 @@ final cafeTabIndexProvider = StateProvider<int>((ref) => 0);
 
 // Active tab identifier to allow screens to react to becoming visible without hard-coded indices
 final cafeActiveTabIdProvider = StateProvider<String?>((ref) => null);
+
+// --- TAB PERMISSIONS PROVIDER ---
+class CafeTabPermissionsNotifier
+    extends StateNotifier<Map<String, Set<String>>> {
+  CafeTabPermissionsNotifier() : super({});
+
+  /// Nạp cấu hình phân quyền tab từ Isar (DB cửa hàng).
+  void load(DatabaseService db) {
+    state = CafePermissionService.load(db);
+  }
+
+  Future<void> save(
+    DatabaseService db,
+    Map<String, Set<String>> permissions,
+  ) async {
+    await CafePermissionService.save(db, permissions);
+    state = Map<String, Set<String>>.from(permissions);
+  }
+}
+
+final cafeTabPermissionsProvider =
+    StateNotifierProvider<CafeTabPermissionsNotifier, Map<String, Set<String>>>(
+      (ref) => CafeTabPermissionsNotifier(),
+    );

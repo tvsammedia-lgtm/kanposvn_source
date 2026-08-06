@@ -114,11 +114,12 @@ export async function GET(req: NextRequest) {
 
     if (lic.expires_at && new Date(lic.expires_at) < now) {
       await sql`UPDATE licenses SET status = 'expired', last_check_at = ${now.toISOString()} WHERE id = ${lic.id}`;
+      await sql`UPDATE users SET active = false WHERE id = ${userId}`;
       return NextResponse.json(
         {
           valid: false,
           expired: true,
-          message: 'License đã hết hạn. Vui lòng gia hạn trên Zalo Mini App.',
+          message: 'License đã hết hạn. Tài khoản đã bị khóa. Vui lòng gia hạn trên Zalo Mini App.',
           plan: lic.plan,
           expires_at: lic.expires_at,
         },
@@ -128,21 +129,25 @@ export async function GET(req: NextRequest) {
 
     await sql`UPDATE licenses SET last_check_at = ${now.toISOString()} WHERE id = ${lic.id}`;
 
-    const daysLeft = lic.expires_at
-      ? Math.max(0, Math.ceil((new Date(lic.expires_at).getTime() - now.getTime()) / (24 * 60 * 60 * 1000)))
-      : 36500;
+    const forever = !lic.expires_at;
+    const daysLeft = forever
+      ? 36500
+      : Math.max(0, Math.ceil((new Date(lic.expires_at).getTime() - now.getTime()) / (24 * 60 * 60 * 1000)));
 
     return NextResponse.json(
       {
         valid: true,
         plan: lic.plan,
+        forever,
         started_at: lic.started_at,
         expires_at: lic.expires_at,
         days_left: daysLeft,
         device_id: deviceId,
-        message: daysLeft <= 7
-          ? `License còn ${daysLeft} ngày. Hãy gia hạn trên Zalo Mini App.`
-          : 'License hợp lệ',
+        message: forever
+          ? 'License hợp lệ · Vĩnh Viễn'
+          : daysLeft <= 7
+            ? `License còn ${daysLeft} ngày. Hãy gia hạn trên Zalo Mini App.`
+            : 'License hợp lệ',
       },
       { headers: corsHeaders() },
     );

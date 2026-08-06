@@ -61,12 +61,14 @@ export async function GET(req: NextRequest) {
     const now = new Date();
     const licensesWithStatus = licenses.map((lic: { [k: string]: unknown }) => {
       const expired = lic.expires_at && new Date(lic.expires_at as string) < now;
-      const daysLeft = lic.expires_at
-        ? Math.max(0, Math.ceil((new Date(lic.expires_at as string).getTime() - now.getTime()) / (24 * 60 * 60 * 1000)))
-        : 36500;
+      const forever = !lic.expires_at;
+      const daysLeft = forever
+        ? null
+        : Math.max(0, Math.ceil((new Date(lic.expires_at as string).getTime() - now.getTime()) / (24 * 60 * 60 * 1000)));
       return {
         app_code: lic.app_code,
         plan: lic.plan,
+        forever,
         status: expired ? 'expired' : lic.status,
         started_at: lic.started_at,
         expires_at: lic.expires_at,

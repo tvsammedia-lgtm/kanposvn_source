@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/auth/employee_auth.dart';
+import '../../../core/auth/employee_management_screen.dart';
+import '../../../core/auth/employee_role_policy.dart';
+import '../../../core/providers.dart';
 import '../../../core/sync/api_config.dart';
 import '../providers/nhathuoc_providers.dart';
 import '../services/nhathuoc_seed_data.dart';
@@ -38,13 +42,22 @@ class _KanPosVNNhathuocShellState extends ConsumerState<KanPosVNNhathuocShell> {
     });
   }
 
-  final List<Widget> _screens = [
-    const NhathuocDashboardScreen(),
-    const NhathuocPosScreen(),
-    const NhathuocInventoryScreen(),
-    const NhathuocPatientScreen(),
-    const NhathuocPrescriptionScreen(),
-    const NhathuocSyncScreen(),
+  static final Map<String, Set<String>> _roleTabs = {
+    EmployeeRoles.cashier: const {'pos', 'patient', 'prescription'},
+    EmployeeRoles.sale: const {'pos', 'patient'},
+    EmployeeRoles.warehouse: const {'inventory', 'pos'},
+    EmployeeRoles.accountant: const {'dashboard', 'pos'},
+  };
+
+  static final List<({String id, Widget screen, IconData icon, String label})>
+      _allTabs = [
+    (id: 'dashboard', screen: const NhathuocDashboardScreen(), icon: Icons.dashboard, label: 'Báo Cáo'),
+    (id: 'pos', screen: const NhathuocPosScreen(), icon: Icons.point_of_sale, label: 'Bán Hàng'),
+    (id: 'inventory', screen: const NhathuocInventoryScreen(), icon: Icons.inventory, label: 'Kho Thuốc'),
+    (id: 'patient', screen: const NhathuocPatientScreen(), icon: Icons.people, label: 'Bệnh Nhân'),
+    (id: 'prescription', screen: const NhathuocPrescriptionScreen(), icon: Icons.receipt_long, label: 'Toa Mẫu'),
+    (id: 'sync', screen: const NhathuocSyncScreen(), icon: Icons.sync, label: 'Đồng bộ'),
+    (id: 'employees', screen: const EmployeeManagementScreen(), icon: Icons.badge, label: 'Quản Lý NV'),
   ];
 
   @override
@@ -53,29 +66,39 @@ class _KanPosVNNhathuocShellState extends ConsumerState<KanPosVNNhathuocShell> {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
+    final auth = ref.watch(authServiceProvider);
+    final tabs = _allTabs
+        .where((t) => EmployeeRolePolicy.isAllowed(
+              isManager: auth.isManager,
+              role: auth.employeeRole,
+              tabId: t.id,
+              roleTabs: _roleTabs,
+            ))
+        .toList();
+    final safeIndex = _selectedIndex < tabs.length ? _selectedIndex : 0;
+
     return Scaffold(
       body: Row(
         children: [
           NavigationRail(
-            selectedIndex: _selectedIndex,
+            selectedIndex: safeIndex,
             onDestinationSelected: (index) {
               setState(() {
                 _selectedIndex = index;
               });
             },
             labelType: NavigationRailLabelType.all,
-            destinations: const [
-              NavigationRailDestination(icon: Icon(Icons.dashboard), label: Text('Báo Cáo')),
-              NavigationRailDestination(icon: Icon(Icons.point_of_sale), label: Text('Bán Hàng')),
-              NavigationRailDestination(icon: Icon(Icons.inventory), label: Text('Kho Thuốc')),
-              NavigationRailDestination(icon: Icon(Icons.people), label: Text('Bệnh Nhân')),
-              NavigationRailDestination(icon: Icon(Icons.receipt_long), label: Text('Toa Mẫu')),
-              NavigationRailDestination(icon: Icon(Icons.sync), label: Text('Đồng bộ')),
+            destinations: [
+              for (final t in tabs)
+                NavigationRailDestination(
+                  icon: Icon(t.icon),
+                  label: Text(t.label),
+                ),
             ],
           ),
           const VerticalDivider(thickness: 1, width: 1),
           Expanded(
-            child: _screens[_selectedIndex],
+            child: tabs[safeIndex].screen,
           ),
         ],
       ),

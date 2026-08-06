@@ -24,11 +24,11 @@ function PaymentPage() {
 
   const [phone, setPhone] = useState(user.phone || "");
   const [appCode, setAppCode] = useState(POS_APPS[0].appCode);
-  const [plan, setPlan] = useState(PLANS[0].key);
+  const [plan, setPlan] = useState(PLANS.find((p) => !p.trial)!.key);
   const [orderCode, setOrderCode] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const selectedPlan = PLANS.find((p) => p.key === plan) || PLANS[0];
+  const selectedPlan = PLANS.find((p) => p.key === plan) || PLANS.find((p) => !p.trial)!;
 
   const createOrder = async () => {
     if (!phone) {
@@ -93,7 +93,7 @@ function PaymentPage() {
         </Select>
         <Box className="rounded-lg bg-amber-50 p-3">
           <Text bold className="!text-amber-800">
-            {formatVND(selectedPlan.price)} / {selectedPlan.label} ({selectedPlan.days} ngày)
+            {formatVND(selectedPlan.price)} / {selectedPlan.forever ? "Vĩnh Viễn" : selectedPlan.label} ({selectedPlan.forever ? "mãi mãi" : `${selectedPlan.days} ngày`})
           </Text>
         </Box>
         <Button fullWidth variant="primary" onClick={createOrder} disabled={loading}>

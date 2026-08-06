@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Box,
@@ -14,8 +14,8 @@ import {
 import { useAtom } from "jotai";
 
 import { userAtom } from "@/state";
-import { POS_APPS } from "@/constants/config";
-import { postJson } from "@/services/api";
+import { POS_APPS, PosApp } from "@/constants/config";
+import { postJson, getJson } from "@/services/api";
 import { getZaloProfile } from "@/services/zalo";
 
 function RegisterPage() {
@@ -28,7 +28,25 @@ function RegisterPage() {
   const [name, setName] = useState(user.name || "");
   const [shopName, setShopName] = useState("");
   const [email, setEmail] = useState("");
+  const [apps, setApps] = useState<PosApp[]>(POS_APPS);
   const [appCode, setAppCode] = useState(POS_APPS[0].appCode);
+
+  useEffect(() => {
+    getJson("/api/apps?registration=1")
+      .then((data) => {
+        if (Array.isArray(data) && data.length > 0) {
+          const mapped = data.map((a: { app_code: string; app_name: string }) => ({
+            appCode: a.app_code,
+            label: a.app_name,
+          }));
+          setApps(mapped);
+          setAppCode(mapped[0].appCode);
+        }
+      })
+      .catch(() => {
+        /* fallback POS_APPS */
+      });
+  }, []);
 
   const onSubmit = async () => {
     if (!phone) {
@@ -77,7 +95,7 @@ function RegisterPage() {
           value={appCode}
           onChange={(value) => setAppCode(String(value))}
         >
-          {POS_APPS.map((a) => (
+          {apps.map((a) => (
             <Select.Option key={a.appCode} value={a.appCode} title={a.label} />
           ))}
         </Select>

@@ -1,15 +1,20 @@
-export const PLANS: Record<
-  string,
-  { key: string; label: string; days: number; price: number; trial: boolean }
-> = {
-  trial: { key: 'trial', label: 'Dùng thử 7 ngày', days: 7, price: 0, trial: true },
-  monthly: { key: 'monthly', label: '1 tháng', days: 30, price: 99000, trial: false },
-  quarterly: { key: 'quarterly', label: '3 tháng', days: 90, price: 249000, trial: false },
-  yearly: { key: 'yearly', label: '12 tháng', days: 365, price: 899000, trial: false },
+export type Plan = {
+  key: string;
+  label: string;
+  days: number;
+  price: number;
+  trial: boolean;
+  forever?: boolean;
 };
 
-export function getPlan(plan: string) {
-  return PLANS[plan] || PLANS.monthly;
+export const PLANS: Record<string, Plan> = {
+  trial: { key: 'trial', label: 'Dùng thử 7 ngày', days: 7, price: 0, trial: true },
+  yearly: { key: 'yearly', label: '365 ngày', days: 365, price: 899000, trial: false },
+  forever: { key: 'forever', label: 'Vĩnh Viễn', days: 0, price: 2999000, trial: false, forever: true },
+};
+
+export function getPlan(plan: string): Plan {
+  return PLANS[plan] || PLANS.yearly;
 }
 
 export function formatVND(amount: number) {
@@ -29,8 +34,8 @@ export function newOrderCode() {
 // Gioi han so thiet bi (device) duoc phep chay tren 1 license
 export const MAX_DEVICES = 2;
 
-// Trial 30 ngay khi dang ky cua hang qua Web / Zalo Mini App
-export const STORE_TRIAL_DAYS = 30;
+// Trial 7 ngay khi dang ky cua hang qua Web / Zalo Mini App
+export const STORE_TRIAL_DAYS = 7;
 
 // App code mặc định dùng cho license cua hang (neu khong truyen app_code)
 export const STORE_LICENSE_APP_CODE = 'pos';

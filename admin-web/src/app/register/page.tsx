@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { STORE_MODULES } from '@/lib/pricing';
 
@@ -25,6 +25,29 @@ export default function RegisterPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<RegisterResult | null>(null);
+  const [modules, setModules] = useState<{ app_code: string; app_name: string }[]>([]);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await fetch('/api/apps?registration=1');
+        if (!res.ok) throw new Error();
+        const data = await res.json();
+        if (Array.isArray(data) && data.length > 0) {
+          setModules(
+            data.map((m: { app_code: string; app_name: string }) => ({
+              app_code: m.app_code,
+              app_name: m.app_name,
+            })),
+          );
+          return;
+        }
+      } catch {
+        /* fallback ben duoi */
+      }
+      setModules(STORE_MODULES.map((m) => ({ app_code: m.app_code, app_name: m.name })));
+    })();
+  }, []);
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -75,7 +98,7 @@ export default function RegisterPage() {
             </svg>
           </div>
           <h1 className="text-2xl font-bold text-gray-900">Đăng ký cửa hàng</h1>
-          <p className="text-gray-500 mt-1">Tạo tài khoản KanPosVN - dùng thử 30 ngày</p>
+          <p className="text-gray-500 mt-1">Tạo tài khoản KanPosVN - dùng thử 7 ngày</p>
         </div>
 
         {result?.ok ? (
@@ -84,7 +107,7 @@ export default function RegisterPage() {
               <div className="font-semibold text-base mb-1">Đăng ký thành công 🎉</div>
               <div>Cửa hàng: <b>{result.storeName}</b></div>
               <div>Module: <b>{result.moduleName || result.appCode}</b></div>
-              <div>Trial 30 ngày, hết hạn: {result.expiresAt ? new Date(result.expiresAt).toLocaleDateString('vi-VN') : '-'}</div>
+              <div>Trial 7 ngày, hết hạn: {result.expiresAt ? new Date(result.expiresAt).toLocaleDateString('vi-VN') : '-'}</div>
             </div>
             <Link href="/login" className="block w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors text-center">
               Đăng nhập ngay
@@ -143,22 +166,26 @@ export default function RegisterPage() {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Ngành nghề / Module</label>
-                <div className="grid grid-cols-2 gap-2">
-                  {STORE_MODULES.map((m) => (
-                    <button
-                      key={m.app_code}
-                      type="button"
-                      onClick={() => setAppCode(m.app_code)}
-                      className={`px-3 py-2 rounded-lg border text-left text-sm font-medium transition-colors ${
-                        appCode === m.app_code
-                          ? 'border-green-600 bg-green-50 text-green-700'
-                          : 'border-gray-300 text-gray-700 hover:border-green-400'
-                      }`}
-                    >
-                      {m.name}
-                    </button>
-                  ))}
-                </div>
+                {modules.length === 0 ? (
+                  <div className="text-sm text-gray-400">Đang tải danh sách module...</div>
+                ) : (
+                  <div className="grid grid-cols-2 gap-2">
+                    {modules.map((m) => (
+                      <button
+                        key={m.app_code}
+                        type="button"
+                        onClick={() => setAppCode(m.app_code)}
+                        className={`px-3 py-2 rounded-lg border text-left text-sm font-medium transition-colors ${
+                          appCode === m.app_code
+                            ? 'border-green-600 bg-green-50 text-green-700'
+                            : 'border-gray-300 text-gray-700 hover:border-green-400'
+                        }`}
+                      >
+                        {m.app_name}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
 
               {error && (

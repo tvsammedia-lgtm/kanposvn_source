@@ -54,6 +54,7 @@ Future<void> printBillPdf(
           pw.Center(
             child: pw.Text(
               storeName ?? 'KANPOSVN',
+              textAlign: pw.TextAlign.center,
               style: pw.TextStyle(
                 font: fontBold,
                 fontSize: 14,
@@ -65,6 +66,7 @@ Future<void> printBillPdf(
             pw.Center(
               child: pw.Text(
                 'ĐT: $storePhone',
+                textAlign: pw.TextAlign.center,
                 style: pw.TextStyle(fontSize: 8),
               ),
             ),

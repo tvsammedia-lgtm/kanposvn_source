@@ -41,7 +41,7 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { app_code, plan } = body;
     const appCode = (app_code || 'kanposvncafe') as string;
-    const planInfo = getPlan(plan || 'monthly');
+    const planInfo = getPlan(plan || 'yearly');
 
     const user = await resolveUser(sql, req, body);
     if (!user) {
@@ -62,25 +62,29 @@ export async function POST(req: NextRequest) {
       SELECT * FROM licenses WHERE user_id = ${user.id} AND app_code = ${appCode}
     `;
     const days = planInfo.days;
-    const base = licRows.length > 0 && licRows[0].expires_at
-      ? new Date(Math.max(new Date(licRows[0].expires_at).getTime(), now.getTime()))
-      : now;
-    const newExpiry = new Date(base.getTime() + days * 24 * 60 * 60 * 1000);
+    const newExpiry: string | null = planInfo.forever
+      ? null
+      : (() => {
+          const base = licRows.length > 0 && licRows[0].expires_at
+            ? new Date(Math.max(new Date(licRows[0].expires_at).getTime(), now.getTime()))
+            : now;
+          return new Date(base.getTime() + days * 24 * 60 * 60 * 1000).toISOString();
+        })();
 
     if (licRows.length === 0) {
       await sql`
         INSERT INTO licenses (user_id, app_code, device_id, plan, status, started_at, expires_at)
-        VALUES (${user.id}, ${appCode}, '', ${planInfo.key}, 'active', ${now.toISOString()}, ${newExpiry.toISOString()})
+        VALUES (${user.id}, ${appCode}, '', ${planInfo.key}, 'active', ${now.toISOString()}, ${newExpiry})
       `;
     } else {
       await sql`
-        UPDATE licenses SET plan = ${planInfo.key}, status = 'active', expires_at = ${newExpiry.toISOString()}
+        UPDATE licenses SET plan = ${planInfo.key}, status = 'active', expires_at = ${newExpiry}
         WHERE id = ${licRows[0].id}
       `;
     }
 
     await sql`
-      UPDATE users SET subscription_plan = ${planInfo.key}, subscription_start = ${now.toISOString()}, subscription_end = ${newExpiry.toISOString()}
+      UPDATE users SET subscription_plan = ${planInfo.key}, subscription_start = ${now.toISOString()}, subscription_end = ${newExpiry}, active = true
       WHERE id = ${user.id}
     `;
 
@@ -95,9 +99,10 @@ export async function POST(req: NextRequest) {
         message: 'Gia hạn thành công!',
         order_code: orderCode,
         plan: planInfo.key,
+        forever: planInfo.forever || false,
         days_added: days,
         amount: planInfo.price,
-        expires_at: newExpiry.toISOString(),
+        expires_at: newExpiry,
       },
       { headers: corsHeaders() },
     );

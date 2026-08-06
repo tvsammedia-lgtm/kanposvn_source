@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSql } from '@/lib/db';
 import { verifyToken, hashPassword } from '@/lib/auth';
+import { isProtectedAdminEmail } from '@/lib/admin';
 
 function corsHeaders() {
   return {
@@ -29,6 +30,24 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 
   const { id } = await params;
   const body = await req.json();
+
+  const target = await sql`SELECT email FROM users WHERE id = ${id}`;
+  if (target.length === 0) {
+    return NextResponse.json({ error: 'Khong tim thay user' }, { status: 404, headers: corsHeaders() });
+  }
+  const targetEmail: string = target[0].email;
+
+  if (body.email !== undefined && body.email !== targetEmail) {
+    if (isProtectedAdminEmail(targetEmail)) {
+      return NextResponse.json({ error: 'Khong the doi email tai khoan admin' }, { status: 400, headers: corsHeaders() });
+    }
+    const dup = await sql`SELECT id FROM users WHERE email = ${body.email} AND id <> ${id}`;
+    if (dup.length > 0) {
+      return NextResponse.json({ error: 'Email da ton tai' }, { status: 409, headers: corsHeaders() });
+    }
+    await sql`UPDATE users SET email = ${body.email} WHERE id = ${id}`;
+    await sql`INSERT INTO audit_logs (user_name, action, module, details) VALUES (${admin.email}, 'Sua user', 'Users', ${'Doi email user: ' + targetEmail + ' -> ' + body.email})`;
+  }
 
   if (body.active !== undefined) {
     await sql`UPDATE users SET active = ${body.active} WHERE id = ${id}`;
@@ -68,6 +87,8 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       WHERE id = ${id}
     `;
   }
+
+  await sql`INSERT INTO audit_logs (user_name, action, module, details) VALUES (${admin.email}, 'Sua thong tin', 'Users', ${'Sua user: ' + targetEmail})`;
 
   const updated = await sql`SELECT id, email, full_name, active, created_at, birth_year, cccd, phone, subscription_plan, subscription_start, subscription_end FROM users WHERE id = ${id}`;
   return NextResponse.json(updated[0], { headers: corsHeaders() });

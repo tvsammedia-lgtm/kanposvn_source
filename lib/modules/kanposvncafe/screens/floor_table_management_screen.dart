@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/cafe_order.dart';
 import '../models/cafe_table.dart';
 import '../providers/cafe_providers.dart';
+import '../cafe_navigation.dart';
 
 class FloorTableManagementScreen extends ConsumerStatefulWidget {
   const FloorTableManagementScreen({super.key});
@@ -750,7 +751,7 @@ class _FloorTableManagementScreenState
                   ),
             );
       }
-      ref.read(cafeTabIndexProvider.notifier).state = 2;
+      await openPosForOrder(context, ref);
       return;
     }
 
@@ -843,7 +844,7 @@ class _FloorTableManagementScreenState
                     ),
               );
           ref.read(cafeOrdersProvider.notifier).loadOrders();
-          ref.read(cafeTabIndexProvider.notifier).state = 2;
+          await openPosForOrder(context, ref);
         },
         style: OutlinedButton.styleFrom(
           padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),

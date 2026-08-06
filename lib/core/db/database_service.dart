@@ -11,11 +11,16 @@ class DatabaseService extends ChangeNotifier {
   static final DatabaseService instance = DatabaseService._();
   DatabaseService._();
 
+  static const String syncQueueCollection = '__sync_queue__';
+
   bool _isInitialized = false;
   bool get isInitialized => _isInitialized;
 
-  String _currentAppCode = 'kannhathuoc';
+  String _currentAppCode = 'kanposvncafe';
   String get currentAppCode => _currentAppCode;
+
+  String? _currentStoreId;
+  String? get currentStoreId => _currentStoreId;
 
   AppModule? _currentModule;
   AppModule? get currentModule => _currentModule;
@@ -55,26 +60,60 @@ class DatabaseService extends ChangeNotifier {
 
   /// Khởi tạo database theo cửa hàng (đăng ký qua Web/Zalo Mini App).
   /// Không cần tạo app mới — mỗi cửa hàng có 1 Isar local riêng.
+  ///
+  /// Idempotent: nếu cùng storeId + app code đã được khởi tạo thì không
+  /// load lại toàn bộ data (tránh chậm khi login lặp lại). Nếu có luồng
+  /// khởi tạo đang chạy cùng storeId thì chờ luồng đó thay vì chạy thêm.
+  Future<void>? _pendingStoreInit;
+
   Future<void> initStore({
     required String storeId,
     AppModule module = AppModule.kanposvncafe,
     Isar? isar,
-  }) async {
-    _currentModule = module;
-    _currentAppCode = module.appCode;
-    if (isar != null && isar.isOpen) {
-      _isar = isar;
-    } else {
-      _isar = await openStoreIsar(storeId);
+  }) {
+    final pending = _pendingStoreInit;
+    if (pending != null &&
+        _currentStoreId == storeId &&
+        _currentAppCode == module.appCode) {
+      return pending;
     }
-    _isInitialized = true;
-    await _loadFromIsar();
-    notifyListeners();
+    if (_isInitialized &&
+        _currentStoreId == storeId &&
+        _currentAppCode == module.appCode &&
+        (_isar?.isOpen ?? false)) {
+      return Future.value();
+    }
+    final task = _doInitStore(storeId: storeId, module: module, isar: isar);
+    _pendingStoreInit = task;
+    return task;
+  }
+
+  Future<void> _doInitStore({
+    required String storeId,
+    required AppModule module,
+    Isar? isar,
+  }) async {
+    try {
+      _currentModule = module;
+      _currentAppCode = module.appCode;
+      _currentStoreId = storeId;
+      if (isar != null && isar.isOpen) {
+        _isar = isar;
+      } else if (_isar == null || !_isar!.isOpen || _currentStoreId != storeId) {
+        _isar = await openStoreIsar(storeId);
+      }
+      _isInitialized = true;
+      await _loadFromIsar();
+      notifyListeners();
+    } finally {
+      _pendingStoreInit = null;
+    }
   }
 
   Future<void> init({required AppModule module, Isar? isar}) async {
     _currentModule = module;
     _currentAppCode = module.appCode;
+    _currentStoreId = null;
     if (isar != null && isar.isOpen) {
       _isar = isar;
     } else if (_isar == null || !_isar!.isOpen) {
@@ -88,6 +127,7 @@ class DatabaseService extends ChangeNotifier {
   Future<void> _loadFromIsar() async {
     if (_isar == null) return;
     _memory.clear();
+    _syncQueue.clear();
     try {
       final entities = await _isar!.dataEntitys
           .where()
@@ -95,9 +135,26 @@ class DatabaseService extends ChangeNotifier {
           .appCodeEqualTo(_currentAppCode)
           .findAll();
       for (final e in entities) {
+        if (e.collection == syncQueueCollection) continue;
         _memory.putIfAbsent(e.collection, () => {});
         _memory[e.collection]![e.itemId] = jsonDecode(e.jsonData);
       }
+      final queueEntities = await _isar!.dataEntitys
+          .where()
+          .filter()
+          .appCodeEqualTo(_currentAppCode)
+          .collectionEqualTo(syncQueueCollection)
+          .findAll();
+      for (final e in queueEntities) {
+        try {
+          final item = SyncQueueItem.fromJson(
+              jsonDecode(e.jsonData) as Map<String, dynamic>);
+          if (item.status == 'Pending') _syncQueue.add(item);
+        } catch (e) {
+          // ignore corrupt queue items
+        }
+      }
+      _syncQueue.sort((a, b) => a.timestamp.compareTo(b.timestamp));
     } catch (e) {
       // ignore isar load errors
     }
@@ -190,6 +247,7 @@ class DatabaseService extends ChangeNotifier {
     _memory.putIfAbsent(collection, () => {});
     item['id'] = id;
     item['appCode'] = _currentAppCode;
+    if (_currentStoreId != null) item['storeId'] = _currentStoreId;
     item['isSynced'] = false;
     item['updatedAt'] = DateTime.now().toIso8601String();
     _memory[collection]![id] = item;
@@ -205,7 +263,9 @@ class DatabaseService extends ChangeNotifier {
   Future<void> deleteItem(String collection, String id, {bool triggerSync = true}) async {
     _memory[collection]?.remove(id);
     if (triggerSync) {
-      _addToSyncQueue(collection, 'DELETE', {'id': id, 'appCode': _currentAppCode});
+      final deleteData = <String, dynamic>{'id': id, 'appCode': _currentAppCode};
+      if (_currentStoreId != null) deleteData['storeId'] = _currentStoreId;
+      _addToSyncQueue(collection, 'DELETE', deleteData);
       addAuditLog('User', 'Xóa $collection', collection, 'ID: $id | App: $_currentAppCode');
     }
     await _deleteItemFromIsar(collection, id);
@@ -214,19 +274,77 @@ class DatabaseService extends ChangeNotifier {
 
   void _addToSyncQueue(String entity, String operation, Map<String, dynamic> data) {
     data['appCode'] = _currentAppCode;
-    _syncQueue.add(SyncQueueItem(
+    if (_currentStoreId != null) data['storeId'] = _currentStoreId;
+    final item = SyncQueueItem(
       id: 'SYNC-${DateTime.now().millisecondsSinceEpoch}-${_syncQueue.length}',
       entityName: entity,
       operation: operation,
       data: data,
       timestamp: DateTime.now(),
       status: 'Pending',
-    ));
+    );
+    _syncQueue.add(item);
+    _persistQueueItem(item);
+  }
+
+  Future<void> _persistQueueItem(SyncQueueItem item) async {
+    if (_isar == null) return;
+    try {
+      final existing = await _isar!.dataEntitys
+          .where()
+          .filter()
+          .appCodeEqualTo(_currentAppCode)
+          .collectionEqualTo(syncQueueCollection)
+          .itemIdEqualTo(item.id)
+          .findFirst();
+      final jsonStr = jsonEncode(item.toJson());
+      await _isar!.writeTxn(() async {
+        if (existing != null) {
+          existing.jsonData = jsonStr;
+          await _isar!.dataEntitys.put(existing);
+        } else {
+          final entity = DataEntity()
+            ..collection = syncQueueCollection
+            ..appCode = _currentAppCode
+            ..itemId = item.id
+            ..jsonData = jsonStr;
+          await _isar!.dataEntitys.put(entity);
+        }
+      });
+    } catch (e) {
+      // ignore isar save errors
+    }
+  }
+
+  Future<void> _deleteQueueItemsFromIsar(List<String> ids) async {
+    if (_isar == null || ids.isEmpty) return;
+    try {
+      final existing = await _isar!.dataEntitys
+          .where()
+          .filter()
+          .appCodeEqualTo(_currentAppCode)
+          .collectionEqualTo(syncQueueCollection)
+          .findAll();
+      final toDelete = existing
+          .where((e) => ids.contains(e.itemId))
+          .map((e) => e.id)
+          .toList();
+      if (toDelete.isNotEmpty) {
+        await _isar!.writeTxn(() async {
+          for (final id in toDelete) {
+            await _isar!.dataEntitys.delete(id);
+          }
+        });
+      }
+    } catch (e) {
+      // ignore isar delete errors
+    }
   }
 
   void markSyncQueueProcessed(List<String> processedIds) {
     _syncQueue.removeWhere((i) => processedIds.contains(i.id));
     notifyListeners();
+    _deleteQueueItemsFromIsar(processedIds);
   }
 
   void addAuditLog(String user, String action, String module, String details) {

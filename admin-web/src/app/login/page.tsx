@@ -7,9 +7,17 @@ type LoginResult = {
   token?: string;
   storeId?: string | null;
   storeName?: string | null;
+  plan?: string | null;
   trial?: boolean;
+  forever?: boolean;
   expiresAt?: string | null;
   error?: string;
+};
+
+type StoreSummary = {
+  today: { invoices: number; revenue: number; cost: number; profit: number; debt: number };
+  display: { invoices: string; revenue: string; cost: string; profit: string; debt: string };
+  lastSync: string | null;
 };
 
 export default function StoreLoginPage() {
@@ -19,6 +27,29 @@ export default function StoreLoginPage() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<LoginResult | null>(null);
   const [daysLeft, setDaysLeft] = useState<number | null>(null);
+  const [summary, setSummary] = useState<StoreSummary | null>(null);
+  const [summaryLoading, setSummaryLoading] = useState(false);
+  const [summaryError, setSummaryError] = useState('');
+
+  const loadSummary = async (token: string) => {
+    setSummaryLoading(true);
+    setSummaryError('');
+    try {
+      const sres = await fetch('/api/store/summary', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const sdata = await sres.json();
+      if (sres.ok && sdata.ok) {
+        setSummary(sdata);
+      } else {
+        setSummaryError(sdata.error || 'Không tải được tóm tắt cửa hàng');
+      }
+    } catch {
+      setSummaryError('Không tải được tóm tắt cửa hàng');
+    } finally {
+      setSummaryLoading(false);
+    }
+  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -47,6 +78,9 @@ export default function StoreLoginPage() {
       );
       setResult(data);
       setLoading(false);
+      if (data.token) {
+        loadSummary(data.token);
+      }
     } catch {
       setError('Lỗi kết nối');
       setLoading(false);
@@ -79,20 +113,63 @@ export default function StoreLoginPage() {
               </div>
               <div className="flex justify-between mt-1">
                 <span className="text-gray-500">Gói</span>
-                <b>{result.trial ? 'Trial 30 ngày' : 'Đã mua'}</b>
+                <b>{result.forever ? 'Vĩnh Viễn' : result.trial ? 'Dùng thử 7 ngày' : result.plan === 'yearly' ? '365 ngày' : result.plan ? `${result.plan}` : 'Đã mua'}</b>
               </div>
-              {daysLeft !== null && (
+              {result.forever ? (
+                <div className="flex justify-between mt-1">
+                  <span className="text-gray-500">Còn lại</span>
+                  <b className="text-green-700">Vĩnh Viễn</b>
+                </div>
+              ) : daysLeft !== null ? (
                 <div className="flex justify-between mt-1">
                   <span className="text-gray-500">Còn lại</span>
                   <b className={daysLeft <= 7 ? 'text-orange-600' : 'text-green-700'}>{daysLeft} ngày</b>
                 </div>
-              )}
+              ) : null}
+
+              <div className="mt-4 pt-4 border-t border-blue-200">
+                <div className="text-center font-bold text-sm text-gray-800 mb-3">
+                  📊 DASHBOARD HÔM NAY
+                </div>
+                {summaryLoading ? (
+                  <div className="text-xs text-gray-400 text-center py-2">Đang tải tóm tắt...</div>
+                ) : summary ? (
+                  <div className="space-y-1.5 text-sm">
+                    <div className="flex justify-between">
+                      <span>🧾 Hóa đơn</span>
+                      <b>{summary.display.invoices}</b>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>💰 Doanh thu</span>
+                      <b className="text-green-700">{summary.display.revenue}</b>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>💸 Chi phí</span>
+                      <b className="text-orange-600">{summary.display.cost}</b>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>📈 Lợi nhuận</span>
+                      <b className="text-blue-700">{summary.display.profit}</b>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>📒 Công nợ</span>
+                      <b className="text-red-600">{summary.display.debt}</b>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>⏰ Đồng bộ</span>
+                      <b>{summary.lastSync || 'Chưa đồng bộ'}</b>
+                    </div>
+                  </div>
+                ) : summaryError ? (
+                  <div className="text-xs text-gray-400 text-center py-2">{summaryError}</div>
+                ) : null}
+              </div>
             </div>
             <Link href="/download" className="block w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors text-center">
               Tải POS về máy
             </Link>
             <button
-              onClick={() => { localStorage.removeItem('store_token'); localStorage.removeItem('store_user'); setResult(null); setDaysLeft(null); }}
+              onClick={() => { localStorage.removeItem('store_token'); localStorage.removeItem('store_user'); setResult(null); setDaysLeft(null); setSummary(null); setSummaryError(''); }}
               className="w-full mt-3 text-gray-500 text-sm font-medium hover:underline"
             >
               Đăng xuất

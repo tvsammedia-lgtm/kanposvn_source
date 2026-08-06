@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { isProtectedAdminEmail } from '@/lib/admin';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<{ email: string; full_name: string } | null>(null);
@@ -28,10 +29,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const navItems = [
     { href: '/dashboard', label: 'Tong quan', icon: '📊' },
     { href: '/dashboard/apps', label: 'Quan ly Apps', icon: '📱' },
+    { href: '/dashboard/modules', label: 'Modules dang ky', icon: '🧩' },
     { href: '/dashboard/users', label: 'Quan ly Users', icon: '👥' },
     { href: '/dashboard/permissions', label: 'Quyen User - Apps', icon: '🔐' },
     { href: '/dashboard/role-permissions', label: 'Quyen Roles', icon: '🛡️' },
-    ...(user?.email === 'admin@kanposvn.com' || user?.email === 'admin@kanposvncafe.com' ? [{ href: '/dashboard/sync', label: 'Dong bo', icon: '🔄' }] : []),
+    ...(isProtectedAdminEmail(user?.email) ? [
+      { href: '/dashboard/sync', label: 'Dong bo', icon: '🔄' },
+      { href: '/dashboard/sync-summary', label: 'Xem dong bo', icon: '📊' },
+    ] : []),
     { href: '/dashboard/logs', label: 'Nhat ky', icon: '📝' },
   ];
 

@@ -23,6 +23,7 @@ interface LicenseInfo {
   status: string;
   days_left: number;
   expires_at: string | null;
+  forever?: boolean;
 }
 
 function RenewPage() {
@@ -33,11 +34,11 @@ function RenewPage() {
   const [phone, setPhone] = useState(user.phone || "");
   const [licenses, setLicenses] = useState<LicenseInfo[]>([]);
   const [appCode, setAppCode] = useState(POS_APPS[0].appCode);
-  const [plan, setPlan] = useState(PLANS[0].key);
+  const [plan, setPlan] = useState(PLANS.find((p) => !p.trial)!.key);
   const [loading, setLoading] = useState(false);
   const [checking, setChecking] = useState(false);
 
-  const selectedPlan = PLANS.find((p) => p.key === plan) || PLANS[0];
+  const selectedPlan = PLANS.find((p) => p.key === plan) || PLANS.find((p) => !p.trial)!;
 
   const checkStatus = async () => {
     if (!phone) {
@@ -99,10 +100,12 @@ function RenewPage() {
                 Gói: {lic.plan} | Trạng thái: {lic.status}
               </Text>
               <Text className="text-sm">
-                Còn {lic.days_left} ngày
+                {lic.forever ? "Vĩnh Viễn" : `Còn ${lic.days_left} ngày`}
                 {lic.expires_at
                   ? ` | Hết hạn: ${new Date(lic.expires_at).toLocaleDateString("vi-VN")}`
-                  : ""}
+                  : lic.forever
+                    ? " | Không giới hạn"
+                    : ""}
               </Text>
             </Box>
           ))}
