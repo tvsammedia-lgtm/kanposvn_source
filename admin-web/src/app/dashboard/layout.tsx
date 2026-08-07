@@ -3,7 +3,6 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { isProtectedAdminEmail } from '@/lib/admin';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<{ email: string; full_name: string } | null>(null);
@@ -33,10 +32,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     { href: '/dashboard/users', label: 'Quan ly Users', icon: '👥' },
     { href: '/dashboard/permissions', label: 'Quyen User - Apps', icon: '🔐' },
     { href: '/dashboard/role-permissions', label: 'Quyen Roles', icon: '🛡️' },
-    ...(isProtectedAdminEmail(user?.email) ? [
-      { href: '/dashboard/sync', label: 'Dong bo', icon: '🔄' },
-      { href: '/dashboard/sync-summary', label: 'Xem dong bo', icon: '📊' },
-    ] : []),
+    { href: '/dashboard/sync', label: 'Dong bo', icon: '🔄' },
+    { href: '/dashboard/sync-summary', label: 'Xem dong bo', icon: '📊' },
     { href: '/dashboard/logs', label: 'Nhat ky', icon: '📝' },
   ];
 
