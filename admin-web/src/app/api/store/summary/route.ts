@@ -54,6 +54,21 @@ function fmtMoney(v: number): string {
   return Math.round(v).toLocaleString('vi-VN') + ' đ';
 }
 
+/// Nhận diện collection chung cho mọi module (giống /api/sync/summary):
+/// hóa đơn, giao dịch thu/chi, công nợ.
+const isInvoiceColl = (c: string) =>
+  c === 'cafe_orders' || c === 'orders' || c.endsWith('_orders');
+const isTxColl = (c: string) =>
+  c.includes('cash_transactions') || c.includes('transactions') || c.includes('expense');
+const DEBT_COLLS = [
+  'cafe_customers',
+  'cafe_suppliers',
+  'customers',
+  'suppliers',
+  'customer_debts',
+  'supplier_debts',
+];
+
 export async function GET(req: NextRequest) {
   const sql = getSql();
   try {
@@ -61,6 +76,7 @@ export async function GET(req: NextRequest) {
     if (!auth) {
       return NextResponse.json({ error: 'Chua dang nhap' }, { status: 401, headers: corsHeaders() });
     }
+    const selected = req.nextUrl.searchParams.get('app_code');
 
     const [store] = await sql`SELECT id, name FROM stores WHERE owner_user_id = ${auth.id}`;
     if (!store) {
@@ -68,20 +84,31 @@ export async function GET(req: NextRequest) {
     }
     const storeId: string = store.id;
 
-    // App chạy thực tế được xác định từ dữ liệu cửa hàng đã đồng bộ (không dựa
-    // vào license vì license có thể là 'pos' trong khi app đẩy 'kanposvncafe').
-    const appRows = await sql`
+    // Danh sách app_code cửa hàng đã có: từ dữ liệu thật đã đồng bộ (storeId
+    // nhúng trong sync_data) + license active. Ưu tiên dữ liệu thật vì license
+    // có thể là 'pos' trong khi app đẩy 'kanposvncafe'.
+    const dataAppRows = await sql`
       SELECT DISTINCT app_code FROM sync_data WHERE data->>'storeId' = ${storeId}
     `;
-    const appCodes: string[] = appRows.map((r) => String(r.app_code));
-    const appCode: string = appCodes[0] || 'kanposvncafe';
+    const licRows = await sql`
+      SELECT DISTINCT app_code FROM licenses WHERE user_id = ${auth.id} AND status = 'active'
+    `;
+    const appNameRows = await sql`SELECT app_code, app_name FROM apps`;
+    const nameMap = new Map<string, string>();
+    for (const a of appNameRows) nameMap.set(a.app_code, a.app_name || a.app_code);
 
-    const scope = sql`data->>'storeId' = ${storeId}`;
+    const codeNames = new Map<string, string>();
+    for (const r of dataAppRows) {
+      const code = String(r.app_code);
+      codeNames.set(code, nameMap.get(code) || code);
+    }
+    for (const r of licRows) {
+      const code = String(r.app_code);
+      if (!codeNames.has(code)) codeNames.set(code, nameMap.get(code) || code);
+    }
+    const appCodes = Array.from(codeNames.entries()).map(([code, name]) => ({ code, name }));
 
-    const ordersRows = await sql`SELECT data FROM sync_data WHERE ${scope} AND collection = 'cafe_orders'`;
-    const txRows = await sql`SELECT data FROM sync_data WHERE ${scope} AND collection = 'cafe_cash_transactions'`;
-    const customerRows = await sql`SELECT data FROM sync_data WHERE ${scope} AND collection = 'cafe_customers'`;
-    const supplierRows = await sql`SELECT data FROM sync_data WHERE ${scope} AND collection = 'cafe_suppliers'`;
+    const appCode = selected || appCodes[0]?.code || 'kanposvncafe';
 
     // Hôm nay theo giờ Việt Nam.
     const vnNow = new Date(Date.now() + VN_OFFSET_MS);
@@ -91,41 +118,49 @@ export async function GET(req: NextRequest) {
 
     let invoices = 0;
     let revenue = 0;
-    for (const row of ordersRows) {
-      const o = parseData(row.data);
-      if (o.status !== 'daThanhToan') continue;
-      const t = parseTs(o.paidAt) ?? parseTs(o.createdAt);
-      if (t == null || t < startOfTodayVn) continue;
-      invoices += 1;
-      revenue += Number(o.grandTotal ?? 0) || 0;
-    }
-
     let cost = 0;
-    for (const row of txRows) {
-      const c = parseData(row.data);
-      if (c.type !== 'EXPENSE') continue;
-      const t = parseTs(c.timestamp);
-      if (t == null || t < startOfTodayVn) continue;
-      cost += Number(c.amount ?? 0) || 0;
-    }
-
     let debt = 0;
-    for (const row of customerRows) {
-      debt += Number(parseData(row.data).debtAmount ?? 0) || 0;
-    }
-    for (const row of supplierRows) {
-      debt += Number(parseData(row.data).debtAmount ?? 0) || 0;
+
+    const rows = await sql`
+      SELECT collection, data FROM sync_data
+      WHERE data->>'storeId' = ${storeId} AND app_code = ${appCode}
+    `;
+    for (const row of rows) {
+      const collection = String(row.collection || '');
+      const d = parseData(row.data);
+
+      if (isInvoiceColl(collection)) {
+        const status = String(d.status || '');
+        if (status === 'daThanhToan' || status === 'paid' || status === 'DA_THANH_TOAN') {
+          const t = parseTs(d.paidAt) ?? parseTs(d.createdAt) ?? parseTs(d.updatedAt);
+          if (t != null && t >= startOfTodayVn) {
+            const total = Number(d.grandTotal ?? d.totalAmount ?? d.total ?? 0) || 0;
+            if (total > 0) {
+              invoices += 1;
+              revenue += total;
+            }
+          }
+        }
+      } else if (isTxColl(collection)) {
+        const type = String(d.type || '');
+        if (type === 'EXPENSE' || type === 'expense') {
+          const t = parseTs(d.timestamp) ?? parseTs(d.createdAt);
+          if (t != null && t >= startOfTodayVn) {
+            cost += Number(d.amount ?? d.total ?? 0) || 0;
+          }
+        }
+      } else if (DEBT_COLLS.includes(collection)) {
+        debt += Number(d.debtAmount ?? d.debt ?? d.balance ?? 0) || 0;
+      }
     }
 
     let lastSync: string | null = null;
-    if (appCodes.length > 0) {
-      const logRows = await sql`
-        SELECT created_at FROM sync_logs
-        WHERE app_code = ANY(${appCodes})
-        ORDER BY created_at DESC LIMIT 1
-      `;
-      if (logRows.length > 0) lastSync = fmtVn(new Date(logRows[0].created_at));
-    }
+    const logRows = await sql`
+      SELECT created_at FROM sync_logs
+      WHERE app_code = ${appCode}
+      ORDER BY created_at DESC LIMIT 1
+    `;
+    if (logRows.length > 0) lastSync = fmtVn(new Date(logRows[0].created_at));
 
     const profit = revenue - cost;
 
@@ -134,6 +169,7 @@ export async function GET(req: NextRequest) {
       storeId,
       storeName: store.name,
       appCode,
+      appCodes,
       today: {
         invoices,
         revenue: Math.round(revenue),

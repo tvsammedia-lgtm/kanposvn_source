@@ -14,7 +14,11 @@ type LoginResult = {
   error?: string;
 };
 
+type AppCodeOption = { code: string; name: string };
+
 type StoreSummary = {
+  appCode?: string;
+  appCodes?: AppCodeOption[];
   today: { invoices: number; revenue: number; cost: number; profit: number; debt: number };
   display: { invoices: string; revenue: string; cost: string; profit: string; debt: string };
   lastSync: string | null;
@@ -30,17 +34,25 @@ export default function StoreLoginPage() {
   const [summary, setSummary] = useState<StoreSummary | null>(null);
   const [summaryLoading, setSummaryLoading] = useState(false);
   const [summaryError, setSummaryError] = useState('');
+  const [appCodes, setAppCodes] = useState<AppCodeOption[]>([]);
+  const [selectedApp, setSelectedApp] = useState('');
 
-  const loadSummary = async (token: string) => {
+  const loadSummary = async (token: string, appCode?: string) => {
     setSummaryLoading(true);
     setSummaryError('');
+    setSummary(null);
     try {
-      const sres = await fetch('/api/store/summary', {
+      const url = appCode
+        ? `/api/store/summary?app_code=${encodeURIComponent(appCode)}`
+        : '/api/store/summary';
+      const sres = await fetch(url, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const sdata = await sres.json();
       if (sres.ok && sdata.ok) {
         setSummary(sdata);
+        setAppCodes(sdata.appCodes || []);
+        if (!appCode && sdata.appCode) setSelectedApp(sdata.appCode);
       } else {
         setSummaryError(sdata.error || 'Không tải được tóm tắt cửa hàng');
       }
@@ -131,6 +143,34 @@ export default function StoreLoginPage() {
                 <div className="text-center font-bold text-sm text-gray-800 mb-3">
                   📊 DASHBOARD HÔM NAY
                 </div>
+                {appCodes.length > 1 && (
+                  <div className="mb-3">
+                    <label className="block text-xs text-gray-500 text-left mb-1">
+                      Ứng dụng / app_code
+                    </label>
+                    <select
+                      value={selectedApp}
+                      onChange={(e) => {
+                        const code = e.target.value;
+                        setSelectedApp(code);
+                        if (result?.token) loadSummary(result.token, code);
+                      }}
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none bg-white"
+                    >
+                      {appCodes.map((ac) => (
+                        <option key={ac.code} value={ac.code}>
+                          {ac.name || ac.code} ({ac.code})
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+                {appCodes.length > 0 && (
+                  <div className="text-xs text-gray-400 text-center mb-2">
+                    Đang xem:{' '}
+                    {appCodes.find((ac) => ac.code === selectedApp)?.name || selectedApp || summary?.appCode || '—'}
+                  </div>
+                )}
                 {summaryLoading ? (
                   <div className="text-xs text-gray-400 text-center py-2">Đang tải tóm tắt...</div>
                 ) : summary ? (
@@ -169,7 +209,7 @@ export default function StoreLoginPage() {
               Tải POS về máy
             </Link>
             <button
-              onClick={() => { localStorage.removeItem('store_token'); localStorage.removeItem('store_user'); setResult(null); setDaysLeft(null); setSummary(null); setSummaryError(''); }}
+              onClick={() => { localStorage.removeItem('store_token'); localStorage.removeItem('store_user'); setResult(null); setDaysLeft(null); setSummary(null); setSummaryError(''); setAppCodes([]); setSelectedApp(''); }}
               className="w-full mt-3 text-gray-500 text-sm font-medium hover:underline"
             >
               Đăng xuất
