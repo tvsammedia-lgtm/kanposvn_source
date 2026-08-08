@@ -12,6 +12,7 @@ type LoginResult = {
   forever?: boolean;
   expiresAt?: string | null;
   error?: string;
+  notRegistered?: boolean;
 };
 
 type AppCodeOption = { code: string; name: string };
@@ -29,6 +30,7 @@ export default function StoreLoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [notRegistered, setNotRegistered] = useState(false);
   const [result, setResult] = useState<LoginResult | null>(null);
   const [daysLeft, setDaysLeft] = useState<number | null>(null);
   const [summary, setSummary] = useState<StoreSummary | null>(null);
@@ -66,6 +68,7 @@ export default function StoreLoginPage() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setNotRegistered(false);
     setLoading(true);
     try {
       const res = await fetch('/api/auth/login', {
@@ -76,6 +79,7 @@ export default function StoreLoginPage() {
       const data: LoginResult = await res.json();
       if (!res.ok) {
         setError(data.error || 'Đăng nhập thất bại');
+        setNotRegistered(!!data.notRegistered);
         setLoading(false);
         return;
       }
@@ -243,6 +247,21 @@ export default function StoreLoginPage() {
 
               {error && (
                 <div className="bg-red-50 text-red-600 px-4 py-3 rounded-lg text-sm">{error}</div>
+              )}
+
+              {notRegistered && (
+                <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+                  <div className="text-sm text-amber-800 mb-3">
+                    Số điện thoại này chưa có tài khoản Cloud. Đăng ký cửa hàng ngay để dùng thử
+                    7 ngày miễn phí.
+                  </div>
+                  <Link
+                    href={`/register?phone=${encodeURIComponent(phone.trim())}`}
+                    className="block w-full text-center bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors"
+                  >
+                    ĐĂNG KÝ NGAY
+                  </Link>
+                </div>
               )}
 
               <button

@@ -103,6 +103,15 @@ export async function GET(req: NextRequest) {
       appNameMap.set(a.app_code, a.app_name || a.app_code);
     }
 
+    // App được gán cho user bên "Phân quyền ứng dụng" (user_permissions can_login)
+    // mà chưa có license / chưa đẩy dữ liệu vẫn phải hiện trong tóm tắt.
+    const permRows = await sql`
+      SELECT DISTINCT p.user_id, a.app_code
+      FROM user_permissions p
+      JOIN apps a ON a.id = p.app_id
+      WHERE p.can_login = true
+    `;
+
     const dataRows = await sql`SELECT app_code, collection, data FROM sync_data`;
 
     const lastLogs = await sql`
@@ -182,6 +191,31 @@ export async function GET(req: NextRequest) {
           combo.ownerPhone = combo.ownerPhone || s.owner_phone || '';
         }
       }
+    }
+
+    // App gán bên "Phân quyền ứng dụng": nếu chưa có combo (license/dữ liệu) thì tạo
+    // combo theo store của owner tương ứng để xuất hiện trong dropdown tóm tắt.
+    for (const row of permRows) {
+      const userId = String(row.user_id);
+      const appCode = String(row.app_code);
+      const store = stores.find((s) => s.owner_id === userId);
+      const key = comboKey(userId, appCode);
+      if (combos.has(key)) continue;
+      combos.set(key, {
+        ownerId: userId,
+        ownerName: store?.owner_name || '',
+        ownerEmail: store?.owner_email || '',
+        ownerPhone: store?.owner_phone || '',
+        storeId: store?.store_id || '',
+        storeName: store?.store_name || '',
+        appCode,
+        appName: appNameMap.get(appCode) || appCode,
+        invoices: 0,
+        revenue: 0,
+        cost: 0,
+        debt: 0,
+        lastSync: lastSyncByApp.get(appCode) || null,
+      });
     }
 
     // Hôm nay theo giờ Việt Nam.

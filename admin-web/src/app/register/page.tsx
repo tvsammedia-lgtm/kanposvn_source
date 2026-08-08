@@ -29,6 +29,10 @@ export default function RegisterPage() {
 
   useEffect(() => {
     (async () => {
+      if (typeof window !== 'undefined') {
+        const phoneParam = new URLSearchParams(window.location.search).get('phone');
+        if (phoneParam) setPhone(phoneParam);
+      }
       try {
         const res = await fetch('/api/apps?registration=1');
         if (!res.ok) throw new Error();

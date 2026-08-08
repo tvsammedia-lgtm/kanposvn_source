@@ -93,6 +93,13 @@ export async function GET(req: NextRequest) {
     const licRows = await sql`
       SELECT DISTINCT app_code FROM licenses WHERE user_id = ${auth.id} AND status = 'active'
     `;
+    // App được gán cho owner (user_permissions can_login) — vd owner chỉ có license
+    // 'pos' nhưng được gán kanvlxd_vs2022_demo trên Admin dashboard.
+    const permRows = await sql`
+      SELECT DISTINCT a.app_code FROM user_permissions p
+      JOIN apps a ON a.id = p.app_id
+      WHERE p.user_id = ${auth.id} AND p.can_login = true
+    `;
     const appNameRows = await sql`SELECT app_code, app_name FROM apps`;
     const nameMap = new Map<string, string>();
     for (const a of appNameRows) nameMap.set(a.app_code, a.app_name || a.app_code);
@@ -103,6 +110,10 @@ export async function GET(req: NextRequest) {
       codeNames.set(code, nameMap.get(code) || code);
     }
     for (const r of licRows) {
+      const code = String(r.app_code);
+      if (!codeNames.has(code)) codeNames.set(code, nameMap.get(code) || code);
+    }
+    for (const r of permRows) {
       const code = String(r.app_code);
       if (!codeNames.has(code)) codeNames.set(code, nameMap.get(code) || code);
     }

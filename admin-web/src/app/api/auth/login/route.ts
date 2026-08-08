@@ -33,9 +33,15 @@ export async function POST(req: NextRequest) {
       : await sql`SELECT * FROM users WHERE phone = ${phone}`;
 
     if (!user) {
+      const byPhone = !!phone && !email;
       return NextResponse.json(
-        { error: 'Email hoặc mật khẩu không đúng' },
-        { status: 401, headers: corsHeaders() },
+        byPhone
+          ? {
+              error: 'SĐT chưa đăng ký tài khoản Cloud. Vui lòng Đăng ký trước.',
+              notRegistered: true,
+            }
+          : { error: 'Email hoặc mật khẩu không đúng' },
+        { status: 404, headers: corsHeaders() },
       );
     }
 
