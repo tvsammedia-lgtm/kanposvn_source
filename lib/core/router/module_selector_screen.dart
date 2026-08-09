@@ -23,40 +23,50 @@ class _ModuleSelectorScreenState extends ConsumerState<ModuleSelectorScreen> {
 
     return Scaffold(
       backgroundColor: AppColors.sidebarBg,
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.store_mall_directory, size: 64, color: AppColors.primaryLight),
-            const SizedBox(height: 16),
-            Text('KanPosVN',
-              style: TextStyle(color: AppColors.textLight, fontSize: 32, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 8),
-            Text('${'hello'.tr}, ${auth.user?['full_name'] ?? 'User'}',
-              style: TextStyle(color: AppColors.textMuted, fontSize: 16)),
-            const SizedBox(height: 32),
-            if (accessible.isEmpty) ...[
-              Icon(Icons.lock_outline, size: 48, color: AppColors.textMuted),
-              const SizedBox(height: 12),
-              Text('no_access'.tr,
-                style: TextStyle(color: AppColors.textMuted, fontSize: 14)),
-              Text('contact_admin'.tr,
-                style: TextStyle(color: AppColors.textMuted, fontSize: 12)),
-            ] else ...[
-              Text('select_module'.tr,
-                style: TextStyle(color: AppColors.textMuted, fontSize: 14)),
-              const SizedBox(height: 24),
-              Wrap(
-                spacing: 16, runSpacing: 16,
-                alignment: WrapAlignment.center,
-                children: accessible.map((module) => _InstanceCard(
-                  module: module,
-                  role: auth.getRoleFor(module),
-                  onTap: () => _selectModule(context, module),
-                )).toList(),
+      body: SafeArea(
+        child: LayoutBuilder(
+          builder: (context, constraints) => SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(minHeight: constraints.maxHeight),
+              child: Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.store_mall_directory, size: 64, color: AppColors.primaryLight),
+                    const SizedBox(height: 16),
+                    Text('KanPosVN',
+                      style: TextStyle(color: AppColors.textLight, fontSize: 32, fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 8),
+                    Text('${'hello'.tr}, ${auth.user?['full_name'] ?? 'User'}',
+                      style: TextStyle(color: AppColors.textMuted, fontSize: 16)),
+                    const SizedBox(height: 32),
+                    if (accessible.isEmpty) ...[
+                      Icon(Icons.lock_outline, size: 48, color: AppColors.textMuted),
+                      const SizedBox(height: 12),
+                      Text('no_access'.tr,
+                        style: TextStyle(color: AppColors.textMuted, fontSize: 14)),
+                      Text('contact_admin'.tr,
+                        style: TextStyle(color: AppColors.textMuted, fontSize: 12)),
+                    ] else ...[
+                      Text('select_module'.tr,
+                        style: TextStyle(color: AppColors.textMuted, fontSize: 14)),
+                      const SizedBox(height: 24),
+                      Wrap(
+                        spacing: 16, runSpacing: 16,
+                        alignment: WrapAlignment.center,
+                        children: accessible.map((module) => _InstanceCard(
+                          module: module,
+                          role: auth.getRoleFor(module),
+                          onTap: () => _selectModule(context, module),
+                        )).toList(),
+                      ),
+                    ],
+                  ],
+                ),
               ),
-            ],
-          ],
+            ),
+          ),
         ),
       ),
     );
