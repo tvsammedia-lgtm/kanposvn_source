@@ -52,7 +52,7 @@ bool isVersionNewer(String? remote, String? local) {
 
 /// Kiểm tra phiên bản mới nhất từ server (proxy GitHub Release).
 class UpdateService extends ChangeNotifier {
-  static String currentVersion = '1.1.3';
+  static String currentVersion = '1.1.4';
 
   final http.Client _client = http.Client();
 
