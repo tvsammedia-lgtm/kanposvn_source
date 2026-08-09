@@ -131,6 +131,8 @@ export async function POST(req: NextRequest) {
       { code: 'nhansu', name: 'Nhan Su', desc: 'Ung dung quan ly nhan su va tien luong', pkg: '', plat: 'flutter' },
       { code: 'vlxd', name: 'VLXD', desc: 'Quan ly vat lieu xay dung', pkg: '', plat: 'flutter' },
       { code: 'kanposvncafe', name: 'KanPosVN Cafe (Isar+Neon)', desc: 'Quan ly cafe - phien ban Isar+Neon', pkg: '', plat: 'flutter' },
+      { code: 'kanhot_one', name: 'KHACH SAN THIEN NHIEN', desc: 'Khach san - nha hang', pkg: '', plat: 'flutter' },
+      { code: 'kanhot_vs2022_demo', name: 'KHACH SAN - NHA HANG 3 SAO', desc: 'Khach san - nha hang', pkg: '', plat: 'flutter' },
     ];
     for (const a of seedApps) {
       await sql`
@@ -232,6 +234,33 @@ export async function POST(req: NextRequest) {
           results.push(`${u.email}: granted kannhathuoc as User`);
         }
       }
+    }
+
+    // Owner KANHOT: đảm bảo user + quyền Admin trên app kanhot_one
+    // (re-seed an toàn: user đã tồn tại thì chỉ cập nhật permission).
+    const ownerEmail = '0908567567@kanposvn.local';
+    const ownerPhone = '0908567567';
+    const ownerPassword = '123456';
+    let ownerUser = await sql`SELECT id FROM users WHERE email = ${ownerEmail}`;
+    if (ownerUser.length === 0) {
+      const ownerHash = await hashPassword(ownerPassword);
+      ownerUser = await sql`
+        INSERT INTO users (email, password_hash, full_name, active, role, phone)
+        VALUES (${ownerEmail}, ${ownerHash}, 'Owner KANHOT', true, 'admin', ${ownerPhone})
+        RETURNING id
+      `;
+      results.push(`${ownerEmail}: created`);
+    } else {
+      results.push(`${ownerEmail}: already exists, checking permissions...`);
+    }
+    const hotApp = await sql`SELECT id FROM apps WHERE app_code = 'kanhot_one'`;
+    if (hotApp.length > 0 && adminRole.length > 0) {
+      await sql`
+        INSERT INTO user_permissions (user_id, app_id, role_id, can_login)
+        VALUES (${ownerUser[0].id}, ${hotApp[0].id}, ${adminRole[0].id}, true)
+        ON CONFLICT (user_id, app_id) DO UPDATE SET role_id = ${adminRole[0].id}, can_login = true
+      `;
+      results.push(`${ownerEmail}: granted kanhot_one as Admin (Owner)`);
     }
 
     return NextResponse.json({ ok: true, results }, { headers: corsHeaders() });

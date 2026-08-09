@@ -50,6 +50,8 @@ export const STORE_MODULES: { app_code: string; name: string }[] = [
   { app_code: 'kanposvnbida', name: 'Quản Lý Bida' },
   { app_code: 'kanposvnspa', name: 'Spa & Dưỡng Sinh' },
   { app_code: 'kanposvnkhachsan', name: 'Khách Sạn' },
+  { app_code: 'kanhot_one', name: 'Khách Sạn Thiên Nhiên' },
+  { app_code: 'kanhot_vs2022_demo', name: 'Khách Sạn - Nhà Hàng 3 Sao' },
   { app_code: 'kanposvnbanvevantai', name: 'Vận Tải & Vé' },
   { app_code: 'kanposvnqlcd', name: 'QLCD (Cắt Ghép & Vé)' },
   { app_code: 'kanposvnnhatro200', name: 'Nhà Trọ' },
