@@ -2,7 +2,6 @@ import 'package:isar/isar.dart';
 import '../models/barber_customer.dart';
 import '../models/barber_appointment.dart';
 import '../models/barber_service.dart';
-import '../models/barber_employee.dart';
 // import '../models/barber_invoice.dart';
 // import '../models/barber_invoice_detail.dart';
 
