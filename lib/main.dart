@@ -85,6 +85,25 @@ class _KanPosVNAppState extends ConsumerState<KanPosVNApp> {
       final selectedModule = ref.read(selectedModuleProvider);
 
       if (auth.isAuthenticated && selectedModule == null) {
+        // User đã chọn module trước đó → tiếp tục đúng module đó.
+        if (auth.currentModule != null) {
+          if (auth.isStoreUser && auth.storeId != null) {
+            await db.initStore(storeId: auth.storeId!, module: auth.currentModule!);
+          } else {
+            await db.init(module: auth.currentModule!);
+          }
+          if (!mounted) return;
+          ref.read(selectedModuleProvider.notifier).state = auth.currentModule;
+          return;
+        }
+
+        final modules = auth.accessibleModules;
+
+        // User gán nhiều module → để màn hình chọn module quyết định.
+        if (modules.length > 1) {
+          return;
+        }
+
         // Cửa hàng đăng ký qua Web/Zalo: vào thẳng POS, dùng DB riêng của cửa hàng.
         if (auth.isStoreUser) {
           final storeId = auth.storeId;
@@ -97,13 +116,6 @@ class _KanPosVNAppState extends ConsumerState<KanPosVNApp> {
             ref.read(selectedModuleProvider.notifier).state =
                 auth.defaultStoreModule;
           }
-          return;
-        }
-
-        if (auth.currentModule != null) {
-          await db.init(module: auth.currentModule!);
-          if (!mounted) return;
-          ref.read(selectedModuleProvider.notifier).state = auth.currentModule;
           return;
         }
 

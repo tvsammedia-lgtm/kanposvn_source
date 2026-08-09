@@ -277,15 +277,32 @@ class AuthService extends ChangeNotifier {
     );
   }
 
+  /// App code cũ (từ hệ thống KanPos cũ / seed) ánh xạ sang module hiện tại.
+  static const Map<String, AppModule> _legacyAppCodes = {
+    'KANCAFE_ONE': AppModule.kanposvncafe,
+    'kanhot_one': AppModule.kanposvnkhachsan,
+    'kanvlxd_one': AppModule.kanposvnvlxd,
+    'touch_emp': AppModule.nhanSu,
+    'touch_admin': AppModule.kanposvncafe,
+  };
+
+  bool _matchesAppCode(AppModule module, String? appCode) {
+    if (appCode == null) return false;
+    if (appCode == module.appCode) return true;
+    return _legacyAppCodes[appCode] == module;
+  }
+
   bool canLoginTo(AppModule module) {
     return _permissions.any(
-      (p) => p['app_code'] == module.appCode && p['can_login'] == true,
+      (p) =>
+          p['can_login'] == true &&
+          _matchesAppCode(module, p['app_code']?.toString()),
     );
   }
 
   String getRoleFor(AppModule module) {
     final perm = _permissions.firstWhere(
-      (p) => p['app_code'] == module.appCode,
+      (p) => _matchesAppCode(module, p['app_code']?.toString()),
       orElse: () => {},
     );
     return perm['role_name']?.toString() ?? '';
@@ -474,7 +491,7 @@ class AuthService extends ChangeNotifier {
     for (final module in AppModule.values) {
       if (module.appCode == appCode) return module;
     }
-    return null;
+    return _legacyAppCodes[appCode];
   }
 
   /// Tên chủ cửa hàng (Owner) đã đăng ký — tiêu đề in hóa đơn, phiếu chi...

@@ -103,13 +103,23 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         return;
       }
 
+      final modules = auth.accessibleModules;
+
+      // User gán nhiều module → hiện màn hình chọn module (kể cả user cửa hàng).
+      if (modules.length > 1) {
+        if (mounted) {
+          setState(() {
+            _isLoading = false;
+          });
+        }
+        return;
+      }
+
       // Cửa hàng (đăng ký qua Web/Zalo): vào thẳng POS, không cần chọn module.
       if (auth.isStoreUser) {
         await _initStoreLogin();
         return;
       }
-
-      final modules = auth.accessibleModules;
 
       if (modules.isEmpty) {
         setState(() {
@@ -119,16 +129,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         return;
       }
 
-      if (modules.length == 1) {
-        await _selectModule(modules.first);
-        return;
-      }
-
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
+      await _selectModule(modules.first);
     } catch (e) {
       // ignore login errors
       if (!mounted) return;

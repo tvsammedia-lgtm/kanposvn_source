@@ -80,7 +80,11 @@ class _ModuleSelectorScreenState extends ConsumerState<ModuleSelectorScreen> {
         return;
       }
 
-      await db.init(module: module);
+      if (auth.isStoreUser && auth.storeId != null) {
+        await db.initStore(storeId: auth.storeId!, module: module);
+      } else {
+        await db.init(module: module);
+      }
       ref.read(selectedModuleProvider.notifier).state = module;
 
       if (module.appCode == 'kanposvncafe' || module.appCode == 'nhansu') {
