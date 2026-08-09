@@ -132,7 +132,6 @@ export async function POST(req: NextRequest) {
       { code: 'vlxd', name: 'VLXD', desc: 'Quan ly vat lieu xay dung', pkg: '', plat: 'flutter' },
       { code: 'kanposvncafe', name: 'KanPosVN Cafe (Isar+Neon)', desc: 'Quan ly cafe - phien ban Isar+Neon', pkg: '', plat: 'flutter' },
       { code: 'kanhot_one', name: 'KHACH SAN THIEN NHIEN', desc: 'Khach san - nha hang', pkg: '', plat: 'flutter' },
-      { code: 'kanhot_vs2022_demo', name: 'KHACH SAN - NHA HANG 3 SAO', desc: 'Khach san - nha hang', pkg: '', plat: 'flutter' },
     ];
     for (const a of seedApps) {
       await sql`
