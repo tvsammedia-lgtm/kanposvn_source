@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
   AppTheme._();
@@ -25,30 +24,43 @@ class AppTheme {
   static const textSecondary = Color(0xFF94A3B8);
   static const textMuted = Color(0xFF64748B);
 
+  static TextStyle _roboto({
+    Color? color,
+    double? fontSize,
+    FontWeight? fontWeight,
+  }) {
+    return TextStyle(
+      fontFamily: 'Roboto',
+      color: color,
+      fontSize: fontSize,
+      fontWeight: fontWeight,
+    );
+  }
+
   static ThemeData get darkTheme {
     final base = ThemeData.dark();
-    final textTheme = GoogleFonts.interTextTheme(base.textTheme).copyWith(
-      displayLarge: GoogleFonts.inter(
+    final textTheme = base.textTheme.copyWith(
+      displayLarge: _roboto(
           color: textPrimary, fontSize: 32, fontWeight: FontWeight.bold),
-      displayMedium: GoogleFonts.inter(
+      displayMedium: _roboto(
           color: textPrimary, fontSize: 28, fontWeight: FontWeight.bold),
-      headlineLarge: GoogleFonts.inter(
+      headlineLarge: _roboto(
           color: textPrimary, fontSize: 24, fontWeight: FontWeight.w700),
-      headlineMedium: GoogleFonts.inter(
+      headlineMedium: _roboto(
           color: textPrimary, fontSize: 20, fontWeight: FontWeight.w600),
-      headlineSmall: GoogleFonts.inter(
+      headlineSmall: _roboto(
           color: textPrimary, fontSize: 18, fontWeight: FontWeight.w600),
-      titleLarge: GoogleFonts.inter(
+      titleLarge: _roboto(
           color: textPrimary, fontSize: 16, fontWeight: FontWeight.w600),
-      titleMedium: GoogleFonts.inter(
+      titleMedium: _roboto(
           color: textPrimary, fontSize: 14, fontWeight: FontWeight.w500),
       bodyLarge:
-          GoogleFonts.inter(color: textPrimary, fontSize: 14),
+          _roboto(color: textPrimary, fontSize: 14),
       bodyMedium:
-          GoogleFonts.inter(color: textSecondary, fontSize: 13),
+          _roboto(color: textSecondary, fontSize: 13),
       bodySmall:
-          GoogleFonts.inter(color: textMuted, fontSize: 12),
-      labelLarge: GoogleFonts.inter(
+          _roboto(color: textMuted, fontSize: 12),
+      labelLarge: _roboto(
           color: textPrimary, fontSize: 14, fontWeight: FontWeight.w500),
     );
 
@@ -68,7 +80,7 @@ class AppTheme {
         backgroundColor: bg800,
         elevation: 0,
         centerTitle: false,
-        titleTextStyle: GoogleFonts.inter(
+        titleTextStyle: _roboto(
           color: textPrimary,
           fontSize: 18,
           fontWeight: FontWeight.w600,
@@ -99,8 +111,8 @@ class AppTheme {
           borderRadius: BorderRadius.circular(10),
           borderSide: const BorderSide(color: primaryBlue, width: 2),
         ),
-        labelStyle: GoogleFonts.inter(color: textSecondary, fontSize: 13),
-        hintStyle: GoogleFonts.inter(color: textMuted, fontSize: 13),
+        labelStyle: _roboto(color: textSecondary, fontSize: 13),
+        hintStyle: _roboto(color: textMuted, fontSize: 13),
         contentPadding:
             const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       ),
@@ -113,13 +125,13 @@ class AppTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10),
           ),
-          textStyle: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600),
+          textStyle: _roboto(fontSize: 14, fontWeight: FontWeight.w600),
         ),
       ),
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
           foregroundColor: primaryLight,
-          textStyle: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w500),
+          textStyle: _roboto(fontSize: 14, fontWeight: FontWeight.w500),
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
@@ -130,12 +142,12 @@ class AppTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10),
           ),
-          textStyle: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w500),
+          textStyle: _roboto(fontSize: 14, fontWeight: FontWeight.w500),
         ),
       ),
       chipTheme: ChipThemeData(
         backgroundColor: bg800,
-        labelStyle: GoogleFonts.inter(color: textSecondary, fontSize: 12),
+        labelStyle: _roboto(color: textSecondary, fontSize: 12),
         side: const BorderSide(color: borderColor),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
@@ -154,8 +166,8 @@ class AppTheme {
           return surface;
         }),
         headingTextStyle:
-            GoogleFonts.inter(color: textSecondary, fontSize: 12, fontWeight: FontWeight.w600),
-        dataTextStyle: GoogleFonts.inter(color: textPrimary, fontSize: 13),
+            _roboto(color: textSecondary, fontSize: 12, fontWeight: FontWeight.w600),
+        dataTextStyle: _roboto(color: textPrimary, fontSize: 13),
         dividerThickness: 1,
         horizontalMargin: 16,
         columnSpacing: 16,
@@ -164,30 +176,30 @@ class AppTheme {
         labelColor: primaryLight,
         unselectedLabelColor: textMuted,
         indicatorColor: primaryBlue,
-        labelStyle: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w600),
-        unselectedLabelStyle: GoogleFonts.inter(fontSize: 13),
+        labelStyle: _roboto(fontSize: 13, fontWeight: FontWeight.w600),
+        unselectedLabelStyle: _roboto(fontSize: 13),
       ),
       navigationRailTheme: NavigationRailThemeData(
         backgroundColor: bg800,
         selectedIconTheme: const IconThemeData(color: primaryLight, size: 22),
         unselectedIconTheme: const IconThemeData(color: textMuted, size: 22),
         selectedLabelTextStyle:
-            GoogleFonts.inter(color: primaryLight, fontSize: 11, fontWeight: FontWeight.w600),
+            _roboto(color: primaryLight, fontSize: 11, fontWeight: FontWeight.w600),
         unselectedLabelTextStyle:
-            GoogleFonts.inter(color: textMuted, fontSize: 11),
+            _roboto(color: textMuted, fontSize: 11),
         indicatorColor: primaryBlue.withOpacity(0.2),
         useIndicator: true,
       ),
       snackBarTheme: SnackBarThemeData(
         backgroundColor: surface,
-        contentTextStyle: GoogleFonts.inter(color: textPrimary, fontSize: 13),
+        contentTextStyle: _roboto(color: textPrimary, fontSize: 13),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         behavior: SnackBarBehavior.floating,
       ),
       dialogTheme: DialogThemeData(
         backgroundColor: bg800,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        titleTextStyle: GoogleFonts.inter(
+        titleTextStyle: _roboto(
             color: textPrimary, fontSize: 18, fontWeight: FontWeight.w600),
       ),
     );
