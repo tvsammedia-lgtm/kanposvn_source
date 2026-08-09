@@ -1,4 +1,4 @@
-name: Build Android APK
+name: Build Android APK & Windows
 
 on:
   push:
@@ -9,12 +9,12 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
-    name: Build APK
+  android:
+    name: Build Android APK
     runs-on: ubuntu-latest
     timeout-minutes: 60
     permissions:
-      contents: write
+      contents: read
 
     steps:
       - name: Checkout
@@ -75,6 +75,61 @@ jobs:
             build/app/outputs/flutter-apk/app-x86_64-release.apk
           if-no-files-found: warn
 
+  windows:
+    name: Build Windows EXE
+    runs-on: windows-latest
+    timeout-minutes: 90
+    permissions:
+      contents: read
+    if: github.event_name != 'pull_request'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: 3.41.2
+          cache: true
+
+      - name: Flutter pub get
+        run: flutter pub get
+
+      - name: Build Windows release
+        run: flutter build windows --release
+
+      - name: Package Windows release (zip)
+        shell: powershell
+        run: |
+          Compress-Archive -Path "build\windows\x64\runner\Release\*" -DestinationPath "kanposvn-windows-x64.zip" -Force
+
+      - name: Upload Windows artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: kanposvn-windows
+          path: kanposvn-windows-x64.zip
+          if-no-files-found: error
+
+  release:
+    name: Publish GitHub Release
+    runs-on: ubuntu-latest
+    needs: [android, windows]
+    permissions:
+      contents: write
+    if: github.event_name != 'pull_request'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+
       - name: Get version from pubspec
         id: version
         shell: bash
@@ -100,10 +155,11 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            build/app/outputs/flutter-apk/app-release.apk
-            build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
-            build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk
-            build/app/outputs/flutter-apk/app-x86_64-release.apk
+            artifacts/app-release.apk
+            artifacts/app-arm64-v8a-release.apk
+            artifacts/app-armeabi-v7a-release.apk
+            artifacts/app-x86_64-release.apk
+            artifacts/kanposvn-windows-x64.zip
           generate_release_notes: true
 
       - name: Create GitHub Release (nightly from branch push)
@@ -118,7 +174,8 @@ jobs:
             - Commit: ${{ github.event.head_commit.message || 'manual trigger' }}
           prerelease: true
           files: |
-            build/app/outputs/flutter-apk/app-release.apk
-            build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
-            build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk
-            build/app/outputs/flutter-apk/app-x86_64-release.apk
+            artifacts/app-release.apk
+            artifacts/app-arm64-v8a-release.apk
+            artifacts/app-armeabi-v7a-release.apk
+            artifacts/app-x86_64-release.apk
+            artifacts/kanposvn-windows-x64.zip

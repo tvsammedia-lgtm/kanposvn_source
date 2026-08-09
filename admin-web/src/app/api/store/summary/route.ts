@@ -94,7 +94,7 @@ export async function GET(req: NextRequest) {
       SELECT DISTINCT app_code FROM licenses WHERE user_id = ${auth.id} AND status = 'active'
     `;
     // App được gán cho owner (user_permissions can_login) — vd owner chỉ có license
-    // 'pos' nhưng được gán kanvlxd_vs2022_demo trên Admin dashboard.
+    // 'pos' nhưng được gán kanvlxd_one trên Admin dashboard.
     const permRows = await sql`
       SELECT DISTINCT a.app_code FROM user_permissions p
       JOIN apps a ON a.id = p.app_id

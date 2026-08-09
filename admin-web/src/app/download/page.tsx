@@ -29,6 +29,7 @@ function formatBytes(bytes: number): string {
 
 function assetLabel(name: string): string {
   if (name === 'app-release.apk') return 'APK phổ thông (mọi máy)';
+  if (name === 'kanposvn-windows-x64.zip') return 'Bản Windows 64-bit (.zip)';
   return name
     .replace('app-', '')
     .replace('-release.apk', '')
@@ -49,6 +50,9 @@ export default function DownloadPage() {
   }, []);
 
   const apkAssets = (info?.assets || []).filter((a) => a.name.endsWith('.apk'));
+  const winAssets = (info?.assets || []).filter(
+    (a) => a.name.endsWith('.zip') || a.name.endsWith('.exe'),
+  );
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-amber-50 via-white to-white">
@@ -120,6 +124,36 @@ export default function DownloadPage() {
                   Tải APK mới nhất
                 </a>
               )}
+            </div>
+          </div>
+        )}
+
+        {info?.has_update && winAssets.length > 0 && (
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6">
+            <h2 className="font-bold text-lg mb-1">Bản cài cho Windows</h2>
+            <p className="text-sm text-gray-600 mb-4">
+              Giải nén file .zip rồi chạy{' '}
+              <span className="font-medium">kanposvn.exe</span> trên máy tính.
+            </p>
+            <div className="space-y-3">
+              {winAssets.map((asset) => (
+                <a
+                  key={asset.name}
+                  href={asset.browser_download_url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex items-center justify-between bg-amber-600 hover:bg-amber-700 text-white rounded-xl px-5 py-4 transition-colors"
+                >
+                  <div>
+                    <div className="font-semibold">{assetLabel(asset.name)}</div>
+                    <div className="text-sm text-amber-100">
+                      {formatBytes(asset.size)} · {asset.download_count.toLocaleString('vi-VN')}{' '}
+                      lượt tải
+                    </div>
+                  </div>
+                  <span className="text-2xl">⬇</span>
+                </a>
+              ))}
             </div>
           </div>
         )}
