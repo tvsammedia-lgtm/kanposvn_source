@@ -85,11 +85,13 @@ class _ModuleSelectorScreenState extends ConsumerState<ModuleSelectorScreen> {
       } else {
         await db.init(module: module);
       }
-      ref.read(selectedModuleProvider.notifier).state = module;
 
       if (module.appCode == 'kanposvncafe' || module.appCode == 'nhansu') {
         ref.read(syncEngineProvider).triggerSync();
       }
+
+      if (!context.mounted) return;
+      ref.read(selectedModuleProvider.notifier).state = module;
     } catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

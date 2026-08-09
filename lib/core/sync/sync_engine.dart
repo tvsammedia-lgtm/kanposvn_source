@@ -32,22 +32,37 @@ class SyncEngine extends ChangeNotifier {
     required this.appCode,
   });
 
+  bool _disposed = false;
+
+  @override
+  void dispose() {
+    _disposed = true;
+    super.dispose();
+  }
+
+  /// Bỏ qua thông báo nếu engine đã bị dispose (async đang chạy dở
+  /// sau khi app/hot-restart) — tránh lỗi "used after being disposed".
+  void _notify() {
+    if (_disposed) return;
+    notifyListeners();
+  }
+
   void setOnlineStatus(bool online) {
     _isOnline = online;
-    notifyListeners();
+    _notify();
   }
 
   void refreshPendingCount() {
     _pendingCount = dbService.pendingSyncCount;
-    notifyListeners();
+    _notify();
   }
 
   Future<bool> triggerSync() async {
-    if (_isSyncing) return false;
+    if (_isSyncing || _disposed) return false;
     _isSyncing = true;
     _lastSyncStatus = 'Đang đồng bộ...';
     _addLog('Bắt đầu đồng bộ lên Neon DB');
-    notifyListeners();
+    _notify();
 
     try {
       await _pushChanges();
@@ -62,7 +77,7 @@ class SyncEngine extends ChangeNotifier {
       _addLog('Ngoại lệ: $e');
     } finally {
       _isSyncing = false;
-      notifyListeners();
+      _notify();
     }
     return true;
   }
