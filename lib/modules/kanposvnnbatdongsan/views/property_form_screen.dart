@@ -4,7 +4,7 @@ import '../models/property.dart';
 import '../providers/batdongsan_providers.dart';
 
 class PropertyFormScreen extends ConsumerStatefulWidget {
-  final Property? property;
+  final BdsProperty? property;
 
   const PropertyFormScreen({super.key, this.property});
 
@@ -40,7 +40,7 @@ class _PropertyFormScreenState extends ConsumerState<PropertyFormScreen> {
 
   void _save() async {
     if (_formKey.currentState!.validate()) {
-      final property = widget.property ?? Property();
+      final property = widget.property ?? BdsProperty();
       property.title = _titleController.text;
       property.price = double.tryParse(_priceController.text);
       property.province = _provinceController.text;

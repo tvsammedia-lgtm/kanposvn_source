@@ -67,7 +67,7 @@ class ReportScreen extends ConsumerWidget {
                         getTitlesWidget: (double value, TitleMeta meta) {
                           const style = TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 14);
                           String text = 'T${(DateTime.now().month - 5 + value.toInt()) % 12 == 0 ? 12 : (DateTime.now().month - 5 + value.toInt()) % 12}';
-                          return SideTitleWidget(axisSide: meta.axisSide, meta: meta, child: Text(text, style: style));
+                          return SideTitleWidget(meta: meta, child: Text(text, style: style));
                         },
                       ),
                     ),

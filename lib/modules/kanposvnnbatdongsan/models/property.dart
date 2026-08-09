@@ -2,8 +2,9 @@ import 'package:isar/isar.dart';
 
 part 'property.g.dart';
 
-@collection
-class Property {
+@Name('Property')
+@Collection(accessor: 'propertys')
+class BdsProperty {
   Id id = Isar.autoIncrement; // Local ID
   DateTime? deletedAt;
   String deviceId = "";

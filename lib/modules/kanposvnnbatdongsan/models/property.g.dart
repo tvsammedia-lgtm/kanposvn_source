@@ -9,11 +9,11 @@ part of 'property.dart';
 // coverage:ignore-file
 // ignore_for_file: duplicate_ignore, non_constant_identifier_names, constant_identifier_names, invalid_use_of_protected_member, unnecessary_cast, prefer_const_constructors, lines_longer_than_80_chars, require_trailing_commas, inference_failure_on_function_invocation, unnecessary_parenthesis, unnecessary_raw_strings, unnecessary_null_checks, join_return_with_assignment, prefer_final_locals, avoid_js_rounded_ints, avoid_positional_boolean_parameters, always_specify_types
 
-extension GetPropertyCollection on Isar {
-  IsarCollection<Property> get propertys => this.collection();
+extension GetBdsPropertyCollection on Isar {
+  IsarCollection<BdsProperty> get propertys => this.collection();
 }
 
-const PropertySchema = CollectionSchema(
+const BdsPropertySchema = CollectionSchema(
   name: r'Property',
   id: -6043426196410015316,
   properties: {
@@ -138,10 +138,10 @@ const PropertySchema = CollectionSchema(
       type: IsarType.double,
     )
   },
-  estimateSize: _propertyEstimateSize,
-  serialize: _propertySerialize,
-  deserialize: _propertyDeserialize,
-  deserializeProp: _propertyDeserializeProp,
+  estimateSize: _bdsPropertyEstimateSize,
+  serialize: _bdsPropertySerialize,
+  deserialize: _bdsPropertyDeserialize,
+  deserializeProp: _bdsPropertyDeserializeProp,
   idName: r'id',
   indexes: {
     r'remoteId': IndexSchema(
@@ -160,14 +160,14 @@ const PropertySchema = CollectionSchema(
   },
   links: {},
   embeddedSchemas: {},
-  getId: _propertyGetId,
-  getLinks: _propertyGetLinks,
-  attach: _propertyAttach,
+  getId: _bdsPropertyGetId,
+  getLinks: _bdsPropertyGetLinks,
+  attach: _bdsPropertyAttach,
   version: '3.1.0+1',
 );
 
-int _propertyEstimateSize(
-  Property object,
+int _bdsPropertyEstimateSize(
+  BdsProperty object,
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
@@ -254,8 +254,8 @@ int _propertyEstimateSize(
   return bytesCount;
 }
 
-void _propertySerialize(
-  Property object,
+void _bdsPropertySerialize(
+  BdsProperty object,
   IsarWriter writer,
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
@@ -286,13 +286,13 @@ void _propertySerialize(
   writer.writeDouble(offsets[23], object.width);
 }
 
-Property _propertyDeserialize(
+BdsProperty _bdsPropertyDeserialize(
   Id id,
   IsarReader reader,
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
-  final object = Property();
+  final object = BdsProperty();
   object.area = reader.readStringOrNull(offsets[0]);
   object.areaSize = reader.readDoubleOrNull(offsets[1]);
   object.bathrooms = reader.readLongOrNull(offsets[2]);
@@ -321,7 +321,7 @@ Property _propertyDeserialize(
   return object;
 }
 
-P _propertyDeserializeProp<P>(
+P _bdsPropertyDeserializeProp<P>(
   IsarReader reader,
   int propertyId,
   int offset,
@@ -381,24 +381,25 @@ P _propertyDeserializeProp<P>(
   }
 }
 
-Id _propertyGetId(Property object) {
+Id _bdsPropertyGetId(BdsProperty object) {
   return object.id;
 }
 
-List<IsarLinkBase<dynamic>> _propertyGetLinks(Property object) {
+List<IsarLinkBase<dynamic>> _bdsPropertyGetLinks(BdsProperty object) {
   return [];
 }
 
-void _propertyAttach(IsarCollection<dynamic> col, Id id, Property object) {
+void _bdsPropertyAttach(
+    IsarCollection<dynamic> col, Id id, BdsProperty object) {
   object.id = id;
 }
 
-extension PropertyByIndex on IsarCollection<Property> {
-  Future<Property?> getByRemoteId(String? remoteId) {
+extension BdsPropertyByIndex on IsarCollection<BdsProperty> {
+  Future<BdsProperty?> getByRemoteId(String? remoteId) {
     return getByIndex(r'remoteId', [remoteId]);
   }
 
-  Property? getByRemoteIdSync(String? remoteId) {
+  BdsProperty? getByRemoteIdSync(String? remoteId) {
     return getByIndexSync(r'remoteId', [remoteId]);
   }
 
@@ -410,12 +411,12 @@ extension PropertyByIndex on IsarCollection<Property> {
     return deleteByIndexSync(r'remoteId', [remoteId]);
   }
 
-  Future<List<Property?>> getAllByRemoteId(List<String?> remoteIdValues) {
+  Future<List<BdsProperty?>> getAllByRemoteId(List<String?> remoteIdValues) {
     final values = remoteIdValues.map((e) => [e]).toList();
     return getAllByIndex(r'remoteId', values);
   }
 
-  List<Property?> getAllByRemoteIdSync(List<String?> remoteIdValues) {
+  List<BdsProperty?> getAllByRemoteIdSync(List<String?> remoteIdValues) {
     final values = remoteIdValues.map((e) => [e]).toList();
     return getAllByIndexSync(r'remoteId', values);
   }
@@ -430,34 +431,36 @@ extension PropertyByIndex on IsarCollection<Property> {
     return deleteAllByIndexSync(r'remoteId', values);
   }
 
-  Future<Id> putByRemoteId(Property object) {
+  Future<Id> putByRemoteId(BdsProperty object) {
     return putByIndex(r'remoteId', object);
   }
 
-  Id putByRemoteIdSync(Property object, {bool saveLinks = true}) {
+  Id putByRemoteIdSync(BdsProperty object, {bool saveLinks = true}) {
     return putByIndexSync(r'remoteId', object, saveLinks: saveLinks);
   }
 
-  Future<List<Id>> putAllByRemoteId(List<Property> objects) {
+  Future<List<Id>> putAllByRemoteId(List<BdsProperty> objects) {
     return putAllByIndex(r'remoteId', objects);
   }
 
-  List<Id> putAllByRemoteIdSync(List<Property> objects,
+  List<Id> putAllByRemoteIdSync(List<BdsProperty> objects,
       {bool saveLinks = true}) {
     return putAllByIndexSync(r'remoteId', objects, saveLinks: saveLinks);
   }
 }
 
-extension PropertyQueryWhereSort on QueryBuilder<Property, Property, QWhere> {
-  QueryBuilder<Property, Property, QAfterWhere> anyId() {
+extension BdsPropertyQueryWhereSort
+    on QueryBuilder<BdsProperty, BdsProperty, QWhere> {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterWhere> anyId() {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(const IdWhereClause.any());
     });
   }
 }
 
-extension PropertyQueryWhere on QueryBuilder<Property, Property, QWhereClause> {
-  QueryBuilder<Property, Property, QAfterWhereClause> idEqualTo(Id id) {
+extension BdsPropertyQueryWhere
+    on QueryBuilder<BdsProperty, BdsProperty, QWhereClause> {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterWhereClause> idEqualTo(Id id) {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(IdWhereClause.between(
         lower: id,
@@ -466,7 +469,8 @@ extension PropertyQueryWhere on QueryBuilder<Property, Property, QWhereClause> {
     });
   }
 
-  QueryBuilder<Property, Property, QAfterWhereClause> idNotEqualTo(Id id) {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterWhereClause> idNotEqualTo(
+      Id id) {
     return QueryBuilder.apply(this, (query) {
       if (query.whereSort == Sort.asc) {
         return query
@@ -488,7 +492,7 @@ extension PropertyQueryWhere on QueryBuilder<Property, Property, QWhereClause> {
     });
   }
 
-  QueryBuilder<Property, Property, QAfterWhereClause> idGreaterThan(Id id,
+  QueryBuilder<BdsProperty, BdsProperty, QAfterWhereClause> idGreaterThan(Id id,
       {bool include = false}) {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(
@@ -497,7 +501,7 @@ extension PropertyQueryWhere on QueryBuilder<Property, Property, QWhereClause> {
     });
   }
 
-  QueryBuilder<Property, Property, QAfterWhereClause> idLessThan(Id id,
+  QueryBuilder<BdsProperty, BdsProperty, QAfterWhereClause> idLessThan(Id id,
       {bool include = false}) {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(
@@ -506,7 +510,7 @@ extension PropertyQueryWhere on QueryBuilder<Property, Property, QWhereClause> {
     });
   }
 
-  QueryBuilder<Property, Property, QAfterWhereClause> idBetween(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterWhereClause> idBetween(
     Id lowerId,
     Id upperId, {
     bool includeLower = true,
@@ -522,7 +526,7 @@ extension PropertyQueryWhere on QueryBuilder<Property, Property, QWhereClause> {
     });
   }
 
-  QueryBuilder<Property, Property, QAfterWhereClause> remoteIdIsNull() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterWhereClause> remoteIdIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(IndexWhereClause.equalTo(
         indexName: r'remoteId',
@@ -531,7 +535,8 @@ extension PropertyQueryWhere on QueryBuilder<Property, Property, QWhereClause> {
     });
   }
 
-  QueryBuilder<Property, Property, QAfterWhereClause> remoteIdIsNotNull() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterWhereClause>
+      remoteIdIsNotNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(IndexWhereClause.between(
         indexName: r'remoteId',
@@ -542,7 +547,7 @@ extension PropertyQueryWhere on QueryBuilder<Property, Property, QWhereClause> {
     });
   }
 
-  QueryBuilder<Property, Property, QAfterWhereClause> remoteIdEqualTo(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterWhereClause> remoteIdEqualTo(
       String? remoteId) {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(IndexWhereClause.equalTo(
@@ -552,7 +557,7 @@ extension PropertyQueryWhere on QueryBuilder<Property, Property, QWhereClause> {
     });
   }
 
-  QueryBuilder<Property, Property, QAfterWhereClause> remoteIdNotEqualTo(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterWhereClause> remoteIdNotEqualTo(
       String? remoteId) {
     return QueryBuilder.apply(this, (query) {
       if (query.whereSort == Sort.asc) {
@@ -588,9 +593,9 @@ extension PropertyQueryWhere on QueryBuilder<Property, Property, QWhereClause> {
   }
 }
 
-extension PropertyQueryFilter
-    on QueryBuilder<Property, Property, QFilterCondition> {
-  QueryBuilder<Property, Property, QAfterFilterCondition> areaIsNull() {
+extension BdsPropertyQueryFilter
+    on QueryBuilder<BdsProperty, BdsProperty, QFilterCondition> {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition> areaIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNull(
         property: r'area',
@@ -598,7 +603,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> areaIsNotNull() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      areaIsNotNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNotNull(
         property: r'area',
@@ -606,7 +612,7 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> areaEqualTo(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition> areaEqualTo(
     String? value, {
     bool caseSensitive = true,
   }) {
@@ -619,7 +625,7 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> areaGreaterThan(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition> areaGreaterThan(
     String? value, {
     bool include = false,
     bool caseSensitive = true,
@@ -634,7 +640,7 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> areaLessThan(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition> areaLessThan(
     String? value, {
     bool include = false,
     bool caseSensitive = true,
@@ -649,7 +655,7 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> areaBetween(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition> areaBetween(
     String? lower,
     String? upper, {
     bool includeLower = true,
@@ -668,7 +674,7 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> areaStartsWith(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition> areaStartsWith(
     String value, {
     bool caseSensitive = true,
   }) {
@@ -681,7 +687,7 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> areaEndsWith(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition> areaEndsWith(
     String value, {
     bool caseSensitive = true,
   }) {
@@ -694,7 +700,7 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> areaContains(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition> areaContains(
       String value,
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
@@ -706,7 +712,7 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> areaMatches(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition> areaMatches(
       String pattern,
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
@@ -718,7 +724,7 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> areaIsEmpty() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition> areaIsEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'area',
@@ -727,7 +733,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> areaIsNotEmpty() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      areaIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         property: r'area',
@@ -736,7 +743,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> areaSizeIsNull() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      areaSizeIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNull(
         property: r'areaSize',
@@ -744,7 +752,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> areaSizeIsNotNull() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      areaSizeIsNotNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNotNull(
         property: r'areaSize',
@@ -752,7 +761,7 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> areaSizeEqualTo(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition> areaSizeEqualTo(
     double? value, {
     double epsilon = Query.epsilon,
   }) {
@@ -765,7 +774,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> areaSizeGreaterThan(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      areaSizeGreaterThan(
     double? value, {
     bool include = false,
     double epsilon = Query.epsilon,
@@ -780,7 +790,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> areaSizeLessThan(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      areaSizeLessThan(
     double? value, {
     bool include = false,
     double epsilon = Query.epsilon,
@@ -795,7 +806,7 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> areaSizeBetween(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition> areaSizeBetween(
     double? lower,
     double? upper, {
     bool includeLower = true,
@@ -814,7 +825,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> bathroomsIsNull() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      bathroomsIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNull(
         property: r'bathrooms',
@@ -822,7 +834,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> bathroomsIsNotNull() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      bathroomsIsNotNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNotNull(
         property: r'bathrooms',
@@ -830,8 +843,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> bathroomsEqualTo(
-      int? value) {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      bathroomsEqualTo(int? value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'bathrooms',
@@ -840,7 +853,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> bathroomsGreaterThan(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      bathroomsGreaterThan(
     int? value, {
     bool include = false,
   }) {
@@ -853,7 +867,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> bathroomsLessThan(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      bathroomsLessThan(
     int? value, {
     bool include = false,
   }) {
@@ -866,7 +881,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> bathroomsBetween(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      bathroomsBetween(
     int? lower,
     int? upper, {
     bool includeLower = true,
@@ -883,7 +899,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> bedroomsIsNull() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      bedroomsIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNull(
         property: r'bedrooms',
@@ -891,7 +908,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> bedroomsIsNotNull() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      bedroomsIsNotNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNotNull(
         property: r'bedrooms',
@@ -899,7 +917,7 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> bedroomsEqualTo(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition> bedroomsEqualTo(
       int? value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
@@ -909,7 +927,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> bedroomsGreaterThan(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      bedroomsGreaterThan(
     int? value, {
     bool include = false,
   }) {
@@ -922,7 +941,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> bedroomsLessThan(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      bedroomsLessThan(
     int? value, {
     bool include = false,
   }) {
@@ -935,7 +955,7 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> bedroomsBetween(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition> bedroomsBetween(
     int? lower,
     int? upper, {
     bool includeLower = true,
@@ -952,7 +972,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> brokerIdIsNull() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      brokerIdIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNull(
         property: r'brokerId',
@@ -960,7 +981,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> brokerIdIsNotNull() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      brokerIdIsNotNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNotNull(
         property: r'brokerId',
@@ -968,7 +990,7 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> brokerIdEqualTo(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition> brokerIdEqualTo(
     String? value, {
     bool caseSensitive = true,
   }) {
@@ -981,7 +1003,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> brokerIdGreaterThan(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      brokerIdGreaterThan(
     String? value, {
     bool include = false,
     bool caseSensitive = true,
@@ -996,7 +1019,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> brokerIdLessThan(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      brokerIdLessThan(
     String? value, {
     bool include = false,
     bool caseSensitive = true,
@@ -1011,7 +1035,7 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> brokerIdBetween(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition> brokerIdBetween(
     String? lower,
     String? upper, {
     bool includeLower = true,
@@ -1030,7 +1054,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> brokerIdStartsWith(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      brokerIdStartsWith(
     String value, {
     bool caseSensitive = true,
   }) {
@@ -1043,7 +1068,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> brokerIdEndsWith(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      brokerIdEndsWith(
     String value, {
     bool caseSensitive = true,
   }) {
@@ -1056,9 +1082,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> brokerIdContains(
-      String value,
-      {bool caseSensitive = true}) {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      brokerIdContains(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.contains(
         property: r'brokerId',
@@ -1068,7 +1093,7 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> brokerIdMatches(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition> brokerIdMatches(
       String pattern,
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
@@ -1080,7 +1105,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> brokerIdIsEmpty() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      brokerIdIsEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'brokerId',
@@ -1089,7 +1115,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> brokerIdIsNotEmpty() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      brokerIdIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         property: r'brokerId',
@@ -1098,7 +1125,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> deletedAtIsNull() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      deletedAtIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNull(
         property: r'deletedAt',
@@ -1106,7 +1134,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> deletedAtIsNotNull() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      deletedAtIsNotNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNotNull(
         property: r'deletedAt',
@@ -1114,8 +1143,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> deletedAtEqualTo(
-      DateTime? value) {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      deletedAtEqualTo(DateTime? value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'deletedAt',
@@ -1124,7 +1153,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> deletedAtGreaterThan(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      deletedAtGreaterThan(
     DateTime? value, {
     bool include = false,
   }) {
@@ -1137,7 +1167,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> deletedAtLessThan(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      deletedAtLessThan(
     DateTime? value, {
     bool include = false,
   }) {
@@ -1150,7 +1181,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> deletedAtBetween(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      deletedAtBetween(
     DateTime? lower,
     DateTime? upper, {
     bool includeLower = true,
@@ -1167,7 +1199,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> descriptionIsNull() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      descriptionIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNull(
         property: r'description',
@@ -1175,7 +1208,7 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition>
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
       descriptionIsNotNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNotNull(
@@ -1184,7 +1217,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> descriptionEqualTo(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      descriptionEqualTo(
     String? value, {
     bool caseSensitive = true,
   }) {
@@ -1197,7 +1231,7 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition>
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
       descriptionGreaterThan(
     String? value, {
     bool include = false,
@@ -1213,7 +1247,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> descriptionLessThan(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      descriptionLessThan(
     String? value, {
     bool include = false,
     bool caseSensitive = true,
@@ -1228,7 +1263,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> descriptionBetween(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      descriptionBetween(
     String? lower,
     String? upper, {
     bool includeLower = true,
@@ -1247,7 +1283,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> descriptionStartsWith(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      descriptionStartsWith(
     String value, {
     bool caseSensitive = true,
   }) {
@@ -1260,7 +1297,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> descriptionEndsWith(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      descriptionEndsWith(
     String value, {
     bool caseSensitive = true,
   }) {
@@ -1273,9 +1311,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> descriptionContains(
-      String value,
-      {bool caseSensitive = true}) {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      descriptionContains(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.contains(
         property: r'description',
@@ -1285,9 +1322,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> descriptionMatches(
-      String pattern,
-      {bool caseSensitive = true}) {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      descriptionMatches(String pattern, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.matches(
         property: r'description',
@@ -1297,7 +1333,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> descriptionIsEmpty() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      descriptionIsEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'description',
@@ -1306,7 +1343,7 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition>
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
       descriptionIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
@@ -1316,7 +1353,7 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> deviceIdEqualTo(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition> deviceIdEqualTo(
     String value, {
     bool caseSensitive = true,
   }) {
@@ -1329,7 +1366,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> deviceIdGreaterThan(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      deviceIdGreaterThan(
     String value, {
     bool include = false,
     bool caseSensitive = true,
@@ -1344,7 +1382,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> deviceIdLessThan(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      deviceIdLessThan(
     String value, {
     bool include = false,
     bool caseSensitive = true,
@@ -1359,7 +1398,7 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> deviceIdBetween(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition> deviceIdBetween(
     String lower,
     String upper, {
     bool includeLower = true,
@@ -1378,7 +1417,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> deviceIdStartsWith(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      deviceIdStartsWith(
     String value, {
     bool caseSensitive = true,
   }) {
@@ -1391,7 +1431,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> deviceIdEndsWith(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      deviceIdEndsWith(
     String value, {
     bool caseSensitive = true,
   }) {
@@ -1404,9 +1445,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> deviceIdContains(
-      String value,
-      {bool caseSensitive = true}) {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      deviceIdContains(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.contains(
         property: r'deviceId',
@@ -1416,7 +1456,7 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> deviceIdMatches(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition> deviceIdMatches(
       String pattern,
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
@@ -1428,7 +1468,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> deviceIdIsEmpty() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      deviceIdIsEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'deviceId',
@@ -1437,7 +1478,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> deviceIdIsNotEmpty() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      deviceIdIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         property: r'deviceId',
@@ -1446,7 +1488,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> districtIsNull() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      districtIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNull(
         property: r'district',
@@ -1454,7 +1497,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> districtIsNotNull() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      districtIsNotNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNotNull(
         property: r'district',
@@ -1462,7 +1506,7 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> districtEqualTo(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition> districtEqualTo(
     String? value, {
     bool caseSensitive = true,
   }) {
@@ -1475,7 +1519,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> districtGreaterThan(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      districtGreaterThan(
     String? value, {
     bool include = false,
     bool caseSensitive = true,
@@ -1490,7 +1535,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> districtLessThan(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      districtLessThan(
     String? value, {
     bool include = false,
     bool caseSensitive = true,
@@ -1505,7 +1551,7 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> districtBetween(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition> districtBetween(
     String? lower,
     String? upper, {
     bool includeLower = true,
@@ -1524,7 +1570,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> districtStartsWith(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      districtStartsWith(
     String value, {
     bool caseSensitive = true,
   }) {
@@ -1537,7 +1584,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> districtEndsWith(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      districtEndsWith(
     String value, {
     bool caseSensitive = true,
   }) {
@@ -1550,9 +1598,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> districtContains(
-      String value,
-      {bool caseSensitive = true}) {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      districtContains(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.contains(
         property: r'district',
@@ -1562,7 +1609,7 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> districtMatches(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition> districtMatches(
       String pattern,
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
@@ -1574,7 +1621,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> districtIsEmpty() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      districtIsEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'district',
@@ -1583,7 +1631,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> districtIsNotEmpty() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      districtIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         property: r'district',
@@ -1592,7 +1641,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> featuresIsNull() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      featuresIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNull(
         property: r'features',
@@ -1600,7 +1650,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> featuresIsNotNull() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      featuresIsNotNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNotNull(
         property: r'features',
@@ -1608,7 +1659,7 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition>
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
       featuresElementEqualTo(
     String value, {
     bool caseSensitive = true,
@@ -1622,7 +1673,7 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition>
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
       featuresElementGreaterThan(
     String value, {
     bool include = false,
@@ -1638,7 +1689,7 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition>
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
       featuresElementLessThan(
     String value, {
     bool include = false,
@@ -1654,7 +1705,7 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition>
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
       featuresElementBetween(
     String lower,
     String upper, {
@@ -1674,7 +1725,7 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition>
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
       featuresElementStartsWith(
     String value, {
     bool caseSensitive = true,
@@ -1688,7 +1739,7 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition>
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
       featuresElementEndsWith(
     String value, {
     bool caseSensitive = true,
@@ -1702,7 +1753,7 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition>
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
       featuresElementContains(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.contains(
@@ -1713,7 +1764,7 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition>
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
       featuresElementMatches(String pattern, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.matches(
@@ -1724,7 +1775,7 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition>
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
       featuresElementIsEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
@@ -1734,7 +1785,7 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition>
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
       featuresElementIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
@@ -1744,8 +1795,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> featuresLengthEqualTo(
-      int length) {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      featuresLengthEqualTo(int length) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'features',
@@ -1757,7 +1808,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> featuresIsEmpty() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      featuresIsEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'features',
@@ -1769,7 +1821,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> featuresIsNotEmpty() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      featuresIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'features',
@@ -1781,7 +1834,7 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition>
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
       featuresLengthLessThan(
     int length, {
     bool include = false,
@@ -1797,7 +1850,7 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition>
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
       featuresLengthGreaterThan(
     int length, {
     bool include = false,
@@ -1813,7 +1866,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> featuresLengthBetween(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      featuresLengthBetween(
     int lower,
     int upper, {
     bool includeLower = true,
@@ -1830,7 +1884,7 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> floorsIsNull() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition> floorsIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNull(
         property: r'floors',
@@ -1838,7 +1892,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> floorsIsNotNull() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      floorsIsNotNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNotNull(
         property: r'floors',
@@ -1846,7 +1901,7 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> floorsEqualTo(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition> floorsEqualTo(
       int? value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
@@ -1856,7 +1911,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> floorsGreaterThan(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      floorsGreaterThan(
     int? value, {
     bool include = false,
   }) {
@@ -1869,7 +1925,7 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> floorsLessThan(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition> floorsLessThan(
     int? value, {
     bool include = false,
   }) {
@@ -1882,7 +1938,7 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> floorsBetween(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition> floorsBetween(
     int? lower,
     int? upper, {
     bool includeLower = true,
@@ -1899,7 +1955,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> idEqualTo(Id value) {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition> idEqualTo(
+      Id value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'id',
@@ -1908,7 +1965,7 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> idGreaterThan(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition> idGreaterThan(
     Id value, {
     bool include = false,
   }) {
@@ -1921,7 +1978,7 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> idLessThan(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition> idLessThan(
     Id value, {
     bool include = false,
   }) {
@@ -1934,7 +1991,7 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> idBetween(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition> idBetween(
     Id lower,
     Id upper, {
     bool includeLower = true,
@@ -1951,7 +2008,7 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> isSyncedEqualTo(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition> isSyncedEqualTo(
       bool value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
@@ -1961,7 +2018,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> legalStatusIsNull() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      legalStatusIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNull(
         property: r'legalStatus',
@@ -1969,7 +2027,7 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition>
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
       legalStatusIsNotNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNotNull(
@@ -1978,7 +2036,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> legalStatusEqualTo(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      legalStatusEqualTo(
     String? value, {
     bool caseSensitive = true,
   }) {
@@ -1991,7 +2050,7 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition>
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
       legalStatusGreaterThan(
     String? value, {
     bool include = false,
@@ -2007,7 +2066,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> legalStatusLessThan(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      legalStatusLessThan(
     String? value, {
     bool include = false,
     bool caseSensitive = true,
@@ -2022,7 +2082,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> legalStatusBetween(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      legalStatusBetween(
     String? lower,
     String? upper, {
     bool includeLower = true,
@@ -2041,7 +2102,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> legalStatusStartsWith(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      legalStatusStartsWith(
     String value, {
     bool caseSensitive = true,
   }) {
@@ -2054,7 +2116,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> legalStatusEndsWith(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      legalStatusEndsWith(
     String value, {
     bool caseSensitive = true,
   }) {
@@ -2067,9 +2130,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> legalStatusContains(
-      String value,
-      {bool caseSensitive = true}) {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      legalStatusContains(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.contains(
         property: r'legalStatus',
@@ -2079,9 +2141,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> legalStatusMatches(
-      String pattern,
-      {bool caseSensitive = true}) {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      legalStatusMatches(String pattern, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.matches(
         property: r'legalStatus',
@@ -2091,7 +2152,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> legalStatusIsEmpty() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      legalStatusIsEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'legalStatus',
@@ -2100,7 +2162,7 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition>
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
       legalStatusIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
@@ -2110,7 +2172,7 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> lengthIsNull() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition> lengthIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNull(
         property: r'length',
@@ -2118,7 +2180,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> lengthIsNotNull() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      lengthIsNotNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNotNull(
         property: r'length',
@@ -2126,7 +2189,7 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> lengthEqualTo(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition> lengthEqualTo(
     double? value, {
     double epsilon = Query.epsilon,
   }) {
@@ -2139,7 +2202,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> lengthGreaterThan(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      lengthGreaterThan(
     double? value, {
     bool include = false,
     double epsilon = Query.epsilon,
@@ -2154,7 +2218,7 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> lengthLessThan(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition> lengthLessThan(
     double? value, {
     bool include = false,
     double epsilon = Query.epsilon,
@@ -2169,7 +2233,7 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> lengthBetween(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition> lengthBetween(
     double? lower,
     double? upper, {
     bool includeLower = true,
@@ -2188,7 +2252,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> ownerIdIsNull() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      ownerIdIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNull(
         property: r'ownerId',
@@ -2196,7 +2261,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> ownerIdIsNotNull() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      ownerIdIsNotNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNotNull(
         property: r'ownerId',
@@ -2204,7 +2270,7 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> ownerIdEqualTo(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition> ownerIdEqualTo(
     String? value, {
     bool caseSensitive = true,
   }) {
@@ -2217,7 +2283,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> ownerIdGreaterThan(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      ownerIdGreaterThan(
     String? value, {
     bool include = false,
     bool caseSensitive = true,
@@ -2232,7 +2299,7 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> ownerIdLessThan(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition> ownerIdLessThan(
     String? value, {
     bool include = false,
     bool caseSensitive = true,
@@ -2247,7 +2314,7 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> ownerIdBetween(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition> ownerIdBetween(
     String? lower,
     String? upper, {
     bool includeLower = true,
@@ -2266,7 +2333,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> ownerIdStartsWith(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      ownerIdStartsWith(
     String value, {
     bool caseSensitive = true,
   }) {
@@ -2279,7 +2347,7 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> ownerIdEndsWith(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition> ownerIdEndsWith(
     String value, {
     bool caseSensitive = true,
   }) {
@@ -2292,7 +2360,7 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> ownerIdContains(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition> ownerIdContains(
       String value,
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
@@ -2304,7 +2372,7 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> ownerIdMatches(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition> ownerIdMatches(
       String pattern,
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
@@ -2316,7 +2384,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> ownerIdIsEmpty() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      ownerIdIsEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'ownerId',
@@ -2325,7 +2394,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> ownerIdIsNotEmpty() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      ownerIdIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         property: r'ownerId',
@@ -2334,7 +2404,7 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> priceIsNull() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition> priceIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNull(
         property: r'price',
@@ -2342,7 +2412,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> priceIsNotNull() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      priceIsNotNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNotNull(
         property: r'price',
@@ -2350,7 +2421,7 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> priceEqualTo(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition> priceEqualTo(
     double? value, {
     double epsilon = Query.epsilon,
   }) {
@@ -2363,7 +2434,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> priceGreaterThan(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      priceGreaterThan(
     double? value, {
     bool include = false,
     double epsilon = Query.epsilon,
@@ -2378,7 +2450,7 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> priceLessThan(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition> priceLessThan(
     double? value, {
     bool include = false,
     double epsilon = Query.epsilon,
@@ -2393,7 +2465,7 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> priceBetween(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition> priceBetween(
     double? lower,
     double? upper, {
     bool includeLower = true,
@@ -2412,7 +2484,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> propertyTypeIsNull() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      propertyTypeIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNull(
         property: r'propertyType',
@@ -2420,7 +2493,7 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition>
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
       propertyTypeIsNotNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNotNull(
@@ -2429,7 +2502,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> propertyTypeEqualTo(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      propertyTypeEqualTo(
     String? value, {
     bool caseSensitive = true,
   }) {
@@ -2442,7 +2516,7 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition>
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
       propertyTypeGreaterThan(
     String? value, {
     bool include = false,
@@ -2458,7 +2532,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> propertyTypeLessThan(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      propertyTypeLessThan(
     String? value, {
     bool include = false,
     bool caseSensitive = true,
@@ -2473,7 +2548,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> propertyTypeBetween(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      propertyTypeBetween(
     String? lower,
     String? upper, {
     bool includeLower = true,
@@ -2492,7 +2568,7 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition>
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
       propertyTypeStartsWith(
     String value, {
     bool caseSensitive = true,
@@ -2506,7 +2582,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> propertyTypeEndsWith(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      propertyTypeEndsWith(
     String value, {
     bool caseSensitive = true,
   }) {
@@ -2519,9 +2596,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> propertyTypeContains(
-      String value,
-      {bool caseSensitive = true}) {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      propertyTypeContains(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.contains(
         property: r'propertyType',
@@ -2531,9 +2607,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> propertyTypeMatches(
-      String pattern,
-      {bool caseSensitive = true}) {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      propertyTypeMatches(String pattern, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.matches(
         property: r'propertyType',
@@ -2543,7 +2618,7 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition>
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
       propertyTypeIsEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
@@ -2553,7 +2628,7 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition>
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
       propertyTypeIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
@@ -2563,7 +2638,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> provinceIsNull() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      provinceIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNull(
         property: r'province',
@@ -2571,7 +2647,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> provinceIsNotNull() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      provinceIsNotNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNotNull(
         property: r'province',
@@ -2579,7 +2656,7 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> provinceEqualTo(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition> provinceEqualTo(
     String? value, {
     bool caseSensitive = true,
   }) {
@@ -2592,7 +2669,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> provinceGreaterThan(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      provinceGreaterThan(
     String? value, {
     bool include = false,
     bool caseSensitive = true,
@@ -2607,7 +2685,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> provinceLessThan(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      provinceLessThan(
     String? value, {
     bool include = false,
     bool caseSensitive = true,
@@ -2622,7 +2701,7 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> provinceBetween(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition> provinceBetween(
     String? lower,
     String? upper, {
     bool includeLower = true,
@@ -2641,7 +2720,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> provinceStartsWith(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      provinceStartsWith(
     String value, {
     bool caseSensitive = true,
   }) {
@@ -2654,7 +2734,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> provinceEndsWith(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      provinceEndsWith(
     String value, {
     bool caseSensitive = true,
   }) {
@@ -2667,9 +2748,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> provinceContains(
-      String value,
-      {bool caseSensitive = true}) {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      provinceContains(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.contains(
         property: r'province',
@@ -2679,7 +2759,7 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> provinceMatches(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition> provinceMatches(
       String pattern,
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
@@ -2691,7 +2771,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> provinceIsEmpty() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      provinceIsEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'province',
@@ -2700,7 +2781,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> provinceIsNotEmpty() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      provinceIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         property: r'province',
@@ -2709,7 +2791,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> remoteIdIsNull() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      remoteIdIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNull(
         property: r'remoteId',
@@ -2717,7 +2800,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> remoteIdIsNotNull() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      remoteIdIsNotNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNotNull(
         property: r'remoteId',
@@ -2725,7 +2809,7 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> remoteIdEqualTo(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition> remoteIdEqualTo(
     String? value, {
     bool caseSensitive = true,
   }) {
@@ -2738,7 +2822,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> remoteIdGreaterThan(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      remoteIdGreaterThan(
     String? value, {
     bool include = false,
     bool caseSensitive = true,
@@ -2753,7 +2838,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> remoteIdLessThan(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      remoteIdLessThan(
     String? value, {
     bool include = false,
     bool caseSensitive = true,
@@ -2768,7 +2854,7 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> remoteIdBetween(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition> remoteIdBetween(
     String? lower,
     String? upper, {
     bool includeLower = true,
@@ -2787,7 +2873,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> remoteIdStartsWith(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      remoteIdStartsWith(
     String value, {
     bool caseSensitive = true,
   }) {
@@ -2800,7 +2887,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> remoteIdEndsWith(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      remoteIdEndsWith(
     String value, {
     bool caseSensitive = true,
   }) {
@@ -2813,9 +2901,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> remoteIdContains(
-      String value,
-      {bool caseSensitive = true}) {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      remoteIdContains(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.contains(
         property: r'remoteId',
@@ -2825,7 +2912,7 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> remoteIdMatches(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition> remoteIdMatches(
       String pattern,
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
@@ -2837,7 +2924,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> remoteIdIsEmpty() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      remoteIdIsEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'remoteId',
@@ -2846,7 +2934,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> remoteIdIsNotEmpty() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      remoteIdIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         property: r'remoteId',
@@ -2855,7 +2944,7 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> titleIsNull() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition> titleIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNull(
         property: r'title',
@@ -2863,7 +2952,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> titleIsNotNull() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      titleIsNotNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNotNull(
         property: r'title',
@@ -2871,7 +2961,7 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> titleEqualTo(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition> titleEqualTo(
     String? value, {
     bool caseSensitive = true,
   }) {
@@ -2884,7 +2974,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> titleGreaterThan(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      titleGreaterThan(
     String? value, {
     bool include = false,
     bool caseSensitive = true,
@@ -2899,7 +2990,7 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> titleLessThan(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition> titleLessThan(
     String? value, {
     bool include = false,
     bool caseSensitive = true,
@@ -2914,7 +3005,7 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> titleBetween(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition> titleBetween(
     String? lower,
     String? upper, {
     bool includeLower = true,
@@ -2933,7 +3024,7 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> titleStartsWith(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition> titleStartsWith(
     String value, {
     bool caseSensitive = true,
   }) {
@@ -2946,7 +3037,7 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> titleEndsWith(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition> titleEndsWith(
     String value, {
     bool caseSensitive = true,
   }) {
@@ -2959,7 +3050,7 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> titleContains(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition> titleContains(
       String value,
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
@@ -2971,7 +3062,7 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> titleMatches(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition> titleMatches(
       String pattern,
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
@@ -2983,7 +3074,7 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> titleIsEmpty() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition> titleIsEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'title',
@@ -2992,7 +3083,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> titleIsNotEmpty() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      titleIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         property: r'title',
@@ -3001,7 +3093,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> updatedAtIsNull() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      updatedAtIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNull(
         property: r'updatedAt',
@@ -3009,7 +3102,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> updatedAtIsNotNull() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      updatedAtIsNotNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNotNull(
         property: r'updatedAt',
@@ -3017,8 +3111,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> updatedAtEqualTo(
-      DateTime? value) {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      updatedAtEqualTo(DateTime? value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'updatedAt',
@@ -3027,7 +3121,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> updatedAtGreaterThan(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      updatedAtGreaterThan(
     DateTime? value, {
     bool include = false,
   }) {
@@ -3040,7 +3135,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> updatedAtLessThan(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      updatedAtLessThan(
     DateTime? value, {
     bool include = false,
   }) {
@@ -3053,7 +3149,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> updatedAtBetween(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      updatedAtBetween(
     DateTime? lower,
     DateTime? upper, {
     bool includeLower = true,
@@ -3070,7 +3167,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> versionIsNull() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      versionIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNull(
         property: r'version',
@@ -3078,7 +3176,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> versionIsNotNull() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      versionIsNotNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNotNull(
         property: r'version',
@@ -3086,7 +3185,7 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> versionEqualTo(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition> versionEqualTo(
       int? value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
@@ -3096,7 +3195,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> versionGreaterThan(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      versionGreaterThan(
     int? value, {
     bool include = false,
   }) {
@@ -3109,7 +3209,7 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> versionLessThan(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition> versionLessThan(
     int? value, {
     bool include = false,
   }) {
@@ -3122,7 +3222,7 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> versionBetween(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition> versionBetween(
     int? lower,
     int? upper, {
     bool includeLower = true,
@@ -3139,7 +3239,7 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> wardIsNull() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition> wardIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNull(
         property: r'ward',
@@ -3147,7 +3247,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> wardIsNotNull() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      wardIsNotNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNotNull(
         property: r'ward',
@@ -3155,7 +3256,7 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> wardEqualTo(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition> wardEqualTo(
     String? value, {
     bool caseSensitive = true,
   }) {
@@ -3168,7 +3269,7 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> wardGreaterThan(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition> wardGreaterThan(
     String? value, {
     bool include = false,
     bool caseSensitive = true,
@@ -3183,7 +3284,7 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> wardLessThan(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition> wardLessThan(
     String? value, {
     bool include = false,
     bool caseSensitive = true,
@@ -3198,7 +3299,7 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> wardBetween(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition> wardBetween(
     String? lower,
     String? upper, {
     bool includeLower = true,
@@ -3217,7 +3318,7 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> wardStartsWith(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition> wardStartsWith(
     String value, {
     bool caseSensitive = true,
   }) {
@@ -3230,7 +3331,7 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> wardEndsWith(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition> wardEndsWith(
     String value, {
     bool caseSensitive = true,
   }) {
@@ -3243,7 +3344,7 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> wardContains(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition> wardContains(
       String value,
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
@@ -3255,7 +3356,7 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> wardMatches(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition> wardMatches(
       String pattern,
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
@@ -3267,7 +3368,7 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> wardIsEmpty() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition> wardIsEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'ward',
@@ -3276,7 +3377,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> wardIsNotEmpty() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      wardIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         property: r'ward',
@@ -3285,7 +3387,7 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> widthIsNull() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition> widthIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNull(
         property: r'width',
@@ -3293,7 +3395,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> widthIsNotNull() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      widthIsNotNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNotNull(
         property: r'width',
@@ -3301,7 +3404,7 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> widthEqualTo(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition> widthEqualTo(
     double? value, {
     double epsilon = Query.epsilon,
   }) {
@@ -3314,7 +3417,8 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> widthGreaterThan(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      widthGreaterThan(
     double? value, {
     bool include = false,
     double epsilon = Query.epsilon,
@@ -3329,7 +3433,7 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> widthLessThan(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition> widthLessThan(
     double? value, {
     bool include = false,
     double epsilon = Query.epsilon,
@@ -3344,7 +3448,7 @@ extension PropertyQueryFilter
     });
   }
 
-  QueryBuilder<Property, Property, QAfterFilterCondition> widthBetween(
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition> widthBetween(
     double? lower,
     double? upper, {
     bool includeLower = true,
@@ -3364,887 +3468,891 @@ extension PropertyQueryFilter
   }
 }
 
-extension PropertyQueryObject
-    on QueryBuilder<Property, Property, QFilterCondition> {}
+extension BdsPropertyQueryObject
+    on QueryBuilder<BdsProperty, BdsProperty, QFilterCondition> {}
 
-extension PropertyQueryLinks
-    on QueryBuilder<Property, Property, QFilterCondition> {}
+extension BdsPropertyQueryLinks
+    on QueryBuilder<BdsProperty, BdsProperty, QFilterCondition> {}
 
-extension PropertyQuerySortBy on QueryBuilder<Property, Property, QSortBy> {
-  QueryBuilder<Property, Property, QAfterSortBy> sortByArea() {
+extension BdsPropertyQuerySortBy
+    on QueryBuilder<BdsProperty, BdsProperty, QSortBy> {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> sortByArea() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'area', Sort.asc);
     });
   }
 
-  QueryBuilder<Property, Property, QAfterSortBy> sortByAreaDesc() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> sortByAreaDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'area', Sort.desc);
     });
   }
 
-  QueryBuilder<Property, Property, QAfterSortBy> sortByAreaSize() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> sortByAreaSize() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'areaSize', Sort.asc);
     });
   }
 
-  QueryBuilder<Property, Property, QAfterSortBy> sortByAreaSizeDesc() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> sortByAreaSizeDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'areaSize', Sort.desc);
     });
   }
 
-  QueryBuilder<Property, Property, QAfterSortBy> sortByBathrooms() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> sortByBathrooms() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'bathrooms', Sort.asc);
     });
   }
 
-  QueryBuilder<Property, Property, QAfterSortBy> sortByBathroomsDesc() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> sortByBathroomsDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'bathrooms', Sort.desc);
     });
   }
 
-  QueryBuilder<Property, Property, QAfterSortBy> sortByBedrooms() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> sortByBedrooms() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'bedrooms', Sort.asc);
     });
   }
 
-  QueryBuilder<Property, Property, QAfterSortBy> sortByBedroomsDesc() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> sortByBedroomsDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'bedrooms', Sort.desc);
     });
   }
 
-  QueryBuilder<Property, Property, QAfterSortBy> sortByBrokerId() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> sortByBrokerId() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'brokerId', Sort.asc);
     });
   }
 
-  QueryBuilder<Property, Property, QAfterSortBy> sortByBrokerIdDesc() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> sortByBrokerIdDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'brokerId', Sort.desc);
     });
   }
 
-  QueryBuilder<Property, Property, QAfterSortBy> sortByDeletedAt() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> sortByDeletedAt() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'deletedAt', Sort.asc);
     });
   }
 
-  QueryBuilder<Property, Property, QAfterSortBy> sortByDeletedAtDesc() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> sortByDeletedAtDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'deletedAt', Sort.desc);
     });
   }
 
-  QueryBuilder<Property, Property, QAfterSortBy> sortByDescription() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> sortByDescription() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'description', Sort.asc);
     });
   }
 
-  QueryBuilder<Property, Property, QAfterSortBy> sortByDescriptionDesc() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> sortByDescriptionDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'description', Sort.desc);
     });
   }
 
-  QueryBuilder<Property, Property, QAfterSortBy> sortByDeviceId() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> sortByDeviceId() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'deviceId', Sort.asc);
     });
   }
 
-  QueryBuilder<Property, Property, QAfterSortBy> sortByDeviceIdDesc() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> sortByDeviceIdDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'deviceId', Sort.desc);
     });
   }
 
-  QueryBuilder<Property, Property, QAfterSortBy> sortByDistrict() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> sortByDistrict() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'district', Sort.asc);
     });
   }
 
-  QueryBuilder<Property, Property, QAfterSortBy> sortByDistrictDesc() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> sortByDistrictDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'district', Sort.desc);
     });
   }
 
-  QueryBuilder<Property, Property, QAfterSortBy> sortByFloors() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> sortByFloors() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'floors', Sort.asc);
     });
   }
 
-  QueryBuilder<Property, Property, QAfterSortBy> sortByFloorsDesc() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> sortByFloorsDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'floors', Sort.desc);
     });
   }
 
-  QueryBuilder<Property, Property, QAfterSortBy> sortByIsSynced() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> sortByIsSynced() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'isSynced', Sort.asc);
     });
   }
 
-  QueryBuilder<Property, Property, QAfterSortBy> sortByIsSyncedDesc() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> sortByIsSyncedDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'isSynced', Sort.desc);
     });
   }
 
-  QueryBuilder<Property, Property, QAfterSortBy> sortByLegalStatus() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> sortByLegalStatus() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'legalStatus', Sort.asc);
     });
   }
 
-  QueryBuilder<Property, Property, QAfterSortBy> sortByLegalStatusDesc() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> sortByLegalStatusDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'legalStatus', Sort.desc);
     });
   }
 
-  QueryBuilder<Property, Property, QAfterSortBy> sortByLength() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> sortByLength() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'length', Sort.asc);
     });
   }
 
-  QueryBuilder<Property, Property, QAfterSortBy> sortByLengthDesc() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> sortByLengthDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'length', Sort.desc);
     });
   }
 
-  QueryBuilder<Property, Property, QAfterSortBy> sortByOwnerId() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> sortByOwnerId() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'ownerId', Sort.asc);
     });
   }
 
-  QueryBuilder<Property, Property, QAfterSortBy> sortByOwnerIdDesc() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> sortByOwnerIdDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'ownerId', Sort.desc);
     });
   }
 
-  QueryBuilder<Property, Property, QAfterSortBy> sortByPrice() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> sortByPrice() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'price', Sort.asc);
     });
   }
 
-  QueryBuilder<Property, Property, QAfterSortBy> sortByPriceDesc() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> sortByPriceDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'price', Sort.desc);
     });
   }
 
-  QueryBuilder<Property, Property, QAfterSortBy> sortByPropertyType() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> sortByPropertyType() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'propertyType', Sort.asc);
     });
   }
 
-  QueryBuilder<Property, Property, QAfterSortBy> sortByPropertyTypeDesc() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy>
+      sortByPropertyTypeDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'propertyType', Sort.desc);
     });
   }
 
-  QueryBuilder<Property, Property, QAfterSortBy> sortByProvince() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> sortByProvince() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'province', Sort.asc);
     });
   }
 
-  QueryBuilder<Property, Property, QAfterSortBy> sortByProvinceDesc() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> sortByProvinceDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'province', Sort.desc);
     });
   }
 
-  QueryBuilder<Property, Property, QAfterSortBy> sortByRemoteId() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> sortByRemoteId() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'remoteId', Sort.asc);
     });
   }
 
-  QueryBuilder<Property, Property, QAfterSortBy> sortByRemoteIdDesc() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> sortByRemoteIdDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'remoteId', Sort.desc);
     });
   }
 
-  QueryBuilder<Property, Property, QAfterSortBy> sortByTitle() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> sortByTitle() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'title', Sort.asc);
     });
   }
 
-  QueryBuilder<Property, Property, QAfterSortBy> sortByTitleDesc() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> sortByTitleDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'title', Sort.desc);
     });
   }
 
-  QueryBuilder<Property, Property, QAfterSortBy> sortByUpdatedAt() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> sortByUpdatedAt() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'updatedAt', Sort.asc);
     });
   }
 
-  QueryBuilder<Property, Property, QAfterSortBy> sortByUpdatedAtDesc() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> sortByUpdatedAtDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'updatedAt', Sort.desc);
     });
   }
 
-  QueryBuilder<Property, Property, QAfterSortBy> sortByVersion() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> sortByVersion() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'version', Sort.asc);
     });
   }
 
-  QueryBuilder<Property, Property, QAfterSortBy> sortByVersionDesc() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> sortByVersionDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'version', Sort.desc);
     });
   }
 
-  QueryBuilder<Property, Property, QAfterSortBy> sortByWard() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> sortByWard() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'ward', Sort.asc);
     });
   }
 
-  QueryBuilder<Property, Property, QAfterSortBy> sortByWardDesc() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> sortByWardDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'ward', Sort.desc);
     });
   }
 
-  QueryBuilder<Property, Property, QAfterSortBy> sortByWidth() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> sortByWidth() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'width', Sort.asc);
     });
   }
 
-  QueryBuilder<Property, Property, QAfterSortBy> sortByWidthDesc() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> sortByWidthDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'width', Sort.desc);
     });
   }
 }
 
-extension PropertyQuerySortThenBy
-    on QueryBuilder<Property, Property, QSortThenBy> {
-  QueryBuilder<Property, Property, QAfterSortBy> thenByArea() {
+extension BdsPropertyQuerySortThenBy
+    on QueryBuilder<BdsProperty, BdsProperty, QSortThenBy> {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> thenByArea() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'area', Sort.asc);
     });
   }
 
-  QueryBuilder<Property, Property, QAfterSortBy> thenByAreaDesc() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> thenByAreaDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'area', Sort.desc);
     });
   }
 
-  QueryBuilder<Property, Property, QAfterSortBy> thenByAreaSize() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> thenByAreaSize() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'areaSize', Sort.asc);
     });
   }
 
-  QueryBuilder<Property, Property, QAfterSortBy> thenByAreaSizeDesc() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> thenByAreaSizeDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'areaSize', Sort.desc);
     });
   }
 
-  QueryBuilder<Property, Property, QAfterSortBy> thenByBathrooms() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> thenByBathrooms() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'bathrooms', Sort.asc);
     });
   }
 
-  QueryBuilder<Property, Property, QAfterSortBy> thenByBathroomsDesc() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> thenByBathroomsDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'bathrooms', Sort.desc);
     });
   }
 
-  QueryBuilder<Property, Property, QAfterSortBy> thenByBedrooms() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> thenByBedrooms() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'bedrooms', Sort.asc);
     });
   }
 
-  QueryBuilder<Property, Property, QAfterSortBy> thenByBedroomsDesc() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> thenByBedroomsDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'bedrooms', Sort.desc);
     });
   }
 
-  QueryBuilder<Property, Property, QAfterSortBy> thenByBrokerId() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> thenByBrokerId() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'brokerId', Sort.asc);
     });
   }
 
-  QueryBuilder<Property, Property, QAfterSortBy> thenByBrokerIdDesc() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> thenByBrokerIdDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'brokerId', Sort.desc);
     });
   }
 
-  QueryBuilder<Property, Property, QAfterSortBy> thenByDeletedAt() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> thenByDeletedAt() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'deletedAt', Sort.asc);
     });
   }
 
-  QueryBuilder<Property, Property, QAfterSortBy> thenByDeletedAtDesc() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> thenByDeletedAtDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'deletedAt', Sort.desc);
     });
   }
 
-  QueryBuilder<Property, Property, QAfterSortBy> thenByDescription() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> thenByDescription() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'description', Sort.asc);
     });
   }
 
-  QueryBuilder<Property, Property, QAfterSortBy> thenByDescriptionDesc() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> thenByDescriptionDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'description', Sort.desc);
     });
   }
 
-  QueryBuilder<Property, Property, QAfterSortBy> thenByDeviceId() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> thenByDeviceId() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'deviceId', Sort.asc);
     });
   }
 
-  QueryBuilder<Property, Property, QAfterSortBy> thenByDeviceIdDesc() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> thenByDeviceIdDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'deviceId', Sort.desc);
     });
   }
 
-  QueryBuilder<Property, Property, QAfterSortBy> thenByDistrict() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> thenByDistrict() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'district', Sort.asc);
     });
   }
 
-  QueryBuilder<Property, Property, QAfterSortBy> thenByDistrictDesc() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> thenByDistrictDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'district', Sort.desc);
     });
   }
 
-  QueryBuilder<Property, Property, QAfterSortBy> thenByFloors() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> thenByFloors() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'floors', Sort.asc);
     });
   }
 
-  QueryBuilder<Property, Property, QAfterSortBy> thenByFloorsDesc() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> thenByFloorsDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'floors', Sort.desc);
     });
   }
 
-  QueryBuilder<Property, Property, QAfterSortBy> thenById() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> thenById() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'id', Sort.asc);
     });
   }
 
-  QueryBuilder<Property, Property, QAfterSortBy> thenByIdDesc() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> thenByIdDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'id', Sort.desc);
     });
   }
 
-  QueryBuilder<Property, Property, QAfterSortBy> thenByIsSynced() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> thenByIsSynced() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'isSynced', Sort.asc);
     });
   }
 
-  QueryBuilder<Property, Property, QAfterSortBy> thenByIsSyncedDesc() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> thenByIsSyncedDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'isSynced', Sort.desc);
     });
   }
 
-  QueryBuilder<Property, Property, QAfterSortBy> thenByLegalStatus() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> thenByLegalStatus() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'legalStatus', Sort.asc);
     });
   }
 
-  QueryBuilder<Property, Property, QAfterSortBy> thenByLegalStatusDesc() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> thenByLegalStatusDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'legalStatus', Sort.desc);
     });
   }
 
-  QueryBuilder<Property, Property, QAfterSortBy> thenByLength() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> thenByLength() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'length', Sort.asc);
     });
   }
 
-  QueryBuilder<Property, Property, QAfterSortBy> thenByLengthDesc() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> thenByLengthDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'length', Sort.desc);
     });
   }
 
-  QueryBuilder<Property, Property, QAfterSortBy> thenByOwnerId() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> thenByOwnerId() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'ownerId', Sort.asc);
     });
   }
 
-  QueryBuilder<Property, Property, QAfterSortBy> thenByOwnerIdDesc() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> thenByOwnerIdDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'ownerId', Sort.desc);
     });
   }
 
-  QueryBuilder<Property, Property, QAfterSortBy> thenByPrice() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> thenByPrice() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'price', Sort.asc);
     });
   }
 
-  QueryBuilder<Property, Property, QAfterSortBy> thenByPriceDesc() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> thenByPriceDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'price', Sort.desc);
     });
   }
 
-  QueryBuilder<Property, Property, QAfterSortBy> thenByPropertyType() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> thenByPropertyType() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'propertyType', Sort.asc);
     });
   }
 
-  QueryBuilder<Property, Property, QAfterSortBy> thenByPropertyTypeDesc() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy>
+      thenByPropertyTypeDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'propertyType', Sort.desc);
     });
   }
 
-  QueryBuilder<Property, Property, QAfterSortBy> thenByProvince() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> thenByProvince() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'province', Sort.asc);
     });
   }
 
-  QueryBuilder<Property, Property, QAfterSortBy> thenByProvinceDesc() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> thenByProvinceDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'province', Sort.desc);
     });
   }
 
-  QueryBuilder<Property, Property, QAfterSortBy> thenByRemoteId() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> thenByRemoteId() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'remoteId', Sort.asc);
     });
   }
 
-  QueryBuilder<Property, Property, QAfterSortBy> thenByRemoteIdDesc() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> thenByRemoteIdDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'remoteId', Sort.desc);
     });
   }
 
-  QueryBuilder<Property, Property, QAfterSortBy> thenByTitle() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> thenByTitle() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'title', Sort.asc);
     });
   }
 
-  QueryBuilder<Property, Property, QAfterSortBy> thenByTitleDesc() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> thenByTitleDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'title', Sort.desc);
     });
   }
 
-  QueryBuilder<Property, Property, QAfterSortBy> thenByUpdatedAt() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> thenByUpdatedAt() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'updatedAt', Sort.asc);
     });
   }
 
-  QueryBuilder<Property, Property, QAfterSortBy> thenByUpdatedAtDesc() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> thenByUpdatedAtDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'updatedAt', Sort.desc);
     });
   }
 
-  QueryBuilder<Property, Property, QAfterSortBy> thenByVersion() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> thenByVersion() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'version', Sort.asc);
     });
   }
 
-  QueryBuilder<Property, Property, QAfterSortBy> thenByVersionDesc() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> thenByVersionDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'version', Sort.desc);
     });
   }
 
-  QueryBuilder<Property, Property, QAfterSortBy> thenByWard() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> thenByWard() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'ward', Sort.asc);
     });
   }
 
-  QueryBuilder<Property, Property, QAfterSortBy> thenByWardDesc() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> thenByWardDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'ward', Sort.desc);
     });
   }
 
-  QueryBuilder<Property, Property, QAfterSortBy> thenByWidth() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> thenByWidth() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'width', Sort.asc);
     });
   }
 
-  QueryBuilder<Property, Property, QAfterSortBy> thenByWidthDesc() {
+  QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> thenByWidthDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'width', Sort.desc);
     });
   }
 }
 
-extension PropertyQueryWhereDistinct
-    on QueryBuilder<Property, Property, QDistinct> {
-  QueryBuilder<Property, Property, QDistinct> distinctByArea(
+extension BdsPropertyQueryWhereDistinct
+    on QueryBuilder<BdsProperty, BdsProperty, QDistinct> {
+  QueryBuilder<BdsProperty, BdsProperty, QDistinct> distinctByArea(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'area', caseSensitive: caseSensitive);
     });
   }
 
-  QueryBuilder<Property, Property, QDistinct> distinctByAreaSize() {
+  QueryBuilder<BdsProperty, BdsProperty, QDistinct> distinctByAreaSize() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'areaSize');
     });
   }
 
-  QueryBuilder<Property, Property, QDistinct> distinctByBathrooms() {
+  QueryBuilder<BdsProperty, BdsProperty, QDistinct> distinctByBathrooms() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'bathrooms');
     });
   }
 
-  QueryBuilder<Property, Property, QDistinct> distinctByBedrooms() {
+  QueryBuilder<BdsProperty, BdsProperty, QDistinct> distinctByBedrooms() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'bedrooms');
     });
   }
 
-  QueryBuilder<Property, Property, QDistinct> distinctByBrokerId(
+  QueryBuilder<BdsProperty, BdsProperty, QDistinct> distinctByBrokerId(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'brokerId', caseSensitive: caseSensitive);
     });
   }
 
-  QueryBuilder<Property, Property, QDistinct> distinctByDeletedAt() {
+  QueryBuilder<BdsProperty, BdsProperty, QDistinct> distinctByDeletedAt() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'deletedAt');
     });
   }
 
-  QueryBuilder<Property, Property, QDistinct> distinctByDescription(
+  QueryBuilder<BdsProperty, BdsProperty, QDistinct> distinctByDescription(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'description', caseSensitive: caseSensitive);
     });
   }
 
-  QueryBuilder<Property, Property, QDistinct> distinctByDeviceId(
+  QueryBuilder<BdsProperty, BdsProperty, QDistinct> distinctByDeviceId(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'deviceId', caseSensitive: caseSensitive);
     });
   }
 
-  QueryBuilder<Property, Property, QDistinct> distinctByDistrict(
+  QueryBuilder<BdsProperty, BdsProperty, QDistinct> distinctByDistrict(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'district', caseSensitive: caseSensitive);
     });
   }
 
-  QueryBuilder<Property, Property, QDistinct> distinctByFeatures() {
+  QueryBuilder<BdsProperty, BdsProperty, QDistinct> distinctByFeatures() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'features');
     });
   }
 
-  QueryBuilder<Property, Property, QDistinct> distinctByFloors() {
+  QueryBuilder<BdsProperty, BdsProperty, QDistinct> distinctByFloors() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'floors');
     });
   }
 
-  QueryBuilder<Property, Property, QDistinct> distinctByIsSynced() {
+  QueryBuilder<BdsProperty, BdsProperty, QDistinct> distinctByIsSynced() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'isSynced');
     });
   }
 
-  QueryBuilder<Property, Property, QDistinct> distinctByLegalStatus(
+  QueryBuilder<BdsProperty, BdsProperty, QDistinct> distinctByLegalStatus(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'legalStatus', caseSensitive: caseSensitive);
     });
   }
 
-  QueryBuilder<Property, Property, QDistinct> distinctByLength() {
+  QueryBuilder<BdsProperty, BdsProperty, QDistinct> distinctByLength() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'length');
     });
   }
 
-  QueryBuilder<Property, Property, QDistinct> distinctByOwnerId(
+  QueryBuilder<BdsProperty, BdsProperty, QDistinct> distinctByOwnerId(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'ownerId', caseSensitive: caseSensitive);
     });
   }
 
-  QueryBuilder<Property, Property, QDistinct> distinctByPrice() {
+  QueryBuilder<BdsProperty, BdsProperty, QDistinct> distinctByPrice() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'price');
     });
   }
 
-  QueryBuilder<Property, Property, QDistinct> distinctByPropertyType(
+  QueryBuilder<BdsProperty, BdsProperty, QDistinct> distinctByPropertyType(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'propertyType', caseSensitive: caseSensitive);
     });
   }
 
-  QueryBuilder<Property, Property, QDistinct> distinctByProvince(
+  QueryBuilder<BdsProperty, BdsProperty, QDistinct> distinctByProvince(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'province', caseSensitive: caseSensitive);
     });
   }
 
-  QueryBuilder<Property, Property, QDistinct> distinctByRemoteId(
+  QueryBuilder<BdsProperty, BdsProperty, QDistinct> distinctByRemoteId(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'remoteId', caseSensitive: caseSensitive);
     });
   }
 
-  QueryBuilder<Property, Property, QDistinct> distinctByTitle(
+  QueryBuilder<BdsProperty, BdsProperty, QDistinct> distinctByTitle(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'title', caseSensitive: caseSensitive);
     });
   }
 
-  QueryBuilder<Property, Property, QDistinct> distinctByUpdatedAt() {
+  QueryBuilder<BdsProperty, BdsProperty, QDistinct> distinctByUpdatedAt() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'updatedAt');
     });
   }
 
-  QueryBuilder<Property, Property, QDistinct> distinctByVersion() {
+  QueryBuilder<BdsProperty, BdsProperty, QDistinct> distinctByVersion() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'version');
     });
   }
 
-  QueryBuilder<Property, Property, QDistinct> distinctByWard(
+  QueryBuilder<BdsProperty, BdsProperty, QDistinct> distinctByWard(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'ward', caseSensitive: caseSensitive);
     });
   }
 
-  QueryBuilder<Property, Property, QDistinct> distinctByWidth() {
+  QueryBuilder<BdsProperty, BdsProperty, QDistinct> distinctByWidth() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'width');
     });
   }
 }
 
-extension PropertyQueryProperty
-    on QueryBuilder<Property, Property, QQueryProperty> {
-  QueryBuilder<Property, int, QQueryOperations> idProperty() {
+extension BdsPropertyQueryProperty
+    on QueryBuilder<BdsProperty, BdsProperty, QQueryProperty> {
+  QueryBuilder<BdsProperty, int, QQueryOperations> idProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'id');
     });
   }
 
-  QueryBuilder<Property, String?, QQueryOperations> areaProperty() {
+  QueryBuilder<BdsProperty, String?, QQueryOperations> areaProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'area');
     });
   }
 
-  QueryBuilder<Property, double?, QQueryOperations> areaSizeProperty() {
+  QueryBuilder<BdsProperty, double?, QQueryOperations> areaSizeProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'areaSize');
     });
   }
 
-  QueryBuilder<Property, int?, QQueryOperations> bathroomsProperty() {
+  QueryBuilder<BdsProperty, int?, QQueryOperations> bathroomsProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'bathrooms');
     });
   }
 
-  QueryBuilder<Property, int?, QQueryOperations> bedroomsProperty() {
+  QueryBuilder<BdsProperty, int?, QQueryOperations> bedroomsProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'bedrooms');
     });
   }
 
-  QueryBuilder<Property, String?, QQueryOperations> brokerIdProperty() {
+  QueryBuilder<BdsProperty, String?, QQueryOperations> brokerIdProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'brokerId');
     });
   }
 
-  QueryBuilder<Property, DateTime?, QQueryOperations> deletedAtProperty() {
+  QueryBuilder<BdsProperty, DateTime?, QQueryOperations> deletedAtProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'deletedAt');
     });
   }
 
-  QueryBuilder<Property, String?, QQueryOperations> descriptionProperty() {
+  QueryBuilder<BdsProperty, String?, QQueryOperations> descriptionProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'description');
     });
   }
 
-  QueryBuilder<Property, String, QQueryOperations> deviceIdProperty() {
+  QueryBuilder<BdsProperty, String, QQueryOperations> deviceIdProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'deviceId');
     });
   }
 
-  QueryBuilder<Property, String?, QQueryOperations> districtProperty() {
+  QueryBuilder<BdsProperty, String?, QQueryOperations> districtProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'district');
     });
   }
 
-  QueryBuilder<Property, List<String>?, QQueryOperations> featuresProperty() {
+  QueryBuilder<BdsProperty, List<String>?, QQueryOperations>
+      featuresProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'features');
     });
   }
 
-  QueryBuilder<Property, int?, QQueryOperations> floorsProperty() {
+  QueryBuilder<BdsProperty, int?, QQueryOperations> floorsProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'floors');
     });
   }
 
-  QueryBuilder<Property, bool, QQueryOperations> isSyncedProperty() {
+  QueryBuilder<BdsProperty, bool, QQueryOperations> isSyncedProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'isSynced');
     });
   }
 
-  QueryBuilder<Property, String?, QQueryOperations> legalStatusProperty() {
+  QueryBuilder<BdsProperty, String?, QQueryOperations> legalStatusProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'legalStatus');
     });
   }
 
-  QueryBuilder<Property, double?, QQueryOperations> lengthProperty() {
+  QueryBuilder<BdsProperty, double?, QQueryOperations> lengthProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'length');
     });
   }
 
-  QueryBuilder<Property, String?, QQueryOperations> ownerIdProperty() {
+  QueryBuilder<BdsProperty, String?, QQueryOperations> ownerIdProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'ownerId');
     });
   }
 
-  QueryBuilder<Property, double?, QQueryOperations> priceProperty() {
+  QueryBuilder<BdsProperty, double?, QQueryOperations> priceProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'price');
     });
   }
 
-  QueryBuilder<Property, String?, QQueryOperations> propertyTypeProperty() {
+  QueryBuilder<BdsProperty, String?, QQueryOperations> propertyTypeProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'propertyType');
     });
   }
 
-  QueryBuilder<Property, String?, QQueryOperations> provinceProperty() {
+  QueryBuilder<BdsProperty, String?, QQueryOperations> provinceProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'province');
     });
   }
 
-  QueryBuilder<Property, String?, QQueryOperations> remoteIdProperty() {
+  QueryBuilder<BdsProperty, String?, QQueryOperations> remoteIdProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'remoteId');
     });
   }
 
-  QueryBuilder<Property, String?, QQueryOperations> titleProperty() {
+  QueryBuilder<BdsProperty, String?, QQueryOperations> titleProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'title');
     });
   }
 
-  QueryBuilder<Property, DateTime?, QQueryOperations> updatedAtProperty() {
+  QueryBuilder<BdsProperty, DateTime?, QQueryOperations> updatedAtProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'updatedAt');
     });
   }
 
-  QueryBuilder<Property, int?, QQueryOperations> versionProperty() {
+  QueryBuilder<BdsProperty, int?, QQueryOperations> versionProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'version');
     });
   }
 
-  QueryBuilder<Property, String?, QQueryOperations> wardProperty() {
+  QueryBuilder<BdsProperty, String?, QQueryOperations> wardProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'ward');
     });
   }
 
-  QueryBuilder<Property, double?, QQueryOperations> widthProperty() {
+  QueryBuilder<BdsProperty, double?, QQueryOperations> widthProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'width');
     });

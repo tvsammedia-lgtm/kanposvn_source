@@ -35,7 +35,7 @@ final transactionRepositoryProvider = Provider<TransactionRepository>((ref) {
   return TransactionRepository();
 });
 
-final propertiesProvider = FutureProvider<List<Property>>((ref) async {
+final propertiesProvider = FutureProvider<List<BdsProperty>>((ref) async {
   final repository = ref.watch(propertyRepositoryProvider);
   return await repository.getAllProperties();
 });
