@@ -132,6 +132,7 @@ export async function POST(req: NextRequest) {
       { code: 'vlxd', name: 'VLXD', desc: 'Quan ly vat lieu xay dung', pkg: '', plat: 'flutter' },
       { code: 'kanposvncafe', name: 'KanPosVN Cafe (Isar+Neon)', desc: 'Quan ly cafe - phien ban Isar+Neon', pkg: '', plat: 'flutter' },
       { code: 'kanhot_one', name: 'KHACH SAN THIEN NHIEN', desc: 'Khach san - nha hang', pkg: '', plat: 'flutter' },
+      { code: 'KANCAFE_ONE', name: 'CAFE - KANCAFE_ONE', desc: 'Quan ly cafe - KANCAFE_ONE', pkg: '', plat: 'flutter' },
     ];
     for (const a of seedApps) {
       await sql`
@@ -260,6 +261,17 @@ export async function POST(req: NextRequest) {
         ON CONFLICT (user_id, app_id) DO UPDATE SET role_id = ${adminRole[0].id}, can_login = true
       `;
       results.push(`${ownerEmail}: granted kanhot_one as Admin (Owner)`);
+    }
+
+    // Owner KANCAFE: đảm bảo quyền Admin trên app KANCAFE_ONE cho cùng owner
+    const cafeApp = await sql`SELECT id FROM apps WHERE app_code = 'KANCAFE_ONE'`;
+    if (cafeApp.length > 0 && adminRole.length > 0) {
+      await sql`
+        INSERT INTO user_permissions (user_id, app_id, role_id, can_login)
+        VALUES (${ownerUser[0].id}, ${cafeApp[0].id}, ${adminRole[0].id}, true)
+        ON CONFLICT (user_id, app_id) DO UPDATE SET role_id = ${adminRole[0].id}, can_login = true
+      `;
+      results.push(`${ownerEmail}: granted KANCAFE_ONE as Admin (Owner)`);
     }
 
     return NextResponse.json({ ok: true, results }, { headers: corsHeaders() });
