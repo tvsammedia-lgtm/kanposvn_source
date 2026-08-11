@@ -1,7 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSql } from '@/lib/db';
 import { hashPassword } from '@/lib/auth';
-import { STORE_TRIAL_DAYS, STORE_MODULES, STORE_LICENSE_APP_CODE } from '@/lib/pricing';
+import {
+  STORE_TRIAL_DAYS,
+  STORE_MODULES,
+  STORE_LICENSE_APP_CODE,
+  getPlan,
+  newOrderCode,
+} from '@/lib/pricing';
 
 function corsHeaders() {
   return {
@@ -26,7 +32,7 @@ function isValidPhone(phone: string) {
 export async function POST(req: NextRequest) {
   const sql = getSql();
   try {
-    const { store_name, phone, password, app_code } = await req.json();
+    const { store_name, phone, password, app_code, plan, otp_code, bank_account_id } = await req.json();
 
     if (!store_name || !phone || !password) {
       return NextResponse.json(
@@ -74,6 +80,62 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Xác thực SĐT bằng OTP (mock hiện tại, đổi nhà cung cấp qua env SMS_PROVIDER)
+    if (!otp_code || !String(otp_code).trim()) {
+      return NextResponse.json(
+        { error: 'Vui lòng nhập mã xác nhận SĐT' },
+        { status: 400, headers: corsHeaders() },
+      );
+    }
+    const otpRows = await sql`
+      SELECT * FROM sms_otps
+      WHERE phone = ${normalizedPhone} AND purpose = 'register' AND used = false
+      ORDER BY created_at DESC LIMIT 1
+    `;
+    if (otpRows.length === 0) {
+      return NextResponse.json(
+        { error: 'Không tìm thấy mã xác nhận. Vui lòng gửi lại mã.' },
+        { status: 400, headers: corsHeaders() },
+      );
+    }
+    const otp = otpRows[0];
+    if (new Date(otp.expires_at).getTime() < Date.now()) {
+      await sql`UPDATE sms_otps SET used = true WHERE id = ${otp.id}`;
+      return NextResponse.json(
+        { error: 'Mã xác nhận đã hết hạn. Vui lòng gửi lại mã.' },
+        { status: 400, headers: corsHeaders() },
+      );
+    }
+    if (String(otp_code).trim() !== otp.code) {
+      await sql`UPDATE sms_otps SET attempts = attempts + 1 WHERE id = ${otp.id}`;
+      return NextResponse.json(
+        { error: 'Sai mã xác nhận. Vui lòng kiểm tra lại.' },
+        { status: 400, headers: corsHeaders() },
+      );
+    }
+    await sql`UPDATE sms_otps SET used = true WHERE id = ${otp.id}`;
+
+    // Gói dịch vụ: trial = dùng ngay 7 ngày; yearly/forever = chuyển khoản rồi kích hoạt
+    const selectedPlan = getPlan((plan as string) || 'trial');
+    if (selectedPlan.trial !== true && selectedPlan.key !== 'trial') {
+      // gói trả phí phải kèm tài khoản ngân hàng đích
+      if (!bank_account_id) {
+        return NextResponse.json(
+          { error: 'Vui lòng chọn tài khoản ngân hàng để chuyển khoản' },
+          { status: 400, headers: corsHeaders() },
+        );
+      }
+      const bankRows = await sql`
+        SELECT * FROM bank_accounts WHERE id = ${bank_account_id} AND active = true
+      `;
+      if (bankRows.length === 0) {
+        return NextResponse.json(
+          { error: 'Tài khoản ngân hàng không hợp lệ' },
+          { status: 400, headers: corsHeaders() },
+        );
+      }
+    }
+
     const existing = await sql`SELECT id FROM users WHERE phone = ${normalizedPhone}`;
     if (existing.length > 0) {
       return NextResponse.json(
@@ -99,25 +161,77 @@ export async function POST(req: NextRequest) {
     `;
 
     const now = new Date();
-    const expiresAt = new Date(now.getTime() + STORE_TRIAL_DAYS * 24 * 60 * 60 * 1000);
 
-    const [license] = await sql`
-      INSERT INTO licenses (user_id, store_id, app_code, device_id, plan, status, started_at, expires_at)
-      VALUES (${user.id}, ${store.id}, ${appCode}, '', 'trial', 'active', ${now.toISOString()}, ${expiresAt.toISOString()})
-      RETURNING plan, expires_at
+    if (selectedPlan.trial || selectedPlan.key === 'trial') {
+      // Gói dùng thử: kích hoạt license 7 ngày ngay lập tức.
+      const expiresAt = new Date(now.getTime() + STORE_TRIAL_DAYS * 24 * 60 * 60 * 1000);
+
+      const [license] = await sql`
+        INSERT INTO licenses (user_id, store_id, app_code, device_id, plan, status, started_at, expires_at)
+        VALUES (${user.id}, ${store.id}, ${appCode}, '', 'trial', 'active', ${now.toISOString()}, ${expiresAt.toISOString()})
+        RETURNING plan, expires_at
+      `;
+
+      await sql`
+        UPDATE users SET subscription_plan = 'trial', subscription_start = ${now.toISOString()}, subscription_end = ${expiresAt.toISOString()}
+        WHERE id = ${user.id}
+      `;
+
+      return NextResponse.json(
+        {
+          ok: true,
+          message: 'Đăng ký thành công',
+          userId: user.id,
+          storeId: store.id,
+          storeName,
+          appCode,
+          moduleName,
+          plan: 'trial',
+          trial: true,
+          expiresAt: license.expires_at,
+        },
+        { headers: corsHeaders() },
+      );
+    }
+
+    // Gói trả phí: tạo đơn hàng chuyển khoản chờ xác nhận, chưa kích hoạt license.
+    const bankRows = await sql`SELECT * FROM bank_accounts WHERE id = ${bank_account_id}`;
+    const bank = bankRows[0];
+    const orderCode = newOrderCode();
+
+    const [order] = await sql`
+      INSERT INTO orders (
+        order_code, user_id, app_code, plan, amount, currency, status,
+        payment_method, bank_code, bank_account_id, description
+      )
+      VALUES (
+        ${orderCode}, ${user.id}, ${appCode}, ${selectedPlan.key}, ${selectedPlan.price}, 'VND',
+        'pending', 'bank_transfer', ${bank.bank_code}, ${bank.id},
+        ${'Thanh toán gói ' + selectedPlan.label + ' qua chuyển khoản - Mã đơn: ' + orderCode}
+      )
+      RETURNING order_code, amount, created_at
     `;
 
     return NextResponse.json(
       {
         ok: true,
-        message: 'Đăng ký thành công',
+        message: 'Đăng ký thành công. Vui lòng chuyển khoản theo mã đơn hàng để kích hoạt.',
         userId: user.id,
         storeId: store.id,
         storeName,
         appCode,
         moduleName,
-        trial: true,
-        expiresAt: license.expires_at,
+        plan: selectedPlan.key,
+        trial: false,
+        order_code: order.order_code,
+        amount: order.amount,
+        bank: {
+          bank_code: bank.bank_code,
+          bank_name: bank.bank_name,
+          account_number: bank.account_number,
+          account_holder: bank.account_holder,
+          branch: bank.branch,
+        },
       },
       { headers: corsHeaders() },
     );

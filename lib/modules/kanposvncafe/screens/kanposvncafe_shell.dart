@@ -23,6 +23,7 @@ import 'backup_restore_screen.dart';
 import 'cafe_sales_report_screen.dart';
 import 'cafe_permission_screen.dart';
 import 'cafe_reports_screen.dart';
+import 'cafe_einvoice_screen.dart';
 
 class KanPosVNCafeShell extends ConsumerStatefulWidget {
   const KanPosVNCafeShell({super.key});
@@ -167,6 +168,13 @@ class _KanPosVNCafeShellState extends ConsumerState<KanPosVNCafeShell> {
       label: 'Phân quyền',
       shortLabel: 'Q.Trị',
       icon: Icons.admin_panel_settings,
+    ),
+    const _CafeTab(
+      id: 'einvoice',
+      screen: CafeEinvoiceScreen(),
+      label: 'Hóa đơn điện tử',
+      shortLabel: 'HĐĐT',
+      icon: Icons.receipt_long,
     ),
   ];
 

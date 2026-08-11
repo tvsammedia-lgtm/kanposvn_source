@@ -68,6 +68,9 @@ export async function POST(req: NextRequest) {
       last_check_at TIMESTAMP WITH TIME ZONE,
       UNIQUE(user_id, app_code, device_id)
     )`],
+    ['orders_bank_columns', 'ALTER TABLE orders ADD COLUMN IF NOT EXISTS bank_code VARCHAR(20) DEFAULT \'\''],
+    ['orders_bank_account_id', 'ALTER TABLE orders ADD COLUMN IF NOT EXISTS bank_account_id UUID DEFAULT NULL'],
+    ['orders_confirm_note', 'ALTER TABLE orders ADD COLUMN IF NOT EXISTS confirm_note TEXT DEFAULT \'\''],
     ['orders_index_user', 'CREATE INDEX IF NOT EXISTS idx_orders_user ON orders(user_id)'],
     ['orders_index_code', 'CREATE INDEX IF NOT EXISTS idx_orders_code ON orders(order_code)'],
     ['licenses_index_user', 'CREATE INDEX IF NOT EXISTS idx_licenses_user ON licenses(user_id)'],
@@ -89,6 +92,66 @@ export async function POST(req: NextRequest) {
     ['pos_app', `INSERT INTO apps (app_code, app_name, description, package_name, platform)
       SELECT 'pos', 'KanPosVN', 'POS cho cửa hàng đăng ký qua Web/Zalo', 'kanposvn.pos', 'mobile'
       WHERE NOT EXISTS (SELECT 1 FROM apps WHERE app_code = 'pos')`],
+    ['sms_otps_table', `CREATE TABLE IF NOT EXISTS sms_otps (
+      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      phone VARCHAR(20) NOT NULL,
+      code VARCHAR(10) NOT NULL,
+      purpose VARCHAR(50) NOT NULL DEFAULT 'register',
+      expires_at TIMESTAMP WITH TIME ZONE NOT NULL,
+      attempts INTEGER NOT NULL DEFAULT 0,
+      used BOOLEAN NOT NULL DEFAULT false,
+      created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+    )`],
+    ['sms_otps_index_phone', 'CREATE INDEX IF NOT EXISTS idx_sms_otps_phone ON sms_otps(phone, purpose, used)'],
+    ['bank_accounts_table', `CREATE TABLE IF NOT EXISTS bank_accounts (
+      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      bank_code VARCHAR(20) UNIQUE NOT NULL,
+      bank_name VARCHAR(100) NOT NULL DEFAULT '',
+      account_number VARCHAR(50) NOT NULL DEFAULT '',
+      account_holder VARCHAR(100) NOT NULL DEFAULT '',
+      branch VARCHAR(200) NOT NULL DEFAULT '',
+      active BOOLEAN NOT NULL DEFAULT true,
+      created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+      updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+    )`],
+    ['bank_accounts_seed', `INSERT INTO bank_accounts (bank_code, bank_name, account_number, account_holder)
+      SELECT 'VCB', 'Vietcombank', '', 'CẬP NHẬT SAU' WHERE NOT EXISTS (SELECT 1 FROM bank_accounts WHERE bank_code = 'VCB')`],
+    ['bank_accounts_seed_agri', `INSERT INTO bank_accounts (bank_code, bank_name, account_number, account_holder)
+      SELECT 'AGRIBANK', 'Agribank', '', 'CẬP NHẬT SAU' WHERE NOT EXISTS (SELECT 1 FROM bank_accounts WHERE bank_code = 'AGRIBANK')`],
+    ['packages_table', `CREATE TABLE IF NOT EXISTS packages (
+      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      key VARCHAR(50) UNIQUE NOT NULL,
+      label VARCHAR(100) NOT NULL DEFAULT '',
+      days INTEGER NOT NULL DEFAULT 0,
+      price INTEGER NOT NULL DEFAULT 0,
+      trial BOOLEAN NOT NULL DEFAULT false,
+      forever BOOLEAN NOT NULL DEFAULT false,
+      active BOOLEAN NOT NULL DEFAULT true,
+      sort INTEGER NOT NULL DEFAULT 0,
+      updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+    )`],
+    ['packages_seed_trial', `INSERT INTO packages (key, label, days, price, trial, sort)
+      SELECT 'trial', 'Dùng thử 7 ngày', 7, 0, true, 1
+      WHERE NOT EXISTS (SELECT 1 FROM packages WHERE key = 'trial')`],
+    ['packages_seed_yearly', `INSERT INTO packages (key, label, days, price, sort)
+      SELECT 'yearly', '365 ngày', 365, 899000, 2
+      WHERE NOT EXISTS (SELECT 1 FROM packages WHERE key = 'yearly')`],
+    ['packages_seed_forever', `INSERT INTO packages (key, label, days, price, forever, sort)
+      SELECT 'forever', 'Vĩnh Viễn', 0, 2999000, true, 3
+      WHERE NOT EXISTS (SELECT 1 FROM packages WHERE key = 'forever')`],
+    ['crm_sales_table', `CREATE TABLE IF NOT EXISTS crm_sales (
+      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      order_code VARCHAR(32) UNIQUE NOT NULL,
+      user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+      customer_name VARCHAR(255) NOT NULL DEFAULT '',
+      customer_phone VARCHAR(20) NOT NULL DEFAULT '',
+      product_code VARCHAR(100) NOT NULL DEFAULT '',
+      product_name VARCHAR(200) NOT NULL DEFAULT '',
+      amount INTEGER NOT NULL DEFAULT 0,
+      note TEXT DEFAULT '',
+      status VARCHAR(20) NOT NULL DEFAULT 'active',
+      created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+    )`],
   ];
 
   for (const [name, sqlStr] of migrations) {

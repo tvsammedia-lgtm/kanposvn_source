@@ -9,6 +9,8 @@ import 'crm_customer_list_screen.dart';
 import 'crm_store_screen.dart';
 import 'crm_license_screen.dart';
 import 'crm_ticket_screen.dart';
+import 'crm_sale_screen.dart';
+import 'crm_cloud_customers_screen.dart';
 
 class CrmDashboardScreen extends ConsumerWidget {
   const CrmDashboardScreen({Key? key}) : super(key: key);
@@ -42,6 +44,22 @@ class CrmDashboardScreen extends ConsumerWidget {
             const DrawerHeader(
               decoration: BoxDecoration(color: Color(0xFFE11D48)),
               child: Text('CRM Menu', style: TextStyle(color: Colors.white, fontSize: 24)),
+            ),
+            ListTile(
+              leading: const Icon(Icons.cloud_queue),
+              title: const Text('Khách hàng Cloud'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(context, MaterialPageRoute(builder: (_) => const CrmCloudCustomersScreen()));
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.point_of_sale),
+              title: const Text('Bán hàng (Cloud)'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(context, MaterialPageRoute(builder: (_) => const CrmSaleScreen()));
+              },
             ),
             ListTile(
               leading: const Icon(Icons.business),

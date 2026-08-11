@@ -23,7 +23,8 @@ class CrmSyncConfig {
   @Index(unique: true, replace: true)
   String configId = 'default';
   
-  String vercelApiUrl = 'https://kanposvn-crm-api.vercel.app';
+  // Trỏ về admin-web (cùng server phần còn lại của app) thay vì CRM API riêng.
+  String vercelApiUrl = 'https://kanposvn-admin.vercel.app';
   String apiKey = 'kanpos_crm_secret';
   
   DateTime? lastSyncTime;
