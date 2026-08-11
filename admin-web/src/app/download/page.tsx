@@ -17,9 +17,50 @@ interface UpdateInfo {
   notes?: string;
   published_at?: string | null;
   download_url?: string;
+  prerelease?: boolean;
   assets?: Asset[];
   message?: string;
 }
+
+const FALLBACK_TAG = 'nightly';
+
+// Danh sách bản tải luôn hiển thị (đóng cứng) để user luôn có nút tải,
+// không phụ thuộc vào việc API có trả về release hay không.
+const DEFAULT_APK_ASSETS: Asset[] = [
+  {
+    name: 'app-release.apk',
+    size: 0,
+    download_count: 0,
+    browser_download_url: '',
+  },
+  {
+    name: 'app-arm64-v8a-release.apk',
+    size: 0,
+    download_count: 0,
+    browser_download_url: '',
+  },
+  {
+    name: 'app-armeabi-v7a-release.apk',
+    size: 0,
+    download_count: 0,
+    browser_download_url: '',
+  },
+  {
+    name: 'app-x86_64-release.apk',
+    size: 0,
+    download_count: 0,
+    browser_download_url: '',
+  },
+];
+
+const DEFAULT_WIN_ASSETS: Asset[] = [
+  {
+    name: 'kanposvn-windows-x64.zip',
+    size: 0,
+    download_count: 0,
+    browser_download_url: '',
+  },
+];
 
 function formatBytes(bytes: number): string {
   if (!bytes) return '';
@@ -38,6 +79,29 @@ function assetLabel(name: string): string {
     .replace('x86_64', 'Chip x86_64 (máy ảo)');
 }
 
+// Tạo URL tải qua proxy của admin-web (hoạt động cả khi repo private).
+function proxyUrl(tag: string, name: string): string {
+  return `/api/update/download?tag=${encodeURIComponent(
+    tag,
+  )}&asset=${encodeURIComponent(name)}`;
+}
+
+// Nếu API không trả về asset thật thì dùng danh sách mặc định,
+// nếu có thì ưu tiên dữ liệu thật từ GitHub.
+function mergeAssets(
+  live: Asset[] | undefined,
+  defaults: Asset[],
+  tag: string,
+): Asset[] {
+  if (!live || live.length === 0) {
+    return defaults.map((a) => ({ ...a, browser_download_url: proxyUrl(tag, a.name) }));
+  }
+  return live.map((a) => ({
+    ...a,
+    browser_download_url: a.browser_download_url || proxyUrl(tag, a.name),
+  }));
+}
+
 export default function DownloadPage() {
   const [info, setInfo] = useState<UpdateInfo | null>(null);
   const [error, setError] = useState('');
@@ -49,9 +113,20 @@ export default function DownloadPage() {
       .catch((e) => setError(String(e)));
   }, []);
 
-  const apkAssets = (info?.assets || []).filter((a) => a.name.endsWith('.apk'));
-  const winAssets = (info?.assets || []).filter(
-    (a) => a.name.endsWith('.zip') || a.name.endsWith('.exe'),
+  const tag = info?.tag_name || FALLBACK_TAG;
+  const hasRelease = !!info && info.has_update;
+
+  const apkAssets = mergeAssets(
+    info?.assets?.filter((a) => a.name.endsWith('.apk')),
+    DEFAULT_APK_ASSETS,
+    tag,
+  );
+  const winAssets = mergeAssets(
+    info?.assets?.filter(
+      (a) => a.name.endsWith('.zip') || a.name.endsWith('.exe'),
+    ),
+    DEFAULT_WIN_ASSETS,
+    tag,
   );
 
   return (
@@ -71,16 +146,19 @@ export default function DownloadPage() {
           <div className="bg-red-50 text-red-700 rounded-xl p-4 mb-6">{error}</div>
         )}
 
-        {!info && !error && (
-          <div className="text-center text-gray-400 py-10">Đang tải thông tin phiên bản...</div>
-        )}
-
         {info?.has_update && (
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6">
             <div className="flex items-center justify-between mb-4">
               <div>
                 <div className="text-sm text-gray-500">Phiên bản mới nhất</div>
-                <div className="text-2xl font-bold">v{info.latest_version}</div>
+                <div className="text-2xl font-bold">
+                  v{info.latest_version}
+                  {info.prerelease ? (
+                    <span className="ml-2 text-xs font-normal text-amber-600 align-middle">
+                      (bản thử nghiệm)
+                    </span>
+                  ) : null}
+                </div>
               </div>
               {info.published_at && (
                 <div className="text-sm text-gray-400">
@@ -94,75 +172,95 @@ export default function DownloadPage() {
                 {info.notes.slice(0, 800)}
               </div>
             )}
-
-            <div className="space-y-3">
-              {apkAssets.length > 0 ? (
-                apkAssets.map((asset) => (
-                  <a
-                    key={asset.name}
-                    href={asset.browser_download_url}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="flex items-center justify-between bg-amber-600 hover:bg-amber-700 text-white rounded-xl px-5 py-4 transition-colors"
-                  >
-                    <div>
-                      <div className="font-semibold">{assetLabel(asset.name)}</div>
-                      <div className="text-sm text-amber-100">
-                        {formatBytes(asset.size)} · {asset.download_count.toLocaleString('vi-VN')} lượt tải
-                      </div>
-                    </div>
-                    <span className="text-2xl">⬇</span>
-                  </a>
-                ))
-              ) : (
-                <a
-                  href={info.download_url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="block text-center bg-amber-600 hover:bg-amber-700 text-white rounded-xl px-5 py-4 font-semibold transition-colors"
-                >
-                  Tải APK mới nhất
-                </a>
-              )}
-            </div>
-          </div>
-        )}
-
-        {info?.has_update && winAssets.length > 0 && (
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6">
-            <h2 className="font-bold text-lg mb-1">Bản cài cho Windows</h2>
-            <p className="text-sm text-gray-600 mb-4">
-              Giải nén file .zip rồi chạy{' '}
-              <span className="font-medium">kanposvn.exe</span> trên máy tính.
-            </p>
-            <div className="space-y-3">
-              {winAssets.map((asset) => (
-                <a
-                  key={asset.name}
-                  href={asset.browser_download_url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="flex items-center justify-between bg-amber-600 hover:bg-amber-700 text-white rounded-xl px-5 py-4 transition-colors"
-                >
-                  <div>
-                    <div className="font-semibold">{assetLabel(asset.name)}</div>
-                    <div className="text-sm text-amber-100">
-                      {formatBytes(asset.size)} · {asset.download_count.toLocaleString('vi-VN')}{' '}
-                      lượt tải
-                    </div>
-                  </div>
-                  <span className="text-2xl">⬇</span>
-                </a>
-              ))}
-            </div>
           </div>
         )}
 
         {info && !info.has_update && (
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 text-center text-gray-500">
-            {info.message || 'Chưa có bản phát hành nào.'}
+          <div className="bg-amber-50 border border-amber-200 text-amber-800 rounded-xl p-4 mb-6 text-sm">
+            Bản phát hành mới đang được chuẩn bị. Các nút tải bên dưới sẽ kích hoạt
+            ngay khi có bản build mới nhất (bản nightly).
           </div>
         )}
+
+        {!info && !error && (
+          <div className="text-center text-gray-400 py-4">
+            Đang tải thông tin phiên bản...
+          </div>
+        )}
+
+        <section className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h2 className="font-bold text-lg">Tải KanPosVN về máy</h2>
+              <p className="text-sm text-gray-500">
+                Chọn bản phù hợp với thiết bị của bạn.
+              </p>
+            </div>
+            {info?.latest_version && (
+              <div className="text-sm text-gray-400">
+                Phiên bản: v{info.latest_version}
+              </div>
+            )}
+          </div>
+
+          <h3 className="text-sm font-semibold text-gray-500 mb-2">
+            Android (.apk)
+          </h3>
+          <div className="space-y-3 mb-6">
+            {apkAssets.map((asset) => (
+              <a
+                key={asset.name}
+                href={asset.browser_download_url}
+                target="_blank"
+                rel="noreferrer"
+                className="flex items-center justify-between bg-amber-600 hover:bg-amber-700 text-white rounded-xl px-5 py-4 transition-colors"
+              >
+                <div>
+                  <div className="font-semibold">{assetLabel(asset.name)}</div>
+                  <div className="text-sm text-amber-100">
+                    {asset.name}
+                    {asset.size > 0
+                      ? ` · ${formatBytes(asset.size)}`
+                      : ''}
+                    {asset.download_count > 0
+                      ? ` · ${asset.download_count.toLocaleString('vi-VN')} lượt tải`
+                      : ''}
+                  </div>
+                </div>
+                <span className="text-2xl">⬇</span>
+              </a>
+            ))}
+          </div>
+
+          <h3 className="text-sm font-semibold text-gray-500 mb-2">
+            Windows (máy tính)
+          </h3>
+          <div className="space-y-3">
+            {winAssets.map((asset) => (
+              <a
+                key={asset.name}
+                href={asset.browser_download_url}
+                target="_blank"
+                rel="noreferrer"
+                className="flex items-center justify-between bg-amber-600 hover:bg-amber-700 text-white rounded-xl px-5 py-4 transition-colors"
+              >
+                <div>
+                  <div className="font-semibold">{assetLabel(asset.name)}</div>
+                  <div className="text-sm text-amber-100">
+                    {asset.name}
+                    {asset.size > 0
+                      ? ` · ${formatBytes(asset.size)}`
+                      : ''}
+                    {asset.download_count > 0
+                      ? ` · ${asset.download_count.toLocaleString('vi-VN')} lượt tải`
+                      : ''}
+                  </div>
+                </div>
+                <span className="text-2xl">⬇</span>
+              </a>
+            ))}
+          </div>
+        </section>
 
         <section className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6">
           <h2 className="font-bold text-lg mb-3">Hướng dẫn cài đặt</h2>
