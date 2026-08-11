@@ -16,10 +16,13 @@ class ModuleSelectorScreen extends ConsumerStatefulWidget {
 }
 
 class _ModuleSelectorScreenState extends ConsumerState<ModuleSelectorScreen> {
+  AppModule? _loadingModule;
+
   @override
   Widget build(BuildContext context) {
     final auth = ref.watch(authServiceProvider);
     final accessible = auth.accessibleModules;
+    final isLoading = _loadingModule != null;
 
     return Scaffold(
       backgroundColor: AppColors.sidebarBg,
@@ -41,6 +44,13 @@ class _ModuleSelectorScreenState extends ConsumerState<ModuleSelectorScreen> {
                     Text('${'hello'.tr}, ${auth.user?['full_name'] ?? 'User'}',
                       style: TextStyle(color: AppColors.textMuted, fontSize: 16)),
                     const SizedBox(height: 32),
+                    if (isLoading) ...[
+                      const CircularProgressIndicator(),
+                      const SizedBox(height: 12),
+                      Text('Đang tải dữ liệu...',
+                        style: TextStyle(color: AppColors.textMuted, fontSize: 14)),
+                      const SizedBox(height: 24),
+                    ],
                     if (accessible.isEmpty) ...[
                       Icon(Icons.lock_outline, size: 48, color: AppColors.textMuted),
                       const SizedBox(height: 12),
@@ -52,14 +62,18 @@ class _ModuleSelectorScreenState extends ConsumerState<ModuleSelectorScreen> {
                       Text('select_module'.tr,
                         style: TextStyle(color: AppColors.textMuted, fontSize: 14)),
                       const SizedBox(height: 24),
-                      Wrap(
-                        spacing: 16, runSpacing: 16,
-                        alignment: WrapAlignment.center,
-                        children: accessible.map((module) => _InstanceCard(
-                          module: module,
-                          role: auth.getRoleFor(module),
-                          onTap: () => _selectModule(context, module),
-                        )).toList(),
+                      AbsorbPointer(
+                        absorbing: isLoading,
+                        child: Wrap(
+                          spacing: 16, runSpacing: 16,
+                          alignment: WrapAlignment.center,
+                          children: accessible.map((module) => _InstanceCard(
+                            module: module,
+                            role: auth.getRoleFor(module),
+                            loading: isLoading && module == _loadingModule,
+                            onTap: () => _selectModule(context, module),
+                          )).toList(),
+                        ),
                       ),
                     ],
                   ],
@@ -77,8 +91,7 @@ class _ModuleSelectorScreenState extends ConsumerState<ModuleSelectorScreen> {
       final auth = ref.read(authServiceProvider);
       final db = ref.read(databaseServiceProvider);
 
-      final canAccess = await auth.switchModule(module);
-      if (!canAccess) {
+      if (!auth.canLoginTo(module)) {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -90,24 +103,31 @@ class _ModuleSelectorScreenState extends ConsumerState<ModuleSelectorScreen> {
         return;
       }
 
+      setState(() => _loadingModule = module);
+
+      // Nạp dữ liệu TRƯỚC khi switchModule: giữ màn hình chọn module còn sống,
+      // hiện tiến trình rõ ràng và lỗi vẫn hiển thị được thay vì treo "Đang xác thực...".
       if (auth.isStoreUser && auth.storeId != null) {
         await db.initStore(storeId: auth.storeId!, module: module);
       } else {
         await db.init(module: module);
       }
 
+      await auth.switchModule(module);
+
       if (module.appCode == 'kanposvncafe' || module.appCode == 'nhansu') {
         ref.read(syncEngineProvider).triggerSync();
       }
 
-      if (!context.mounted) return;
+      // Đặt selectedModule không phụ thuộc context (màn hình có thể đã bị thay thế).
       ref.read(selectedModuleProvider.notifier).state = module;
+      if (mounted) setState(() => _loadingModule = null);
     } catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Lỗi: $e'), backgroundColor: Colors.red),
-        );
-      }
+      if (!mounted) return;
+      setState(() => _loadingModule = null);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Lỗi: $e'), backgroundColor: Colors.red),
+      );
     }
   }
 }
@@ -115,9 +135,10 @@ class _ModuleSelectorScreenState extends ConsumerState<ModuleSelectorScreen> {
 class _InstanceCard extends StatelessWidget {
   final AppModule module;
   final String role;
+  final bool loading;
   final VoidCallback onTap;
 
-  const _InstanceCard({required this.module, required this.role, required this.onTap});
+  const _InstanceCard({required this.module, required this.role, this.loading = false, required this.onTap});
 
   Color get _roleColor {
     switch (role) {
@@ -148,7 +169,15 @@ class _InstanceCard extends StatelessWidget {
                 color: module.color.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(14),
               ),
-              child: Icon(module.icon, color: module.color, size: 28),
+              child: loading
+                  ? Padding(
+                      padding: const EdgeInsets.all(14),
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: module.color,
+                      ),
+                    )
+                  : Icon(module.icon, color: module.color, size: 28),
             ),
             const SizedBox(height: 12),
             Text(module.label,

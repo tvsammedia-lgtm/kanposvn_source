@@ -14,6 +14,7 @@ import 'restaurant_kitchen_screen.dart';
 import 'restaurant_inventory_screen.dart';
 import 'bill_search_screen.dart';
 import 'sales_report_screen.dart';
+import 'restaurant_reports_screen.dart';
 
 class KanPosVNRestaurantShell extends ConsumerStatefulWidget {
   const KanPosVNRestaurantShell({super.key});
@@ -53,7 +54,7 @@ class _KanPosVNRestaurantShellState extends ConsumerState<KanPosVNRestaurantShel
     EmployeeRoles.cashier: const {'tables', 'kitchen', 'search'},
     EmployeeRoles.sale: const {'tables', 'kitchen'},
     EmployeeRoles.warehouse: const {'inventory'},
-    EmployeeRoles.accountant: const {'dashboard', 'search', 'report'},
+    EmployeeRoles.accountant: const {'dashboard', 'search', 'report', 'report_common'},
   };
 
   static final List<({String id, Widget screen, IconData icon, String label})>
@@ -64,6 +65,7 @@ class _KanPosVNRestaurantShellState extends ConsumerState<KanPosVNRestaurantShel
     (id: 'dashboard', screen: const RestaurantDashboardScreen(), icon: Icons.dashboard, label: 'Dashboard'),
     (id: 'search', screen: const BillSearchScreen(), icon: Icons.receipt_long, label: 'Tìm Bill'),
     (id: 'report', screen: const SalesReportScreen(), icon: Icons.bar_chart, label: 'Báo Cáo'),
+    (id: 'report_common', screen: const RestaurantReportsScreen(), icon: Icons.description, label: 'Báo Cáo Chung'),
     (id: 'employees', screen: const EmployeeManagementScreen(), icon: Icons.badge, label: 'Quản Lý NV'),
   ];
 

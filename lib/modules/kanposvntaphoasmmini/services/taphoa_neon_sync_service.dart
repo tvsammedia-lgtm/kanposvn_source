@@ -1,79 +1,112 @@
 import 'dart:convert';
-import 'package:dio/dio.dart';
+import 'package:http/http.dart' as http;
 import 'package:isar/isar.dart';
 import '../models/sync_model.dart';
 import 'taphoa_isar_service.dart';
 
 class TapHoaNeonSyncService {
+  TapHoaNeonSyncService(this._isarService);
+
+  static const String apiBaseUrl = 'https://kanposvn-admin.vercel.app';
+  static const String apiKey = 'kanposvn_sync_2026';
+  static const String appCode = 'kanposvntaphoasmmini';
+
   final TapHoaIsarService _isarService;
-  final Dio _dio = Dio();
   bool _isSyncing = false;
 
-  TapHoaNeonSyncService(this._isarService);
+  /// Lấy config, tự tạo hoặc tự sửa về đúng server admin-web
+  /// (demo cũ còn lưu URL/Key sai trong Isar).
+  Future<TapHoaSyncConfig> _ensureConfig(
+      Isar isar, TapHoaSyncConfig? config) async {
+    if (config == null) {
+      final c = TapHoaSyncConfig()
+        ..vercelApiUrl = apiBaseUrl
+        ..apiKey = apiKey;
+      await isar.writeTxn(() async {
+        await isar.tapHoaSyncConfigs.put(c);
+      });
+      return c;
+    }
+    if (config.vercelApiUrl != apiBaseUrl || config.apiKey != apiKey) {
+      await isar.writeTxn(() async {
+        config.vercelApiUrl = apiBaseUrl;
+        config.apiKey = apiKey;
+        await isar.tapHoaSyncConfigs.put(config);
+      });
+    }
+    return config;
+  }
 
   Future<void> triggerSync() async {
     if (_isSyncing) return;
     _isSyncing = true;
 
     try {
-      // 1. Get sync config
       final isar = await _isarService.db;
-      var config = await isar.tapHoaSyncConfigs.filter().configIdEqualTo('default').findFirst();
-      
-      if (config == null) {
-        config = TapHoaSyncConfig();
-        await isar.writeTxn(() async {
-          await isar.tapHoaSyncConfigs.put(config!);
-        });
-      }
+      final existing =
+          await isar.tapHoaSyncConfigs.filter().configIdEqualTo('default').findFirst();
+      final config = await _ensureConfig(isar, existing);
 
-      // 2. Lấy dữ liệu Queue (pending changes)
+      // 1. Push queue lên /api/sync/push
       final queueItems = await isar.tapHoaSyncQueues.where().findAll();
-      
       if (queueItems.isNotEmpty) {
-        // Post to Vercel API
-        final payload = queueItems.map((q) => {
-          'id': q.id,
-          'operation': q.operation,
-          'collection': q.collectionName,
-          'recordId': q.recordId,
-          'data': jsonDecode(q.dataJson),
+        final items = queueItems.map((q) {
+          return {
+            'operationId': q.id.toString(),
+            'collectionName': q.collectionName,
+            'operationType': q.operation,
+            'payload': jsonDecode(q.dataJson),
+          };
         }).toList();
 
-        final response = await _dio.post(
-          '${config.vercelApiUrl}/api/sync/up',
-          options: Options(headers: {'x-api-key': config.apiKey}),
-          data: {'changes': payload},
+        final response = await http.post(
+          Uri.parse('$apiBaseUrl/api/sync/push'),
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode({
+            'appCode': appCode,
+            'apiKey': apiKey,
+            'items': items,
+          }),
         );
 
         if (response.statusCode == 200) {
-          // Xóa queue sau khi đồng bộ thành công
+          // Xóa queue sau khi push thành công
           await isar.writeTxn(() async {
             await isar.tapHoaSyncQueues.clear();
           });
+        } else {
+          print('Sync push failed: ${response.statusCode} ${response.body}');
         }
       }
 
-      // 3. Kéo dữ liệu mới từ Server (Sync Down)
-      final lastSyncStr = config.lastSyncTime?.toIso8601String() ?? '2000-01-01T00:00:00Z';
-      final downResponse = await _dio.get(
-        '${config.vercelApiUrl}/api/sync/down',
-        queryParameters: {'since': lastSyncStr},
-        options: Options(headers: {'x-api-key': config.apiKey}),
+      // 2. Kéo dữ liệu mới từ server (Sync Down)
+      final since = config.lastSyncTime?.toIso8601String() ??
+          '2000-01-01T00:00:00Z';
+      final downResponse = await http.get(
+        Uri.parse(
+          '$apiBaseUrl/api/sync/pull'
+          '?appCode=${Uri.encodeComponent(appCode)}'
+          '&apiKey=${Uri.encodeComponent(apiKey)}'
+          '&since=${Uri.encodeComponent(since)}',
+        ),
       );
 
       if (downResponse.statusCode == 200) {
-        // TODO: Xử lý lưu các dữ liệu tải về từ Server vào Isar
-        
-        // Cập nhật thời gian đồng bộ cuối
+        final body = jsonDecode(downResponse.body) as Map<String, dynamic>;
+        final records = body['records'] as List<dynamic>? ?? [];
+        // TODO: áp dụng dữ liệu master (products/customers/suppliers) do admin chỉnh
+
         await isar.writeTxn(() async {
-          config!.lastSyncTime = DateTime.now();
+          config.lastSyncTime = DateTime.now().toUtc();
           await isar.tapHoaSyncConfigs.put(config);
         });
+        print('Sync pull ok: ${records.length} records');
+      } else {
+        print('Sync pull failed: ${downResponse.statusCode} ${downResponse.body}');
       }
 
     } catch (e) {
-      // Bỏ qua lỗi kết nối (Offline First)
+      // Bỏ qua lỗi kết nối (Offline First), queue được giữ lại để thử lần sau
       print('Sync Error: $e');
     } finally {
       _isSyncing = false;

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../theme/app_colors.dart';
@@ -103,6 +105,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         return;
       }
 
+      // User cửa hàng nhiều module: nạp sẵn DB cửa hàng ở nền để chọn module
+      // (vd kanposvncafe) vào ngay, không phải chờ "Đang xác thực...".
+      if (storeInit == null && auth.isStoreUser && auth.storeId != null) {
+        unawaited(
+          ref
+              .read(databaseServiceProvider)
+              .initStore(storeId: auth.storeId!, module: auth.defaultStoreModule),
+        );
+      }
+
       final modules = auth.accessibleModules;
 
       // User gán nhiều module → hiện màn hình chọn module (kể cả user cửa hàng).
@@ -203,11 +215,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         return;
       }
       await db.initStore(storeId: storeId, module: auth.defaultStoreModule);
-      if (!mounted) return;
       ref.read(selectedModuleProvider.notifier).state = auth.defaultStoreModule;
-      setState(() {
-        _isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     } catch (e) {
       // ignore store init errors
       if (!mounted) return;
@@ -230,19 +243,28 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       final auth = ref.read(authServiceProvider);
       final moduleNotifier = ref.read(selectedModuleProvider.notifier);
 
-      final canAccess = await auth.switchModule(module);
-      if (!mounted) return;
-      if (!canAccess) {
-        setState(() {
-          _isLoading = false;
-          _error = auth.errorMessage;
-        });
+      if (!auth.canLoginTo(module)) {
+        if (mounted) {
+          setState(() {
+            _isLoading = false;
+            _error = auth.errorMessage;
+          });
+        }
         return;
       }
 
+      // Nạp dữ liệu trước khi switchModule để tiến trình hiện trên màn hình
+      // đang mở thay vì màn hình "Đang xác thực...".
       await db.init(module: module);
-      if (!mounted) return;
+      await auth.switchModule(module);
+
+      // Đặt selectedModule kể cả khi LoginScreen đã bị thay thế (mounted == false).
       moduleNotifier.state = module;
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
 
       _autoSyncAfterLogin(module);
     } catch (e) {

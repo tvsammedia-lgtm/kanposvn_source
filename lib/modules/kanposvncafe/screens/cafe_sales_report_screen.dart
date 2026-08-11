@@ -61,7 +61,9 @@ class _CafeSalesReportScreenState extends ConsumerState<CafeSalesReportScreen> {
     final initialRange = _startDate != null && _endDate != null
         ? DateTimeRange(
             start: _startDate!,
-            end: DateTime(_endDate!.year, _endDate!.month, _endDate!.day),
+            end: _endDate!.isAfter(lastDate)
+                ? lastDate
+                : DateTime(_endDate!.year, _endDate!.month, _endDate!.day),
           )
         : null;
 

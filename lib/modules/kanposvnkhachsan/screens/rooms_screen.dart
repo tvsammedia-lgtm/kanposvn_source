@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/hotel_providers.dart';
 import '../models/hotel_room.dart';
+import '../models/hotel_checkin_checkout.dart';
+import 'room_pos_screen.dart';
 
 class RoomsScreen extends ConsumerStatefulWidget {
   const RoomsScreen({super.key});
@@ -23,6 +26,7 @@ class _RoomsScreenState extends ConsumerState<RoomsScreen> {
             icon: const Icon(Icons.refresh),
             onPressed: () {
               ref.read(hotelRoomsProvider.notifier).loadRooms();
+              ref.read(hotelCheckInsProvider.notifier).loadCheckIns();
             },
           )
         ],
@@ -32,7 +36,7 @@ class _RoomsScreenState extends ConsumerState<RoomsScreen> {
           if (rooms.isEmpty) {
             return const Center(child: Text('Chưa có phòng nào. Hãy kiểm tra dữ liệu mẫu (Seed Data).'));
           }
-          
+
           // Group rooms by floorName
           final Map<String, List<HotelRoom>> groupedRooms = {};
           for (var r in rooms) {
@@ -42,8 +46,7 @@ class _RoomsScreenState extends ConsumerState<RoomsScreen> {
             }
             groupedRooms[floorName]!.add(r);
           }
-          
-          // Sort floor names if needed
+
           final floorNames = groupedRooms.keys.toList()..sort();
 
           return ListView.builder(
@@ -52,8 +55,6 @@ class _RoomsScreenState extends ConsumerState<RoomsScreen> {
             itemBuilder: (context, index) {
               final floor = floorNames[index];
               final floorRooms = groupedRooms[floor]!;
-              
-              // sort rooms by name
               floorRooms.sort((a, b) => a.roomName.compareTo(b.roomName));
 
               return Column(
@@ -93,8 +94,9 @@ class _RoomsScreenState extends ConsumerState<RoomsScreen> {
   }
 
   Widget _buildRoomCard(HotelRoom room) {
+    final typeName = room.roomType.value?.typeName ?? 'N/A';
     return InkWell(
-      onTap: () => _showRoomActionDialog(room),
+      onTap: () => _onRoomTap(room),
       borderRadius: BorderRadius.circular(12),
       child: Container(
         decoration: BoxDecoration(
@@ -121,7 +123,7 @@ class _RoomsScreenState extends ConsumerState<RoomsScreen> {
             ),
             const SizedBox(height: 8),
             Text(
-              room.roomType.value?.typeName ?? 'N/A',
+              typeName,
               style: const TextStyle(
                 fontSize: 12,
                 color: Colors.white70,
@@ -150,6 +152,39 @@ class _RoomsScreenState extends ConsumerState<RoomsScreen> {
     );
   }
 
+  void _onRoomTap(HotelRoom room) {
+    if (room.status == RoomStatus.OCCUPIED) {
+      final checkIn = _findActiveCheckIn(room);
+      if (checkIn != null) {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) => RoomPosScreen(room: room, checkIn: checkIn),
+          ),
+        );
+        return;
+      }
+    }
+    _showRoomActionDialog(room);
+  }
+
+  RoomCheckIn? _findActiveCheckIn(HotelRoom room) {
+    if (room.activeCheckInId.isEmpty) return null;
+    final async = ref.read(hotelCheckInsProvider);
+    if (async is! AsyncData<List<RoomCheckIn>>) return null;
+    for (final c in async.value) {
+      if (c.checkInId == room.activeCheckInId && !c.isCheckedOut) return c;
+    }
+    return null;
+  }
+
+  void _openPos(HotelRoom room, RoomCheckIn checkIn) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => RoomPosScreen(room: room, checkIn: checkIn),
+      ),
+    );
+  }
+
   void _showRoomActionDialog(HotelRoom room) {
     showModalBottomSheet(
       context: context,
@@ -167,12 +202,24 @@ class _RoomsScreenState extends ConsumerState<RoomsScreen> {
                 const SizedBox(height: 8),
                 Text('Trạng thái hiện tại: ${room.status.label}'),
                 const Divider(),
+                if (room.status == RoomStatus.OCCUPIED && room.activeCheckInId.isNotEmpty)
+                  ListTile(
+                    leading: const Icon(Icons.point_of_sale, color: Color(0xFF0284C7)),
+                    title: const Text('Mở POS (Gọi món + tính tiền)'),
+                    subtitle: const Text('Chọn món ăn, đồ uống, theo dõi timer thuê phòng'),
+                    onTap: () {
+                      final checkIn = _findActiveCheckIn(room);
+                      Navigator.pop(ctx);
+                      if (checkIn != null) _openPos(room, checkIn);
+                    },
+                  ),
                 ListTile(
                   leading: const Icon(Icons.login, color: Colors.green),
                   title: const Text('Nhận phòng (Check-in)'),
+                  subtitle: const Text('Bắt đầu tính tiền theo giờ / qua đêm / ngày'),
                   onTap: () {
                     Navigator.pop(ctx);
-                    ref.read(hotelRoomsProvider.notifier).updateRoomStatus(room.id, RoomStatus.OCCUPIED);
+                    _showCheckInDialog(room);
                   },
                 ),
                 ListTile(
@@ -212,6 +259,96 @@ class _RoomsScreenState extends ConsumerState<RoomsScreen> {
           ),
         );
       },
+    );
+  }
+
+  void _showCheckInDialog(HotelRoom room) {
+    final nameCtrl = TextEditingController();
+    final phoneCtrl = TextEditingController();
+    final identityCtrl = TextEditingController();
+    final prepaidCtrl = TextEditingController();
+    var rentalType = RentalType.HOURLY;
+
+    showDialog(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setLocalState) => AlertDialog(
+          title: Text('Nhận phòng ${room.roomName}'),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Loại phòng: ${room.roomType.value?.typeName ?? 'N/A'}',
+                    style: const TextStyle(fontWeight: FontWeight.bold)),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: nameCtrl,
+                  decoration: const InputDecoration(labelText: 'Tên khách hàng'),
+                ),
+                TextField(
+                  controller: phoneCtrl,
+                  keyboardType: TextInputType.phone,
+                  decoration: const InputDecoration(labelText: 'Số điện thoại'),
+                ),
+                TextField(
+                  controller: identityCtrl,
+                  decoration: const InputDecoration(labelText: 'CMND/CCCD (tuỳ chọn)'),
+                ),
+                TextField(
+                  controller: prepaidCtrl,
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  decoration: const InputDecoration(labelText: 'Tiền cọc / trả trước (đ)'),
+                ),
+                const SizedBox(height: 8),
+                const Text('Loại thuê:', style: TextStyle(fontWeight: FontWeight.bold)),
+                for (final rt in RentalType.values)
+                  RadioListTile<RentalType>(
+                    dense: true,
+                    title: Text(rt.label),
+                    value: rt,
+                    groupValue: rentalType,
+                    onChanged: (v) {
+                      if (v != null) setLocalState(() => rentalType = v);
+                    },
+                  ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('HỦY')),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+              onPressed: () async {
+                final now = DateTime.now();
+                DateTime? expected;
+                switch (rentalType) {
+                  case RentalType.HOURLY:
+                    expected = now.add(const Duration(hours: 1));
+                  case RentalType.OVERNIGHT:
+                    expected = DateTime(now.year, now.month, now.day).add(const Duration(days: 1, hours: 12));
+                  case RentalType.DAILY:
+                    expected = now.add(const Duration(days: 1));
+                }
+                Navigator.pop(ctx);
+                final checkIn = await ref.read(hotelCheckInsProvider.notifier).createCheckIn(
+                      room: room,
+                      rentalType: rentalType,
+                      customerName: nameCtrl.text.trim(),
+                      customerPhone: phoneCtrl.text.trim(),
+                      customerIdentity: identityCtrl.text.trim(),
+                      prePaid: double.tryParse(prepaidCtrl.text) ?? 0,
+                      expectedCheckOut: expected,
+                    );
+                if (mounted) _openPos(room, checkIn);
+              },
+              child: const Text('NHẬN PHÒNG & MỞ POS',
+                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

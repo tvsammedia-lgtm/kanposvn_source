@@ -51,12 +51,16 @@ class _BatDongSanSalesReportScreenState extends ConsumerState<BatDongSanSalesRep
   }
 
   Future<void> _selectDateRange() async {
+    final now = DateTime.now();
     final DateTimeRange? picked = await showDateRangePicker(
       context: context,
       firstDate: DateTime(2020),
-      lastDate: DateTime.now(),
+      lastDate: now,
       initialDateRange: _startDate != null && _endDate != null
-          ? DateTimeRange(start: _startDate!, end: DateTime(_endDate!.year, _endDate!.month, _endDate!.day))
+          ? DateTimeRange(
+              start: _startDate!,
+              end: _endDate!.isAfter(now) ? now : _endDate!,
+            )
           : null,
     );
 

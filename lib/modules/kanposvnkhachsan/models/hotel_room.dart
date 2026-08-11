@@ -29,7 +29,8 @@ class RoomType {
   String typeName = ''; // Standard, Superior, Deluxe, VIP...
   
   double basePrice = 0; // Giá ngày
-  double hourlyPrice = 0; // Giá giờ
+  double hourlyPrice = 0; // Giá giờ đầu tiên
+  double hourlyExtraHour = 0; // Giá mỗi giờ tiếp theo (giờ 2-5)
   double overnightPrice = 0; // Giá qua đêm
   
   int capacity = 2;

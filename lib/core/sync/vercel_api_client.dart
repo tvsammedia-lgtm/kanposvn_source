@@ -57,7 +57,7 @@ class VercelApiClient {
       ).timeout(ApiConfig.timeout);
 
       if (response.statusCode == 200) {
-        final res = jsonDecode(response.body) as Map<String, dynamic>;
+        final res = jsonDecode(utf8.decode(response.bodyBytes)) as Map<String, dynamic>;
         return VercelSyncResponse(
           success: true,
           message: res['message'] as String? ?? 'Push thành công',
@@ -67,7 +67,8 @@ class VercelApiClient {
       }
       return VercelSyncResponse(
         success: false,
-        message: 'Lỗi HTTP ${response.statusCode}: ${response.body}',
+        message:
+            'Lỗi HTTP ${response.statusCode}: ${utf8.decode(response.bodyBytes, allowMalformed: true)}',
         syncedIds: [], pulledRecords: [],
       );
     } catch (e) {
@@ -104,7 +105,7 @@ class VercelApiClient {
       ).timeout(ApiConfig.timeout);
 
       if (response.statusCode == 200) {
-        final res = jsonDecode(response.body) as Map<String, dynamic>;
+        final res = jsonDecode(utf8.decode(response.bodyBytes)) as Map<String, dynamic>;
         final records = (res['records'] as List<dynamic>?)
             ?.cast<Map<String, dynamic>>() ?? [];
         return VercelSyncResponse(

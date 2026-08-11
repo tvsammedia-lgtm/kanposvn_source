@@ -13,6 +13,7 @@ import 'vlxd_contracts_screen.dart';
 import 'vlxd_finance_screen.dart';
 import 'vlxd_dashboard_screen.dart';
 import 'vlxd_sales_report_screen.dart';
+import 'vlxd_reports_screen.dart';
 
 class KanPosVNVlxdShell extends ConsumerStatefulWidget {
   const KanPosVNVlxdShell({super.key});
@@ -41,10 +42,10 @@ class _KanPosVNVlxdShellState extends ConsumerState<KanPosVNVlxdShell> {
   }
 
   static final Map<String, Set<String>> _roleTabs = {
-    EmployeeRoles.cashier: const {'pos', 'finance', 'report'},
-    EmployeeRoles.sale: const {'pos', 'contracts', 'finance', 'report'},
+    EmployeeRoles.cashier: const {'pos', 'finance', 'report', 'reports'},
+    EmployeeRoles.sale: const {'pos', 'contracts', 'finance', 'report', 'reports'},
     EmployeeRoles.warehouse: const {'inventory', 'pos'},
-    EmployeeRoles.accountant: const {'dashboard', 'finance', 'contracts', 'report'},
+    EmployeeRoles.accountant: const {'dashboard', 'finance', 'contracts', 'report', 'reports'},
   };
 
   static final List<({String id, Widget screen, IconData icon, String label})>
@@ -56,6 +57,7 @@ class _KanPosVNVlxdShellState extends ConsumerState<KanPosVNVlxdShell> {
     (id: 'finance', screen: const VlxdFinanceScreen(), icon: Icons.account_balance_wallet, label: 'Thu Chi & Nợ'),
     (id: 'sync', screen: const VlxdSyncScreen(), icon: Icons.sync, label: 'Đồng Bộ'),
     (id: 'report', screen: const VlxdSalesReportScreen(), icon: Icons.bar_chart, label: 'Báo Cáo'),
+    (id: 'reports', screen: const VlxdReportsScreen(), icon: Icons.folder_shared, label: 'Báo Cáo Chung'),
     (id: 'employees', screen: const EmployeeManagementScreen(), icon: Icons.badge, label: 'Quản Lý NV'),
   ];
 

@@ -22,6 +22,7 @@ import 'order_history_screen.dart';
 import 'backup_restore_screen.dart';
 import 'cafe_sales_report_screen.dart';
 import 'cafe_permission_screen.dart';
+import 'cafe_reports_screen.dart';
 
 class KanPosVNCafeShell extends ConsumerStatefulWidget {
   const KanPosVNCafeShell({super.key});
@@ -145,6 +146,13 @@ class _KanPosVNCafeShellState extends ConsumerState<KanPosVNCafeShell> {
       label: 'Báo Cáo Bán Hàng',
       shortLabel: 'BCBH',
       icon: Icons.bar_chart,
+    ),
+    const _CafeTab(
+      id: 'report_common',
+      screen: CafeReportsScreen(),
+      label: 'Báo Cáo Chung',
+      shortLabel: 'Báo cáo',
+      icon: Icons.description,
     ),
     const _CafeTab(
       id: 'employees',

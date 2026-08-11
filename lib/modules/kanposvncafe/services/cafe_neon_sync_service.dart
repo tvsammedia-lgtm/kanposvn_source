@@ -46,7 +46,7 @@ class CafeNeonSyncService {
         return;
       }
 
-      final res = jsonDecode(response.body) as Map<String, dynamic>;
+      final res = jsonDecode(utf8.decode(response.bodyBytes)) as Map<String, dynamic>;
       final records = (res['records'] as List<dynamic>?) ?? [];
 
       if (records.isEmpty) {

@@ -42,38 +42,43 @@ const RoomTypeSchema = CollectionSchema(
       name: r'deviceId',
       type: IsarType.string,
     ),
-    r'hourlyPrice': PropertySchema(
+    r'hourlyExtraHour': PropertySchema(
       id: 5,
+      name: r'hourlyExtraHour',
+      type: IsarType.double,
+    ),
+    r'hourlyPrice': PropertySchema(
+      id: 6,
       name: r'hourlyPrice',
       type: IsarType.double,
     ),
     r'isSynced': PropertySchema(
-      id: 6,
+      id: 7,
       name: r'isSynced',
       type: IsarType.bool,
     ),
     r'overnightPrice': PropertySchema(
-      id: 7,
+      id: 8,
       name: r'overnightPrice',
       type: IsarType.double,
     ),
     r'typeCode': PropertySchema(
-      id: 8,
+      id: 9,
       name: r'typeCode',
       type: IsarType.string,
     ),
     r'typeName': PropertySchema(
-      id: 9,
+      id: 10,
       name: r'typeName',
       type: IsarType.string,
     ),
     r'updatedAt': PropertySchema(
-      id: 10,
+      id: 11,
       name: r'updatedAt',
       type: IsarType.dateTime,
     ),
     r'version': PropertySchema(
-      id: 11,
+      id: 12,
       name: r'version',
       type: IsarType.long,
     )
@@ -130,13 +135,14 @@ void _roomTypeSerialize(
   writer.writeDateTime(offsets[2], object.deletedAt);
   writer.writeString(offsets[3], object.description);
   writer.writeString(offsets[4], object.deviceId);
-  writer.writeDouble(offsets[5], object.hourlyPrice);
-  writer.writeBool(offsets[6], object.isSynced);
-  writer.writeDouble(offsets[7], object.overnightPrice);
-  writer.writeString(offsets[8], object.typeCode);
-  writer.writeString(offsets[9], object.typeName);
-  writer.writeDateTime(offsets[10], object.updatedAt);
-  writer.writeLong(offsets[11], object.version);
+  writer.writeDouble(offsets[5], object.hourlyExtraHour);
+  writer.writeDouble(offsets[6], object.hourlyPrice);
+  writer.writeBool(offsets[7], object.isSynced);
+  writer.writeDouble(offsets[8], object.overnightPrice);
+  writer.writeString(offsets[9], object.typeCode);
+  writer.writeString(offsets[10], object.typeName);
+  writer.writeDateTime(offsets[11], object.updatedAt);
+  writer.writeLong(offsets[12], object.version);
 }
 
 RoomType _roomTypeDeserialize(
@@ -151,14 +157,15 @@ RoomType _roomTypeDeserialize(
   object.deletedAt = reader.readDateTimeOrNull(offsets[2]);
   object.description = reader.readString(offsets[3]);
   object.deviceId = reader.readString(offsets[4]);
-  object.hourlyPrice = reader.readDouble(offsets[5]);
+  object.hourlyExtraHour = reader.readDouble(offsets[5]);
+  object.hourlyPrice = reader.readDouble(offsets[6]);
   object.id = id;
-  object.isSynced = reader.readBool(offsets[6]);
-  object.overnightPrice = reader.readDouble(offsets[7]);
-  object.typeCode = reader.readString(offsets[8]);
-  object.typeName = reader.readString(offsets[9]);
-  object.updatedAt = reader.readDateTime(offsets[10]);
-  object.version = reader.readLong(offsets[11]);
+  object.isSynced = reader.readBool(offsets[7]);
+  object.overnightPrice = reader.readDouble(offsets[8]);
+  object.typeCode = reader.readString(offsets[9]);
+  object.typeName = reader.readString(offsets[10]);
+  object.updatedAt = reader.readDateTime(offsets[11]);
+  object.version = reader.readLong(offsets[12]);
   return object;
 }
 
@@ -182,16 +189,18 @@ P _roomTypeDeserializeProp<P>(
     case 5:
       return (reader.readDouble(offset)) as P;
     case 6:
-      return (reader.readBool(offset)) as P;
-    case 7:
       return (reader.readDouble(offset)) as P;
+    case 7:
+      return (reader.readBool(offset)) as P;
     case 8:
-      return (reader.readString(offset)) as P;
+      return (reader.readDouble(offset)) as P;
     case 9:
       return (reader.readString(offset)) as P;
     case 10:
-      return (reader.readDateTime(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 11:
+      return (reader.readDateTime(offset)) as P;
+    case 12:
       return (reader.readLong(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -833,6 +842,72 @@ extension RoomTypeQueryFilter
     });
   }
 
+  QueryBuilder<RoomType, RoomType, QAfterFilterCondition>
+      hourlyExtraHourEqualTo(
+    double value, {
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'hourlyExtraHour',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<RoomType, RoomType, QAfterFilterCondition>
+      hourlyExtraHourGreaterThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'hourlyExtraHour',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<RoomType, RoomType, QAfterFilterCondition>
+      hourlyExtraHourLessThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'hourlyExtraHour',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<RoomType, RoomType, QAfterFilterCondition>
+      hourlyExtraHourBetween(
+    double lower,
+    double upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'hourlyExtraHour',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
   QueryBuilder<RoomType, RoomType, QAfterFilterCondition> hourlyPriceEqualTo(
     double value, {
     double epsilon = Query.epsilon,
@@ -1456,6 +1531,18 @@ extension RoomTypeQuerySortBy on QueryBuilder<RoomType, RoomType, QSortBy> {
     });
   }
 
+  QueryBuilder<RoomType, RoomType, QAfterSortBy> sortByHourlyExtraHour() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'hourlyExtraHour', Sort.asc);
+    });
+  }
+
+  QueryBuilder<RoomType, RoomType, QAfterSortBy> sortByHourlyExtraHourDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'hourlyExtraHour', Sort.desc);
+    });
+  }
+
   QueryBuilder<RoomType, RoomType, QAfterSortBy> sortByHourlyPrice() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'hourlyPrice', Sort.asc);
@@ -1603,6 +1690,18 @@ extension RoomTypeQuerySortThenBy
     });
   }
 
+  QueryBuilder<RoomType, RoomType, QAfterSortBy> thenByHourlyExtraHour() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'hourlyExtraHour', Sort.asc);
+    });
+  }
+
+  QueryBuilder<RoomType, RoomType, QAfterSortBy> thenByHourlyExtraHourDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'hourlyExtraHour', Sort.desc);
+    });
+  }
+
   QueryBuilder<RoomType, RoomType, QAfterSortBy> thenByHourlyPrice() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'hourlyPrice', Sort.asc);
@@ -1734,6 +1833,12 @@ extension RoomTypeQueryWhereDistinct
     });
   }
 
+  QueryBuilder<RoomType, RoomType, QDistinct> distinctByHourlyExtraHour() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'hourlyExtraHour');
+    });
+  }
+
   QueryBuilder<RoomType, RoomType, QDistinct> distinctByHourlyPrice() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'hourlyPrice');
@@ -1814,6 +1919,12 @@ extension RoomTypeQueryProperty
   QueryBuilder<RoomType, String, QQueryOperations> deviceIdProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'deviceId');
+    });
+  }
+
+  QueryBuilder<RoomType, double, QQueryOperations> hourlyExtraHourProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'hourlyExtraHour');
     });
   }
 

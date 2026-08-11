@@ -27,9 +27,13 @@ class DatabaseService extends ChangeNotifier {
 
   Isar? _isar;
 
-  final Map<String, Map<String, dynamic>> _memory = {};
+  /// Bộ nhớ theo từng module (appCode → collection → id → data).
+  /// Giữ cache khi chuyển module để không phải decode lại toàn bộ dữ liệu.
+  final Map<String, Map<String, Map<String, dynamic>>> _memories = {};
   final List<SyncQueueItem> _syncQueue = [];
   final List<AuditLogModel> _auditLogs = [];
+
+  Map<String, Map<String, dynamic>>? get _currentMemory => _memories[_currentAppCode];
 
   List<SyncQueueItem> get syncQueue => List.unmodifiable(_syncQueue);
   List<AuditLogModel> get auditLogs => List.unmodifiable(_auditLogs.reversed);
@@ -72,10 +76,11 @@ class DatabaseService extends ChangeNotifier {
     Isar? isar,
   }) {
     final pending = _pendingStoreInit;
-    if (pending != null &&
-        _currentStoreId == storeId &&
-        _currentAppCode == module.appCode) {
-      return pending;
+    if (pending != null && _currentStoreId == storeId) {
+      if (_currentAppCode == module.appCode) return pending;
+      // Cùng cửa hàng nhưng khác module → chờ luồng đang chạy rồi nạp tiếp.
+      return pending
+          .then((_) => _doInitStore(storeId: storeId, module: module, isar: isar));
     }
     if (_isInitialized &&
         _currentStoreId == storeId &&
@@ -103,7 +108,11 @@ class DatabaseService extends ChangeNotifier {
         _isar = await openStoreIsar(storeId);
       }
       _isInitialized = true;
-      await _loadFromIsar();
+      if (!_memories.containsKey(_currentAppCode)) {
+        await _loadFromIsar();
+      } else {
+        await _loadSyncQueue();
+      }
       notifyListeners();
     } finally {
       _pendingStoreInit = null;
@@ -120,14 +129,18 @@ class DatabaseService extends ChangeNotifier {
       _isar = await openIsar();
     }
     _isInitialized = true;
-    await _loadFromIsar();
+    if (!_memories.containsKey(_currentAppCode)) {
+      await _loadFromIsar();
+    } else {
+      await _loadSyncQueue();
+    }
     notifyListeners();
   }
 
   Future<void> _loadFromIsar() async {
     if (_isar == null) return;
-    _memory.clear();
-    _syncQueue.clear();
+    final appMemory = _memories.putIfAbsent(_currentAppCode, () => {});
+    appMemory.clear();
     try {
       final entities = await _isar!.dataEntitys
           .where()
@@ -136,9 +149,19 @@ class DatabaseService extends ChangeNotifier {
           .findAll();
       for (final e in entities) {
         if (e.collection == syncQueueCollection) continue;
-        _memory.putIfAbsent(e.collection, () => {});
-        _memory[e.collection]![e.itemId] = jsonDecode(e.jsonData);
+        appMemory.putIfAbsent(e.collection, () => {});
+        appMemory[e.collection]![e.itemId] = jsonDecode(e.jsonData);
       }
+      await _loadSyncQueue();
+    } catch (e) {
+      // ignore isar load errors
+    }
+  }
+
+  Future<void> _loadSyncQueue() async {
+    if (_isar == null) return;
+    _syncQueue.clear();
+    try {
       final queueEntities = await _isar!.dataEntitys
           .where()
           .filter()
@@ -210,15 +233,15 @@ class DatabaseService extends ChangeNotifier {
   }
 
   List<Map<String, dynamic>> getCollection(String name) {
-    final col = _memory[name];
+    final col = _currentMemory?[name];
     if (col == null) return [];
     return col.values.cast<Map<String, dynamic>>().toList();
   }
 
-  List<String> get collectionNames => _memory.keys.toList();
+  List<String> get collectionNames => _currentMemory?.keys.toList() ?? [];
 
   Future<void> clearCollection(String collection) async {
-    _memory.remove(collection);
+    _currentMemory?.remove(collection);
     if (_isar != null) {
       try {
         final entities = await _isar!.dataEntitys
@@ -240,17 +263,17 @@ class DatabaseService extends ChangeNotifier {
   }
 
   Map<String, dynamic>? getById(String collection, String id) {
-    return _memory[collection]?[id];
+    return _currentMemory?[collection]?[id];
   }
 
   Future<void> saveItem(String collection, String id, Map<String, dynamic> item, {bool triggerSync = true}) async {
-    _memory.putIfAbsent(collection, () => {});
+    _currentMemory?.putIfAbsent(collection, () => {});
     item['id'] = id;
     item['appCode'] = _currentAppCode;
     if (_currentStoreId != null) item['storeId'] = _currentStoreId;
     item['isSynced'] = false;
     item['updatedAt'] = DateTime.now().toIso8601String();
-    _memory[collection]![id] = item;
+    _currentMemory?[collection]![id] = item;
 
     if (triggerSync) {
       _addToSyncQueue(collection, 'UPSERT', item);
@@ -261,7 +284,7 @@ class DatabaseService extends ChangeNotifier {
   }
 
   Future<void> deleteItem(String collection, String id, {bool triggerSync = true}) async {
-    _memory[collection]?.remove(id);
+    _currentMemory?[collection]?.remove(id);
     if (triggerSync) {
       final deleteData = <String, dynamic>{'id': id, 'appCode': _currentAppCode};
       if (_currentStoreId != null) deleteData['storeId'] = _currentStoreId;
@@ -359,7 +382,7 @@ class DatabaseService extends ChangeNotifier {
   }
 
   int getItemCount(String collection) {
-    return _memory[collection]?.length ?? 0;
+    return _currentMemory?[collection]?.length ?? 0;
   }
 
   double getTotalAmount(String collection, String amountField) {

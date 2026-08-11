@@ -22,6 +22,7 @@ const List<CafeTabDef> cafeTabDefs = [
   CafeTabDef(id: 'order_history', label: 'Tra cứu hóa đơn'),
   CafeTabDef(id: 'backup_restore', label: 'Backup/Restore'),
   CafeTabDef(id: 'sales_report', label: 'Báo Cáo Bán Hàng'),
+  CafeTabDef(id: 'report_common', label: 'Báo Cáo Chung'),
   CafeTabDef(id: 'employees', label: 'Quản lý nhân viên'),
   CafeTabDef(id: 'permissions', label: 'Phân quyền'),
 ];

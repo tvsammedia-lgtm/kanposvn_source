@@ -23,8 +23,8 @@ class TapHoaSyncConfig {
   @Index(unique: true, replace: true)
   String configId = 'default';
   
-  String vercelApiUrl = 'https://kanposvn-taphoa-api.vercel.app';
-  String apiKey = 'taphoa_sync_2026';
+  String vercelApiUrl = 'https://kanposvn-admin.vercel.app';
+  String apiKey = 'kanposvn_sync_2026';
   
   DateTime? lastSyncTime;
 }

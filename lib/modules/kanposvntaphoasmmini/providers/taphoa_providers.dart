@@ -56,6 +56,11 @@ class TapHoaProductsNotifier extends StateNotifier<List<TapHoaProduct>> {
     await _isar.saveProduct(product);
     await loadProducts();
   }
+
+  Future<void> deleteProduct(String productId) async {
+    await _isar.deleteProduct(productId);
+    await loadProducts();
+  }
 }
 
 final tapHoaProductsProvider = StateNotifierProvider<TapHoaProductsNotifier, List<TapHoaProduct>>((ref) {
@@ -82,6 +87,16 @@ class TapHoaInvoicesNotifier extends StateNotifier<List<TapHoaInvoice>> {
     await _isar.saveInvoice(invoice);
     await loadInvoices();
   }
+
+  /// Thanh toán hoàn chỉnh: lưu HD + trừ kho + ghi thu chi + tích điểm.
+  Future<void> checkout(
+    TapHoaInvoice invoice,
+    List<TapHoaInvoiceItem> items, {
+    TapHoaCustomer? customer,
+  }) async {
+    await _isar.processCheckout(invoice, items, customer: customer);
+    await loadInvoices();
+  }
 }
 
 final tapHoaInvoicesProvider = StateNotifierProvider<TapHoaInvoicesNotifier, List<TapHoaInvoice>>((ref) {
@@ -89,99 +104,58 @@ final tapHoaInvoicesProvider = StateNotifierProvider<TapHoaInvoicesNotifier, Lis
 });
 
 // --- POS Cart Provider ---
-class TapHoaPosCartNotifier extends StateNotifier<TapHoaInvoice> {
-  TapHoaPosCartNotifier() : super(TapHoaInvoice()..invoiceNumber = 'HD${DateTime.now().millisecondsSinceEpoch}');
+/// Giỏ hàng dùng `List` thuần (không phải IsarLinks) vì link chỉ lưu được
+/// vào DB sau khi `put`, khiến giỏ hàng trong bộ nhớ không bao giờ hiển thị.
+class TapHoaPosCartNotifier extends StateNotifier<List<TapHoaInvoiceItem>> {
+  TapHoaPosCartNotifier() : super(const []);
 
   void startNewOrder() {
-    state = TapHoaInvoice()..invoiceNumber = 'HD${DateTime.now().millisecondsSinceEpoch}';
+    state = const [];
   }
 
   void addItem(TapHoaProduct product, {double quantity = 1}) {
-    final existingItemIndex = state.items.toList().indexWhere((item) => item.productId == product.productId);
-    
-    // We should create a new invoice to trigger Riverpod state update
-    final newInvoice = TapHoaInvoice()
-      ..id = state.id
-      ..invoiceNumber = state.invoiceNumber
-      ..createdAt = state.createdAt
-      ..customerId = state.customerId
-      ..customerName = state.customerName
-      ..paymentMethod = state.paymentMethod
-      ..note = state.note;
-
-    final List<TapHoaInvoiceItem> newItems = state.items.toList();
-    
-    if (existingItemIndex != -1) {
-      final existingItem = newItems[existingItemIndex];
-      existingItem.quantity += quantity;
-      existingItem.total = (existingItem.price - existingItem.discount) * existingItem.quantity;
+    final index = state.indexWhere((item) => item.productId == product.productId);
+    if (index != -1) {
+      final updated = [...state];
+      updated[index].quantity += quantity;
+      updated[index].total =
+          (updated[index].price - updated[index].discount) * updated[index].quantity;
+      state = updated;
     } else {
-      final newItem = TapHoaInvoiceItem()
-        ..invoiceItemId = 'ITEM_${DateTime.now().millisecondsSinceEpoch}'
-        ..productId = product.productId
-        ..productName = product.productName
-        ..productCode = product.productCode
-        ..price = product.retailPrice
-        ..quantity = quantity
-        ..total = product.retailPrice * quantity;
-      newItems.add(newItem);
+      state = [
+        ...state,
+        TapHoaInvoiceItem()
+          ..invoiceItemId = 'ITEM_${DateTime.now().millisecondsSinceEpoch}'
+          ..productId = product.productId
+          ..productName = product.productName
+          ..productCode = product.productCode
+          ..price = product.retailPrice
+          ..quantity = quantity
+          ..total = product.retailPrice * quantity,
+      ];
     }
-    
-    newInvoice.items.addAll(newItems);
-    _calculateTotal(newInvoice);
-    state = newInvoice;
   }
-  
+
   void updateQuantity(int index, double newQuantity) {
-    if (index >= 0 && index < state.items.length) {
-      final newInvoice = _cloneInvoice(state);
-      final items = newInvoice.items.toList();
-      
-      if (newQuantity <= 0) {
-        items.removeAt(index);
-      } else {
-        items[index].quantity = newQuantity;
-        items[index].total = (items[index].price - items[index].discount) * newQuantity;
-      }
-      
-      newInvoice.items.clear();
-      newInvoice.items.addAll(items);
-      _calculateTotal(newInvoice);
-      state = newInvoice;
+    if (index < 0 || index >= state.length) return;
+    final updated = [...state];
+    if (newQuantity <= 0) {
+      updated.removeAt(index);
+    } else {
+      updated[index].quantity = newQuantity;
+      updated[index].total =
+          (updated[index].price - updated[index].discount) * newQuantity;
     }
+    state = updated;
   }
 
-  void _calculateTotal(TapHoaInvoice invoice) {
-    double total = 0;
-    for (var item in invoice.items) {
-      total += item.total;
-    }
-    invoice.totalAmount = total;
-    invoice.finalAmount = total - invoice.discountAmount;
-  }
-
-  TapHoaInvoice _cloneInvoice(TapHoaInvoice source) {
-    final clone = TapHoaInvoice()
-      ..id = source.id
-      ..invoiceNumber = source.invoiceNumber
-      ..createdAt = source.createdAt
-      ..customerId = source.customerId
-      ..customerName = source.customerName
-      ..paymentMethod = source.paymentMethod
-      ..note = source.note
-      ..totalAmount = source.totalAmount
-      ..discountAmount = source.discountAmount
-      ..finalAmount = source.finalAmount
-      ..amountPaid = source.amountPaid
-      ..changeAmount = source.changeAmount;
-    clone.items.addAll(source.items.toList());
-    return clone;
-  }
+  double get totalAmount => state.fold<double>(0, (sum, item) => sum + item.total);
 }
 
-final tapHoaPosCartProvider = StateNotifierProvider<TapHoaPosCartNotifier, TapHoaInvoice>((ref) {
-  return TapHoaPosCartNotifier();
-});
+final tapHoaPosCartProvider =
+    StateNotifierProvider<TapHoaPosCartNotifier, List<TapHoaInvoiceItem>>(
+  (ref) => TapHoaPosCartNotifier(),
+);
 
 // --- Inventory Provider ---
 class TapHoaInventoryNotifier extends StateNotifier<List<TapHoaInventoryItem>> {
@@ -255,8 +229,108 @@ class TapHoaCustomersNotifier extends StateNotifier<List<TapHoaCustomer>> {
     await _isar.saveCustomer(customer);
     await loadCustomers();
   }
+
+  Future<void> deleteCustomer(String customerId) async {
+    await _isar.deleteCustomer(customerId);
+    await loadCustomers();
+  }
 }
 
 final tapHoaCustomersProvider = StateNotifierProvider<TapHoaCustomersNotifier, List<TapHoaCustomer>>((ref) {
   return TapHoaCustomersNotifier(ref.watch(tapHoaIsarServiceProvider));
 });
+
+// --- Supplier Provider ---
+class TapHoaSuppliersNotifier extends StateNotifier<List<TapHoaSupplier>> {
+  final TapHoaIsarService _isar;
+  bool _isLoading = false;
+
+  TapHoaSuppliersNotifier(this._isar) : super([]) {
+    loadSuppliers();
+  }
+
+  Future<void> loadSuppliers() async {
+    if (_isLoading) return;
+    _isLoading = true;
+    state = await _isar.getSuppliers();
+    _isLoading = false;
+  }
+
+  Future<void> saveSupplier(TapHoaSupplier supplier) async {
+    await _isar.saveSupplier(supplier);
+    await loadSuppliers();
+  }
+
+  Future<void> deleteSupplier(String supplierId) async {
+    await _isar.deleteSupplier(supplierId);
+    await loadSuppliers();
+  }
+}
+
+final tapHoaSuppliersProvider = StateNotifierProvider<TapHoaSuppliersNotifier, List<TapHoaSupplier>>((ref) {
+  return TapHoaSuppliersNotifier(ref.watch(tapHoaIsarServiceProvider));
+});
+
+// --- Inventory Transaction Provider ---
+class TapHoaInventoryTransactionsNotifier extends StateNotifier<List<TapHoaInventoryTransaction>> {
+  final TapHoaIsarService _isar;
+  bool _isLoading = false;
+
+  TapHoaInventoryTransactionsNotifier(this._isar) : super([]) {
+    loadTransactions();
+  }
+
+  Future<void> loadTransactions() async {
+    if (_isLoading) return;
+    _isLoading = true;
+    state = await _isar.getInventoryTransactions();
+    _isLoading = false;
+  }
+}
+
+final tapHoaInventoryTransactionsProvider =
+    StateNotifierProvider<TapHoaInventoryTransactionsNotifier, List<TapHoaInventoryTransaction>>(
+  (ref) => TapHoaInventoryTransactionsNotifier(ref.watch(tapHoaIsarServiceProvider)),
+);
+
+// --- Debt / Công nợ ---
+class TapHoaDebtNotifier extends StateNotifier<Map<String, dynamic>> {
+  final TapHoaIsarService _isar;
+  bool _isLoading = false;
+
+  TapHoaDebtNotifier(this._isar) : super(const {}) {
+    refresh();
+  }
+
+  Future<void> refresh() async {
+    if (_isLoading) return;
+    _isLoading = true;
+    final customers = await _isar.getCustomers();
+    final suppliers = await _isar.getSuppliers();
+    state = {
+      'customerDebt': customers.fold<double>(0, (s, c) => s + c.debtAmount),
+      'supplierDebt': suppliers.fold<double>(0, (s, p) => s + p.debtAmount),
+    };
+    _isLoading = false;
+  }
+
+  Future<void> payDebt({
+    required String partnerId,
+    required bool isCustomer,
+    required String partnerName,
+    required double amount,
+  }) async {
+    await _isar.processDebtPayment(
+      partnerId: partnerId,
+      isCustomer: isCustomer,
+      partnerName: partnerName,
+      amount: amount,
+    );
+    await refresh();
+  }
+}
+
+final tapHoaDebtProvider =
+    StateNotifierProvider<TapHoaDebtNotifier, Map<String, dynamic>>(
+  (ref) => TapHoaDebtNotifier(ref.watch(tapHoaIsarServiceProvider)),
+);

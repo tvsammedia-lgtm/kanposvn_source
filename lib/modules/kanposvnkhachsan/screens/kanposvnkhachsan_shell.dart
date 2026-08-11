@@ -14,6 +14,7 @@ import 'booking_screen.dart';
 import 'checkin_checkout_screen.dart';
 import 'hotel_services_screen.dart';
 import 'hotel_finance_screen.dart';
+import 'hotel_reports_screen.dart';
 import 'hotel_sync_screen.dart';
 
 class KanPosVNKhachSanShell extends ConsumerStatefulWidget {
@@ -38,6 +39,8 @@ class _KanPosVNKhachSanShellState extends ConsumerState<KanPosVNKhachSanShell> {
     await HotelSeedData.seed(isarService);
     ref.read(hotelRoomsProvider.notifier).loadRooms();
     ref.read(hotelBookingsProvider.notifier).loadBookings();
+    ref.read(hotelServiceItemsProvider.notifier).loadItems();
+    ref.read(hotelCheckInsProvider.notifier).loadCheckIns();
     if (mounted) {
       setState(() {
         _isInit = true;
@@ -49,7 +52,7 @@ class _KanPosVNKhachSanShellState extends ConsumerState<KanPosVNKhachSanShell> {
     EmployeeRoles.cashier: const {'booking', 'checkin', 'services'},
     EmployeeRoles.sale: const {'booking', 'checkin'},
     EmployeeRoles.warehouse: const {'services'},
-    EmployeeRoles.accountant: const {'rooms', 'finance'},
+    EmployeeRoles.accountant: const {'rooms', 'finance', 'reports'},
   };
 
   static final List<({String id, Widget screen, IconData icon, String label})>
@@ -59,6 +62,7 @@ class _KanPosVNKhachSanShellState extends ConsumerState<KanPosVNKhachSanShell> {
     (id: 'checkin', screen: CheckinCheckoutScreen(), icon: Icons.login, label: 'Check-in/Out'),
     (id: 'services', screen: HotelServicesScreen(), icon: Icons.room_service, label: 'Dịch vụ'),
     (id: 'finance', screen: HotelFinanceScreen(), icon: Icons.account_balance, label: 'Kế toán'),
+    (id: 'reports', screen: HotelReportsScreen(), icon: Icons.description, label: 'Báo cáo chung'),
     (id: 'sync', screen: HotelSyncScreen(), icon: Icons.cloud_sync, label: 'Vercel Neon'),
     (id: 'employees', screen: EmployeeManagementScreen(), icon: Icons.badge, label: 'Quản Lý NV'),
   ];
