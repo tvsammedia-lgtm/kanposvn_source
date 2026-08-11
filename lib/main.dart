@@ -9,6 +9,7 @@ import 'core/providers.dart';
 import 'core/router/login_screen.dart';
 import 'core/router/module_selector_screen.dart';
 import 'core/update/update_checker.dart';
+import 'core/ai/ai_assistant_widget.dart';
 import 'modules/kanposvncafe/screens/kanposvncafe_shell.dart';
 import 'modules/kanposvnkhachsan/screens/kanposvnkhachsan_shell.dart';
 import 'modules/nhansu/screens/nhansu_shell.dart';
@@ -277,8 +278,7 @@ class _MainShell extends ConsumerWidget {
   final AppModule module;
   const _MainShell({required this.module});
 
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget _buildShell() {
     switch (module.moduleType) {
       case AppModuleType.kanposvncafe:
         return const KanPosVNCafeShell();
@@ -323,5 +323,19 @@ class _MainShell extends ConsumerWidget {
       case AppModuleType.kanposvnhrpayroll:
         return const KanPosVnHrPayrollShell();
     }
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Stack(
+      children: [
+        Positioned.fill(child: _buildShell()),
+        Positioned(
+          right: 16,
+          bottom: 16,
+          child: AiAssistantFab(module: module),
+        ),
+      ],
+    );
   }
 }
