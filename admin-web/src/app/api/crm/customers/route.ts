@@ -34,7 +34,8 @@ export async function GET(req: NextRequest) {
   }
   try {
     const rows = await sql`
-      SELECT u.id AS user_id, u.full_name, u.phone, u.email, u.active AS user_active,
+      SELECT DISTINCT ON (u.id)
+             u.id AS user_id, u.full_name, u.phone, u.email, u.active AS user_active,
              u.subscription_plan, u.subscription_start, u.subscription_end,
              s.id AS store_id, s.name AS store_name,
              l.plan AS license_plan, l.status AS license_status, l.expires_at AS license_expires_at,
@@ -44,7 +45,7 @@ export async function GET(req: NextRequest) {
       LEFT JOIN stores s ON s.owner_user_id = u.id
       LEFT JOIN licenses l ON l.user_id = u.id
       LEFT JOIN orders o ON o.user_id = u.id AND o.status = 'paid'
-      ORDER BY u.created_at DESC
+      ORDER BY u.id, u.created_at DESC
     `;
     return NextResponse.json(rows, { headers: corsHeaders() });
   } catch (e) {

@@ -230,6 +230,13 @@ class _CrmSaleScreenState extends ConsumerState<CrmSaleScreen> {
   }
 
   Widget _buildCustomerField() {
+    // De-dupe theo user_id để tránh trùng value DropdownMenuItem (1 user nhiều đơn).
+    final seen = <String>{};
+    final uniqueCustomers = _customers.where((c) {
+      final id = c['user_id']?.toString() ?? '';
+      if (id.isEmpty) return true;
+      return seen.add(id);
+    }).toList();
     return DropdownButtonFormField<String?>(
       initialValue: _selectedUserId,
       isExpanded: true,
@@ -240,7 +247,7 @@ class _CrmSaleScreenState extends ConsumerState<CrmSaleScreen> {
       ),
       items: [
         const DropdownMenuItem<String?>(value: null, child: Text('— Khách không có tài khoản —')),
-        for (final c in _customers)
+        for (final c in uniqueCustomers)
           DropdownMenuItem<String?>(
             value: c['user_id']?.toString(),
             child: Text(
@@ -252,7 +259,7 @@ class _CrmSaleScreenState extends ConsumerState<CrmSaleScreen> {
       onChanged: (v) {
         setState(() {
           _selectedUserId = v;
-          final c = _customers.firstWhere(
+          final c = uniqueCustomers.firstWhere(
             (x) => x['user_id']?.toString() == v,
             orElse: () => const {},
           );
