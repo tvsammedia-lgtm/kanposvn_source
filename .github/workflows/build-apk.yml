@@ -111,7 +111,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: kanposvn-windows
-          path: kanposvn-windows-x64.zip
+          path: |
+            kanposvn-windows-x64.zip
+            build/windows/x64/runner/Release/kanposvn.exe
           if-no-files-found: error
 
   release:
@@ -161,6 +163,7 @@ jobs:
             artifacts/app-arm64-v8a-release.apk
             artifacts/app-armeabi-v7a-release.apk
             artifacts/app-x86_64-release.apk
+            artifacts/kanposvn.exe
             artifacts/kanposvn-windows-x64.zip
           generate_release_notes: true
 
@@ -180,4 +183,5 @@ jobs:
             artifacts/app-arm64-v8a-release.apk
             artifacts/app-armeabi-v7a-release.apk
             artifacts/app-x86_64-release.apk
+            artifacts/kanposvn.exe
             artifacts/kanposvn-windows-x64.zip
