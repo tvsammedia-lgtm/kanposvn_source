@@ -16,6 +16,24 @@ final vlxdStocksProvider = FutureProvider<List<VlxdInventoryStock>>((ref) async 
   return await db.vlxdInventoryStocks.where().findAll();
 });
 
+final vlxdWarehousesProvider = FutureProvider<List<VlxdWarehouse>>((ref) async {
+  final isarService = ref.watch(vlxdIsarServiceProvider);
+  final db = await isarService.db;
+  final warehouses = await db.vlxdWarehouses.where().findAll();
+  warehouses.removeWhere((w) => w.deletedAt != null);
+  warehouses.sort((a, b) => a.name.compareTo(b.name));
+  return warehouses;
+});
+
+final vlxdProductCategoriesProvider = FutureProvider<List<VlxdProductCategory>>((ref) async {
+  final isarService = ref.watch(vlxdIsarServiceProvider);
+  final db = await isarService.db;
+  final categories = await db.vlxdProductCategorys.where().findAll();
+  categories.removeWhere((c) => c.deletedAt != null);
+  categories.sort((a, b) => a.name.compareTo(b.name));
+  return categories;
+});
+
 // Services
 final vlxdIsarServiceProvider = Provider<VlxdIsarService>((ref) {
   return VlxdIsarService();
@@ -39,7 +57,16 @@ class VlxdProductsNotifier extends StateNotifier<AsyncValue<List<VlxdProduct>>> 
       state = const AsyncValue.loading();
       final db = await _isarService.db;
       final products = await db.vlxdProducts.where().findAll();
-      state = AsyncValue.data(products);
+      final activeProducts = products.where((p) => p.deletedAt == null).toList()
+        ..sort((a, b) {
+          final codeCompare = a.productCode.compareTo(b.productCode);
+          if (codeCompare != 0) return codeCompare;
+          return a.productName.compareTo(b.productName);
+        });
+      for (final product in activeProducts) {
+        await product.category.load();
+      }
+      state = AsyncValue.data(activeProducts);
     } catch (e, st) {
       state = AsyncValue.error(e, st);
     }
@@ -327,6 +354,7 @@ final vlxdDashboardProvider = FutureProvider<Map<String, dynamic>>((ref) async {
   }
 
   final products = await db.vlxdProducts.where().findAll();
+  products.removeWhere((p) => p.deletedAt != null);
   final stocks = await db.vlxdInventoryStocks.where().findAll();
   int lowStock = 0;
   double inventoryValue = 0;
@@ -349,4 +377,3 @@ final vlxdDashboardProvider = FutureProvider<Map<String, dynamic>>((ref) async {
     'inventoryValue': inventoryValue,
   };
 });
-

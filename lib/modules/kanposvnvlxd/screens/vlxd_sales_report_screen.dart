@@ -123,14 +123,34 @@ class _VlxdSalesReportScreenState extends ConsumerState<VlxdSalesReportScreen> {
           final filteredOrders = _getFilteredOrders(orders);
           final summary = _calculateSummary(filteredOrders);
 
-          return Column(
-            children: [
-              _buildFilterSection(),
-              _buildSummarySection(summary),
-              Expanded(
-                child: _buildDetailsSection(filteredOrders),
-              ),
-            ],
+          return SafeArea(
+            child: CustomScrollView(
+              slivers: [
+                SliverToBoxAdapter(child: _buildFilterSection()),
+                SliverToBoxAdapter(child: _buildSummarySection(summary)),
+                if (filteredOrders.isEmpty)
+                  const SliverFillRemaining(
+                    hasScrollBody: false,
+                    child: Center(child: Text('Không có đơn hàng nào trong khoảng thời gian này')),
+                  )
+                else
+                  SliverPadding(
+                    padding: const EdgeInsets.all(16),
+                    sliver: SliverList(
+                      delegate: SliverChildBuilderDelegate(
+                        (context, index) {
+                          final order = filteredOrders[index];
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 8),
+                            child: _buildOrderCard(order),
+                          );
+                        },
+                        childCount: filteredOrders.length,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
@@ -265,55 +285,44 @@ class _VlxdSalesReportScreenState extends ConsumerState<VlxdSalesReportScreen> {
     );
   }
 
-  Widget _buildDetailsSection(List<VlxdOrder> orders) {
+  Widget _buildOrderCard(VlxdOrder order) {
     final currencyFormat = NumberFormat.currency(locale: 'vi_VN', symbol: '');
-
-    if (orders.isEmpty) {
-      return const Center(child: Text('Không có đơn hàng nào trong khoảng thời gian này'));
-    }
-
-    return ListView.builder(
-      padding: const EdgeInsets.all(16),
-      itemCount: orders.length,
-      itemBuilder: (context, index) {
-        final order = orders[index];
-        return Card(
-          margin: const EdgeInsets.only(bottom: 8),
-          child: ListTile(
-            title: Text('Đơn #${order.orderCode}'),
-            subtitle: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Khách: ${order.customer.value?.name ?? "N/A"}'),
-                Text('Ngày: ${DateFormat('dd/MM/yyyy').format(order.orderDate)}'),
-                if (order.isWholesaleContract)
-                  const Text('Hợp đồng sỉ', style: TextStyle(color: Colors.orange, fontWeight: FontWeight.bold)),
-              ],
+    return Card(
+      child: ListTile(
+        title: Text('Đơn #${order.orderCode}'),
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Khách: ${order.customer.value?.name ?? "N/A"}'),
+            Text('Ngày: ${DateFormat('dd/MM/yyyy').format(order.orderDate)}'),
+            if (order.isWholesaleContract)
+              const Text('Hợp đồng sỉ', style: TextStyle(color: Colors.orange, fontWeight: FontWeight.bold)),
+          ],
+        ),
+        trailing: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              currencyFormat.format(order.totalAmount),
+              style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.indigo),
             ),
-            trailing: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Text(
-                  currencyFormat.format(order.totalAmount),
-                  style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.indigo),
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                  decoration: BoxDecoration(
-                    color: order.status == OrderStatus.COMPLETED ? Colors.green : Colors.orange,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    order.status.label,
-                    style: const TextStyle(color: Colors.white, fontSize: 10),
-                  ),
-                ),
-              ],
+            const SizedBox(height: 4),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+              decoration: BoxDecoration(
+                color: order.status == OrderStatus.COMPLETED ? Colors.green : Colors.orange,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Text(
+                order.status.label,
+                style: const TextStyle(color: Colors.white, fontSize: 10),
+              ),
             ),
-          ),
-        );
-      },
+          ],
+        ),
+      ),
     );
   }
 }

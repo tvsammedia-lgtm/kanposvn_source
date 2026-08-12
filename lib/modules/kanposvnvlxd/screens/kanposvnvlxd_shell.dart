@@ -5,9 +5,12 @@ import '../../../core/auth/employee_management_screen.dart';
 import '../../../core/auth/employee_role_policy.dart';
 import '../../../core/providers.dart';
 import '../../../core/sync/api_config.dart';
+import '../../../core/widgets/account_switcher_button.dart';
 import '../providers/vlxd_providers.dart';
 import '../services/vlxd_seed_data.dart';
 import 'vlxd_pos_screen.dart';
+import 'vlxd_materials_screen.dart';
+import 'vlxd_material_categories_screen.dart';
 import 'vlxd_inventory_screen.dart';
 import 'vlxd_contracts_screen.dart';
 import 'vlxd_finance_screen.dart';
@@ -43,9 +46,9 @@ class _KanPosVNVlxdShellState extends ConsumerState<KanPosVNVlxdShell> {
 
   static final Map<String, Set<String>> _roleTabs = {
     EmployeeRoles.cashier: const {'pos', 'finance', 'report', 'reports'},
-    EmployeeRoles.sale: const {'pos', 'contracts', 'finance', 'report', 'reports'},
-    EmployeeRoles.warehouse: const {'inventory', 'pos'},
-    EmployeeRoles.accountant: const {'dashboard', 'finance', 'contracts', 'report', 'reports'},
+    EmployeeRoles.sale: const {'pos', 'contracts', 'finance', 'report', 'reports', 'materials'},
+    EmployeeRoles.warehouse: const {'inventory', 'materials', 'material_categories', 'pos'},
+    EmployeeRoles.accountant: const {'dashboard', 'finance', 'contracts', 'report', 'reports', 'materials', 'material_categories'},
   };
 
   static final List<({String id, Widget screen, IconData icon, String label})>
@@ -53,6 +56,8 @@ class _KanPosVNVlxdShellState extends ConsumerState<KanPosVNVlxdShell> {
     (id: 'dashboard', screen: const VlxdDashboardScreen(), icon: Icons.dashboard, label: 'Dashboard'),
     (id: 'pos', screen: const VlxdPosScreen(), icon: Icons.point_of_sale, label: 'Bán Lẻ'),
     (id: 'contracts', screen: const VlxdContractsScreen(), icon: Icons.assignment, label: 'Hợp Đồng Sỉ'),
+    (id: 'material_categories', screen: const VlxdMaterialCategoriesScreen(), icon: Icons.category, label: 'Nhóm VT'),
+    (id: 'materials', screen: const VlxdMaterialsScreen(), icon: Icons.widgets, label: 'Vật tư'),
     (id: 'inventory', screen: const VlxdInventoryScreen(), icon: Icons.inventory, label: 'Kho Hàng'),
     (id: 'finance', screen: const VlxdFinanceScreen(), icon: Icons.account_balance_wallet, label: 'Thu Chi & Nợ'),
     (id: 'sync', screen: const VlxdSyncScreen(), icon: Icons.sync, label: 'Đồng Bộ'),
@@ -79,23 +84,35 @@ class _KanPosVNVlxdShellState extends ConsumerState<KanPosVNVlxdShell> {
     final safeIndex = _selectedIndex < tabs.length ? _selectedIndex : 0;
 
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: auth.currentModule?.color ?? const Color(0xFF6366F1),
+        foregroundColor: Colors.white,
+        title: const Text('KanPosVN - Vật Liệu Xây Dựng',
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+        actions: const [
+          AccountSwitcherButton(foregroundColor: Colors.white),
+        ],
+      ),
       body: Row(
         children: [
-          NavigationRail(
-            selectedIndex: safeIndex,
-            onDestinationSelected: (index) {
-              setState(() {
-                _selectedIndex = index;
-              });
-            },
-            labelType: NavigationRailLabelType.all,
-            destinations: [
-              for (final t in tabs)
-                NavigationRailDestination(
-                  icon: Icon(t.icon),
-                  label: Text(t.label),
-                ),
-            ],
+          SafeArea(
+            child: NavigationRail(
+              selectedIndex: safeIndex,
+              onDestinationSelected: (index) {
+                setState(() {
+                  _selectedIndex = index;
+                });
+              },
+              labelType: NavigationRailLabelType.all,
+              scrollable: true,
+              destinations: [
+                for (final t in tabs)
+                  NavigationRailDestination(
+                    icon: Icon(t.icon),
+                    label: Text(t.label),
+                  ),
+              ],
+            ),
           ),
           const VerticalDivider(thickness: 1, width: 1),
           Expanded(
