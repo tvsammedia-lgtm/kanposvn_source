@@ -32,16 +32,13 @@ async function fetchRelease(url: string) {
   return res.json();
 }
 
-function versionFromNightlyName(name: string): string {
-  const m = name.match(/\bv(\d+\.\d+\.\d+)/);
-  return m ? m[1] : '';
-}
-
 async function loadRelease() {
   const base = `https://api.github.com/repos/${GITHUB_REPO}/releases`;
-  // Ưu tiên nightly để luôn lấy bản build mới nhất do GitHub Action tạo ra
-  // khi repo được cập nhật. Nếu chưa có nightly thì mới rơi về release chính thức.
-  let release: any = await fetchRelease(`${base}/tags/nightly`);
+  const releases: any[] = (await fetchRelease(base)) || [];
+  // Ưu tiên nightly có tag động (nightly-YYYYMMDD-HHMM-sha) để luôn lấy
+  // bản build mới nhất do GitHub Action tạo ra. Nếu chưa có nightly thì mới
+  // rơi về release chính thức.
+  let release = releases.find((r) => typeof r?.tag_name === 'string' && r.tag_name.startsWith('nightly-'));
   let fromNightly = !!release;
   if (!release) {
     release = await fetchRelease(`${base}/latest`);
@@ -80,7 +77,7 @@ function buildPayload(
     assets[0];
 
   const latestVersion = fromNightly
-    ? versionFromNightlyName(release.name || '') || 'nightly'
+    ? `${release.name || 'nightly'}`
     : (release.tag_name || '').replace(/^v/, '');
 
   return {
