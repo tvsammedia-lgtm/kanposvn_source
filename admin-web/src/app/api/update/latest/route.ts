@@ -39,13 +39,13 @@ function versionFromNightlyName(name: string): string {
 
 async function loadRelease() {
   const base = `https://api.github.com/repos/${GITHUB_REPO}/releases`;
-  // Ưu tiên bản phát hành chính thức (endpoint /latest bỏ qua prerelease).
-  let release: any = await fetchRelease(`${base}/latest`);
-  let fromNightly = false;
-  // Chưa có bản chính thức -> dùng nightly (prerelease) làm bản mới nhất.
+  // Ưu tiên nightly để luôn lấy bản build mới nhất do GitHub Action tạo ra
+  // khi repo được cập nhật. Nếu chưa có nightly thì mới rơi về release chính thức.
+  let release: any = await fetchRelease(`${base}/tags/nightly`);
+  let fromNightly = !!release;
   if (!release) {
-    release = await fetchRelease(`${base}/tags/nightly`);
-    fromNightly = !!release;
+    release = await fetchRelease(`${base}/latest`);
+    fromNightly = false;
   }
   return { release, fromNightly };
 }
