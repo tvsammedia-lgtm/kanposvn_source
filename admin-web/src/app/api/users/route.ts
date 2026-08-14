@@ -41,6 +41,7 @@ export async function GET(req: NextRequest) {
       SELECT
         u.id, u.email, u.full_name, u.active, u.created_at,
         u.birth_year, u.cccd, u.phone, u.subscription_plan, u.subscription_start, u.subscription_end,
+        u.free_renewal_count,
         COALESCE(
           (SELECT COUNT(*)::int FROM orders o WHERE o.user_id = u.id AND o.status = 'paid'), 0
         ) as renewal_count,

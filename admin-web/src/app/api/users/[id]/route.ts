@@ -97,9 +97,24 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       : now;
     const newEnd = new Date(base.getTime() + 7 * 24 * 60 * 60 * 1000);
     await sql`
-      UPDATE users SET active = true, subscription_end = ${newEnd.toISOString()}
+      UPDATE users SET active = true, subscription_end = ${newEnd.toISOString()}, free_renewal_count = free_renewal_count + 1
       WHERE id = ${id}
     `;
+    // Đồng bộ licenses (app kiểm tra bảng này): kéo dài expires_at thêm 7 ngày, mở lại status active
+    // để app Flutter / Zalo Mini App không khóa lại user.
+    const licRows = await sql`
+      SELECT id, expires_at FROM licenses WHERE user_id = ${id}
+    `;
+    for (const lic of licRows) {
+      const licBase = lic.expires_at
+        ? new Date(Math.max(new Date(lic.expires_at).getTime(), now.getTime()))
+        : now;
+      const newLicEnd = new Date(licBase.getTime() + 7 * 24 * 60 * 60 * 1000);
+      await sql`
+        UPDATE licenses SET status = 'active', expires_at = ${newLicEnd.toISOString()}
+        WHERE id = ${lic.id}
+      `;
+    }
     await sql`INSERT INTO audit_logs (user_name, action, module, details) VALUES (${admin.email}, 'Gia han free 7 ngay', 'Users', ${'User: ' + id + ' -> ' + newEnd.toISOString()})`;
   }
 
@@ -139,7 +154,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 
   await sql`INSERT INTO audit_logs (user_name, action, module, details) VALUES (${admin.email}, 'Sua thong tin', 'Users', ${'Sua user: ' + targetEmail})`;
 
-  const updated = await sql`SELECT id, email, full_name, active, created_at, birth_year, cccd, phone, subscription_plan, subscription_start, subscription_end FROM users WHERE id = ${id}`;
+  const updated = await sql`SELECT id, email, full_name, active, created_at, birth_year, cccd, phone, subscription_plan, subscription_start, subscription_end, free_renewal_count FROM users WHERE id = ${id}`;
   return NextResponse.json(updated[0], { headers: corsHeaders() });
 }
 

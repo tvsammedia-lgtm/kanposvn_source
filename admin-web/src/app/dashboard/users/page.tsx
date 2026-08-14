@@ -15,6 +15,7 @@ interface User {
   subscription_start: string | null;
   subscription_end: string | null;
   renewal_count: number;
+  free_renewal_count: number;
   permissions: { app_code: string; app_name: string; role_name: string; can_login: boolean }[];
 }
 
@@ -274,6 +275,7 @@ export default function UsersPage() {
               <th className="text-left px-4 py-3 text-sm font-semibold text-gray-600">Goi</th>
               <th className="text-left px-4 py-3 text-sm font-semibold text-gray-600">Ngay ket thuc</th>
               <th className="text-left px-4 py-3 text-sm font-semibold text-gray-600">So lan gia han</th>
+              <th className="text-left px-4 py-3 text-sm font-semibold text-gray-600">Gia han free</th>
               <th className="text-left px-4 py-3 text-sm font-semibold text-gray-600">Quyen ung dung</th>
               <th className="text-left px-4 py-3 text-sm font-semibold text-gray-600">Trang thai</th>
               <th className="text-left px-4 py-3 text-sm font-semibold text-gray-600">Thao tac</th>
@@ -282,11 +284,11 @@ export default function UsersPage() {
           <tbody className="divide-y">
             {loading ? (
               <tr>
-                <td colSpan={11} className="text-center py-8 text-gray-500">Dang tai du lieu...</td>
+                <td colSpan={12} className="text-center py-8 text-gray-500">Dang tai du lieu...</td>
               </tr>
             ) : users.length === 0 ? (
               <tr>
-                <td colSpan={11} className="text-center py-8 text-gray-500">Chua co user nao</td>
+                <td colSpan={12} className="text-center py-8 text-gray-500">Chua co user nao</td>
               </tr>
             ) : (
               users.map((u) => (
@@ -301,6 +303,7 @@ export default function UsersPage() {
                   </td>
                   <td className="px-4 py-3 text-sm">{u.subscription_plan === 'forever' ? 'Vĩnh Viễn' : formatDate(u.subscription_end)}</td>
                   <td className="px-4 py-3 text-sm font-semibold">{u.renewal_count ?? 0}</td>
+                  <td className="px-4 py-3 text-sm">{u.free_renewal_count ?? 0}</td>
                   <td className="px-4 py-3">{permBadges(u.permissions)}</td>
                   <td className="px-4 py-3">
                     <span className={`text-xs px-2 py-1 rounded-full ${u.active ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
