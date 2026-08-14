@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getSql } from '@/lib/db';
 import { verifyToken, hashPassword } from '@/lib/auth';
 import { isProtectedAdminEmail } from '@/lib/admin';
+import { getPlan } from '@/lib/pricing';
 
 function corsHeaders() {
   return {
@@ -50,7 +51,37 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   }
 
   if (body.active !== undefined) {
-    await sql`UPDATE users SET active = ${body.active} WHERE id = ${id}`;
+    if (body.active) {
+      // Unlock kèm gia hạn theo đơn paid gần nhất (giống luồng xác nhận chuyển khoản),
+      // để auto-lock không khóa lại ngay.
+      const paidRows = await sql`
+        SELECT plan, paid_at FROM orders
+        WHERE user_id = ${id} AND status = 'paid'
+        ORDER BY paid_at DESC NULLS LAST, created_at DESC
+        LIMIT 1
+      `;
+      const userRows = await sql`
+        SELECT subscription_end FROM users WHERE id = ${id}
+      `;
+      if (paidRows.length > 0) {
+        const planInfo = getPlan(paidRows[0].plan);
+        const now = new Date();
+        const base = userRows[0].subscription_end
+          ? new Date(Math.max(new Date(userRows[0].subscription_end).getTime(), now.getTime()))
+          : now;
+        const newExpiry: string | null = planInfo.forever
+          ? null
+          : new Date(base.getTime() + planInfo.days * 24 * 60 * 60 * 1000).toISOString();
+        await sql`
+          UPDATE users SET active = true, subscription_plan = ${planInfo.key}, subscription_start = ${now.toISOString()}, subscription_end = ${newExpiry}
+          WHERE id = ${id}
+        `;
+      } else {
+        await sql`UPDATE users SET active = true WHERE id = ${id}`;
+      }
+    } else {
+      await sql`UPDATE users SET active = false WHERE id = ${id}`;
+    }
     await sql`INSERT INTO audit_logs (user_name, action, module, details) VALUES (${admin.email}, ${body.active ? 'Mo khoa tai khoan' : 'Khoa tai khoan'}, 'Users', ${'User: ' + id})`;
   }
 

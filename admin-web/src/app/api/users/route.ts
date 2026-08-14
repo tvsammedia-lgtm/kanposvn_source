@@ -28,10 +28,22 @@ export async function GET(req: NextRequest) {
   }
 
   try {
+    // Auto-lock: user hết hạn bản quyền (subscription_end đã qua, trừ gói Vĩnh Viễn = NULL)
+    // sẽ bị khóa ngay khi admin mở danh sách users.
+    await sql`
+      UPDATE users SET active = false
+      WHERE active = true
+        AND subscription_end IS NOT NULL
+        AND subscription_end < now()
+    `;
+
     const users = await sql`
       SELECT
         u.id, u.email, u.full_name, u.active, u.created_at,
         u.birth_year, u.cccd, u.phone, u.subscription_plan, u.subscription_start, u.subscription_end,
+        COALESCE(
+          (SELECT COUNT(*)::int FROM orders o WHERE o.user_id = u.id AND o.status = 'paid'), 0
+        ) as renewal_count,
         COALESCE(
           (SELECT json_agg(json_build_object(
             'app_code', a.app_code,
