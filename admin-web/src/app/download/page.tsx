@@ -204,11 +204,32 @@ export default function DownloadPage() {
               </p>
             </div>
             {info?.latest_version && (
-              <div className="text-sm text-gray-400">
-                Phiên bản: v{info.latest_version}
+              <div className="text-sm text-gray-400 text-right">
+                <div>Phiên bản: v{info.latest_version}</div>
+                {info.published_at && (
+                  <div>
+                    Phát hành:{' '}
+                    {new Date(info.published_at).toLocaleDateString('vi-VN')}
+                  </div>
+                )}
+                {info.prerelease && (
+                  <span className="text-xs text-amber-600">(bản thử nghiệm)</span>
+                )}
               </div>
             )}
           </div>
+
+          {info?.notes && info.has_update && (
+            <div className="mb-4 p-3 bg-gray-50 rounded-lg border border-gray-200">
+              <div className="text-xs font-semibold text-gray-600 mb-1">
+                Ghi chú bản cập nhật
+              </div>
+              <div className="text-sm text-gray-700 whitespace-pre-line">
+                {info.notes.slice(0, 500)}
+                {info.notes.length > 500 ? '...' : ''}
+              </div>
+            </div>
+          )}
 
           <h3 className="text-sm font-semibold text-gray-500 mb-2">
             Android (.apk)
