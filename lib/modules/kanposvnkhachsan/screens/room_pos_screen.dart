@@ -168,6 +168,7 @@ class _RoomPosScreenState extends ConsumerState<RoomPosScreen> {
                         Text('Khách: ${widget.checkIn.customerName.isEmpty ? 'Khách vãng lai' : widget.checkIn.customerName}'),
                         Text('Thuê: ${widget.checkIn.rentalType.label}'),
                         Text('Giờ vào: ${_fmt(checkInTime)}'),
+                        Text('Giờ ra: ${_fmt(widget.checkIn.actualCheckOut ?? widget.checkIn.expectedCheckOut ?? now)}'),
                         const SizedBox(height: 6),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -337,6 +338,7 @@ class _RoomPosScreenState extends ConsumerState<RoomPosScreen> {
     double discount = 0,
     ReceiptPrintMode mode = ReceiptPrintMode.auto,
   }) async {
+    final checkInTime = widget.checkIn.actualCheckIn ?? widget.checkIn.createdAt;
     await ref.read(hotelCheckInsProvider.notifier).checkout(
           widget.checkIn,
           roomTotalCharge: roomCharge,
@@ -377,6 +379,7 @@ class _RoomPosScreenState extends ConsumerState<RoomPosScreen> {
           subtotal: roomCharge + serviceTotal,
           discount: discount,
           grandTotal: roomCharge + serviceTotal - discount,
+          note: 'Giờ vào: ${_fmt(checkInTime)} | Giờ ra: ${_fmt(widget.checkIn.actualCheckOut ?? widget.checkIn.expectedCheckOut ?? DateTime.now())}',
         ),
         mode,
         pdfFilename: 'HoaDon_${widget.checkIn.checkInId.substring(0, 8)}.pdf',

@@ -188,6 +188,44 @@ final hotelServiceItemsProvider = StateNotifierProvider<HotelServiceItemsNotifie
   return HotelServiceItemsNotifier(isarService);
 });
 
+// Room Types Notifier — quản lý giá / thông tin loại phòng
+class HotelRoomTypesNotifier extends StateNotifier<AsyncValue<List<RoomType>>> {
+  final HotelIsarService _isarService;
+
+  HotelRoomTypesNotifier(this._isarService) : super(const AsyncValue.loading()) {
+    loadTypes();
+  }
+
+  Future<void> loadTypes() async {
+    try {
+      state = const AsyncValue.loading();
+      final db = await _isarService.db;
+      final types = await db.roomTypes.where().findAll();
+      state = AsyncValue.data(types);
+    } catch (e, st) {
+      state = AsyncValue.error(e, st);
+    }
+  }
+
+  Future<void> saveType(RoomType type) async {
+    try {
+      final db = await _isarService.db;
+      await db.writeTxn(() async {
+        type.updatedAt = DateTime.now();
+        await db.roomTypes.put(type);
+      });
+      await loadTypes();
+    } catch (e, st) {
+      state = AsyncValue.error(e, st);
+    }
+  }
+}
+
+final hotelRoomTypesProvider = StateNotifierProvider<HotelRoomTypesNotifier, AsyncValue<List<RoomType>>>((ref) {
+  final isarService = ref.watch(hotelIsarServiceProvider);
+  return HotelRoomTypesNotifier(isarService);
+});
+
 // Check-in/Out Notifier
 class HotelCheckInsNotifier extends StateNotifier<AsyncValue<List<RoomCheckIn>>> {
   final HotelIsarService _isarService;

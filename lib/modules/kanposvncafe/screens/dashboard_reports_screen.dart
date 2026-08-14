@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:fl_chart/fl_chart.dart';
 import '../../../core/providers.dart';
 import '../../../core/auth/auth_service.dart';
+import '../../../core/widgets/account_switcher_button.dart';
 import '../models/cafe_table.dart';
 import '../models/cafe_order.dart';
 import '../providers/cafe_providers.dart';
@@ -55,13 +56,52 @@ class DashboardReportsScreen extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Tổng Quan Hoạt Động Kinh Doanh Cafe',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFFD97706),
-              ),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Expanded(
+                  child: Text(
+                    'Tổng Quan Hoạt Động Kinh Doanh Cafe',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFFD97706),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                AccountSwitcherButton(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 7,
+                    ),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: const Color(0xFFD97706)),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: const Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.switch_account,
+                          size: 18,
+                          color: Color(0xFFD97706),
+                        ),
+                        SizedBox(width: 6),
+                        Text(
+                          'Đổi tài khoản',
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: Color(0xFFD97706),
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 16),
             _buildAccountCard(auth),

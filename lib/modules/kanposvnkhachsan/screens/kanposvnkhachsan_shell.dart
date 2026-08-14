@@ -15,8 +15,8 @@ import 'checkin_checkout_screen.dart';
 import 'hotel_services_screen.dart';
 import 'hotel_finance_screen.dart';
 import 'hotel_reports_screen.dart';
-import 'hotel_sync_screen.dart';
 import 'hotel_settings_screen.dart';
+import 'hotel_room_pricing_screen.dart';
 
 class KanPosVNKhachSanShell extends ConsumerStatefulWidget {
   const KanPosVNKhachSanShell({super.key});
@@ -53,7 +53,7 @@ class _KanPosVNKhachSanShellState extends ConsumerState<KanPosVNKhachSanShell> {
     EmployeeRoles.cashier: const {'booking', 'checkin', 'services'},
     EmployeeRoles.sale: const {'booking', 'checkin'},
     EmployeeRoles.warehouse: const {'services'},
-    EmployeeRoles.accountant: const {'rooms', 'finance', 'reports', 'settings'},
+    EmployeeRoles.accountant: const {'rooms', 'finance', 'reports', 'settings', 'room_pricing'},
   };
 
   /// Định nghĩa các tab của module (id, icon, label) — thứ tự hiển thị.
@@ -64,9 +64,9 @@ class _KanPosVNKhachSanShellState extends ConsumerState<KanPosVNKhachSanShell> {
     'services': (icon: Icons.room_service, label: 'Dịch vụ'),
     'finance': (icon: Icons.account_balance, label: 'Kế toán'),
     'reports': (icon: Icons.description, label: 'Báo cáo chung'),
-    'sync': (icon: Icons.cloud_sync, label: 'Vercel Neon'),
     'employees': (icon: Icons.badge, label: 'Quản Lý NV'),
     'settings': (icon: Icons.settings, label: 'Cài Đặt'),
+    'room_pricing': (icon: Icons.price_change, label: 'Thiết lập Phòng/Món ăn'),
   };
 
   static final Map<String, Widget Function()> _tabScreens = {
@@ -76,7 +76,6 @@ class _KanPosVNKhachSanShellState extends ConsumerState<KanPosVNKhachSanShell> {
     'services': () => const HotelServicesScreen(),
     'finance': () => const HotelFinanceScreen(),
     'reports': () => const HotelReportsScreen(),
-    'sync': () => const HotelSyncScreen(),
     'employees': () => EmployeeManagementScreen(
       availableTabs: [
         for (final e in _tabDefs.entries)
@@ -85,6 +84,7 @@ class _KanPosVNKhachSanShellState extends ConsumerState<KanPosVNKhachSanShell> {
       roleTabs: _roleTabs,
     ),
     'settings': () => const HotelSettingsScreen(),
+    'room_pricing': () => const HotelRoomPricingScreen(),
   };
 
   static final List<({String id, Widget screen, IconData icon, String label})>

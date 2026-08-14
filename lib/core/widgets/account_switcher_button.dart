@@ -10,10 +10,14 @@ import '../sync/sync_providers.dart';
 /// Nút "Đổi tài khoản" ở góc phải màn hình: hiển thị tài khoản hiện tại và mở
 /// menu để chuyển module (nhân viên nội bộ được vào nhiều module) hoặc đăng xuất.
 class AccountSwitcherButton extends ConsumerWidget {
-  const AccountSwitcherButton({super.key, this.foregroundColor});
+  const AccountSwitcherButton({super.key, this.foregroundColor, this.child});
 
   /// Màu chữ/icon trên nền AppBar. Mặc định: màu chữ mặc định của theme.
   final Color? foregroundColor;
+
+  /// Nút mở menu tùy chỉnh. Nếu không truyền sẽ dùng chip mặc định hiển thị
+  /// tên tài khoản.
+  final Widget? child;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -143,7 +147,8 @@ class AccountSwitcherButton extends ConsumerWidget {
           ),
         ),
       ],
-      child: Container(
+      child: child ??
+          Container(
         margin: const EdgeInsets.symmetric(horizontal: 8),
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
         decoration: BoxDecoration(

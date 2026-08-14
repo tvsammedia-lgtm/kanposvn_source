@@ -5,6 +5,7 @@ import '../providers/hotel_providers.dart';
 import '../models/hotel_room.dart';
 import '../models/hotel_checkin_checkout.dart';
 import 'room_pos_screen.dart';
+import '../../../core/widgets/account_switcher_button.dart';
 
 class RoomsScreen extends ConsumerStatefulWidget {
   const RoomsScreen({super.key});
@@ -19,18 +20,19 @@ class _RoomsScreenState extends ConsumerState<RoomsScreen> {
     final roomsAsyncValue = ref.watch(hotelRoomsProvider);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Sơ đồ phòng'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: () {
-              ref.read(hotelRoomsProvider.notifier).loadRooms();
-              ref.read(hotelCheckInsProvider.notifier).loadCheckIns();
-            },
-          )
-        ],
-      ),
+appBar: AppBar(
+      title: const Text('Sơ đồ phòng'),
+      actions: [
+        const AccountSwitcherButton(foregroundColor: Colors.white),
+        IconButton(
+          icon: const Icon(Icons.refresh),
+          onPressed: () {
+            ref.read(hotelRoomsProvider.notifier).loadRooms();
+            ref.read(hotelCheckInsProvider.notifier).loadCheckIns();
+          },
+        ),
+      ],
+    ),
       body: roomsAsyncValue.when(
         data: (rooms) {
           if (rooms.isEmpty) {
@@ -332,15 +334,17 @@ class _RoomsScreenState extends ConsumerState<RoomsScreen> {
                     expected = now.add(const Duration(days: 1));
                 }
                 Navigator.pop(ctx);
-                final checkIn = await ref.read(hotelCheckInsProvider.notifier).createCheckIn(
-                      room: room,
-                      rentalType: rentalType,
-                      customerName: nameCtrl.text.trim(),
-                      customerPhone: phoneCtrl.text.trim(),
-                      customerIdentity: identityCtrl.text.trim(),
-                      prePaid: double.tryParse(prepaidCtrl.text) ?? 0,
-                      expectedCheckOut: expected,
-                    );
+                 final checkIn = await ref.read(hotelCheckInsProvider.notifier).createCheckIn(
+                       room: room,
+                       rentalType: rentalType,
+                       customerName: nameCtrl.text.trim(),
+                       customerPhone: phoneCtrl.text.trim(),
+                       customerIdentity: identityCtrl.text.trim(),
+                       prePaid: double.tryParse(prepaidCtrl.text) ?? 0,
+                       expectedCheckOut: expected,
+                     );
+                // Refresh room list so status switches to "Có khách" + màu đỏ ngay lập tức
+                ref.read(hotelRoomsProvider.notifier).loadRooms();
                 if (mounted) _openPos(room, checkIn);
               },
               child: const Text('NHẬN PHÒNG & MỞ POS',

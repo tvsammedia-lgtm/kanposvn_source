@@ -111,6 +111,11 @@ class _TapHoaSettingsScreenState extends ConsumerState<TapHoaSettingsScreen> {
     final einvoice = einvoiceStore.settings;
 
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF14B8A6),
+        foregroundColor: Colors.white,
+        title: const Text('Cài Đặt'),
+      ),
       backgroundColor: Colors.grey[100],
       body: ListView(
         padding: const EdgeInsets.all(20),
