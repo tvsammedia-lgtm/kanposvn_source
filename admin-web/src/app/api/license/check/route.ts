@@ -52,6 +52,19 @@ export async function GET(req: NextRequest) {
       );
     }
 
+    // User bị khóa (hết hạn / admin khóa) => chặn mọi app_code, không cho vào bất cứ ứng dụng nào.
+    const [userRow] = await sql`SELECT active FROM users WHERE id = ${userId}`;
+    if (!userRow || !userRow.active) {
+      return NextResponse.json(
+        {
+          valid: false,
+          locked: true,
+          message: 'Tài khoản đã bị khóa do hết hạn bản quyền. Vui lòng liên hệ quản trị viên để gia hạn.',
+        },
+        { headers: corsHeaders() },
+      );
+    }
+
     const now = new Date();
     const appRows = await sql`SELECT id FROM apps WHERE app_code = ${appCode}`;
     if (appRows.length === 0) {

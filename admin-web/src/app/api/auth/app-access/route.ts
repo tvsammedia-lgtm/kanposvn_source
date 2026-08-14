@@ -40,6 +40,16 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ has_access: false, role: null }, { headers: corsHeaders() });
     }
 
+    // User bị khóa (hết hạn / admin khóa) => không cho vào bất cứ ứng dụng nào.
+    const [userRow] = await sql`SELECT active FROM users WHERE id = ${user.id}`;
+    if (!userRow || !userRow.active) {
+      return NextResponse.json({
+        has_access: false,
+        role: null,
+        error: 'Tài khoản đã bị khóa do hết hạn bản quyền. Vui lòng liên hệ quản trị viên để gia hạn.',
+      }, { headers: corsHeaders() });
+    }
+
     const result = await sql`
       SELECT p.can_login, r.role_name
       FROM user_permissions p
