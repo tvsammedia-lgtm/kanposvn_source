@@ -1,9 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { readdirSync } from 'fs';
+import path from 'path';
 
 const GITHUB_REPO = process.env.GITHUB_REPO || 'tvsammedia-lgtm/kanposvn_source';
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN || '';
 let cache: { at: number; release: any; fromNightly: boolean } | null = null;
 const CACHE_MS = 60_000;
+
+// Các file binary mặc định mà CI (build-apk.yml) deploy vào admin-web/public/downloads/
+const KNOWN_ASSETS = [
+  'app-release.apk',
+  'app-arm64-v8a-release.apk',
+  'app-armeabi-v7a-release.apk',
+  'app-x86_64-release.apk',
+  'kanposvn.exe',
+  'kanposvn-windows-x64.zip',
+];
 
 function corsHeaders() {
   return {
@@ -95,6 +107,24 @@ function buildPayload(
   };
 }
 
+// Scan local public/downloads/ for available binary files.
+function localDownloadAssets(origin: string): any[] {
+  const downloadDir = path.join(process.cwd(), 'public', 'downloads');
+  try {
+    const files = readdirSync(downloadDir);
+    return files
+      .filter((f) => KNOWN_ASSETS.includes(f))
+      .map((name) => ({
+        name,
+        size: 0,
+        download_count: 0,
+        browser_download_url: `${origin}/api/update/download?tag=local&asset=${encodeURIComponent(name)}`,
+      }));
+  } catch {
+    return [];
+  }
+}
+
 export async function GET(req: NextRequest) {
   const appCode = req.nextUrl.searchParams.get('app_code') || 'kanposvncafe';
   try {
@@ -103,7 +133,27 @@ export async function GET(req: NextRequest) {
       cache = { at: now, ...(await loadRelease()) };
     }
 
-    if (!cache.release) {
+     if (!cache.release) {
+      // Không có GitHub Release — thử phục vụ từ local public/downloads/
+      // (được CI copy binary vào khi build thành công).
+      const localFiles = localDownloadAssets(req.nextUrl.origin);
+      if (localFiles.length > 0) {
+        const data = {
+          success: true,
+          has_update: true,
+          app_code: appCode,
+          latest_version: 'latest',
+          tag_name: localFiles[0].name,
+          name: 'Bản build mới nhất (local)',
+          notes: 'Bản build mới nhất đã sẵn sàng tải về.',
+          published_at: null,
+          prerelease: false,
+          download_url: localFiles[0].browser_download_url,
+          assets: localFiles,
+        };
+        return NextResponse.json(data, { headers: corsHeaders() });
+      }
+
       const data = {
         success: false,
         has_update: false,
