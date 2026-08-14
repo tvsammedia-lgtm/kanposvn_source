@@ -85,6 +85,24 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     await sql`INSERT INTO audit_logs (user_name, action, module, details) VALUES (${admin.email}, ${body.active ? 'Mo khoa tai khoan' : 'Khoa tai khoan'}, 'Users', ${'User: ' + id})`;
   }
 
+  if (body.free_extend) {
+    // Gia hạn free thêm 7 ngày: unlock + kéo dài subscription_end thêm đúng 7 ngày
+    // (tính từ max(subscription_end hiện tại, now) — không reset).
+    const userRows = await sql`
+      SELECT subscription_end FROM users WHERE id = ${id}
+    `;
+    const now = new Date();
+    const base = userRows[0].subscription_end
+      ? new Date(Math.max(new Date(userRows[0].subscription_end).getTime(), now.getTime()))
+      : now;
+    const newEnd = new Date(base.getTime() + 7 * 24 * 60 * 60 * 1000);
+    await sql`
+      UPDATE users SET active = true, subscription_end = ${newEnd.toISOString()}
+      WHERE id = ${id}
+    `;
+    await sql`INSERT INTO audit_logs (user_name, action, module, details) VALUES (${admin.email}, 'Gia han free 7 ngay', 'Users', ${'User: ' + id + ' -> ' + newEnd.toISOString()})`;
+  }
+
   if (body.password) {
     const hash = await hashPassword(body.password);
     await sql`UPDATE users SET password_hash = ${hash} WHERE id = ${id}`;

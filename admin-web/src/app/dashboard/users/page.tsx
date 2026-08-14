@@ -123,8 +123,21 @@ export default function UsersPage() {
     loadUsers();
   };
 
-  const deleteUser = async (userId: string, email: string) => {
-    if (!isSuperAdmin) {
+  const freeExtend = async (user: User) => {
+    if (!isSuperAdmin && !isCafeAdmin) {
+      alert('Chi super admin / cafe admin moi duoc gia han free');
+      return;
+    }
+    if (!confirm(`Gia han free them 7 ngay cho ${user.email}?`)) return;
+    await fetch(`/api/users/${user.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ free_extend: true }),
+    });
+    loadUsers();
+  };
+
+  const deleteUser = async (userId: string, email: string) => {    if (!isSuperAdmin) {
       alert('Chi super admin moi co xoa user');
       return;
     }
@@ -304,6 +317,9 @@ export default function UsersPage() {
                         <button onClick={() => toggleActive(u)} className={`text-xs px-2 py-1 rounded ${u.active ? 'bg-red-100 text-red-600 hover:bg-red-200' : 'bg-green-100 text-green-600 hover:bg-green-200'}`}>
                           {u.active ? 'Khoa' : 'Mo'}
                         </button>
+                      )}
+                      {(isSuperAdmin || isCafeAdmin) && (
+                        <button onClick={() => freeExtend(u)} className="text-xs px-2 py-1 rounded bg-green-100 text-green-700 hover:bg-green-200">+7 ngay free</button>
                       )}
                       {isSuperAdmin && !isProtectedAdminEmail(u.email) && (
                         <button onClick={() => deleteUser(u.id, u.email)} className="text-xs px-2 py-1 rounded bg-red-100 text-red-600 hover:bg-red-200">Xoa</button>
