@@ -23,6 +23,8 @@ export default function DashboardPage() {
   const [syncItems, setSyncItems] = useState<SyncItem[]>([]);
   const [syncLoading, setSyncLoading] = useState(true);
   const [syncError, setSyncError] = useState('');
+  const [selectedOwnerId, setSelectedOwnerId] = useState('');
+  const [selectedAppCode, setSelectedAppCode] = useState('');
 
   const token = typeof window !== 'undefined' ? localStorage.getItem('admin_token') : '';
 
@@ -67,6 +69,32 @@ export default function DashboardPage() {
   }
   const owners = Array.from(byOwner.values());
 
+  // Dropdown chọn user cloud (Owner) + app_code tương ứng của user đó.
+  const ownerOptions = owners.map(({ owner }) => ({
+    id: owner.id,
+    label: `${owner.name || owner.email || owner.phone || owner.id} — ${owner.phone || owner.email || ''}`,
+  }));
+  const availableApps = selectedOwnerId
+    ? (owners.find((o) => o.owner.id === selectedOwnerId)?.list ?? [])
+    : syncItems;
+  const appOptions = Array.from(
+    new Map(availableApps.map((it) => [it.app.code, it.app.name])).entries(),
+  ).map(([code, name]) => ({ code, name }));
+
+  const filtered = syncItems.filter(
+    (it) =>
+      (!selectedOwnerId || it.owner.id === selectedOwnerId) &&
+      (!selectedAppCode || it.app.code === selectedAppCode),
+  );
+  const filteredByOwner = new Map<string, { owner: SyncItem['owner']; list: SyncItem[] }>();
+  for (const item of filtered) {
+    if (!filteredByOwner.has(item.owner.id)) {
+      filteredByOwner.set(item.owner.id, { owner: item.owner, list: [] });
+    }
+    filteredByOwner.get(item.owner.id)!.list.push(item);
+  }
+  const filteredOwners = Array.from(filteredByOwner.values());
+
   return (
     <div>
       <h1 className="text-2xl font-bold mb-6">Tổng quan hệ thống</h1>
@@ -97,13 +125,66 @@ export default function DashboardPage() {
 
         {syncLoading && <p className="text-gray-400 text-center py-8">Đang tải...</p>}
 
-        {!syncLoading && !syncError && owners.length === 0 && (
+        {!syncLoading && !syncError && (
+          <div className="flex flex-wrap items-center gap-3 mb-6 bg-white rounded-xl shadow-sm p-4">
+            <div className="flex-1 min-w-[220px]">
+              <label className="block text-xs font-medium text-gray-500 mb-1">
+                Chủ cửa hàng (Owner)
+              </label>
+              <select
+                value={selectedOwnerId}
+                onChange={(e) => {
+                  setSelectedOwnerId(e.target.value);
+                  setSelectedAppCode('');
+                }}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none bg-white"
+              >
+                <option value="">Tất cả chủ cửa hàng</option>
+                {ownerOptions.map((o) => (
+                  <option key={o.id} value={o.id}>
+                    {o.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="flex-1 min-w-[220px]">
+              <label className="block text-xs font-medium text-gray-500 mb-1">
+                Ứng dụng / app_code
+              </label>
+              <select
+                value={selectedAppCode}
+                onChange={(e) => setSelectedAppCode(e.target.value)}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none bg-white"
+              >
+                <option value="">Tất cả app</option>
+                {appOptions.map((a) => (
+                  <option key={a.code} value={a.code}>
+                    {a.name} ({a.code})
+                  </option>
+                ))}
+              </select>
+            </div>
+            {(selectedOwnerId || selectedAppCode) && (
+              <button
+                onClick={() => {
+                  setSelectedOwnerId('');
+                  setSelectedAppCode('');
+                }}
+                className="px-4 py-2 text-sm text-blue-600 font-medium hover:underline self-end"
+              >
+                Xóa lọc
+              </button>
+            )}
+          </div>
+        )}
+
+        {!syncLoading && !syncError && filteredOwners.length === 0 && (
           <div className="bg-white rounded-xl shadow-sm p-10 text-center text-gray-400">
             Chưa có dữ liệu đồng bộ
           </div>
         )}
 
-        {owners.map(({ owner, list }) => (
+        {filteredOwners.map(({ owner, list }) => (
           <div key={owner.id} className="mb-6">
             <div className="flex items-center gap-3 mb-3">
               <div className="w-10 h-10 rounded-full bg-amber-500 text-white flex items-center justify-center font-bold">
