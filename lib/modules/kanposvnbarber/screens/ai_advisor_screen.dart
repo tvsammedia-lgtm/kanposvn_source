@@ -5,7 +5,7 @@ import 'package:file_picker/file_picker.dart';
 import '../providers/ai_advisor_provider.dart';
 
 class AiAdvisorScreen extends ConsumerWidget {
-  const AiAdvisorScreen({Key? key}) : super(key: key);
+  const AiAdvisorScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

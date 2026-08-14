@@ -4,7 +4,6 @@ import 'package:intl/intl.dart';
 
 import '../providers/airbook_booking_provider.dart';
 import '../providers/airbook_sync_provider.dart';
-import '../models/booking.dart';
 import 'flight_checkin_screen.dart';
 import 'flight_reschedule_screen.dart';
 import 'commission_report_screen.dart';

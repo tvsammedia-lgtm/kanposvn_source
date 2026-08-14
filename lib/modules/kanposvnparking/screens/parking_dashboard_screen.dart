@@ -6,7 +6,7 @@ import 'parking_monthly_screen.dart';
 import 'parking_rental_screen.dart';
 
 class ParkingDashboardScreen extends ConsumerWidget {
-  const ParkingDashboardScreen({Key? key}) : super(key: key);
+  const ParkingDashboardScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

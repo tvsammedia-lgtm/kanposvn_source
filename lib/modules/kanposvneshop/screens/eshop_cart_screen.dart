@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class EshopCartScreen extends ConsumerWidget {
-  const EshopCartScreen({Key? key}) : super(key: key);
+  const EshopCartScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

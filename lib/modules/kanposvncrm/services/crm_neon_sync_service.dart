@@ -1,3 +1,4 @@
+﻿import 'package:flutter/foundation.dart';
 import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:isar/isar.dart';
@@ -59,16 +60,17 @@ class CrmNeonSyncService {
       );
 
       if (downResponse.statusCode == 200) {
-        // Cập nhật lastSyncTime
+        // Cáº­p nháº­t lastSyncTime
         await isar.writeTxn(() async {
           config!.lastSyncTime = DateTime.now();
           await isar.crmSyncConfigs.put(config);
         });
       }
     } catch (e) {
-      print('CRM Sync Error: $e');
+      debugPrint('CRM Sync Error: $e');
     } finally {
       _isSyncing = false;
     }
   }
 }
+

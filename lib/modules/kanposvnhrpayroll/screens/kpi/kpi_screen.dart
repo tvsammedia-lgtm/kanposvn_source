@@ -282,9 +282,13 @@ class KpiScreen extends ConsumerWidget {
 
               // KPI bonus
               double bonus = 0;
-              if (score >= 95) bonus = 3000000;
-              else if (score >= 85) bonus = 2000000;
-              else if (score >= 75) bonus = 1000000;
+              if (score >= 95) {
+                bonus = 3000000;
+              } else if (score >= 85) {
+                bonus = 2000000;
+              } else if (score >= 75) {
+                bonus = 1000000;
+              }
 
               final kpi = KpiRecord()
                 ..driverId = 0
@@ -456,7 +460,7 @@ class _KpiCard extends StatelessWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Text('${score.toStringAsFixed(1)}',
+              Text(score.toStringAsFixed(1),
                   style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                         color: scoreColor,
                         fontWeight: FontWeight.w800,

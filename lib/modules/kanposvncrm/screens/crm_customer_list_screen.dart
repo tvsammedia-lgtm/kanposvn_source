@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/crm_providers.dart';
 
 class CrmCustomerListScreen extends ConsumerWidget {
-  const CrmCustomerListScreen({Key? key}) : super(key: key);
+  const CrmCustomerListScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

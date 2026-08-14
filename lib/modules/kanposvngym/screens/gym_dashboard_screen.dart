@@ -6,7 +6,7 @@ import 'gym_pos_screen.dart';
 import 'gym_trainer_screen.dart';
 
 class GymDashboardScreen extends ConsumerWidget {
-  const GymDashboardScreen({Key? key}) : super(key: key);
+  const GymDashboardScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

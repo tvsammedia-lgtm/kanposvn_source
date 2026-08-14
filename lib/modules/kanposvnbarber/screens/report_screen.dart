@@ -5,7 +5,7 @@ import 'package:intl/intl.dart';
 import '../providers/report_provider.dart';
 
 class ReportScreen extends ConsumerWidget {
-  const ReportScreen({Key? key}) : super(key: key);
+  const ReportScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

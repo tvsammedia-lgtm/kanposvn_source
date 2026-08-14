@@ -5,7 +5,7 @@ import '../models/eshop_product.dart';
 class EshopProductDetailScreen extends ConsumerWidget {
   final KanShopProduct product;
 
-  const EshopProductDetailScreen({Key? key, required this.product}) : super(key: key);
+  const EshopProductDetailScreen({super.key, required this.product});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

@@ -1,3 +1,4 @@
+﻿import 'package:flutter/foundation.dart';
 import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:isar/isar.dart';
@@ -49,9 +50,10 @@ class RideNeonSyncService {
         }
       }
     } catch (e) {
-      print('KanRide Sync Error: $e');
+      debugPrint('KanRide Sync Error: $e');
     } finally {
       _isSyncing = false;
     }
   }
 }
+

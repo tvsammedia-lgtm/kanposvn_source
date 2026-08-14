@@ -20,7 +20,7 @@ import 'report_screen.dart';
 import 'taphoa_settings_screen.dart';
 
 class TapHoaDashboardScreen extends ConsumerStatefulWidget {
-  const TapHoaDashboardScreen({Key? key}) : super(key: key);
+  const TapHoaDashboardScreen({super.key});
 
   @override
   ConsumerState<TapHoaDashboardScreen> createState() => _TapHoaDashboardScreenState();

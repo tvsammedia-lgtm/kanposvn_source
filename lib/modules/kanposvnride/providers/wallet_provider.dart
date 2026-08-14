@@ -56,13 +56,10 @@ class WalletNotifier extends StateNotifier<AsyncValue<List<RideTransaction>>> {
         
         // 2. Cập nhật số dư User
         var user = await isar.rideUsers.where().uuidEqualTo(currentUserUuid).findFirst();
-        if (user == null) {
-          // Tạo user ảo nếu chưa có trong DB (để test)
-          user = RideUser()
+        user ??= RideUser()
             ..uuid = currentUserUuid
             ..fullName = 'Khách hàng A'
             ..walletBalance = 0;
-        }
         user.walletBalance += amount;
         await isar.rideUsers.put(user);
       });

@@ -72,7 +72,7 @@ class CommissionReportScreen extends ConsumerWidget {
                         ],
                       ),
                     ),
-                  )).toList()
+                  ))
               ],
             ),
           );

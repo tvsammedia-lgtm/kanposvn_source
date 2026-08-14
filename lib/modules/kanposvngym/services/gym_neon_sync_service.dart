@@ -1,3 +1,4 @@
+﻿import 'package:flutter/foundation.dart';
 import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:isar/isar.dart';
@@ -50,9 +51,10 @@ class GymNeonSyncService {
         }
       }
     } catch (e) {
-      print('GYM Sync Error: $e');
+      debugPrint('GYM Sync Error: $e');
     } finally {
       _isSyncing = false;
     }
   }
 }
+

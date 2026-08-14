@@ -6,7 +6,7 @@ import 'eshop_product_detail_screen.dart';
 import 'eshop_cart_screen.dart';
 
 class EshopDashboardScreen extends ConsumerWidget {
-  const EshopDashboardScreen({Key? key}) : super(key: key);
+  const EshopDashboardScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

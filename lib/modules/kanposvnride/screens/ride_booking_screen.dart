@@ -4,7 +4,7 @@ import '../providers/ride_providers.dart';
 import '../models/ride_booking.dart';
 
 class RideBookingScreen extends ConsumerWidget {
-  const RideBookingScreen({Key? key}) : super(key: key);
+  const RideBookingScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

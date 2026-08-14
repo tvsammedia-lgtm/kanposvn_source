@@ -4,7 +4,7 @@ import '../models/partner.dart';
 import '../providers/taphoa_providers.dart';
 
 class TapHoaPartnerScreen extends ConsumerStatefulWidget {
-  const TapHoaPartnerScreen({Key? key}) : super(key: key);
+  const TapHoaPartnerScreen({super.key});
 
   @override
   ConsumerState<TapHoaPartnerScreen> createState() => _TapHoaPartnerScreenState();

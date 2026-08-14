@@ -142,7 +142,7 @@ class _BookingCreateScreenState extends ConsumerState<BookingCreateScreen> {
                 label: const Text('Tính cước'),
               ),
               const SizedBox(width: 16),
-              Text('Cước: ${_estimatedPrice > 0 ? "${_estimatedPrice} VNĐ" : "---"}', style: const TextStyle(fontSize: 18, color: Colors.green, fontWeight: FontWeight.bold)),
+              Text('Cước: ${_estimatedPrice > 0 ? "$_estimatedPrice VNĐ" : "---"}', style: const TextStyle(fontSize: 18, color: Colors.green, fontWeight: FontWeight.bold)),
             ],
           ),
           const Divider(height: 32),
@@ -165,7 +165,7 @@ class _BookingCreateScreenState extends ConsumerState<BookingCreateScreen> {
               title: Text(d.fullName),
               subtitle: Text('Cách ${d.distanceKm} km'),
               trailing: const Chip(label: Text('Sẵn sàng'), backgroundColor: Colors.green),
-            )).toList(),
+            )),
           if (_nearbyDrivers.isEmpty && !_isSearching)
             const Text('Chưa tìm tài xế nào xung quanh.'),
             

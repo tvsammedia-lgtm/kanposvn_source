@@ -1,3 +1,4 @@
+﻿import 'package:flutter/foundation.dart';
 import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:isar/isar.dart';
@@ -20,7 +21,7 @@ class SyncWorker {
   SyncWorker(this.isar);
 
   void startBackgroundSync() {
-    // Chạy ngầm định kỳ mỗi 5 giây
+    // Cháº¡y ngáº§m Ä‘á»‹nh ká»³ má»—i 5 giÃ¢y
     _timer = Timer.periodic(const Duration(seconds: 5), (_) {
       _syncPendingMessages();
     });
@@ -35,7 +36,7 @@ class SyncWorker {
     _isSyncing = true;
 
     try {
-      // 1. Tìm tất cả tin nhắn đang Pending
+      // 1. TÃ¬m táº¥t cáº£ tin nháº¯n Ä‘ang Pending
       final pendingMessages = await isar.videoCallMessages
           .where()
           .filter()
@@ -47,10 +48,10 @@ class SyncWorker {
         return;
       }
 
-      // 2. Gọi API để đẩy dữ liệu
+      // 2. Gá»i API Ä‘á»ƒ Ä‘áº©y dá»¯ liá»‡u
       final results = await SyncService.pushMessages(pendingMessages);
 
-      // 3. Cập nhật lại vào Local Database Isar
+      // 3. Cáº­p nháº­t láº¡i vÃ o Local Database Isar
       await isar.writeTxn(() async {
         for (var result in results) {
           final clientId = result['clientMessageId'];
@@ -70,9 +71,10 @@ class SyncWorker {
       });
       
     } catch (e) {
-      print('Sync Error: $e');
+      debugPrint('Sync Error: $e');
     } finally {
       _isSyncing = false;
     }
   }
 }
+

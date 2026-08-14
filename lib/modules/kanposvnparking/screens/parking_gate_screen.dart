@@ -4,7 +4,7 @@ import '../providers/parking_providers.dart';
 import '../models/parking_ticket.dart';
 
 class ParkingGateScreen extends ConsumerStatefulWidget {
-  const ParkingGateScreen({Key? key}) : super(key: key);
+  const ParkingGateScreen({super.key});
 
   @override
   ConsumerState<ParkingGateScreen> createState() => _ParkingGateScreenState();

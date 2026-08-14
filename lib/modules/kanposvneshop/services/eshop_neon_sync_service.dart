@@ -1,3 +1,4 @@
+﻿import 'package:flutter/foundation.dart';
 import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:isar/isar.dart';
@@ -49,9 +50,10 @@ class EshopNeonSyncService {
         }
       }
     } catch (e) {
-      print('KanShop Sync Error: $e');
+      debugPrint('KanShop Sync Error: $e');
     } finally {
       _isSyncing = false;
     }
   }
 }
+

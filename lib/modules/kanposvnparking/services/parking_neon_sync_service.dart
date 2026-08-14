@@ -1,3 +1,4 @@
+﻿import 'package:flutter/foundation.dart';
 import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:isar/isar.dart';
@@ -49,9 +50,10 @@ class ParkingNeonSyncService {
         }
       }
     } catch (e) {
-      print('Parking Sync Error: $e');
+      debugPrint('Parking Sync Error: $e');
     } finally {
       _isSyncing = false;
     }
   }
 }
+

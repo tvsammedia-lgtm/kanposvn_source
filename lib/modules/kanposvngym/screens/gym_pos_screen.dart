@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class GymPosScreen extends ConsumerWidget {
-  const GymPosScreen({Key? key}) : super(key: key);
+  const GymPosScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/appointment_provider.dart';
 
 class AppointmentListScreen extends ConsumerWidget {
-  const AppointmentListScreen({Key? key}) : super(key: key);
+  const AppointmentListScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

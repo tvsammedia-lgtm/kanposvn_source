@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/customer_provider.dart';
 
 class CustomerListScreen extends ConsumerWidget {
-  const CustomerListScreen({Key? key}) : super(key: key);
+  const CustomerListScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

@@ -1,3 +1,4 @@
+﻿import 'package:flutter/foundation.dart';
 import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:isar/isar.dart';
@@ -20,7 +21,7 @@ class RideSyncWorker {
   RideSyncWorker(this.isar);
 
   void startSync() {
-    print('SYNC ENGINE: Khởi động vòng lặp đồng bộ ngầm (mỗi 10s)');
+    debugPrint('SYNC ENGINE: Khá»Ÿi Ä‘á»™ng vÃ²ng láº·p Ä‘á»“ng bá»™ ngáº§m (má»—i 10s)');
     _timer = Timer.periodic(const Duration(seconds: 10), (_) {
       _syncBookings();
     });
@@ -35,7 +36,7 @@ class RideSyncWorker {
     _isSyncing = true;
 
     try {
-      // 1. Tìm các cuốc xe có trạng thái pending
+      // 1. TÃ¬m cÃ¡c cuá»‘c xe cÃ³ tráº¡ng thÃ¡i pending
       final pendingBookings = await isar.rideBookings
           .where()
           .filter()
@@ -47,10 +48,10 @@ class RideSyncWorker {
         return;
       }
 
-      // 2. Gửi lên Vercel
+      // 2. Gá»­i lÃªn Vercel
       final success = await RideSyncService.pushPendingBookings(pendingBookings);
 
-      // 3. Nếu thành công, cập nhật Isar thành synced
+      // 3. Náº¿u thÃ nh cÃ´ng, cáº­p nháº­t Isar thÃ nh synced
       if (success) {
         await isar.writeTxn(() async {
           for (var b in pendingBookings) {
@@ -60,9 +61,10 @@ class RideSyncWorker {
         });
       }
     } catch (e) {
-      print('SYNC ENGINE ERROR: $e');
+      debugPrint('SYNC ENGINE ERROR: $e');
     } finally {
       _isSyncing = false;
     }
   }
 }
+

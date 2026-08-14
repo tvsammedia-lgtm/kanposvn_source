@@ -4,7 +4,7 @@ import '../providers/taphoa_providers.dart';
 import 'inventory_import_screen.dart';
 
 class TapHoaInventoryScreen extends ConsumerStatefulWidget {
-  const TapHoaInventoryScreen({Key? key}) : super(key: key);
+  const TapHoaInventoryScreen({super.key});
 
   @override
   ConsumerState<TapHoaInventoryScreen> createState() => _TapHoaInventoryScreenState();

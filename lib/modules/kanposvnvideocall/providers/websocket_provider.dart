@@ -1,3 +1,4 @@
+﻿import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 
@@ -16,7 +17,7 @@ final webSocketProvider = Provider<WebSocketManager>((ref) {
 
 class WebSocketManager {
   final Ref ref;
-  final dynamic isar; // Truyền Isar trực tiếp vì Riverpod v2 có thể hạn chế đọc Provider trong hàm async
+  final dynamic isar; // Truyá»n Isar trá»±c tiáº¿p vÃ¬ Riverpod v2 cÃ³ thá»ƒ háº¡n cháº¿ Ä‘á»c Provider trong hÃ m async
   late final WebSocketService _service;
 
   WebSocketManager(this.ref, this.isar) {
@@ -39,7 +40,7 @@ class WebSocketManager {
         ref.read(typingStateProvider.notifier).state = isTyping;
       } 
       else if (event.type == 'new_message') {
-        // Ghi tin nhắn mới vào CSDL Isar
+        // Ghi tin nháº¯n má»›i vÃ o CSDL Isar
         final uuid = const Uuid();
         final msg = VideoCallMessage()
           ..clientMessageId = uuid.v4()
@@ -47,7 +48,7 @@ class WebSocketManager {
           ..senderUuid = event.data['senderUuid']
           ..content = event.data['content']
           ..status = MessageStatus.delivered
-          ..syncStatus = SyncStatus.synced // Tin nhắn từ server về mặc định là đã sync
+          ..syncStatus = SyncStatus.synced // Tin nháº¯n tá»« server vá» máº·c Ä‘á»‹nh lÃ  Ä‘Ã£ sync
           ..createdAt = DateTime.now()
           ..updatedAt = DateTime.now();
 
@@ -55,13 +56,14 @@ class WebSocketManager {
           await isar.videoCallMessages.put(msg);
         });
 
-        // Kích hoạt load lại danh sách tin nhắn trên UI
+        // KÃ­ch hoáº¡t load láº¡i danh sÃ¡ch tin nháº¯n trÃªn UI
         ref.read(messageListProvider(event.data['conversationUuid']).notifier).loadMessages();
       }
       else if (event.type == 'incoming_call') {
-        // Trong thực tế sẽ đẩy ra một Modal / Notification gọi điện
-        print("CÓ CUỘC GỌI ĐẾN TỪ: ${event.data['callerName']}");
+        // Trong thá»±c táº¿ sáº½ Ä‘áº©y ra má»™t Modal / Notification gá»i Ä‘iá»‡n
+        debugPrint("CÃ“ CUá»˜C Gá»ŒI Äáº¾N Tá»ª: ${event.data['callerName']}");
       }
     });
   }
 }
+

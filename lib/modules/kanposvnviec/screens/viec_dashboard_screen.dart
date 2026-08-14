@@ -6,7 +6,7 @@ import 'viec_jobs_screen.dart';
 import 'viec_matching_screen.dart';
 
 class ViecDashboardScreen extends ConsumerWidget {
-  const ViecDashboardScreen({Key? key}) : super(key: key);
+  const ViecDashboardScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

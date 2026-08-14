@@ -13,7 +13,7 @@ import 'crm_sale_screen.dart';
 import 'crm_cloud_customers_screen.dart';
 
 class CrmDashboardScreen extends ConsumerWidget {
-  const CrmDashboardScreen({Key? key}) : super(key: key);
+  const CrmDashboardScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

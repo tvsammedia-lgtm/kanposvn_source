@@ -106,7 +106,9 @@ class _DriverFormScreenState extends ConsumerState<DriverFormScreen>
       _empCodeCtrl, _nameCtrl, _licenseNumCtrl, _baseSalaryCtrl,
       _perTripCtrl, _perKmCtrl, _perContainerCtrl,
       _allowPhoneCtrl, _allowMealCtrl, _allowNightCtrl,
-    ]) c.dispose();
+    ]) {
+      c.dispose();
+    }
     super.dispose();
   }
 

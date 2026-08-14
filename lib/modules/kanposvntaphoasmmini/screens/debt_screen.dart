@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/taphoa_providers.dart';
 
 class TapHoaDebtScreen extends ConsumerWidget {
-  const TapHoaDebtScreen({Key? key}) : super(key: key);
+  const TapHoaDebtScreen({super.key});
 
   Future<void> _showPayDialog(
     BuildContext context,

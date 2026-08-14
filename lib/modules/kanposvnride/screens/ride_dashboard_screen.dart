@@ -6,7 +6,7 @@ import 'ride_booking_screen.dart';
 import 'ride_map_screen.dart';
 
 class RideDashboardScreen extends ConsumerWidget {
-  const RideDashboardScreen({Key? key}) : super(key: key);
+  const RideDashboardScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

@@ -5,7 +5,7 @@ import '../providers/pos_provider.dart';
 import 'checkout_screen.dart';
 
 class PosScreen extends ConsumerWidget {
-  const PosScreen({Key? key}) : super(key: key);
+  const PosScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

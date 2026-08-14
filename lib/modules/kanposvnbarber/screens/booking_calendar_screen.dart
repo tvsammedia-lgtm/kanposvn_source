@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class BookingCalendarScreen extends StatefulWidget {
-  const BookingCalendarScreen({Key? key}) : super(key: key);
+  const BookingCalendarScreen({super.key});
 
   @override
   State<BookingCalendarScreen> createState() => _BookingCalendarScreenState();

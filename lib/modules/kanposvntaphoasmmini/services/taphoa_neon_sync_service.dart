@@ -1,3 +1,4 @@
+﻿import 'package:flutter/foundation.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:isar/isar.dart';
@@ -14,8 +15,8 @@ class TapHoaNeonSyncService {
   final TapHoaIsarService _isarService;
   bool _isSyncing = false;
 
-  /// Lấy config, tự tạo hoặc tự sửa về đúng server admin-web
-  /// (demo cũ còn lưu URL/Key sai trong Isar).
+  /// Láº¥y config, tá»± táº¡o hoáº·c tá»± sá»­a vá» Ä‘Ãºng server admin-web
+  /// (demo cÅ© cÃ²n lÆ°u URL/Key sai trong Isar).
   Future<TapHoaSyncConfig> _ensureConfig(
       Isar isar, TapHoaSyncConfig? config) async {
     if (config == null) {
@@ -47,7 +48,7 @@ class TapHoaNeonSyncService {
           await isar.tapHoaSyncConfigs.filter().configIdEqualTo('default').findFirst();
       final config = await _ensureConfig(isar, existing);
 
-      // 1. Push queue lên /api/sync/push
+      // 1. Push queue lÃªn /api/sync/push
       final queueItems = await isar.tapHoaSyncQueues.where().findAll();
       if (queueItems.isNotEmpty) {
         final items = queueItems.map((q) {
@@ -70,16 +71,16 @@ class TapHoaNeonSyncService {
         );
 
         if (response.statusCode == 200) {
-          // Xóa queue sau khi push thành công
+          // XÃ³a queue sau khi push thÃ nh cÃ´ng
           await isar.writeTxn(() async {
             await isar.tapHoaSyncQueues.clear();
           });
         } else {
-          print('Sync push failed: ${response.statusCode} ${response.body}');
+          debugPrint('Sync push failed: ${response.statusCode} ${response.body}');
         }
       }
 
-      // 2. Kéo dữ liệu mới từ server (Sync Down)
+      // 2. KÃ©o dá»¯ liá»‡u má»›i tá»« server (Sync Down)
       final since = config.lastSyncTime?.toIso8601String() ??
           '2000-01-01T00:00:00Z';
       final downResponse = await http.get(
@@ -94,22 +95,23 @@ class TapHoaNeonSyncService {
       if (downResponse.statusCode == 200) {
         final body = jsonDecode(downResponse.body) as Map<String, dynamic>;
         final records = body['records'] as List<dynamic>? ?? [];
-        // TODO: áp dụng dữ liệu master (products/customers/suppliers) do admin chỉnh
+        // TODO: Ã¡p dá»¥ng dá»¯ liá»‡u master (products/customers/suppliers) do admin chá»‰nh
 
         await isar.writeTxn(() async {
           config.lastSyncTime = DateTime.now().toUtc();
           await isar.tapHoaSyncConfigs.put(config);
         });
-        print('Sync pull ok: ${records.length} records');
+        debugPrint('Sync pull ok: ${records.length} records');
       } else {
-        print('Sync pull failed: ${downResponse.statusCode} ${downResponse.body}');
+        debugPrint('Sync pull failed: ${downResponse.statusCode} ${downResponse.body}');
       }
 
     } catch (e) {
-      // Bỏ qua lỗi kết nối (Offline First), queue được giữ lại để thử lần sau
-      print('Sync Error: $e');
+      // Bá» qua lá»—i káº¿t ná»‘i (Offline First), queue Ä‘Æ°á»£c giá»¯ láº¡i Ä‘á»ƒ thá»­ láº§n sau
+      debugPrint('Sync Error: $e');
     } finally {
       _isSyncing = false;
     }
   }
 }
+

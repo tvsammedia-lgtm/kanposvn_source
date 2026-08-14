@@ -1,7 +1,4 @@
-import 'dart:convert';
-import 'package:http/http.dart' as http;
 
-import '../../modules/kanposvnngoaingu/models/ai_evaluation.dart';
 
 class AIService {
   // Thay đổi URL này thành Vercel Endpoint thực tế khi deploy

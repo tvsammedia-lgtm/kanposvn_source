@@ -111,7 +111,9 @@ class _EmployeeFormScreenState extends ConsumerState<EmployeeFormScreen>
       _codeCtrl, _nameCtrl, _phoneCtrl, _emailCtrl, _cccdCtrl,
       _addressCtrl, _taxCtrl, _bhxhCtrl, _bankAccCtrl, _bankNameCtrl,
       _baseSalaryCtrl, _allowPhoneCtrl, _allowMealCtrl, _allowTransCtrl,
-    ]) c.dispose();
+    ]) {
+      c.dispose();
+    }
     super.dispose();
   }
 

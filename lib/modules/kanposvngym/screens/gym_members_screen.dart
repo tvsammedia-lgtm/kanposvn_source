@@ -4,7 +4,7 @@ import '../providers/gym_providers.dart';
 import '../models/member.dart';
 
 class GymMembersScreen extends ConsumerWidget {
-  const GymMembersScreen({Key? key}) : super(key: key);
+  const GymMembersScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

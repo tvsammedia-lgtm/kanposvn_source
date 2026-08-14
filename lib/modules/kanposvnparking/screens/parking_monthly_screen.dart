@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class ParkingMonthlyScreen extends ConsumerWidget {
-  const ParkingMonthlyScreen({Key? key}) : super(key: key);
+  const ParkingMonthlyScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

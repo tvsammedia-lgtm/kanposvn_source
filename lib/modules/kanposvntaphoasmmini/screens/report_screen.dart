@@ -16,7 +16,7 @@ import '../widgets/crystal_report_widgets.dart';
 ///   (Sổ quỹ tiền mặt, Phiếu thu/chi, Chi tiết & Tổng hợp bán hàng, NXT,
 ///   Công nợ...) chạy trên dữ liệu tạp hóa.
 class TapHoaReportScreen extends ConsumerStatefulWidget {
-  const TapHoaReportScreen({Key? key}) : super(key: key);
+  const TapHoaReportScreen({super.key});
 
   @override
   ConsumerState<TapHoaReportScreen> createState() => _TapHoaReportScreenState();

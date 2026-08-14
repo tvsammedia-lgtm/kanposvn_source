@@ -4,7 +4,7 @@ import '../models/finance.dart';
 import '../providers/taphoa_providers.dart';
 
 class TapHoaFinanceScreen extends ConsumerStatefulWidget {
-  const TapHoaFinanceScreen({Key? key}) : super(key: key);
+  const TapHoaFinanceScreen({super.key});
 
   @override
   ConsumerState<TapHoaFinanceScreen> createState() => _TapHoaFinanceScreenState();

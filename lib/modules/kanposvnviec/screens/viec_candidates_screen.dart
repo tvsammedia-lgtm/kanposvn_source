@@ -4,7 +4,7 @@ import '../providers/viec_providers.dart';
 import '../models/candidate.dart';
 
 class ViecCandidatesScreen extends ConsumerWidget {
-  const ViecCandidatesScreen({Key? key}) : super(key: key);
+  const ViecCandidatesScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
