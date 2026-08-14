@@ -64,10 +64,10 @@ jobs:
           fi
 
       - name: Build release APK
-        run: flutter build apk --release --no-daemon
+        run: flutter build apk --release
 
       - name: Build split APKs (per ABI)
-        run: flutter build apk --release --split-per-abi --no-daemon
+        run: flutter build apk --release --split-per-abi
 
       - name: Upload APK artifacts
         uses: actions/upload-artifact@v4
