@@ -42,8 +42,8 @@ class RideBookingScreen extends ConsumerWidget {
               height: 50,
               child: ElevatedButton(
                 onPressed: () {
-                  final booking = KanRideBooking()
-                    ..bookingId = 'BK_${DateTime.now().millisecondsSinceEpoch}'
+                  final booking = RideBooking()
+                    ..uuid = 'BK_${DateTime.now().millisecondsSinceEpoch}'
                     ..pickupAddress = pickupCtrl.text
                     ..dropoffAddress = dropoffCtrl.text
                     ..distanceKm = 5.2 // Giả lập

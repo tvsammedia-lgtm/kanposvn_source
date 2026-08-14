@@ -12,7 +12,7 @@ final Map<AppModule, AiAssistantModuleData> kAiAssistantPart1 = {
       'Cách tạo bàn mới?',
       'Bán hàng nhanh như thế nào?',
       'Cách xuất hóa đơn điện tử?',
-      'Đồng bộ dữ liệu lên Neon?',
+      'Đồng bộ dữ liệu lên Cloud?',
     ],
     topics: [
       AiAssistantTopic(
@@ -53,9 +53,8 @@ final Map<AppModule, AiAssistantModuleData> kAiAssistantPart1 = {
       ),
       AiAssistantTopic(
         ['dong bo', 'đồng bộ', 'neon', 'sync', 'cloud', 'sao luu', 'sao lưu'],
-        'Bấm icon đồng bộ trên thanh công cụ hoặc mở tab "Vercel Neon" để đẩy '
-            'dữ liệu lên Neon. Dữ liệu cục bộ lưu Isar offline và tự đồng bộ '
-            'khi có mạng.',
+        'Bấm icon đồng bộ trên thanh công cụ để đẩy dữ liệu cục bộ lên Cloud. '
+            'Dữ liệu vẫn hoạt động offline và tự đồng bộ khi có mạng.',
       ),
       AiAssistantTopic(
         ['nhan vien', 'nhân viên', 'phan quyen', 'phân quyền', 'tai khoan'],

@@ -30,6 +30,12 @@ class EmployeeAccount {
   final String fullName;
   final String role;
   final bool status;
+
+  /// Các tab (tab bar) nhân viên được phép sử dụng, theo module.
+  ///
+  /// `null` = dùng mặc định theo role. Khác `null` = ghi đè chính xác danh sách
+  /// tab cho riêng nhân viên này (Owner check/uncheck trong "Quản lý NV").
+  final List<String>? allowedTabs;
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -41,6 +47,7 @@ class EmployeeAccount {
     required this.fullName,
     required this.role,
     this.status = true,
+    this.allowedTabs,
     DateTime? createdAt,
     DateTime? updatedAt,
   })  : createdAt = createdAt ?? DateTime.now(),
@@ -56,6 +63,7 @@ class EmployeeAccount {
         'fullName': fullName,
         'role': role,
         'status': status,
+        'allowedTabs': allowedTabs,
         'createdAt': createdAt.toIso8601String(),
         'updatedAt': updatedAt.toIso8601String(),
       };
@@ -69,6 +77,9 @@ class EmployeeAccount {
         fullName: json['fullName'] as String? ?? '',
         role: json['role'] as String? ?? EmployeeRoles.sale,
         status: json['status'] as bool? ?? true,
+        allowedTabs: json['allowedTabs'] is List
+            ? List<String>.from(json['allowedTabs'] as List)
+            : null,
         createdAt: json['createdAt'] != null
             ? DateTime.tryParse(json['createdAt'] as String)
             : null,

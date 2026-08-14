@@ -6,7 +6,7 @@ final rideIsarServiceProvider = Provider<RideIsarService>((ref) {
   return RideIsarService();
 });
 
-class RideBookingsNotifier extends StateNotifier<List<KanRideBooking>> {
+class RideBookingsNotifier extends StateNotifier<List<RideBooking>> {
   final RideIsarService _isar;
   bool _isLoading = false;
 
@@ -21,12 +21,12 @@ class RideBookingsNotifier extends StateNotifier<List<KanRideBooking>> {
     _isLoading = false;
   }
 
-  Future<void> saveBooking(KanRideBooking booking) async {
+  Future<void> saveBooking(RideBooking booking) async {
     await _isar.saveBooking(booking);
     await loadBookings();
   }
 }
 
-final rideBookingsProvider = StateNotifierProvider<RideBookingsNotifier, List<KanRideBooking>>((ref) {
+final rideBookingsProvider = StateNotifierProvider<RideBookingsNotifier, List<RideBooking>>((ref) {
   return RideBookingsNotifier(ref.watch(rideIsarServiceProvider));
 });

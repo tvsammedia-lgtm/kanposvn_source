@@ -5,12 +5,21 @@ import '../models/bida_item.dart';
 import '../models/bida_session.dart';
 import '../services/bida_isar_service.dart';
 import '../services/bida_neon_sync_service.dart';
+import '../services/bida_einvoice_settings.dart';
 
 final bidaIsarServiceProvider = Provider((ref) => BidaIsarService());
 
 final bidaNeonSyncServiceProvider = Provider<BidaNeonSyncService>((ref) {
   final isarService = ref.watch(bidaIsarServiceProvider);
   return BidaNeonSyncService(isarService);
+});
+
+// Settings
+final bidaEinvoiceSettingsProvider =
+    ChangeNotifierProvider<BidaEinvoiceSettingsStore>((ref) {
+  final store = BidaEinvoiceSettingsStore();
+  store.load();
+  return store;
 });
 
 // Tables Provider

@@ -86,7 +86,7 @@ class _VlxdInventoryScreenState extends ConsumerState<VlxdInventoryScreen> {
               }
             }
 
-            String get pricePresetLabel {
+            String getPricePresetLabel() {
               return selectedType == VlxdInventoryTransactionType.IMPORT
                   ? 'Mặc định: giá nhập'
                   : 'Mặc định: giá bán lẻ';
@@ -266,7 +266,7 @@ class _VlxdInventoryScreenState extends ConsumerState<VlxdInventoryScreen> {
                       Row(
                         children: [
                           Chip(
-                            label: Text(pricePresetLabel),
+                            label: Text(getPricePresetLabel()),
                             avatar: Icon(
                               selectedType == VlxdInventoryTransactionType.IMPORT
                                   ? Icons.download

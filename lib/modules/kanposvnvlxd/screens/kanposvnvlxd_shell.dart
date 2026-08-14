@@ -4,7 +4,6 @@ import '../../../core/auth/employee_auth.dart';
 import '../../../core/auth/employee_management_screen.dart';
 import '../../../core/auth/employee_role_policy.dart';
 import '../../../core/providers.dart';
-import '../../../core/sync/api_config.dart';
 import '../../../core/widgets/account_switcher_button.dart';
 import '../providers/vlxd_providers.dart';
 import '../services/vlxd_seed_data.dart';
@@ -17,6 +16,7 @@ import 'vlxd_finance_screen.dart';
 import 'vlxd_dashboard_screen.dart';
 import 'vlxd_sales_report_screen.dart';
 import 'vlxd_reports_screen.dart';
+import 'vlxd_settings_screen.dart';
 
 class KanPosVNVlxdShell extends ConsumerStatefulWidget {
   const KanPosVNVlxdShell({super.key});
@@ -48,22 +48,53 @@ class _KanPosVNVlxdShellState extends ConsumerState<KanPosVNVlxdShell> {
     EmployeeRoles.cashier: const {'pos', 'finance', 'report', 'reports'},
     EmployeeRoles.sale: const {'pos', 'contracts', 'finance', 'report', 'reports', 'materials'},
     EmployeeRoles.warehouse: const {'inventory', 'materials', 'material_categories', 'pos'},
-    EmployeeRoles.accountant: const {'dashboard', 'finance', 'contracts', 'report', 'reports', 'materials', 'material_categories'},
+    EmployeeRoles.accountant: const {'dashboard', 'finance', 'contracts', 'report', 'reports', 'materials', 'material_categories', 'settings'},
+  };
+
+  /// Định nghĩa các tab của module (id, icon, label) — thứ tự hiển thị.
+  static final Map<String, ({IconData icon, String label})> _tabDefs = {
+    'dashboard': (icon: Icons.dashboard, label: 'Dashboard'),
+    'pos': (icon: Icons.point_of_sale, label: 'Bán Lẻ'),
+    'contracts': (icon: Icons.assignment, label: 'Hợp Đồng Sỉ'),
+    'material_categories': (icon: Icons.category, label: 'Nhóm VT'),
+    'materials': (icon: Icons.widgets, label: 'Vật tư'),
+    'inventory': (icon: Icons.inventory, label: 'Kho Hàng'),
+    'finance': (icon: Icons.account_balance_wallet, label: 'Thu Chi & Nợ'),
+    'report': (icon: Icons.bar_chart, label: 'Báo Cáo'),
+    'reports': (icon: Icons.folder_shared, label: 'Báo Cáo Chung'),
+    'employees': (icon: Icons.badge, label: 'Quản Lý NV'),
+    'settings': (icon: Icons.settings, label: 'Cài Đặt'),
+  };
+
+  static final Map<String, Widget Function()> _tabScreens = {
+    'dashboard': () => const VlxdDashboardScreen(),
+    'pos': () => const VlxdPosScreen(),
+    'contracts': () => const VlxdContractsScreen(),
+    'material_categories': () => const VlxdMaterialCategoriesScreen(),
+    'materials': () => const VlxdMaterialsScreen(),
+    'inventory': () => const VlxdInventoryScreen(),
+    'finance': () => const VlxdFinanceScreen(),
+    'report': () => const VlxdSalesReportScreen(),
+    'reports': () => const VlxdReportsScreen(),
+    'employees': () => EmployeeManagementScreen(
+      availableTabs: [
+        for (final e in _tabDefs.entries)
+          EmployeeTabOption(id: e.key, label: e.value.label),
+      ],
+      roleTabs: _roleTabs,
+    ),
+    'settings': () => const VlxdSettingsScreen(),
   };
 
   static final List<({String id, Widget screen, IconData icon, String label})>
       _allTabs = [
-    (id: 'dashboard', screen: const VlxdDashboardScreen(), icon: Icons.dashboard, label: 'Dashboard'),
-    (id: 'pos', screen: const VlxdPosScreen(), icon: Icons.point_of_sale, label: 'Bán Lẻ'),
-    (id: 'contracts', screen: const VlxdContractsScreen(), icon: Icons.assignment, label: 'Hợp Đồng Sỉ'),
-    (id: 'material_categories', screen: const VlxdMaterialCategoriesScreen(), icon: Icons.category, label: 'Nhóm VT'),
-    (id: 'materials', screen: const VlxdMaterialsScreen(), icon: Icons.widgets, label: 'Vật tư'),
-    (id: 'inventory', screen: const VlxdInventoryScreen(), icon: Icons.inventory, label: 'Kho Hàng'),
-    (id: 'finance', screen: const VlxdFinanceScreen(), icon: Icons.account_balance_wallet, label: 'Thu Chi & Nợ'),
-    (id: 'sync', screen: const VlxdSyncScreen(), icon: Icons.sync, label: 'Đồng Bộ'),
-    (id: 'report', screen: const VlxdSalesReportScreen(), icon: Icons.bar_chart, label: 'Báo Cáo'),
-    (id: 'reports', screen: const VlxdReportsScreen(), icon: Icons.folder_shared, label: 'Báo Cáo Chung'),
-    (id: 'employees', screen: const EmployeeManagementScreen(), icon: Icons.badge, label: 'Quản Lý NV'),
+    for (final e in _tabDefs.entries)
+      (
+        id: e.key,
+        screen: _tabScreens[e.key]!(),
+        icon: e.value.icon,
+        label: e.value.label,
+      ),
   ];
 
   @override
@@ -73,14 +104,18 @@ class _KanPosVNVlxdShellState extends ConsumerState<KanPosVNVlxdShell> {
     }
 
     final auth = ref.watch(authServiceProvider);
-    final tabs = _allTabs
-        .where((t) => EmployeeRolePolicy.isAllowed(
-              isManager: auth.isManager,
-              role: auth.employeeRole,
-              tabId: t.id,
-              roleTabs: _roleTabs,
-            ))
-        .toList();
+    final customTabs = auth.employeeAllowedTabs;
+    final tabs = _allTabs.where((t) {
+      if (auth.isManager) return true;
+      // Tùy chỉnh tab riêng cho nhân viên (Owner check/uncheck trong "Quản Lý NV").
+      if (customTabs != null) return customTabs.contains(t.id);
+      return EmployeeRolePolicy.isAllowed(
+        isManager: false,
+        role: auth.employeeRole,
+        tabId: t.id,
+        roleTabs: _roleTabs,
+      );
+    }).toList();
     final safeIndex = _selectedIndex < tabs.length ? _selectedIndex : 0;
 
     return Scaffold(
@@ -119,28 +154,6 @@ class _KanPosVNVlxdShellState extends ConsumerState<KanPosVNVlxdShell> {
             child: tabs[safeIndex].screen,
           ),
         ],
-      ),
-    );
-  }
-}
-
-class VlxdSyncScreen extends ConsumerWidget {
-  const VlxdSyncScreen({super.key});
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Đồng bộ Vercel Neon DB')),
-      body: Center(
-        child: ElevatedButton.icon(
-          icon: const Icon(Icons.cloud_sync),
-          label: const Text('Đồng bộ Dữ liệu'),
-          onPressed: () async {
-            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Đang đồng bộ...')));
-            final syncService = ref.read(vlxdNeonSyncServiceProvider);
-            await syncService.triggerSync(ApiConfig.baseUrl, ApiConfig.syncApiKey);
-            if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Đồng bộ hoàn tất!')));
-          },
-        ),
       ),
     );
   }

@@ -1,32 +1,50 @@
 import 'package:isar/isar.dart';
+import 'ride_user.dart'; // import for SyncStatus
 
 part 'ride_driver.g.dart';
 
 @collection
-class KanRideDriver {
-  Id isarId = Isar.autoIncrement;
+class RideDriver {
+  Id id = Isar.autoIncrement;
 
-  bool isSynced = false;
-  DateTime updatedAt = DateTime.now();
-  
   @Index(unique: true, replace: true)
-  String driverId = '';
+  String? uuid;
+
+  String? fullName;
+  String? phone;
+  String? avatarUrl;
   
-  String fullName = '';
-  String phone = '';
-  String avatar = '';
+  String? vehiclePlate;
+  @enumerated
+  VehicleType vehicleType = VehicleType.motorBike;
   
-  String vehicleLicensePlate = '';
-  String vehicleModel = '';
-  String vehicleTypeId = '';
+  double driverWalletBalance = 0.0;
   
-  double rating = 5.0;
+  @enumerated
+  DriverStatus status = DriverStatus.offline; 
   
   double? currentLat;
   double? currentLng;
   
-  bool isOnline = false;
-  String status = 'available'; // available, busy, offline
+  double averageRating = 5.0;
   
-  DateTime createdAt = DateTime.now();
+  DateTime? createdAt;
+  DateTime? updatedAt;
+  
+  @enumerated
+  SyncStatus syncStatus = SyncStatus.synced;
+}
+
+enum VehicleType {
+  motorBike, // Xe máy
+  evBike,    // Xe điện
+  car4Seats, // Ô tô 4 chỗ
+  car7Seats, // Ô tô 7 chỗ
+  delivery   // Giao hàng
+}
+
+enum DriverStatus {
+  online,   // Đang chờ cuốc
+  offline,  // Tắt app
+  busy      // Đang chở khách
 }

@@ -5,6 +5,8 @@ import '../providers/vlxd_providers.dart';
 import '../models/vlxd_product.dart';
 import '../models/vlxd_order.dart';
 import '../services/vlxd_receipt_printer.dart';
+import '../../../core/printer/printer_actions.dart';
+import '../../../core/printer/receipt_print_mode.dart';
 
 class VlxdPosScreen extends ConsumerStatefulWidget {
   const VlxdPosScreen({super.key});
@@ -49,7 +51,7 @@ class _VlxdPosScreenState extends ConsumerState<VlxdPosScreen> {
 
   double get _cartTotal => _cart.fold(0.0, (sum, item) => sum + item.total);
 
-  void _processPayment() async {
+  void _processPayment(ReceiptPrintMode mode) async {
     if (_cart.isEmpty) return;
 
     final order = VlxdOrder()
@@ -66,7 +68,16 @@ class _VlxdPosScreenState extends ConsumerState<VlxdPosScreen> {
 
     if (mounted) {
       try {
-        await printVlxdReceiptPdf(order, List<VlxdOrderDetail>.from(_cart));
+        await printReceiptByMode(
+          context,
+          ref,
+          await buildVlxdReceiptData(
+            order,
+            List<VlxdOrderDetail>.from(_cart),
+          ),
+          mode,
+          pdfFilename: 'HoaDon_${order.orderCode}.pdf',
+        );
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('In hóa đơn thất bại: $e')));
       }
@@ -217,11 +228,59 @@ class _VlxdPosScreenState extends ConsumerState<VlxdPosScreen> {
                         ],
                       ),
                       const SizedBox(height: 16),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: SizedBox(
+                              height: 44,
+                              child: ElevatedButton.icon(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.orange,
+                                  foregroundColor: Colors.white,
+                                ),
+                                onPressed: _cart.isEmpty
+                                    ? null
+                                    : () => _processPayment(
+                                          ReceiptPrintMode.thermal80,
+                                        ),
+                                icon: const Icon(Icons.print, size: 16),
+                                label: const Text('IN BILL 80mm',
+                                    style: TextStyle(
+                                        fontSize: 12, fontWeight: FontWeight.bold)),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: SizedBox(
+                              height: 44,
+                              child: ElevatedButton.icon(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.red,
+                                  foregroundColor: Colors.white,
+                                ),
+                                onPressed: _cart.isEmpty
+                                    ? null
+                                    : () => _processPayment(
+                                          ReceiptPrintMode.pdf,
+                                        ),
+                                icon: const Icon(Icons.picture_as_pdf, size: 16),
+                                label: const Text('IN PDF',
+                                    style: TextStyle(
+                                        fontSize: 12, fontWeight: FontWeight.bold)),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
                       SizedBox(
                         width: double.infinity,
                         height: 50,
                         child: ElevatedButton(
-                          onPressed: _cart.isEmpty ? null : _processPayment,
+                          onPressed: _cart.isEmpty
+                              ? null
+                              : () => _processPayment(ReceiptPrintMode.auto),
                           style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
                           child: const Text('Thanh Toán', style: TextStyle(fontSize: 18, color: Colors.white)),
                         ),

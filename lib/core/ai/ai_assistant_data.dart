@@ -39,8 +39,8 @@ const AiAssistantModuleData kFallbackAssistantData = AiAssistantModuleData(
     ),
     AiAssistantTopic(
       ['dong bo', 'đồng bộ', 'neon', 'sync', 'cloud', 'sao luu', 'sao lưu'],
-      'Bấm icon đồng bộ hoặc mở tab "Đồng bộ" để đẩy dữ liệu cục bộ lên Cloud '
-          '(Neon). Dữ liệu vẫn hoạt động offline qua Isar và tự đồng bộ khi có mạng.',
+      'Bấm icon đồng bộ để đẩy dữ liệu cục bộ lên Cloud. Dữ liệu vẫn hoạt động '
+          'offline và tự đồng bộ khi có mạng.',
     ),
   ],
 );

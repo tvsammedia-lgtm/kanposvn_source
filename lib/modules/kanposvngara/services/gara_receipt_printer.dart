@@ -4,9 +4,48 @@ import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 import 'package:qr/qr.dart';
 import '../../../core/auth/auth_service.dart';
+import '../../../core/printer/receipt_data.dart';
 import '../models/gara_repair_order.dart';
 
 final _currency = NumberFormat.currency(locale: 'vi_VN', symbol: 'đ');
+
+Future<ReceiptData> buildGaraReceiptData(
+  GaraRepairOrder order,
+  List<GaraRepairDetail> details,
+) async {
+  final storeName = await AuthService.loadSavedStoreName();
+  final storePhone = await AuthService.loadSavedStorePhone();
+  final customer = order.customer.value;
+  final vehicle = order.vehicle.value;
+  final vehicleDesc = vehicle == null
+      ? ''
+      : 'Xe: ${[vehicle.brand, vehicle.modelName].where((s) => s.isNotEmpty).join(' ')}'
+          '${vehicle.licensePlate.isNotEmpty ? ' - BS: ${vehicle.licensePlate}' : ''}';
+  return ReceiptData(
+    shopName: storeName ?? 'KANPOSVN GARA',
+    shopPhone: storePhone,
+    title: 'PHIẾU THANH TOÁN & GIAO XE',
+    orderCode: order.orderCode,
+    date: order.orderDate ?? DateTime.now(),
+    customer: customer?.name ?? '',
+    qrData: order.orderCode,
+    items: details
+        .map((d) => ReceiptItem(
+              name: d.product.value?.name ?? 'Hạng mục',
+              quantity: d.quantity,
+              unitPrice: d.unitPrice,
+              total: d.total,
+            ))
+        .toList(),
+    subtotal: order.subTotal,
+    grandTotal: order.totalAmount,
+    note: [
+      if (vehicleDesc.isNotEmpty) vehicleDesc,
+      if (order.paidAmount > 0)
+        'Đã thanh toán: ${_currency.format(order.paidAmount)}',
+    ].join('\n'),
+  );
+}
 
 Future<void> printGaraReceiptPdf(GaraRepairOrder order, List<GaraRepairDetail> details) async {
   final storeName = await AuthService.loadSavedStoreName();

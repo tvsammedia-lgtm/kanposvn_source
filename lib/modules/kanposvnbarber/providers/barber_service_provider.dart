@@ -14,6 +14,7 @@ import '../models/barber_product.dart';
 import '../services/barber_db_service.dart';
 import '../services/barber_ai_service.dart';
 import '../services/barber_sync_service.dart';
+import '../services/barber_einvoice_settings.dart';
 
 final barberIsarProvider = FutureProvider<Isar>((ref) async {
   final dir = await getApplicationDocumentsDirectory();
@@ -47,4 +48,12 @@ final barberAiServiceProvider = Provider<BarberAiService>((ref) {
 
 final barberSyncServiceProvider = Provider<BarberSyncService>((ref) {
   return BarberSyncService();
+});
+
+// Settings
+final barberEinvoiceSettingsProvider =
+    ChangeNotifierProvider<BarberEinvoiceSettingsStore>((ref) {
+  final store = BarberEinvoiceSettingsStore();
+  store.load();
+  return store;
 });

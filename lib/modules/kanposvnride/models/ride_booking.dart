@@ -1,34 +1,56 @@
 import 'package:isar/isar.dart';
+import 'ride_user.dart';
+import 'ride_driver.dart';
 
 part 'ride_booking.g.dart';
 
 @collection
-class KanRideBooking {
-  Id isarId = Isar.autoIncrement;
+class RideBooking {
+  Id id = Isar.autoIncrement;
 
-  bool isSynced = false;
-  DateTime updatedAt = DateTime.now();
-  
   @Index(unique: true, replace: true)
-  String bookingId = '';
+  String? uuid;
+
+  @Index()
+  String? passengerUuid;
   
-  String customerId = '';
-  String? driverId;
+  @Index()
+  String? driverUuid;
   
-  String pickupAddress = '';
-  double pickupLat = 0;
-  double pickupLng = 0;
+  String? pickupAddress;
+  double? pickupLat;
+  double? pickupLng;
   
-  String dropoffAddress = '';
-  double dropoffLat = 0;
-  double dropoffLng = 0;
+  String? dropoffAddress;
+  double? dropoffLat;
+  double? dropoffLng;
   
-  double distanceKm = 0;
-  double estimatedPrice = 0;
+  double distanceKm = 0.0;
+  double estimatedPrice = 0.0;
+  double finalPrice = 0.0;
   
-  String vehicleTypeId = '';
+  @enumerated
+  VehicleType requestedVehicleType = VehicleType.motorBike;
   
-  String status = 'pending'; // pending, accepted, in_progress, completed, cancelled
+  @enumerated
+  BookingStatus status = BookingStatus.findingDriver;
   
-  DateTime createdAt = DateTime.now();
+  bool isSharedRide = false; // Tính năng Ghép chuyến
+  
+  DateTime? createdAt;
+  DateTime? acceptedAt;
+  DateTime? pickupAt;
+  DateTime? completedAt;
+  
+  @enumerated
+  SyncStatus syncStatus = SyncStatus.pending; // Quan trọng cho Offline Mode
+}
+
+enum BookingStatus {
+  findingDriver, // Đang tìm tài xế
+  accepted,      // Tài xế đã nhận, đang di chuyển đến
+  arrived,       // Tài xế đã tới điểm đón
+  inProgress,    // Đang trên đường đi
+  completed,     // Đã đến nơi
+  cancelled      // Khách hoặc tài hủy
 }

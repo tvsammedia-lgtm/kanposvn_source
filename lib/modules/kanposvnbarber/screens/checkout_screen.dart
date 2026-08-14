@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../providers/pos_provider.dart';
-import '../services/invoice_print_service.dart';
+import '../../../core/printer/printer_actions.dart';
+import '../../../core/printer/receipt_data.dart';
+import '../../../core/printer/receipt_print_mode.dart';
 
 class CheckoutScreen extends ConsumerWidget {
-  const CheckoutScreen({Key? key}) : super(key: key);
+  const CheckoutScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -50,30 +52,42 @@ class CheckoutScreen extends ConsumerWidget {
             Row(
               children: [
                 Expanded(
-                  child: OutlinedButton.icon(
-                    icon: const Icon(Icons.print),
-                    label: const Text('IN HÓA ĐƠN'),
-                    style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16)),
-                    onPressed: () {
-                      InvoicePrintService.printInvoice(posState.invoice, posState.details);
-                    },
+                  child: ElevatedButton.icon(
+                    icon: const Icon(Icons.print, color: Colors.white),
+                    label: const Text('IN 80mm',
+                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                    style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        backgroundColor: Colors.orange),
+                    onPressed: () => _completePayment(
+                        context, ref, ReceiptPrintMode.thermal80),
                   ),
                 ),
-                const SizedBox(width: 16),
+                const SizedBox(width: 8),
                 Expanded(
                   child: ElevatedButton.icon(
-                    icon: const Icon(Icons.check_circle),
-                    label: const Text('HOÀN TẤT', style: TextStyle(color: Colors.white)),
+                    icon: const Icon(Icons.picture_as_pdf, color: Colors.white),
+                    label: const Text('IN PDF',
+                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                    style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        backgroundColor: Colors.red),
+                    onPressed: () =>
+                        _completePayment(context, ref, ReceiptPrintMode.pdf),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: ElevatedButton.icon(
+                    icon: const Icon(Icons.check_circle, color: Colors.white),
+                    label: const Text('HOÀN TẤT',
+                        style: TextStyle(color: Colors.white)),
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       backgroundColor: Colors.blue,
                     ),
-                    onPressed: () {
-                      // TODO: Lưu vào Database
-                      ref.read(posProvider.notifier).clearCart();
-                      Navigator.pop(context); // Trở về POS
-                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Thanh toán thành công!')));
-                    },
+                    onPressed: () =>
+                        _completePayment(context, ref, ReceiptPrintMode.auto),
                   ),
                 )
               ],
@@ -81,6 +95,54 @@ class CheckoutScreen extends ConsumerWidget {
           ],
         ),
       ),
+    );
+  }
+
+  Future<void> _completePayment(
+    BuildContext context,
+    WidgetRef ref,
+    ReceiptPrintMode mode,
+  ) async {
+    final posState = ref.read(posProvider);
+    final invoice = posState.invoice;
+    // TODO: Lưu vào Database
+    ref.read(posProvider.notifier).clearCart();
+    if (!context.mounted) return;
+    try {
+      await printReceiptByMode(
+        context,
+        ref,
+        ReceiptData(
+          shopName: 'KANPOS BARBER SHOP',
+          title: 'HÓA ĐƠN THANH TOÁN',
+          orderCode: invoice.invoiceId,
+          customer: invoice.customerName ?? 'Khách lẻ',
+          qrData: invoice.invoiceId,
+          items: posState.details
+              .map((d) => ReceiptItem(
+                    name: d.itemName,
+                    quantity: d.quantity,
+                    unitPrice: d.unitPrice,
+                    total: d.quantity * d.unitPrice,
+                  ))
+              .toList(),
+          subtotal: invoice.subTotal,
+          discount: invoice.discount,
+          grandTotal: invoice.total,
+        ),
+        mode,
+        pdfFilename: 'HoaDon_${invoice.invoiceId}.pdf',
+      );
+    } catch (e) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('In hóa đơn thất bại: $e')),
+      );
+    }
+    if (!context.mounted) return;
+    Navigator.pop(context); // Trở về POS
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Thanh toán thành công!')),
     );
   }
 

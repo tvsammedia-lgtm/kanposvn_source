@@ -4,12 +4,14 @@ import '../../../core/auth/employee_auth.dart';
 import '../../../core/auth/employee_management_screen.dart';
 import '../../../core/auth/employee_role_policy.dart';
 import '../../../core/providers.dart';
+import '../../../core/widgets/account_switcher_button.dart';
 import '../providers/bida_providers.dart';
 import '../services/bida_seed_data.dart';
 import 'bida_dashboard_screen.dart';
 import 'bida_tables_screen.dart';
 
 import 'bida_inventory_screen.dart';
+import 'bida_settings_screen.dart';
 
 class KanPosVNBidaShell extends ConsumerStatefulWidget {
   const KanPosVNBidaShell({super.key});
@@ -44,15 +46,41 @@ class _KanPosVNBidaShellState extends ConsumerState<KanPosVNBidaShell> {
     EmployeeRoles.cashier: const {'tables'},
     EmployeeRoles.sale: const {'tables'},
     EmployeeRoles.warehouse: const {'inventory'},
-    EmployeeRoles.accountant: const {'dashboard'},
+    EmployeeRoles.accountant: const {'dashboard', 'settings'},
+  };
+
+  /// Định nghĩa các tab của module (id, icon, label) — thứ tự hiển thị.
+  static final Map<String, ({IconData icon, String label})> _tabDefs = {
+    'tables': (icon: Icons.grid_view, label: 'Sơ đồ Bàn'),
+    'dashboard': (icon: Icons.dashboard, label: 'Dashboard'),
+    'inventory': (icon: Icons.inventory, label: 'Kho Hàng'),
+    'employees': (icon: Icons.badge, label: 'Quản Lý NV'),
+    'settings': (icon: Icons.settings, label: 'Cài Đặt'),
+  };
+
+  static final Map<String, Widget Function()> _tabScreens = {
+    'tables': () => const BidaTablesScreen(),
+    'dashboard': () => const BidaDashboardScreen(),
+    'inventory': () => const BidaInventoryScreen(),
+    'employees': () => EmployeeManagementScreen(
+      availableTabs: [
+        for (final e in _tabDefs.entries)
+          EmployeeTabOption(id: e.key, label: e.value.label),
+      ],
+      roleTabs: _roleTabs,
+    ),
+    'settings': () => const BidaSettingsScreen(),
   };
 
   static final List<({String id, Widget screen, IconData icon, String label})>
       _allTabs = [
-    (id: 'tables', screen: const BidaTablesScreen(), icon: Icons.grid_view, label: 'Sơ đồ Bàn'),
-    (id: 'dashboard', screen: const BidaDashboardScreen(), icon: Icons.dashboard, label: 'Dashboard'),
-    (id: 'inventory', screen: const BidaInventoryScreen(), icon: Icons.inventory, label: 'Kho Hàng'),
-    (id: 'employees', screen: const EmployeeManagementScreen(), icon: Icons.badge, label: 'Quản Lý NV'),
+    for (final e in _tabDefs.entries)
+      (
+        id: e.key,
+        screen: _tabScreens[e.key]!(),
+        icon: e.value.icon,
+        label: e.value.label,
+      ),
   ];
 
   @override
@@ -62,17 +90,30 @@ class _KanPosVNBidaShellState extends ConsumerState<KanPosVNBidaShell> {
     }
 
     final auth = ref.watch(authServiceProvider);
-    final tabs = _allTabs
-        .where((t) => EmployeeRolePolicy.isAllowed(
-              isManager: auth.isManager,
-              role: auth.employeeRole,
-              tabId: t.id,
-              roleTabs: _roleTabs,
-            ))
-        .toList();
+    final customTabs = auth.employeeAllowedTabs;
+    final tabs = _allTabs.where((t) {
+      if (auth.isManager) return true;
+      // Tùy chỉnh tab riêng cho nhân viên (Owner check/uncheck trong "Quản Lý NV").
+      if (customTabs != null) return customTabs.contains(t.id);
+      return EmployeeRolePolicy.isAllowed(
+        isManager: false,
+        role: auth.employeeRole,
+        tabId: t.id,
+        roleTabs: _roleTabs,
+      );
+    }).toList();
     final safeIndex = _selectedIndex < tabs.length ? _selectedIndex : 0;
 
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: auth.currentModule?.color ?? const Color(0xFF059669),
+        foregroundColor: Colors.white,
+        title: const Text('KanPosVN - Quản Lý Bida',
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+        actions: const [
+          AccountSwitcherButton(foregroundColor: Colors.white),
+        ],
+      ),
       body: Row(
         children: [
           NavigationRail(

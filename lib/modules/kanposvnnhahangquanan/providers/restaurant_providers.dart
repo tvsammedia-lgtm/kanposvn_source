@@ -4,8 +4,17 @@ import '../models/restaurant_table.dart';
 import '../models/restaurant_menu_item.dart';
 import '../models/restaurant_order.dart';
 import '../services/restaurant_isar_service.dart';
+import '../services/restaurant_einvoice_settings.dart';
 
 final restaurantIsarServiceProvider = Provider((ref) => RestaurantIsarService());
+
+// Settings
+final restaurantEinvoiceSettingsProvider =
+    ChangeNotifierProvider<RestaurantEinvoiceSettingsStore>((ref) {
+  final store = RestaurantEinvoiceSettingsStore();
+  store.load();
+  return store;
+});
 
 // Tables
 class RestaurantTablesNotifier extends StateNotifier<AsyncValue<List<RestaurantTable>>> {

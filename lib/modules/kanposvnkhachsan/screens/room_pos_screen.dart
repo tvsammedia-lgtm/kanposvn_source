@@ -7,6 +7,9 @@ import '../models/hotel_room.dart';
 import '../models/hotel_service.dart';
 import '../providers/hotel_providers.dart';
 import '../services/hotel_billing_service.dart';
+import '../../../core/printer/printer_actions.dart';
+import '../../../core/printer/receipt_data.dart';
+import '../../../core/printer/receipt_print_mode.dart';
 
 class RoomPosScreen extends ConsumerStatefulWidget {
   final HotelRoom room;
@@ -263,6 +266,49 @@ class _RoomPosScreenState extends ConsumerState<RoomPosScreen> {
                           ],
                         ),
                         const SizedBox(height: 12),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: ElevatedButton.icon(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.orange,
+                                ),
+                                onPressed: () => _completeCheckout(
+                                  roomCharge,
+                                  serviceTotal,
+                                  mode: ReceiptPrintMode.thermal80,
+                                ),
+                                icon: const Icon(Icons.print, color: Colors.white, size: 16),
+                                label: const Text('IN BILL 80mm',
+                                    style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.bold)),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: ElevatedButton.icon(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.red,
+                                ),
+                                onPressed: () => _completeCheckout(
+                                  roomCharge,
+                                  serviceTotal,
+                                  mode: ReceiptPrintMode.pdf,
+                                ),
+                                icon: const Icon(Icons.picture_as_pdf,
+                                    color: Colors.white, size: 16),
+                                label: const Text('IN PDF',
+                                    style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.bold)),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
                         SizedBox(
                           width: double.infinity,
                           height: 56,
@@ -283,6 +329,65 @@ class _RoomPosScreenState extends ConsumerState<RoomPosScreen> {
         ],
       ),
     );
+  }
+
+  Future<void> _completeCheckout(
+    double roomCharge,
+    double serviceTotal, {
+    double discount = 0,
+    ReceiptPrintMode mode = ReceiptPrintMode.auto,
+  }) async {
+    await ref.read(hotelCheckInsProvider.notifier).checkout(
+          widget.checkIn,
+          roomTotalCharge: roomCharge,
+          discount: discount,
+        );
+    ref.read(hotelRoomsProvider.notifier).loadRooms();
+
+    final orderItems = ref.read(hotelOrderItemsProvider(widget.checkIn.id));
+    final items = orderItems.maybeWhen(
+      data: (list) => list
+          .map((oi) => ReceiptItem(
+                name: oi.serviceItem.value?.itemName ?? '',
+                quantity: oi.quantity.toDouble(),
+                unitPrice: oi.unitPrice,
+                total: oi.totalPrice,
+              ))
+          .toList(),
+      orElse: () => <ReceiptItem>[],
+    );
+
+    try {
+      await printReceiptByMode(
+        context,
+        ref,
+        ReceiptData(
+          shopName: 'KANPOSVN KHÁCH SẠN',
+          title: 'HÓA ĐƠN THANH TOÁN',
+          orderCode: widget.checkIn.checkInId.length > 8
+              ? widget.checkIn.checkInId.substring(0, 8)
+              : widget.checkIn.checkInId,
+          date: DateTime.now(),
+          customer: widget.checkIn.customerName.isEmpty
+              ? 'Khách vãng lai'
+              : widget.checkIn.customerName,
+          table: 'Phòng ${widget.room.roomName}',
+          qrData: widget.checkIn.checkInId,
+          items: items,
+          subtotal: roomCharge + serviceTotal,
+          discount: discount,
+          grandTotal: roomCharge + serviceTotal - discount,
+        ),
+        mode,
+        pdfFilename: 'HoaDon_${widget.checkIn.checkInId.substring(0, 8)}.pdf',
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('In hóa đơn thất bại: $e')),
+      );
+    }
+    if (mounted) Navigator.of(context).pop();
   }
 
   Future<void> _checkout(double roomCharge, double serviceTotal) async {
@@ -322,13 +427,12 @@ class _RoomPosScreenState extends ConsumerState<RoomPosScreen> {
     if (confirmed != true) return;
 
     final discount = double.tryParse(controller.text) ?? 0;
-    await ref.read(hotelCheckInsProvider.notifier).checkout(
-          widget.checkIn,
-          roomTotalCharge: roomCharge,
-          discount: discount,
-        );
-    ref.read(hotelRoomsProvider.notifier).loadRooms();
-    if (mounted) Navigator.of(context).pop();
+    await _completeCheckout(
+      roomCharge,
+      serviceTotal,
+      discount: discount,
+      mode: ReceiptPrintMode.auto,
+    );
   }
 
   String _fmt(DateTime t) =>

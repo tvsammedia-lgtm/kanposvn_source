@@ -20,6 +20,14 @@ class AuthService extends ChangeNotifier {
   static const _kExpiresAtKey = 'auth_expires_at';
   static const _kEmployeeKey = 'auth_employee';
   static const _kOwnerHasLoggedInKey = 'auth_owner_logged_in';
+  /// Danh sách module của CỬA HÀNG (Owner được cấp quyền) — bền vững, không bị
+  /// xóa khi đăng xuất. Login nhân viên quét danh sách này để tìm tài khoản
+  /// trong từng module ("Quản lý nhân viên" của module đó).
+  static const _kStoreModulesKey = 'auth_store_modules';
+  /// Danh sách module nhân viên NỘI BỘ đang đăng nhập được phép vào (các module
+  /// mà Owner đã tạo user local cho họ). Riêng cho phiên employee, không ghi đè
+  /// lên `_kStoreModulesKey` (danh sách cửa hàng).
+  static const _kEmployeeModulesKey = 'auth_employee_modules';
 
   /// App code dùng cho license của cửa hàng (đăng ký qua Web/Zalo).
   static const String storeLicenseAppCode = 'pos';
@@ -41,6 +49,16 @@ class AuthService extends ChangeNotifier {
 
   /// Role nội bộ: Manager / Thu ngân / Bán hàng / Kho / Kế toán.
   String? get employeeRole => _employee?['role']?.toString();
+
+  /// Danh sách tab (tab bar) nhân viên nội bộ được phép sử dụng trong module
+  /// đang mở — do Owner check/uncheck trong "Quản lý NV".
+  ///
+  /// `null` = dùng mặc định theo role; khác `null` = ghi đè chính xác.
+  List<String>? get employeeAllowedTabs {
+    final raw = _employee?['allowedTabs'];
+    if (raw is List) return raw.map((e) => e.toString()).toList();
+    return null;
+  }
 
   /// Tên hiển thị của tài khoản đang đăng nhập (employee nội bộ hoặc user Cloud).
   String get displayName {
@@ -87,6 +105,13 @@ class AuthService extends ChangeNotifier {
 
   /// App code module cửa hàng đã chọn lúc đăng ký (vd: kanposvnvlxd).
   String? get storeAppCode => _storeAppCode;
+
+  /// Các module mà cửa hàng (Owner đăng nhập Cloud) được cấp quyền.
+  ///
+  /// Dùng cho tài khoản nhân viên (Cấp 2): nhân viên có thể vào NHIỀU module
+  /// của cửa hàng, không chỉ module mặc định (`defaultStoreModule`).
+  List<AppModule> _storeModules = [];
+  List<AppModule> get storeModules => List.unmodifiable(_storeModules);
 
   /// Module mặc định hiển thị cho cửa hàng (theo ngành đã chọn lúc đăng ký).
   AppModule get defaultStoreModule {
@@ -165,6 +190,14 @@ class AuthService extends ChangeNotifier {
         _licenseExpiresAt = data['expiresAt'] != null
             ? DateTime.tryParse(data['expiresAt'].toString())
             : null;
+        // Cửa hàng: lưu danh sách module Owner được quyền để nhân viên (Cấp 2)
+        // vào được nhiều module, không chỉ module mặc định của cửa hàng.
+        if (_storeId != null) {
+          _storeModules =
+              AppModule.values.where((m) => canLoginTo(m)).toList();
+        } else {
+          _storeModules = [];
+        }
         if (module != null) {
           _currentModule = module;
           _currentAppCode = module.appCode;
@@ -202,6 +235,7 @@ class AuthService extends ChangeNotifier {
     required String storeId,
     required String storeAppCode,
     required Map<String, dynamic> employee,
+    List<String>? moduleAppCodes,
   }) async {
     _token = null;
     _user = null;
@@ -213,6 +247,25 @@ class AuthService extends ChangeNotifier {
     _storeAppCode = storeAppCode;
     _isStoreTrial = false;
     _licenseExpiresAt = null;
+    // Nhân viên chỉ được vào các module mà Owner đã tạo user local cho họ trong
+    // "Quản lý nhân viên" của module đó. Ưu tiên danh sách module tìm được lúc
+    // đăng nhập; fallback về danh sách module employee đã lưu (dữ liệu cũ).
+    if (moduleAppCodes != null && moduleAppCodes.isNotEmpty) {
+      _storeModules = moduleAppCodes
+          .map((c) => _moduleFromAppCode(c))
+          .whereType<AppModule>()
+          .toList();
+    } else {
+      final prefs = await SharedPreferences.getInstance();
+      var savedCodes = prefs.getStringList(_kEmployeeModulesKey) ?? const [];
+      if (savedCodes.isEmpty) {
+        savedCodes = prefs.getStringList(_kStoreModulesKey) ?? const [];
+      }
+      _storeModules = savedCodes
+          .map((c) => _moduleFromAppCode(c))
+          .whereType<AppModule>()
+          .toList();
+    }
     await _persistSession();
     notifyListeners();
     return true;
@@ -229,6 +282,9 @@ class AuthService extends ChangeNotifier {
   }
 
   AppModule? findMatchingModule() {
+    // Tài khoản nội bộ luôn phải đi qua màn hình chọn module trước khi vào
+    // bán hàng — không tự chọn/thẳng vào module như tài khoản Cloud.
+    if (isEmployeeLogin) return null;
     if (_currentModule != null && canLoginTo(_currentModule!)) {
       return _currentModule;
     }
@@ -293,6 +349,12 @@ class AuthService extends ChangeNotifier {
   }
 
   bool canLoginTo(AppModule module) {
+    // Tài khoản nội bộ (Cấp 2): vào được các module cửa hàng đã được cấp quyền
+    // (nếu có), nếu không thì chỉ module mặc định của cửa hàng.
+    if (isEmployeeLogin) {
+      if (_storeModules.isNotEmpty) return _storeModules.contains(module);
+      return module == defaultStoreModule;
+    }
     return _permissions.any(
       (p) =>
           p['can_login'] == true &&
@@ -301,6 +363,10 @@ class AuthService extends ChangeNotifier {
   }
 
   String getRoleFor(AppModule module) {
+    if (isEmployeeLogin) {
+      if (!canLoginTo(module)) return '';
+      return employeeRole ?? '';
+    }
     final perm = _permissions.firstWhere(
       (p) => _matchesAppCode(module, p['app_code']?.toString()),
       orElse: () => {},
@@ -309,6 +375,12 @@ class AuthService extends ChangeNotifier {
   }
 
   List<AppModule> get accessibleModules {
+    // Tài khoản nội bộ: các module cửa hàng được cấp quyền (nhiều module),
+    // fallback về đúng 1 module cửa hàng theo app code đã đăng ký.
+    if (isEmployeeLogin) {
+      if (_storeModules.isNotEmpty) return List.unmodifiable(_storeModules);
+      return [defaultStoreModule];
+    }
     return AppModule.values.where((m) => canLoginTo(m)).toList();
   }
 
@@ -337,6 +409,7 @@ class AuthService extends ChangeNotifier {
     _storeName = null;
     _storePhone = null;
     _storeAppCode = null;
+    _storeModules = [];
     _isStoreTrial = false;
     _licenseExpiresAt = null;
     await _clearSession();
@@ -365,6 +438,14 @@ class AuthService extends ChangeNotifier {
         final employeeJson = prefs.getString(_kEmployeeKey);
         if (employeeJson != null && _storeId != null) {
           _employee = Map<String, dynamic>.from(jsonDecode(employeeJson));
+          var savedCodes = prefs.getStringList(_kEmployeeModulesKey) ?? const [];
+          if (savedCodes.isEmpty) {
+            savedCodes = prefs.getStringList(_kStoreModulesKey) ?? const [];
+          }
+          _storeModules = savedCodes
+              .map((c) => _moduleFromAppCode(c))
+              .whereType<AppModule>()
+              .toList();
           if (_storeAppCode != null) {
             final restoredModule = _moduleFromAppCode(_storeAppCode!);
             _currentModule = restoredModule;
@@ -387,6 +468,18 @@ class AuthService extends ChangeNotifier {
       _permissions = savedPermissions
           .map((e) => Map<String, dynamic>.from(e as Map<String, dynamic>))
           .toList();
+      // Cửa hàng: suy lại danh sách module từ quyền Cloud đã lưu (luôn đồng bộ).
+      if (_storeId != null) {
+        _storeModules = AppModule.values.where((m) => canLoginTo(m)).toList();
+        // Lưu lại để tài khoản nhân viên (Cấp 2) đọc được khi đăng nhập ngoại tuyến.
+        await prefs.setStringList(
+          _kStoreModulesKey,
+          _storeModules.map((m) => m.appCode).toList(),
+        );
+      } else {
+        _storeModules = [];
+        await prefs.remove(_kStoreModulesKey);
+      }
       _currentAppCode = currentAppCode;
       final restoredModule = _currentAppCode != null
           ? _moduleFromAppCode(_currentAppCode!)
@@ -442,6 +535,8 @@ class AuthService extends ChangeNotifier {
       // Owner/Store đã đăng nhập Cloud trên máy này: cờ bền vững cho phép
       // xác thực tài khoản nội bộ (Cấp 2) trong Isar của cửa hàng sau này.
       await prefs.setBool(_kOwnerHasLoggedInKey, true);
+      // Phiên employee cũ không còn hiệu lực khi Owner đăng nhập lại.
+      await prefs.remove(_kEmployeeModulesKey);
     }
     if (_currentAppCode != null) {
       await prefs.setString(_kCurrentAppCodeKey, _currentAppCode!);
@@ -468,6 +563,28 @@ class AuthService extends ChangeNotifier {
     } else {
       await prefs.remove(_kStoreAppCodeKey);
     }
+    if (_employee != null) {
+      // Phiên nhân viên: lưu module của RIÊNG employee, KHÔNG đụng đến
+      // `_kStoreModulesKey` (danh sách module cửa hàng cho login nhân viên khác).
+      if (_storeModules.isNotEmpty) {
+        await prefs.setStringList(
+          _kEmployeeModulesKey,
+          _storeModules.map((m) => m.appCode).toList(),
+        );
+      } else {
+        await prefs.remove(_kEmployeeModulesKey);
+      }
+    } else {
+      // Phiên Cloud (Owner): cập nhật danh sách module của cửa hàng.
+      if (_storeModules.isNotEmpty) {
+        await prefs.setStringList(
+          _kStoreModulesKey,
+          _storeModules.map((m) => m.appCode).toList(),
+        );
+      } else {
+        await prefs.remove(_kStoreModulesKey);
+      }
+    }
     await prefs.setBool(_kTrialKey, _isStoreTrial);
     if (_licenseExpiresAt != null) {
       await prefs.setString(_kExpiresAtKey, _licenseExpiresAt!.toIso8601String());
@@ -482,9 +599,13 @@ class AuthService extends ChangeNotifier {
     await prefs.remove(_kUserKey);
     await prefs.remove(_kPermissionsKey);
     await prefs.remove(_kEmployeeKey);
+    await prefs.remove(_kEmployeeModulesKey);
     await prefs.remove(_kCurrentAppCodeKey);
     await prefs.remove(_kTrialKey);
     await prefs.remove(_kExpiresAtKey);
+    // KHÔNG xóa _kStoreModulesKey: đây là dữ liệu CỬA HÀNG (danh sách module
+    // Owner được cấp quyền), phải giữ để tài khoản nhân viên (Cấp 2) vẫn quét
+    // được các module sau khi Owner đăng xuất — tương tự _kStoreIdKey.
   }
 
   AppModule? _moduleFromAppCode(String appCode) {
@@ -522,6 +643,15 @@ class AuthService extends ChangeNotifier {
   static Future<String?> loadSavedStoreAppCode() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString(_kStoreAppCodeKey);
+  }
+
+  /// Danh sách app code các module cửa hàng được cấp quyền, đã lưu trên máy.
+  ///
+  /// Dùng khi đăng nhập tài khoản nhân viên nội bộ để quét tìm tài khoản
+  /// trong từng module ("Quản lý nhân viên" của module đó).
+  static Future<List<String>> loadSavedStoreModules() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getStringList(_kStoreModulesKey) ?? const [];
   }
 
   /// Owner đã từng đăng nhập Cloud trên máy này hay chưa.

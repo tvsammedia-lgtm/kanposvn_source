@@ -41,7 +41,7 @@ class CafeNeonSyncService {
         addLog(
           'Đồng bộ Pull',
           false,
-          'Vercel Endpoint trả về HTTP ${response.statusCode}',
+          'Endpoint đồng bộ trả về HTTP ${response.statusCode}',
         );
         return;
       }
@@ -50,7 +50,7 @@ class CafeNeonSyncService {
       final records = (res['records'] as List<dynamic>?) ?? [];
 
       if (records.isEmpty) {
-        addLog('Đồng bộ Pull', true, 'Không có dữ liệu mới từ Neon DB');
+        addLog('Đồng bộ Pull', true, 'Không có dữ liệu mới từ Cloud');
         return;
       }
 
@@ -82,7 +82,7 @@ class CafeNeonSyncService {
           // ignore merge errors
         }
       }
-      addLog('Đồng bộ Pull', true, 'Đã merge $merged/${records.length} bản ghi từ Neon DB');
+      addLog('Đồng bộ Pull', true, 'Đã merge $merged/${records.length} bản ghi từ Cloud');
     } catch (e) {
       addLog(
         'Đồng bộ Pull',
@@ -107,23 +107,23 @@ class CafeNeonSyncService {
 
       if (response.statusCode == 200) {
         addLog(
-          'Kiểm tra kết nối Vercel API',
+          'Kiểm tra kết nối Cloud',
           true,
-          'Kết nối Vercel API & Neon DB thành công!',
+          'Kết nối Cloud thành công!',
         );
         return true;
       } else {
         // Fallback simulation mode indicator if server endpoint is offline
         addLog(
-          'Kiểm tra kết nối Vercel API',
+          'Kiểm tra kết nối Cloud',
           false,
-          'Vercel Endpoint trả về HTTP ${response.statusCode}',
+          'Endpoint đồng bộ trả về HTTP ${response.statusCode}',
         );
         return false;
       }
     } catch (e) {
       addLog(
-        'Kiểm tra kết nối Vercel API',
+        'Kiểm tra kết nối Cloud',
         false,
         'Lỗi kết nối hoặc ngoại mạng: $e (Sẽ chạy chế độ Offline First)',
       );
@@ -139,7 +139,7 @@ class CafeNeonSyncService {
       addLog(
         'Bắt đầu đồng bộ',
         true,
-        'Đang gửi bản ghi từ Isar SyncQueue lên Vercel Serverless API...',
+        'Đang gửi bản ghi lên Cloud...',
       );
 
       final pendingItems = _db.syncQueue
@@ -150,7 +150,7 @@ class CafeNeonSyncService {
         addLog(
           'Đồng bộ Push',
           true,
-          'Không có thay đổi nào mới cần đẩy lên Vercel API',
+          'Không có thay đổi nào mới cần đẩy lên Cloud',
         );
       } else {
         // Prepare Push Payload
@@ -192,7 +192,7 @@ class CafeNeonSyncService {
             addLog(
               'Đồng bộ Push',
               false,
-              'Vercel Endpoint trả về HTTP ${res.statusCode}',
+              'Endpoint đồng bộ trả về HTTP ${res.statusCode}',
             );
           }
         } catch (e) {
@@ -210,13 +210,13 @@ class CafeNeonSyncService {
           addLog(
             'Đồng bộ Push thành công',
             true,
-            'Đã đẩy thành công ${pendingItems.length} thao tác lên Neon DB',
+            'Đã đẩy thành công ${pendingItems.length} thao tác lên Cloud',
           );
         } else {
           addLog(
             'Đồng bộ Push',
             false,
-            'Đẩy lên thất bại: ${pendingItems.length} thao tác giữ trong Isar SyncQueue',
+            'Đẩy lên thất bại: ${pendingItems.length} thao tác giữ trong hàng chờ',
           );
         }
       }
@@ -225,7 +225,7 @@ class CafeNeonSyncService {
       addLog(
         'Đồng bộ Pull',
         true,
-        'Đang kiểm tra dữ liệu mới từ Vercel API / Neon DB...',
+        'Đang kiểm tra dữ liệu mới từ Cloud...',
       );
       await _pullChanges(config);
       final updatedConfig = config.copyWith(lastSyncedAt: DateTime.now());

@@ -160,40 +160,64 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     try {
       final storeId = await AuthService.loadSavedStoreId();
       if (storeId == null) return null;
-      var appCode = await AuthService.loadSavedStoreAppCode();
-      appCode ??= ref.read(authServiceProvider).defaultStoreModule.appCode;
+      final auth = ref.read(authServiceProvider);
 
-      final result = await EmployeeAuthService.login(
-        storeId: storeId,
-        storeAppCode: appCode,
-        username: identifier,
-        password: password,
-      );
-      if (result == EmployeeLoginResult.notFound) return null;
-      if (result == EmployeeLoginResult.inactive) return 'Tài khoản đã bị khóa';
-      if (result == EmployeeLoginResult.wrongPassword) {
+      // Nhân viên phải được Owner tạo user local trong "Quản lý nhân viên" của
+      // module đó mới login được. Quét qua TẤT CẢ module của cửa hàng để tìm
+      // tài khoản; nhân viên chỉ vào được các module mà họ có tài khoản.
+      var appCodes = await AuthService.loadSavedStoreModules();
+      if (appCodes.isEmpty) {
+        // Dữ liệu cũ (trước khi tạo tài khoản theo module): quét app code
+        // cửa hàng + module mặc định để không phá luồng đăng nhập cũ.
+        final savedAppCode = await AuthService.loadSavedStoreAppCode();
+        appCodes = <String?>[savedAppCode, auth.defaultStoreModule.appCode]
+            .whereType<String>()
+            .toSet()
+            .toList();
+      }
+
+      final foundAppCodes = <String>[];
+      EmployeeLoginResult? blocked;
+      for (final appCode in appCodes) {
+        final result = await EmployeeAuthService.login(
+          storeId: storeId,
+          storeAppCode: appCode,
+          username: identifier,
+          password: password,
+        );
+        if (result == EmployeeLoginResult.success) {
+          foundAppCodes.add(appCode);
+        } else if (result != EmployeeLoginResult.notFound) {
+          blocked ??= result;
+        }
+      }
+
+      if (foundAppCodes.isNotEmpty) {
+        final employee = await EmployeeAuthService.findByUsername(
+          storeId: storeId,
+          storeAppCode: foundAppCodes.first,
+          username: identifier,
+        );
+        if (employee == null) return null;
+        await auth.employeeSignIn(
+          storeId: storeId,
+          storeAppCode: foundAppCodes.first,
+          employee: employee.toJson(),
+          moduleAppCodes: foundAppCodes,
+        );
+        final db = ref.read(databaseServiceProvider);
+        await db.initStore(storeId: storeId, module: auth.defaultStoreModule);
+        // KHÔNG đặt selectedModule ở đây: để main.dart / ModuleSelectorScreen
+        // quyết định, luôn hiện màn hình chọn module trước khi vào bán hàng.
+        return null;
+      }
+      if (blocked == EmployeeLoginResult.inactive) {
+        return 'Tài khoản đã bị khóa';
+      }
+      if (blocked == EmployeeLoginResult.wrongPassword) {
         return 'Mật khẩu không đúng';
       }
-
-      // Thành công: khôi phục phiên nội bộ + khởi tạo DB cửa hàng.
-      final auth = ref.read(authServiceProvider);
-      final db = ref.read(databaseServiceProvider);
-      final employee = await EmployeeAuthService.findByUsername(
-        storeId: storeId,
-        storeAppCode: appCode,
-        username: identifier,
-      );
-      if (employee == null) return null;
-      await auth.employeeSignIn(
-        storeId: storeId,
-        storeAppCode: appCode,
-        employee: employee.toJson(),
-      );
-      await db.initStore(storeId: storeId, module: auth.defaultStoreModule);
-      if (mounted) {
-        ref.read(selectedModuleProvider.notifier).state =
-            auth.defaultStoreModule;
-      }
+      // Không có tài khoản nội bộ: chuyển sang đăng nhập Cloud (Owner/user khác).
       return null;
     } catch (e) {
       // Lỗi đọc DB cửa hàng: không chặn luồng Cloud, để Owner đăng nhập.
@@ -316,10 +340,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     color: AppColors.primary.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(18),
                   ),
-                  child: Icon(
-                    Icons.store_mall_directory,
-                    size: 36,
-                    color: AppColors.primaryLight,
+                  child: Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: Image.asset(
+                      'assets/images/logo.png',
+                      fit: BoxFit.contain,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 20),

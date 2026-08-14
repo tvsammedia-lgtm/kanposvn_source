@@ -7,6 +7,7 @@ import '../models/vlxd_partner.dart';
 import '../models/vlxd_product.dart';
 import '../models/vlxd_report_models.dart';
 import '../providers/vlxd_providers.dart';
+import '../services/vlxd_einvoice_settings.dart';
 import '../services/vlxd_report_service.dart';
 import '../widgets/crystal_report_widgets.dart';
 
@@ -91,10 +92,11 @@ class _VlxdReportsScreenState extends ConsumerState<VlxdReportsScreen> {
     try {
       name = await AuthService.loadSavedStoreName();
     } catch (_) {}
+    final einvoice = await VlxdEinvoiceSettingsStore.loadOnce();
     VlxdReportService.configureCompany(
-      name: name,
-      address: address,
-      taxCode: tax,
+      name: einvoice.companyName.isNotEmpty ? einvoice.companyName : name,
+      address: einvoice.address.isNotEmpty ? einvoice.address : address,
+      taxCode: einvoice.taxCode.isNotEmpty ? einvoice.taxCode : tax,
     );
     final db = await ref.read(vlxdIsarServiceProvider).db;
     _products = await db.vlxdProducts.where().findAll();

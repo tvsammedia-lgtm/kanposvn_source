@@ -18,7 +18,6 @@ const List<CafeTabDef> cafeTabDefs = [
   CafeTabDef(id: 'customers', label: 'KH & NCC'),
   CafeTabDef(id: 'purchase', label: 'Nhập hàng'),
   CafeTabDef(id: 'voucher', label: 'Phiếu Thu/Chi'),
-  CafeTabDef(id: 'sync_neon', label: 'Vercel Neon'),
   CafeTabDef(id: 'order_history', label: 'Tra cứu hóa đơn'),
   CafeTabDef(id: 'backup_restore', label: 'Backup/Restore'),
   CafeTabDef(id: 'sales_report', label: 'Báo Cáo Bán Hàng'),
@@ -26,4 +25,5 @@ const List<CafeTabDef> cafeTabDefs = [
   CafeTabDef(id: 'employees', label: 'Quản lý nhân viên'),
   CafeTabDef(id: 'permissions', label: 'Phân quyền'),
   CafeTabDef(id: 'einvoice', label: 'Hóa đơn điện tử'),
+  CafeTabDef(id: 'settings', label: 'Cài Đặt'),
 ];

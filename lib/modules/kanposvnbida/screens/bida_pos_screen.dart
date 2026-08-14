@@ -6,6 +6,9 @@ import '../providers/bida_providers.dart';
 import '../models/bida_table.dart';
 import '../models/bida_session.dart';
 import '../models/bida_item.dart';
+import '../../../core/printer/printer_actions.dart';
+import '../../../core/printer/receipt_data.dart';
+import '../../../core/printer/receipt_print_mode.dart';
 
 class BidaPosScreen extends ConsumerStatefulWidget {
   final BidaTable table;
@@ -127,6 +130,50 @@ class _BidaPosScreenState extends ConsumerState<BidaPosScreen> {
         );
       }
     );
+  }
+
+  Future<void> _completePayment(
+    BuildContext context,
+    BidaSession session,
+    double timeCost,
+    ReceiptPrintMode mode,
+  ) async {
+    ref.read(bidaSessionsProvider.notifier).checkoutSession(session, timeCost);
+    final total = timeCost + session.totalItemCost;
+    try {
+      await printReceiptByMode(
+        context,
+        ref,
+        ReceiptData(
+          shopName: 'KANPOSVN BIDA',
+          title: 'HÓA ĐƠN THANH TOÁN',
+          orderCode: session.sessionId.length > 8
+              ? session.sessionId.substring(0, 8)
+              : session.sessionId,
+          date: DateTime.now(),
+          table: widget.table.name,
+          qrData: session.sessionId,
+          items: session.orderLines
+              .map((line) => ReceiptItem(
+                    name: line.itemName,
+                    quantity: line.quantity.toDouble(),
+                    unitPrice: line.price,
+                    total: line.total,
+                  ))
+              .toList(),
+          subtotal: total,
+          grandTotal: total,
+        ),
+        mode,
+        pdfFilename: 'HoaDon_${session.sessionId.substring(0, 8)}.pdf',
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('In hóa đơn thất bại: $e')),
+      );
+    }
+    if (mounted) Navigator.pop(context);
   }
 
   @override
@@ -298,16 +345,69 @@ class _BidaPosScreenState extends ConsumerState<BidaPosScreen> {
                       ),
                       Padding(
                         padding: const EdgeInsets.all(16.0),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: ElevatedButton.icon(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.orange,
+                                  foregroundColor: Colors.white,
+                                ),
+                                onPressed: () => _completePayment(
+                                  context,
+                                  activeSession,
+                                  timeCost,
+                                  ReceiptPrintMode.thermal80,
+                                ),
+                                icon: const Icon(Icons.print, size: 16),
+                                label: const Text('IN BILL 80mm',
+                                    style: TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.bold)),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: ElevatedButton.icon(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.red,
+                                  foregroundColor: Colors.white,
+                                ),
+                                onPressed: () => _completePayment(
+                                  context,
+                                  activeSession,
+                                  timeCost,
+                                  ReceiptPrintMode.pdf,
+                                ),
+                                icon: const Icon(Icons.picture_as_pdf,
+                                    size: 16),
+                                label: const Text('IN PDF',
+                                    style: TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.bold)),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                         child: SizedBox(
                           width: double.infinity,
                           height: 60,
                           child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
-                            onPressed: () {
-                              ref.read(bidaSessionsProvider.notifier).checkoutSession(activeSession, timeCost);
-                              Navigator.pop(context);
-                            },
-                            child: const Text('THANH TOÁN', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                            style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.red,
+                                foregroundColor: Colors.white),
+                            onPressed: () => _completePayment(
+                              context,
+                              activeSession,
+                              timeCost,
+                              ReceiptPrintMode.auto,
+                            ),
+                            child: const Text('THANH TOÁN',
+                                style: TextStyle(
+                                    fontSize: 20, fontWeight: FontWeight.bold)),
                           ),
                         ),
                       )

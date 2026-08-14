@@ -37,6 +37,7 @@ class CafePermissionService {
           'voucher',
           'sales_report',
           'report_common',
+          'settings',
         },
       };
 

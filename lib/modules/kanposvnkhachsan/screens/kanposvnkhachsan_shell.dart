@@ -5,8 +5,8 @@ import '../../../core/auth/employee_auth.dart';
 import '../../../core/auth/employee_management_screen.dart';
 import '../../../core/auth/employee_role_policy.dart';
 import '../../../core/providers.dart';
-import '../../../core/router/module_selector_screen.dart';
 import '../../../core/sync/api_config.dart';
+import '../../../core/widgets/account_switcher_button.dart';
 import '../providers/hotel_providers.dart';
 import '../services/hotel_seed_data.dart';
 import 'rooms_screen.dart';
@@ -16,6 +16,7 @@ import 'hotel_services_screen.dart';
 import 'hotel_finance_screen.dart';
 import 'hotel_reports_screen.dart';
 import 'hotel_sync_screen.dart';
+import 'hotel_settings_screen.dart';
 
 class KanPosVNKhachSanShell extends ConsumerStatefulWidget {
   const KanPosVNKhachSanShell({super.key});
@@ -52,19 +53,49 @@ class _KanPosVNKhachSanShellState extends ConsumerState<KanPosVNKhachSanShell> {
     EmployeeRoles.cashier: const {'booking', 'checkin', 'services'},
     EmployeeRoles.sale: const {'booking', 'checkin'},
     EmployeeRoles.warehouse: const {'services'},
-    EmployeeRoles.accountant: const {'rooms', 'finance', 'reports'},
+    EmployeeRoles.accountant: const {'rooms', 'finance', 'reports', 'settings'},
+  };
+
+  /// Định nghĩa các tab của module (id, icon, label) — thứ tự hiển thị.
+  static final Map<String, ({IconData icon, String label})> _tabDefs = {
+    'rooms': (icon: Icons.grid_view, label: 'Sơ đồ phòng'),
+    'booking': (icon: Icons.book_online, label: 'Lễ tân / Đặt phòng'),
+    'checkin': (icon: Icons.login, label: 'Check-in/Out'),
+    'services': (icon: Icons.room_service, label: 'Dịch vụ'),
+    'finance': (icon: Icons.account_balance, label: 'Kế toán'),
+    'reports': (icon: Icons.description, label: 'Báo cáo chung'),
+    'sync': (icon: Icons.cloud_sync, label: 'Vercel Neon'),
+    'employees': (icon: Icons.badge, label: 'Quản Lý NV'),
+    'settings': (icon: Icons.settings, label: 'Cài Đặt'),
+  };
+
+  static final Map<String, Widget Function()> _tabScreens = {
+    'rooms': () => const RoomsScreen(),
+    'booking': () => const BookingScreen(),
+    'checkin': () => const CheckinCheckoutScreen(),
+    'services': () => const HotelServicesScreen(),
+    'finance': () => const HotelFinanceScreen(),
+    'reports': () => const HotelReportsScreen(),
+    'sync': () => const HotelSyncScreen(),
+    'employees': () => EmployeeManagementScreen(
+      availableTabs: [
+        for (final e in _tabDefs.entries)
+          EmployeeTabOption(id: e.key, label: e.value.label),
+      ],
+      roleTabs: _roleTabs,
+    ),
+    'settings': () => const HotelSettingsScreen(),
   };
 
   static final List<({String id, Widget screen, IconData icon, String label})>
-      _allTabs = const [
-    (id: 'rooms', screen: RoomsScreen(), icon: Icons.grid_view, label: 'Sơ đồ phòng'),
-    (id: 'booking', screen: BookingScreen(), icon: Icons.book_online, label: 'Lễ tân / Đặt phòng'),
-    (id: 'checkin', screen: CheckinCheckoutScreen(), icon: Icons.login, label: 'Check-in/Out'),
-    (id: 'services', screen: HotelServicesScreen(), icon: Icons.room_service, label: 'Dịch vụ'),
-    (id: 'finance', screen: HotelFinanceScreen(), icon: Icons.account_balance, label: 'Kế toán'),
-    (id: 'reports', screen: HotelReportsScreen(), icon: Icons.description, label: 'Báo cáo chung'),
-    (id: 'sync', screen: HotelSyncScreen(), icon: Icons.cloud_sync, label: 'Vercel Neon'),
-    (id: 'employees', screen: EmployeeManagementScreen(), icon: Icons.badge, label: 'Quản Lý NV'),
+      _allTabs = [
+    for (final e in _tabDefs.entries)
+      (
+        id: e.key,
+        screen: _tabScreens[e.key]!(),
+        icon: e.value.icon,
+        label: e.value.label,
+      ),
   ];
 
   @override
@@ -75,14 +106,18 @@ class _KanPosVNKhachSanShellState extends ConsumerState<KanPosVNKhachSanShell> {
 
     final isDesktop = MediaQuery.of(context).size.width > 800;
     final auth = ref.watch(authServiceProvider);
-    final tabs = _allTabs
-        .where((t) => EmployeeRolePolicy.isAllowed(
-              isManager: auth.isManager,
-              role: auth.employeeRole,
-              tabId: t.id,
-              roleTabs: _roleTabs,
-            ))
-        .toList();
+    final customTabs = auth.employeeAllowedTabs;
+    final tabs = _allTabs.where((t) {
+      if (auth.isManager) return true;
+      // Tùy chỉnh tab riêng cho nhân viên (Owner check/uncheck trong "Quản Lý NV").
+      if (customTabs != null) return customTabs.contains(t.id);
+      return EmployeeRolePolicy.isAllowed(
+        isManager: false,
+        role: auth.employeeRole,
+        tabId: t.id,
+        roleTabs: _roleTabs,
+      );
+    }).toList();
     final safeIndex = _selectedIndex < tabs.length ? _selectedIndex : 0;
 
     return Scaffold(
@@ -112,6 +147,7 @@ class _KanPosVNKhachSanShellState extends ConsumerState<KanPosVNKhachSanShell> {
           ],
         ),
         actions: [
+          const AccountSwitcherButton(foregroundColor: Colors.white),
           IconButton(
             icon: const Icon(Icons.sync),
             tooltip: 'Đồng bộ Neon DB',
@@ -127,14 +163,6 @@ class _KanPosVNKhachSanShellState extends ConsumerState<KanPosVNKhachSanShell> {
                   ),
                 );
               }
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.logout),
-            tooltip: 'Thoát',
-            onPressed: () async {
-              await ref.read(authServiceProvider).signOut();
-              ref.read(selectedModuleProvider.notifier).state = null;
             },
           ),
         ],

@@ -6,6 +6,7 @@ import 'package:uuid/uuid.dart';
 
 import '../services/hotel_isar_service.dart';
 import '../services/hotel_neon_sync_service.dart';
+import '../services/hotel_einvoice_settings.dart';
 import '../models/hotel_room.dart';
 import '../models/hotel_booking.dart';
 import '../models/hotel_checkin_checkout.dart';
@@ -19,6 +20,14 @@ final hotelIsarServiceProvider = Provider<HotelIsarService>((ref) {
 final hotelNeonSyncServiceProvider = Provider<HotelNeonSyncService>((ref) {
   final isarService = ref.watch(hotelIsarServiceProvider);
   return HotelNeonSyncService(isarService);
+});
+
+// Settings
+final hotelEinvoiceSettingsProvider =
+    ChangeNotifierProvider<HotelEinvoiceSettingsStore>((ref) {
+  final store = HotelEinvoiceSettingsStore();
+  store.load();
+  return store;
 });
 
 // Đồng hồ toàn cục tick mỗi giây để cập nhật timer tính tiền phòng

@@ -118,7 +118,7 @@ class CafeBackupRestoreService extends ChangeNotifier {
     Map<String, dynamic> data, {
     bool clearFirst = true,
   }) async {
-    _begin('Đang khôi phục Isar...');
+    _begin('Đang khôi phục dữ liệu cục bộ...');
     try {
       final collections =
           (data['collections'] as Map<String, dynamic>?) ?? const {};
@@ -130,7 +130,7 @@ class CafeBackupRestoreService extends ChangeNotifier {
         final items = (collections[name] as List?) ?? [];
         _report(
           names.isEmpty ? 0 : (i + 0.0) / names.length,
-          'Đang khôi phục Isar: $name (${items.length} bản ghi)...',
+          'Đang khôi phục dữ liệu cục bộ: $name (${items.length} bản ghi)...',
         );
         if (clearFirst) {
           await _db.clearCollection(name);
@@ -144,13 +144,13 @@ class CafeBackupRestoreService extends ChangeNotifier {
           if (items.length > 50 && j % 50 == 0) {
             _report(
               names.isEmpty ? 0 : (i + (j / items.length)) / names.length,
-              'Đang khôi phục Isar: $name ($j/${items.length})...',
+              'Đang khôi phục dữ liệu cục bộ: $name ($j/${items.length})...',
             );
           }
         }
       }
 
-      _report(1.0, 'Hoàn tất khôi phục Isar');
+      _report(1.0, 'Hoàn tất khôi phục dữ liệu cục bộ');
       return total;
     } finally {
       _end();
@@ -187,7 +187,7 @@ class CafeBackupRestoreService extends ChangeNotifier {
   // ===================== NEON BACKUP =====================
 
   Future<Map<String, dynamic>> exportNeon() async {
-    _begin('Đang tải dữ liệu từ Neon DB...');
+    _begin('Đang tải dữ liệu từ Cloud...');
     try {
       final config = _isarService.getSyncConfig();
       final uri = Uri.parse('${config.vercelApiUrl}/api/sync/export');
@@ -205,11 +205,11 @@ class CafeBackupRestoreService extends ChangeNotifier {
       final body = jsonDecode(utf8.decode(res.bodyBytes)) as Map<String, dynamic>;
       if (res.statusCode == 200 && body['success'] == true) {
         final count = (body['count'] ?? 0) as num;
-        _report(1.0, 'Đã tải ${count.toInt()} bản ghi từ Neon DB');
+        _report(1.0, 'Đã tải ${count.toInt()} bản ghi từ Cloud');
         return body;
       }
       throw Exception(
-        body['error'] ?? body['message'] ?? 'Export Neon thất bại (HTTP ${res.statusCode})',
+        body['error'] ?? body['message'] ?? 'Export Cloud thất bại (HTTP ${res.statusCode})',
       );
     } finally {
       _end();
@@ -217,7 +217,7 @@ class CafeBackupRestoreService extends ChangeNotifier {
   }
 
   Future<int> importNeon(Map<String, dynamic> data) async {
-    _begin('Đang đẩy dữ liệu lên Neon DB...');
+    _begin('Đang đẩy dữ liệu lên Cloud...');
     try {
       final config = _isarService.getSyncConfig();
       final collections = (data['collections'] as Map<String, dynamic>?) ?? {};
@@ -240,11 +240,11 @@ class CafeBackupRestoreService extends ChangeNotifier {
       final body = jsonDecode(utf8.decode(res.bodyBytes)) as Map<String, dynamic>;
       if (res.statusCode == 200 && body['success'] == true) {
         final count = (body['count'] ?? 0) as num;
-        _report(1.0, 'Đã import ${count.toInt()} bản ghi vào Neon DB');
+        _report(1.0, 'Đã import ${count.toInt()} bản ghi vào Cloud');
         return count.toInt();
       }
       throw Exception(
-        body['error'] ?? body['message'] ?? 'Import Neon thất bại (HTTP ${res.statusCode})',
+        body['error'] ?? body['message'] ?? 'Import Cloud thất bại (HTTP ${res.statusCode})',
       );
     } finally {
       _end();

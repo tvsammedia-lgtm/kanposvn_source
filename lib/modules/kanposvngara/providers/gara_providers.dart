@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:isar/isar.dart';
 import '../services/gara_isar_service.dart';
 import '../services/gara_neon_sync_service.dart';
+import '../services/gara_einvoice_settings.dart';
 import '../models/gara_product.dart';
 import '../models/gara_repair_order.dart';
 import '../models/gara_customer.dart';
@@ -20,6 +21,14 @@ final garaTabIndexProvider = StateProvider<int>((ref) => 0);
 final garaNeonSyncServiceProvider = Provider<GaraNeonSyncService>((ref) {
   final isarService = ref.watch(garaIsarServiceProvider);
   return GaraNeonSyncService(isarService);
+});
+
+// Settings
+final garaEinvoiceSettingsProvider =
+    ChangeNotifierProvider<GaraEinvoiceSettingsStore>((ref) {
+  final store = GaraEinvoiceSettingsStore();
+  store.load();
+  return store;
 });
 
 // Customers

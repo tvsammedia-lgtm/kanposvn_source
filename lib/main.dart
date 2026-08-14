@@ -19,6 +19,8 @@ import 'modules/kanposvngara/screens/kanposvngara_shell.dart';
 import 'modules/kanposvnnhathuoc/screens/kanposvnnhathuoc_shell.dart';
 import 'modules/kanposvnbanvevantai/screens/kanposvnbanvevantai_shell.dart';
 import 'modules/kanposvnbida/screens/kanposvnbida_shell.dart';
+import 'modules/kanposvnpawn/screens/kanposvnpawn_shell.dart';
+import 'modules/kanposvnbarber/screens/kanposvnbarber_shell.dart';
 import 'modules/kanposvnspa/screens/kanposvnspa_shell.dart';
 import 'modules/kanposvnnhahangquanan/screens/kanposvnnhahang_shell.dart';
 import 'modules/kanposvnqlcd/kanposvnqlcd_shell.dart';
@@ -90,7 +92,8 @@ class _KanPosVNAppState extends ConsumerState<KanPosVNApp> {
 
         if (auth.isAuthenticated && selectedModule == null) {
           // User đã chọn module trước đó → tiếp tục đúng module đó.
-          if (auth.currentModule != null) {
+          // (Tài khoản nội bộ vẫn phải qua màn hình chọn module.)
+          if (auth.currentModule != null && !auth.isEmployeeLogin) {
             if (auth.isStoreUser && auth.storeId != null) {
               await db.initStore(storeId: auth.storeId!, module: auth.currentModule!);
             } else {
@@ -109,7 +112,8 @@ class _KanPosVNAppState extends ConsumerState<KanPosVNApp> {
           }
 
           // Cửa hàng đăng ký qua Web/Zalo: vào thẳng POS, dùng DB riêng của cửa hàng.
-          if (auth.isStoreUser) {
+          // (Tài khoản nội bộ luôn phải qua màn hình chọn module trước.)
+          if (auth.isStoreUser && !auth.isEmployeeLogin) {
             final storeId = auth.storeId;
             if (storeId != null) {
               await db.initStore(
@@ -296,8 +300,12 @@ class _MainShell extends ConsumerWidget {
         return const KanPosVNBanvevantaiShell();
       case AppModuleType.kanposvnbida:
         return const KanPosVNBidaShell();
+      case AppModuleType.kanposvnpawn:
+        return const KanPosVnPawnShell();
       case AppModuleType.kanposvnspa:
         return const KanPosVNSpaShell();
+      case AppModuleType.kanposvnbarber:
+        return const KanPosVnBarberShell();
       case AppModuleType.kanposvnnhahangquanan:
         return const KanPosVNRestaurantShell();
       case AppModuleType.kanposvnqlcd:

@@ -43,27 +43,40 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
               return Card(
                 elevation: 2,
                 margin: const EdgeInsets.only(bottom: 12),
-                child: ListTile(
-                  leading: const CircleAvatar(
-                    backgroundColor: Colors.blue,
-                    child: Icon(Icons.person, color: Colors.white),
-                  ),
-                  title: Text('${booking.customerName} - ${booking.customerPhone}', style: const TextStyle(fontWeight: FontWeight.bold)),
-                  subtitle: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                child: Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      const SizedBox(height: 4),
-                      Text('Phòng: ${booking.room.value?.roomName ?? "Chưa chọn"}'),
-                      Text('Check-in: _formatDate(booking.expectedCheckIn)'), // Placeholder for date format
-                      Text('Trạng thái: ${booking.status.label}'),
+                      const CircleAvatar(
+                        backgroundColor: Colors.blue,
+                        child: Icon(Icons.person, color: Colors.white),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              '${booking.customerName} - ${booking.customerPhone}',
+                              style: const TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                            const SizedBox(height: 4),
+                            Text('Phòng: ${booking.room.value?.roomName ?? "Chưa chọn"}'),
+                            Text('Check-in: ${_formatDate(booking.expectedCheckIn)}'),
+                            Text('Trạng thái: ${booking.status.label}'),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      ElevatedButton(
+                        onPressed: () {
+                          // Check-in action
+                        },
+                        child: const Text('Check-in'),
+                      ),
                     ],
-                  ),
-                  isThreeLine: true,
-                  trailing: ElevatedButton(
-                    onPressed: () {
-                      // Check-in action
-                    },
-                    child: const Text('Check-in'),
                   ),
                 ),
               );
@@ -79,6 +92,13 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
         icon: const Icon(Icons.add),
       ),
     );
+  }
+
+  String _formatDate(DateTime? date) {
+    if (date == null) return 'Chưa xác định';
+    final d = date.toLocal();
+    return '${d.day.toString().padLeft(2, '0')}/'
+        '${d.month.toString().padLeft(2, '0')}/${d.year}';
   }
 
   void _showAddBookingDialog(BuildContext context, WidgetRef ref) {

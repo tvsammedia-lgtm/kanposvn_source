@@ -38,18 +38,18 @@ class _BackupRestoreScreenState extends ConsumerState<BackupRestoreScreen> {
     );
   }
 
-  // ===================== ISAR EXPORT =====================
+  // ===================== LOCAL EXPORT =====================
 
   Future<void> _exportIsar({required bool asZip}) async {
     try {
       final data = _service.buildIsarBackup();
       final count = _countRecords(data);
       final ext = asZip ? 'zip' : 'json';
-      final path = await _saveFile(_fileName('isar_backup', ext), [ext]);
+      final path = await _saveFile(_fileName('local_backup', ext), [ext]);
       if (path == null) return;
 
       if (asZip) {
-        final bytes = _service.buildZip(data, 'isar_backup');
+        final bytes = _service.buildZip(data, 'local_backup');
         await File(path).writeAsBytes(bytes);
       } else {
         await File(path).writeAsString(
@@ -58,40 +58,43 @@ class _BackupRestoreScreenState extends ConsumerState<BackupRestoreScreen> {
       }
 
       await _service.addLog(
-        'Backup Isar',
+        'Backup cục bộ',
         true,
         'Đã export ${asZip ? 'ZIP' : 'JSON'} $count bản ghi',
       );
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Đã export Isar ($ext): $count bản ghi'),
+            content: Text('Đã export dữ liệu cục bộ ($ext): $count bản ghi'),
             backgroundColor: Colors.green,
           ),
         );
       }
     } catch (e) {
-      await _service.addLog('Backup Isar', false, 'Lỗi: $e');
+      await _service.addLog('Backup cục bộ', false, 'Lỗi: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Lỗi export Isar: $e'), backgroundColor: Colors.red),
+          SnackBar(
+            content: Text('Lỗi export dữ liệu cục bộ: $e'),
+            backgroundColor: Colors.red,
+          ),
         );
       }
     }
   }
 
-  // ===================== NEON EXPORT =====================
+  // ===================== CLOUD EXPORT =====================
 
   Future<void> _exportNeon({required bool asZip}) async {
     try {
       final data = await _service.exportNeon();
       final count = _countRecords(data);
       final ext = asZip ? 'zip' : 'json';
-      final path = await _saveFile(_fileName('neon_backup', ext), [ext]);
+      final path = await _saveFile(_fileName('cloud_backup', ext), [ext]);
       if (path == null) return;
 
       if (asZip) {
-        final bytes = _service.buildZip(data, 'neon_backup');
+        final bytes = _service.buildZip(data, 'cloud_backup');
         await File(path).writeAsBytes(bytes);
       } else {
         await File(path).writeAsString(
@@ -100,23 +103,26 @@ class _BackupRestoreScreenState extends ConsumerState<BackupRestoreScreen> {
       }
 
       await _service.addLog(
-        'Backup Neon',
+        'Backup Cloud',
         true,
         'Đã export ${asZip ? 'ZIP' : 'JSON'} $count bản ghi',
       );
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Đã export Neon ($ext): $count bản ghi'),
+            content: Text('Đã export dữ liệu Cloud ($ext): $count bản ghi'),
             backgroundColor: Colors.green,
           ),
         );
       }
     } catch (e) {
-      await _service.addLog('Backup Neon', false, 'Lỗi: $e');
+      await _service.addLog('Backup Cloud', false, 'Lỗi: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Lỗi export Neon: $e'), backgroundColor: Colors.red),
+          SnackBar(
+            content: Text('Lỗi export dữ liệu Cloud: $e'),
+            backgroundColor: Colors.red,
+          ),
         );
       }
     }
@@ -142,7 +148,7 @@ class _BackupRestoreScreenState extends ConsumerState<BackupRestoreScreen> {
       final confirm = await showDialog<bool>(
         context: context,
         builder: (ctx) => AlertDialog(
-          title: Text(isNeon ? 'Xác nhận Restore Neon DB' : 'Xác nhận Restore Isar'),
+          title: Text(isNeon ? 'Xác nhận Restore Cloud' : 'Xác nhận Restore cục bộ'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -174,10 +180,10 @@ class _BackupRestoreScreenState extends ConsumerState<BackupRestoreScreen> {
 
       if (isNeon) {
         final n = await _service.importNeon(data);
-        await _service.addLog('Restore Neon', true, 'Đã restore $n bản ghi vào Neon DB');
+        await _service.addLog('Restore Cloud', true, 'Đã restore $n bản ghi vào Cloud');
       } else {
         final n = await _service.restoreIsar(data);
-        await _service.addLog('Restore Isar', true, 'Đã restore $n bản ghi vào Isar');
+        await _service.addLog('Restore cục bộ', true, 'Đã restore $n bản ghi vào dữ liệu cục bộ');
       }
 
       if (mounted) {
@@ -185,8 +191,8 @@ class _BackupRestoreScreenState extends ConsumerState<BackupRestoreScreen> {
           SnackBar(
             content: Text(
               isNeon
-                  ? 'Đã restore $count bản ghi vào Neon DB!'
-                  : 'Đã restore $count bản ghi vào Isar!',
+                  ? 'Đã restore $count bản ghi vào Cloud!'
+                  : 'Đã restore $count bản ghi vào dữ liệu cục bộ!',
             ),
             backgroundColor: Colors.green,
           ),
@@ -194,7 +200,7 @@ class _BackupRestoreScreenState extends ConsumerState<BackupRestoreScreen> {
       }
     } catch (e) {
       await _service.addLog(
-        isNeon ? 'Restore Neon' : 'Restore Isar',
+        isNeon ? 'Restore Cloud' : 'Restore cục bộ',
         false,
         'Lỗi: $e',
       );
@@ -202,7 +208,7 @@ class _BackupRestoreScreenState extends ConsumerState<BackupRestoreScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              'Lỗi restore ${isNeon ? 'Neon' : 'Isar'}: $e',
+              'Lỗi restore ${isNeon ? 'Cloud' : 'dữ liệu cục bộ'}: $e',
               maxLines: 3,
             ),
             backgroundColor: Colors.red,
@@ -229,27 +235,27 @@ class _BackupRestoreScreenState extends ConsumerState<BackupRestoreScreen> {
               const SizedBox(height: 16),
             ],
             _buildSection(
-              title: 'Isar (Local - Offline)',
+              title: 'Dữ liệu cục bộ (Offline)',
               icon: Icons.storage,
               color: const Color(0xFF0EA5E9),
               children: [
                 _buildActionCard(
                   title: 'Export JSON',
-                  subtitle: 'Sao lưu toàn bộ dữ liệu Isar ra file JSON',
+                  subtitle: 'Sao lưu toàn bộ dữ liệu cục bộ ra file JSON',
                   icon: Icons.upload_file,
                   color: Colors.green,
                   onTap: () => _exportIsar(asZip: false),
                 ),
                 _buildActionCard(
                   title: 'Export ZIP',
-                  subtitle: 'Sao lưu dữ liệu Isar ra file ZIP nén',
+                  subtitle: 'Sao lưu dữ liệu cục bộ ra file ZIP nén',
                   icon: Icons.archive,
                   color: Colors.brown,
                   onTap: () => _exportIsar(asZip: true),
                 ),
                 _buildActionCard(
-                  title: 'Restore Isar',
-                  subtitle: 'Khôi phục dữ liệu Isar từ file JSON/ZIP',
+                  title: 'Restore cục bộ',
+                  subtitle: 'Khôi phục dữ liệu cục bộ từ file JSON/ZIP',
                   icon: Icons.download,
                   color: Colors.blue,
                   onTap: () => _restore(isNeon: false),
@@ -258,27 +264,27 @@ class _BackupRestoreScreenState extends ConsumerState<BackupRestoreScreen> {
             ),
             const SizedBox(height: 16),
             _buildSection(
-              title: 'Neon DB (Cloud - Vercel API)',
+              title: 'Dữ liệu Cloud',
               icon: Icons.cloud,
               color: const Color(0xFFD97706),
               children: [
                 _buildActionCard(
                   title: 'Export JSON',
-                  subtitle: 'Tải toàn bộ dữ liệu Neon DB ra file JSON',
+                  subtitle: 'Tải toàn bộ dữ liệu Cloud ra file JSON',
                   icon: Icons.upload_file,
                   color: Colors.green,
                   onTap: () => _exportNeon(asZip: false),
                 ),
                 _buildActionCard(
                   title: 'Export ZIP',
-                  subtitle: 'Tải dữ liệu Neon DB ra file ZIP nén',
+                  subtitle: 'Tải dữ liệu Cloud ra file ZIP nén',
                   icon: Icons.archive,
                   color: Colors.brown,
                   onTap: () => _exportNeon(asZip: true),
                 ),
                 _buildActionCard(
-                  title: 'Restore Neon DB',
-                  subtitle: 'Khôi phục dữ liệu Neon DB từ file JSON/ZIP',
+                  title: 'Restore Cloud',
+                  subtitle: 'Khôi phục dữ liệu Cloud từ file JSON/ZIP',
                   icon: Icons.download,
                   color: Colors.red,
                   onTap: () => _restore(isNeon: true),

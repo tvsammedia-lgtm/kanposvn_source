@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:pdf/pdf.dart';
-import 'package:pdf/widgets.dart' as pw;
-import 'package:printing/printing.dart';
 import '../providers/restaurant_providers.dart';
 import 'package:uuid/uuid.dart';
 import '../../../core/auth/auth_service.dart';
+import '../../../core/printer/printer_actions.dart';
+import '../../../core/printer/receipt_data.dart';
+import '../../../core/printer/receipt_print_mode.dart';
 import '../models/restaurant_table.dart';
 import '../models/restaurant_menu_item.dart';
 import '../models/restaurant_order.dart';
@@ -88,95 +88,46 @@ class _RestaurantPosScreenState extends ConsumerState<RestaurantPosScreen> {
     _currentOrder!.totalAmount = _currentOrder!.details.fold(0, (sum, item) => sum + (item.price * item.quantity));
   }
 
-  Future<void> _printReceipt() async {
+  Future<void> _printReceipt(ReceiptPrintMode mode) async {
     final storeName = await AuthService.loadSavedStoreName();
     final storePhone = await AuthService.loadSavedStorePhone();
-    final pdf = pw.Document();
-
-    pdf.addPage(
-      pw.Page(
-        pageFormat: PdfPageFormat.roll80,
-        margin: const pw.EdgeInsets.all(10),
-        build: (pw.Context context) {
-          return pw.Column(
-            crossAxisAlignment: pw.CrossAxisAlignment.start,
-            children: [
-              pw.Center(
-                child: pw.Text(
-                  storeName ?? 'NHÀ HÀNG QUÁN ĂN',
-                  textAlign: pw.TextAlign.center,
-                  style: pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold),
-                ),
-              ),
-              if (storePhone != null && storePhone.isNotEmpty)
-                pw.Center(
-                  child: pw.Text(
-                    'ĐT: $storePhone',
-                    textAlign: pw.TextAlign.center,
-                    style: pw.TextStyle(fontSize: 10),
-                  ),
-                ),
-              pw.SizedBox(height: 10),
-              pw.Divider(),
-              pw.SizedBox(height: 5),
-              pw.Text('Mã hóa đơn: ${_currentOrder!.orderId.substring(0, 8)}'),
-              pw.Text('Bàn: ${widget.table.name} (${widget.table.zone})'),
-              pw.Text('Giờ vào: ${_currentOrder!.createdAt != null ? _currentOrder!.createdAt.toString().substring(0, 16) : ''}'),
-              pw.Text('Giờ ra: ${_currentOrder!.closedAt != null ? _currentOrder!.closedAt.toString().substring(0, 16) : ''}'),
-              pw.SizedBox(height: 10),
-              pw.Divider(),
-              pw.SizedBox(height: 5),
-              pw.Text('CHI TIẾT MÓN', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
-              pw.SizedBox(height: 5),
-              ..._currentOrder!.details.map((detail) => pw.Padding(
-                padding: const pw.EdgeInsets.only(bottom: 5),
-                child: pw.Row(
-                  mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-                  children: [
-                    pw.Expanded(
-                      child: pw.Text('${detail.itemName} x${detail.quantity}'),
-                    ),
-                    pw.Text('${(detail.price * detail.quantity).toStringAsFixed(0)} đ'),
-                  ],
-                ),
-              )),
-              pw.SizedBox(height: 10),
-              pw.Divider(),
-              pw.SizedBox(height: 5),
-              pw.Row(
-                mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-                children: [
-                  pw.Text('TỔNG CỘNG:', style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold)),
-                  pw.Text('${_currentOrder!.totalAmount.toStringAsFixed(0)} đ', style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold)),
-                ],
-              ),
-              pw.SizedBox(height: 10),
-              pw.Divider(),
-              pw.SizedBox(height: 10),
-              pw.Center(
-                child: pw.Text(
-                  'Cảm ơn quý khách!',
-                  style: pw.TextStyle(fontSize: 12),
-                ),
-              ),
-            ],
-          );
-        },
+    final order = _currentOrder!;
+    await printReceiptByMode(
+      context,
+      ref,
+      ReceiptData(
+        shopName: storeName ?? 'NHÀ HÀNG QUÁN ĂN',
+        shopPhone: storePhone,
+        title: 'HÓA ĐƠN THANH TOÁN',
+        orderCode: order.orderId.length > 8
+            ? order.orderId.substring(0, 8)
+            : order.orderId,
+        date: order.closedAt ?? DateTime.now(),
+        table: '${widget.table.name} (${widget.table.zone})',
+        qrData: order.orderId,
+        items: order.details
+            .map((d) => ReceiptItem(
+                  name: d.itemName,
+                  quantity: d.quantity.toDouble(),
+                  unitPrice: d.price,
+                  total: d.price * d.quantity,
+                ))
+            .toList(),
+        subtotal: order.totalAmount,
+        grandTotal: order.totalAmount,
       ),
-    );
-
-    await Printing.layoutPdf(
-      onLayout: (PdfPageFormat format) async => pdf.save(),
-      name: 'HoaDon_${_currentOrder!.orderId.substring(0, 8)}.pdf',
+      mode,
+      pdfFilename: 'HoaDon_${order.orderId.substring(0, 8)}.pdf',
     );
   }
 
-  Future<void> _saveOrder(bool checkout) async {
+  Future<void> _saveOrder(bool checkout,
+      {ReceiptPrintMode mode = ReceiptPrintMode.auto}) async {
     if (checkout) {
       _currentOrder!.status = RestaurantOrderStatus.COMPLETED;
       _currentOrder!.closedAt = DateTime.now();
-      // Print receipt before completing order
-      await _printReceipt();
+      // In hóa đơn trước khi hoàn tất order
+      await _printReceipt(mode);
     }
     await ref.read(restaurantOrdersProvider.notifier).updateOrder(_currentOrder!);
     // Reload orders to update kitchen screen
@@ -198,7 +149,7 @@ class _RestaurantPosScreenState extends ConsumerState<RestaurantPosScreen> {
         backgroundColor: Colors.orange,
         actions: [
           TextButton.icon(
-            onPressed: () => _printReceipt(),
+            onPressed: () => _printReceipt(ReceiptPrintMode.auto),
             icon: const Icon(Icons.print, color: Colors.white),
             label: const Text('IN HÓA ĐƠN', style: TextStyle(color: Colors.white, fontSize: 16)),
           ),
@@ -365,6 +316,42 @@ class _RestaurantPosScreenState extends ConsumerState<RestaurantPosScreen> {
                           ],
                         ),
                         const SizedBox(height: 16),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: SizedBox(
+                                height: 48,
+                                child: ElevatedButton.icon(
+                                  style: ElevatedButton.styleFrom(backgroundColor: Colors.orange),
+                                  onPressed: _currentOrder!.details.isEmpty
+                                      ? null
+                                      : () => _saveOrder(true,
+                                          mode: ReceiptPrintMode.thermal80),
+                                  icon: const Icon(Icons.print, size: 18),
+                                  label: const Text('IN BILL 80mm',
+                                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: SizedBox(
+                                height: 48,
+                                child: ElevatedButton.icon(
+                                  style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                                  onPressed: _currentOrder!.details.isEmpty
+                                      ? null
+                                      : () => _saveOrder(true,
+                                          mode: ReceiptPrintMode.pdf),
+                                  icon: const Icon(Icons.picture_as_pdf, size: 18),
+                                  label: const Text('IN PDF',
+                                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
                         SizedBox(
                           width: double.infinity,
                           height: 60,

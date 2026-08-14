@@ -4,9 +4,47 @@ import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 import 'package:qr/qr.dart';
 import '../../../core/auth/auth_service.dart';
+import '../../../core/printer/receipt_data.dart';
 import '../models/vlxd_order.dart';
+import 'vlxd_einvoice_settings.dart';
 
 final _currency = NumberFormat.currency(locale: 'vi_VN', symbol: 'đ');
+
+Future<ReceiptData> buildVlxdReceiptData(
+  VlxdOrder order,
+  List<VlxdOrderDetail> details,
+) async {
+  final storeName = await AuthService.loadSavedStoreName();
+  final storePhone = await AuthService.loadSavedStorePhone();
+  final einvoice = await VlxdEinvoiceSettingsStore.loadOnce();
+  return ReceiptData(
+    shopName: einvoice.companyName.isNotEmpty
+        ? einvoice.companyName
+        : (storeName ?? 'KANPOSVN VLXD'),
+    shopPhone: einvoice.phone.isNotEmpty ? einvoice.phone : storePhone,
+    shopAddress: einvoice.address,
+    shopTaxCode: einvoice.taxCode,
+    einvoicePattern: einvoice.invoicePattern,
+    einvoiceSymbol: einvoice.invoiceSymbol,
+    einvoiceNumber: einvoice.invoiceNumberLabel,
+    title: 'HÓA ĐƠN BÁN LẺ',
+    orderCode: order.orderCode,
+    date: order.orderDate,
+    paymentMethod: order.paymentMethod.label,
+    qrData: order.orderCode,
+    items: details
+        .map((item) => ReceiptItem(
+              name: item.product.value?.productName ?? 'Vật tư',
+              quantity: item.quantity,
+              unitPrice: item.unitPrice,
+              total: item.total,
+            ))
+        .toList(),
+    subtotal: order.subTotal,
+    discount: order.discount,
+    grandTotal: order.totalAmount,
+  );
+}
 
 Future<void> printVlxdReceiptPdf(VlxdOrder order, List<VlxdOrderDetail> details) async {
   final storeName = await AuthService.loadSavedStoreName();
@@ -33,13 +71,14 @@ Future<void> printVlxdReceiptPdf(VlxdOrder order, List<VlxdOrderDetail> details)
   final pdf = pw.Document();
 
   pdf.addPage(
-    pw.Page(
+    pw.MultiPage(
       pageFormat: PdfPageFormat(80 * PdfPageFormat.mm, 297 * PdfPageFormat.mm),
       margin: const pw.EdgeInsets.symmetric(horizontal: 5, vertical: 5),
       theme: theme,
-      build: (ctx) => pw.Column(
-        crossAxisAlignment: pw.CrossAxisAlignment.start,
-        children: [
+      build: (ctx) => [
+        pw.Column(
+          crossAxisAlignment: pw.CrossAxisAlignment.start,
+          children: [
           pw.Center(child: pw.Text(storeName ?? 'KANPOSVN VLXD', textAlign: pw.TextAlign.center, style: pw.TextStyle(font: fontBold, fontSize: 14, fontWeight: pw.FontWeight.bold))),
           if (storePhone != null && storePhone.isNotEmpty)
             pw.Center(child: pw.Text('ĐT: $storePhone', textAlign: pw.TextAlign.center, style: pw.TextStyle(fontSize: 8))),
@@ -93,7 +132,8 @@ Future<void> printVlxdReceiptPdf(VlxdOrder order, List<VlxdOrderDetail> details)
           pw.SizedBox(height: 5),
           pw.Center(child: pw.Text('Cảm ơn quý khách và hẹn gặp lại!', style: pw.TextStyle(font: fontBold, fontSize: 9, fontWeight: pw.FontWeight.bold))),
         ],
-      ),
+        ),
+      ],
     ),
   );
 

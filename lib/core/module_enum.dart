@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 enum AppModule {
-  kanposvncafe('KanPosVN Cafe (Isar+Neon)', Icons.local_cafe, Color(0xFFD97706)),
+  kanposvncafe('KanPosVN Cafe', Icons.local_cafe, Color(0xFFD97706)),
   kanposvnkhachsan('KanPosVN Khách Sạn', Icons.hotel, Color(0xFF0284C7)),
   nhanSu('Nhân Sự', Icons.people, Color(0xFF3B82F6)),
   kanposvnvlxd('KanPosVN VLXD (Isar+Neon)', Icons.architecture, Color(0xFF6366F1)),
@@ -11,9 +11,11 @@ enum AppModule {
   kanposvnnbatdongsan('KanPosVN Bất Động Sản', Icons.real_estate_agent, Color(0xFFDB2777)),
   kanposvnbanvevantai('KanPosVN Vận Tải & Vé', Icons.directions_bus, Color(0xFF0891B2)),
   kanposvnbida('KanPosVN Quản Lý Bida', Icons.sports_baseball, Color(0xFF059669)),
+  kanposvnpawn('KanPosVN Cầm Đồ', Icons.monetization_on, Color(0xFFB45309)),
   kanposvnnhahangquanan('KanPosVN Nhà Hàng / Quán Ăn', Icons.restaurant, Color(0xFFEA580C)),
   kanposvnnhatro200('KanPosVN Nhà Trọ', Icons.apartment, Color(0xFF06B6D4)),
   kanposvnspa('KanPosVN Spa & Dưỡng Sinh', Icons.spa, Color(0xFFEC4899)),
+  kanposvnbarber('KanPosVN Barber Shop', Icons.cut, Color(0xFF475569)),
   kanposvntaphoasmmini('KanPosVN Tạp Hóa Mini', Icons.storefront, Color(0xFF14B8A6)),
   kanposvncrm('KanCRM', Icons.admin_panel_settings, Color(0xFFE11D48)),
   kanposvngym('KanGYM', Icons.fitness_center, Color(0xFF1E3A8A)),
@@ -40,9 +42,11 @@ enum AppModule {
       case AppModule.kanposvnnbatdongsan: return 'kanposvnnbatdongsan';
       case AppModule.kanposvnbanvevantai: return 'kanposvnbanvevantai';
       case AppModule.kanposvnbida: return 'kanposvnbida';
+      case AppModule.kanposvnpawn: return 'kanposvnpawn';
       case AppModule.kanposvnnhahangquanan: return 'kanposvnnhahangquanan';
       case AppModule.kanposvnnhatro200: return 'kanposvnnhatro200';
       case AppModule.kanposvnspa: return 'kanposvnspa';
+      case AppModule.kanposvnbarber: return 'kanposvnbarber';
       case AppModule.kanposvntaphoasmmini: return 'kanposvntaphoasmmini';
       case AppModule.kanposvncrm: return 'kanposvncrm';
       case AppModule.kanposvngym: return 'kanposvngym';
@@ -66,9 +70,11 @@ enum AppModule {
       case AppModule.kanposvnnbatdongsan: return AppModuleType.kanposvnnbatdongsan;
       case AppModule.kanposvnbanvevantai: return AppModuleType.kanposvnbanvevantai;
       case AppModule.kanposvnbida: return AppModuleType.kanposvnbida;
+      case AppModule.kanposvnpawn: return AppModuleType.kanposvnpawn;
       case AppModule.kanposvnnhahangquanan: return AppModuleType.kanposvnnhahangquanan;
       case AppModule.kanposvnnhatro200: return AppModuleType.kanposvnnhatro200;
       case AppModule.kanposvnspa: return AppModuleType.kanposvnspa;
+      case AppModule.kanposvnbarber: return AppModuleType.kanposvnbarber;
       case AppModule.kanposvntaphoasmmini: return AppModuleType.kanposvntaphoasmmini;
       case AppModule.kanposvncrm: return AppModuleType.kanposvncrm;
       case AppModule.kanposvngym: return AppModuleType.kanposvngym;
@@ -86,7 +92,7 @@ enum AppModule {
 }
 
 enum AppModuleType {
-  kanposvncafe('KanPosVN Cafe (Isar+Neon)', Icons.local_cafe),
+  kanposvncafe('KanPosVN Cafe', Icons.local_cafe),
   kanposvnkhachsan('KanPosVN Khách Sạn', Icons.hotel),
   nhanSu('Nhân Sự', Icons.people),
   kanposvnvlxd('KanPosVN VLXD (Isar+Neon)', Icons.architecture),
@@ -94,7 +100,9 @@ enum AppModuleType {
   kanposvnnhathuoc('KanPosVN Nhà Thuốc (Isar+Neon)', Icons.medical_services),
   kanposvnbanvevantai('Vận Tải & Vé', Icons.directions_bus),
   kanposvnbida('Quản Lý Bida', Icons.sports_baseball),
+  kanposvnpawn('Cầm Đồ', Icons.monetization_on),
   kanposvnspa('Quản Lý Spa & Dưỡng Sinh', Icons.spa),
+  kanposvnbarber('Barber Shop', Icons.cut),
   kanposvnnhahangquanan('Nhà Hàng / Quán Ăn', Icons.restaurant),
   kanposvnqlcd('KanPosVN QLCD (Cắt Ghép & Vé)', Icons.content_cut),
   kanposvnnbatdongsan('KanPosVN Bất Động Sản', Icons.real_estate_agent),

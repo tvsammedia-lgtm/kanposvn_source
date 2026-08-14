@@ -5,6 +5,7 @@ import '../../../core/auth/employee_management_screen.dart';
 import '../../../core/auth/employee_role_policy.dart';
 import '../../../core/providers.dart';
 import '../../../core/sync/api_config.dart';
+import '../../../core/widgets/account_switcher_button.dart';
 import '../providers/nhathuoc_providers.dart';
 import '../services/nhathuoc_seed_data.dart';
 import 'nhathuoc_dashboard_screen.dart';
@@ -12,6 +13,7 @@ import 'nhathuoc_pos_screen.dart';
 import 'nhathuoc_inventory_screen.dart';
 import 'nhathuoc_patient_screen.dart';
 import 'nhathuoc_prescription_screen.dart';
+import 'nhathuoc_settings_screen.dart';
 
 class KanPosVNNhathuocShell extends ConsumerStatefulWidget {
   const KanPosVNNhathuocShell({super.key});
@@ -46,18 +48,47 @@ class _KanPosVNNhathuocShellState extends ConsumerState<KanPosVNNhathuocShell> {
     EmployeeRoles.cashier: const {'pos', 'patient', 'prescription'},
     EmployeeRoles.sale: const {'pos', 'patient'},
     EmployeeRoles.warehouse: const {'inventory', 'pos'},
-    EmployeeRoles.accountant: const {'dashboard', 'pos'},
+    EmployeeRoles.accountant: const {'dashboard', 'pos', 'settings'},
+  };
+
+  /// Định nghĩa các tab của module (id, icon, label) — thứ tự hiển thị.
+  static final Map<String, ({IconData icon, String label})> _tabDefs = {
+    'dashboard': (icon: Icons.dashboard, label: 'Báo Cáo'),
+    'pos': (icon: Icons.point_of_sale, label: 'Bán Hàng'),
+    'inventory': (icon: Icons.inventory, label: 'Kho Thuốc'),
+    'patient': (icon: Icons.people, label: 'Bệnh Nhân'),
+    'prescription': (icon: Icons.receipt_long, label: 'Toa Mẫu'),
+    'sync': (icon: Icons.sync, label: 'Đồng bộ'),
+    'employees': (icon: Icons.badge, label: 'Quản Lý NV'),
+    'settings': (icon: Icons.settings, label: 'Cài Đặt'),
+  };
+
+  static final Map<String, Widget Function()> _tabScreens = {
+    'dashboard': () => const NhathuocDashboardScreen(),
+    'pos': () => const NhathuocPosScreen(),
+    'inventory': () => const NhathuocInventoryScreen(),
+    'patient': () => const NhathuocPatientScreen(),
+    'prescription': () => const NhathuocPrescriptionScreen(),
+    'sync': () => const NhathuocSyncScreen(),
+    'employees': () => EmployeeManagementScreen(
+      availableTabs: [
+        for (final e in _tabDefs.entries)
+          EmployeeTabOption(id: e.key, label: e.value.label),
+      ],
+      roleTabs: _roleTabs,
+    ),
+    'settings': () => const NhathuocSettingsScreen(),
   };
 
   static final List<({String id, Widget screen, IconData icon, String label})>
       _allTabs = [
-    (id: 'dashboard', screen: const NhathuocDashboardScreen(), icon: Icons.dashboard, label: 'Báo Cáo'),
-    (id: 'pos', screen: const NhathuocPosScreen(), icon: Icons.point_of_sale, label: 'Bán Hàng'),
-    (id: 'inventory', screen: const NhathuocInventoryScreen(), icon: Icons.inventory, label: 'Kho Thuốc'),
-    (id: 'patient', screen: const NhathuocPatientScreen(), icon: Icons.people, label: 'Bệnh Nhân'),
-    (id: 'prescription', screen: const NhathuocPrescriptionScreen(), icon: Icons.receipt_long, label: 'Toa Mẫu'),
-    (id: 'sync', screen: const NhathuocSyncScreen(), icon: Icons.sync, label: 'Đồng bộ'),
-    (id: 'employees', screen: const EmployeeManagementScreen(), icon: Icons.badge, label: 'Quản Lý NV'),
+    for (final e in _tabDefs.entries)
+      (
+        id: e.key,
+        screen: _tabScreens[e.key]!(),
+        icon: e.value.icon,
+        label: e.value.label,
+      ),
   ];
 
   @override
@@ -67,17 +98,30 @@ class _KanPosVNNhathuocShellState extends ConsumerState<KanPosVNNhathuocShell> {
     }
 
     final auth = ref.watch(authServiceProvider);
-    final tabs = _allTabs
-        .where((t) => EmployeeRolePolicy.isAllowed(
-              isManager: auth.isManager,
-              role: auth.employeeRole,
-              tabId: t.id,
-              roleTabs: _roleTabs,
-            ))
-        .toList();
+    final customTabs = auth.employeeAllowedTabs;
+    final tabs = _allTabs.where((t) {
+      if (auth.isManager) return true;
+      // Tùy chỉnh tab riêng cho nhân viên (Owner check/uncheck trong "Quản Lý NV").
+      if (customTabs != null) return customTabs.contains(t.id);
+      return EmployeeRolePolicy.isAllowed(
+        isManager: false,
+        role: auth.employeeRole,
+        tabId: t.id,
+        roleTabs: _roleTabs,
+      );
+    }).toList();
     final safeIndex = _selectedIndex < tabs.length ? _selectedIndex : 0;
 
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: auth.currentModule?.color ?? const Color(0xFF10B981),
+        foregroundColor: Colors.white,
+        title: const Text('KanPosVN - Nhà Thuốc',
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+        actions: const [
+          AccountSwitcherButton(foregroundColor: Colors.white),
+        ],
+      ),
       body: Row(
         children: [
           NavigationRail(

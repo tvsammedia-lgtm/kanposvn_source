@@ -4,7 +4,7 @@ import '../../../core/auth/employee_auth.dart';
 import '../../../core/auth/employee_management_screen.dart';
 import '../../../core/auth/employee_role_policy.dart';
 import '../../../core/providers.dart';
-import '../../../core/router/module_selector_screen.dart';
+import '../../../core/widgets/account_switcher_button.dart';
 import '../providers/spa_providers.dart';
 import '../providers/spa_crm_inventory_providers.dart';
 import '../services/spa_seed_data.dart';
@@ -89,14 +89,7 @@ class _KanPosVNSpaShellState extends ConsumerState<KanPosVNSpaShell> {
       appBar: AppBar(
         title: const Text('Quản lý Spa'),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            tooltip: 'Thoát',
-            onPressed: () async {
-              await ref.read(authServiceProvider).signOut();
-              ref.read(selectedModuleProvider.notifier).state = null;
-            },
-          ),
+          const AccountSwitcherButton(),
         ],
       ),
       body: Row(

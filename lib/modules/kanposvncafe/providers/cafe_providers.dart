@@ -11,10 +11,17 @@ import 'package:kanposvn/core/db/database_service.dart';
 import '../services/cafe_neon_sync_service.dart';
 import '../services/cafe_backup_restore_service.dart';
 import '../services/cafe_permission_service.dart';
+import '../services/cafe_einvoice_settings.dart';
 
 final cafeIsarServiceProvider = Provider<CafeIsarService>(
   (ref) => CafeIsarService(),
 );
+final cafeEinvoiceSettingsProvider =
+    ChangeNotifierProvider<CafeEinvoiceSettingsStore>((ref) {
+  final store = CafeEinvoiceSettingsStore();
+  store.load();
+  return store;
+});
 final cafeNeonSyncServiceProvider = Provider<CafeNeonSyncService>(
   (ref) => CafeNeonSyncService(),
 );

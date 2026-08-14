@@ -4,7 +4,7 @@ import '../../../core/auth/employee_auth.dart';
 import '../../../core/auth/employee_management_screen.dart';
 import '../../../core/auth/employee_role_policy.dart';
 import '../../../core/providers.dart';
-import '../../../core/router/module_selector_screen.dart';
+import '../../../core/widgets/account_switcher_button.dart';
 import '../providers/restaurant_providers.dart';
 import '../providers/restaurant_inventory_providers.dart';
 import '../services/restaurant_seed_data.dart';
@@ -15,6 +15,7 @@ import 'restaurant_inventory_screen.dart';
 import 'bill_search_screen.dart';
 import 'sales_report_screen.dart';
 import 'restaurant_reports_screen.dart';
+import 'restaurant_settings_screen.dart';
 
 class KanPosVNRestaurantShell extends ConsumerStatefulWidget {
   const KanPosVNRestaurantShell({super.key});
@@ -54,19 +55,49 @@ class _KanPosVNRestaurantShellState extends ConsumerState<KanPosVNRestaurantShel
     EmployeeRoles.cashier: const {'tables', 'kitchen', 'search'},
     EmployeeRoles.sale: const {'tables', 'kitchen'},
     EmployeeRoles.warehouse: const {'inventory'},
-    EmployeeRoles.accountant: const {'dashboard', 'search', 'report', 'report_common'},
+    EmployeeRoles.accountant: const {'dashboard', 'search', 'report', 'report_common', 'settings'},
+  };
+
+  /// Định nghĩa các tab của module (id, icon, label) — thứ tự hiển thị.
+  static final Map<String, ({IconData icon, String label})> _tabDefs = {
+    'tables': (icon: Icons.grid_view, label: 'Sơ đồ Bàn'),
+    'kitchen': (icon: Icons.kitchen, label: 'Bếp'),
+    'inventory': (icon: Icons.inventory, label: 'Kho Hàng'),
+    'dashboard': (icon: Icons.dashboard, label: 'Dashboard'),
+    'search': (icon: Icons.receipt_long, label: 'Tìm Bill'),
+    'report': (icon: Icons.bar_chart, label: 'Báo Cáo'),
+    'report_common': (icon: Icons.description, label: 'Báo Cáo Chung'),
+    'employees': (icon: Icons.badge, label: 'Quản Lý NV'),
+    'settings': (icon: Icons.settings, label: 'Cài Đặt'),
+  };
+
+  static final Map<String, Widget Function()> _tabScreens = {
+    'tables': () => const RestaurantTablesScreen(),
+    'kitchen': () => const RestaurantKitchenScreen(),
+    'inventory': () => const RestaurantInventoryScreen(),
+    'dashboard': () => const RestaurantDashboardScreen(),
+    'search': () => const BillSearchScreen(),
+    'report': () => const SalesReportScreen(),
+    'report_common': () => const RestaurantReportsScreen(),
+    'employees': () => EmployeeManagementScreen(
+      availableTabs: [
+        for (final e in _tabDefs.entries)
+          EmployeeTabOption(id: e.key, label: e.value.label),
+      ],
+      roleTabs: _roleTabs,
+    ),
+    'settings': () => const RestaurantSettingsScreen(),
   };
 
   static final List<({String id, Widget screen, IconData icon, String label})>
       _allTabs = [
-    (id: 'tables', screen: const RestaurantTablesScreen(), icon: Icons.grid_view, label: 'Sơ đồ Bàn'),
-    (id: 'kitchen', screen: const RestaurantKitchenScreen(), icon: Icons.kitchen, label: 'Bếp'),
-    (id: 'inventory', screen: const RestaurantInventoryScreen(), icon: Icons.inventory, label: 'Kho Hàng'),
-    (id: 'dashboard', screen: const RestaurantDashboardScreen(), icon: Icons.dashboard, label: 'Dashboard'),
-    (id: 'search', screen: const BillSearchScreen(), icon: Icons.receipt_long, label: 'Tìm Bill'),
-    (id: 'report', screen: const SalesReportScreen(), icon: Icons.bar_chart, label: 'Báo Cáo'),
-    (id: 'report_common', screen: const RestaurantReportsScreen(), icon: Icons.description, label: 'Báo Cáo Chung'),
-    (id: 'employees', screen: const EmployeeManagementScreen(), icon: Icons.badge, label: 'Quản Lý NV'),
+    for (final e in _tabDefs.entries)
+      (
+        id: e.key,
+        screen: _tabScreens[e.key]!(),
+        icon: e.value.icon,
+        label: e.value.label,
+      ),
   ];
 
   @override
@@ -76,28 +107,25 @@ class _KanPosVNRestaurantShellState extends ConsumerState<KanPosVNRestaurantShel
     }
 
     final auth = ref.watch(authServiceProvider);
-    final tabs = _allTabs
-        .where((t) => EmployeeRolePolicy.isAllowed(
-              isManager: auth.isManager,
-              role: auth.employeeRole,
-              tabId: t.id,
-              roleTabs: _roleTabs,
-            ))
-        .toList();
+    final customTabs = auth.employeeAllowedTabs;
+    final tabs = _allTabs.where((t) {
+      if (auth.isManager) return true;
+      // Tùy chỉnh tab riêng cho nhân viên (Owner check/uncheck trong "Quản Lý NV").
+      if (customTabs != null) return customTabs.contains(t.id);
+      return EmployeeRolePolicy.isAllowed(
+        isManager: false,
+        role: auth.employeeRole,
+        tabId: t.id,
+        roleTabs: _roleTabs,
+      );
+    }).toList();
     final safeIndex = _selectedIndex < tabs.length ? _selectedIndex : 0;
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Quản lý Nhà hàng Quán ăn'),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            tooltip: 'Thoát',
-            onPressed: () async {
-              await ref.read(authServiceProvider).signOut();
-              ref.read(selectedModuleProvider.notifier).state = null;
-            },
-          ),
+          const AccountSwitcherButton(),
         ],
       ),
       body: Row(

@@ -5,9 +5,18 @@ import '../models/inventory.dart';
 import '../models/finance.dart';
 import '../models/partner.dart';
 import '../services/taphoa_isar_service.dart';
+import '../services/taphoa_einvoice_settings.dart';
 
 final tapHoaIsarServiceProvider = Provider<TapHoaIsarService>((ref) {
   return TapHoaIsarService();
+});
+
+// Settings
+final tapHoaEinvoiceSettingsProvider =
+    ChangeNotifierProvider<TapHoaEinvoiceSettingsStore>((ref) {
+  final store = TapHoaEinvoiceSettingsStore();
+  store.load();
+  return store;
 });
 
 // --- Category Provider ---

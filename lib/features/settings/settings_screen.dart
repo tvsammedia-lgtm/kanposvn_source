@@ -8,9 +8,23 @@ import '../../core/l10n/translations.dart';
 import '../../core/update/update_checker.dart';
 import '../../core/update/update_providers.dart';
 import '../../core/update/update_service.dart';
+import '../../core/printer/printer_service.dart';
+import '../../core/printer/printer_settings_screen.dart';
+import '../../core/printer/printer_models.dart';
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
+
+  static String _printerTypeLabel(PrinterType type) {
+    switch (type) {
+      case PrinterType.wifi:
+        return 'Wi-Fi/LAN';
+      case PrinterType.bluetooth:
+        return 'Bluetooth';
+      case PrinterType.usb:
+        return 'USB';
+    }
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -73,6 +87,33 @@ class SettingsScreen extends ConsumerWidget {
                         title: syncEngine.isSyncing ? 'Đang đồng bộ...' : 'sync_data'.tr,
                         subtitle: syncEngine.lastSyncStatus,
                         onTap: syncEngine.isSyncing ? null : () => _showSyncDialog(context, ref),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  _SettingsSection(
+                    title: 'Máy in',
+                    children: [
+                      Consumer(
+                        builder: (context, ref, _) {
+                          final printer =
+                              ref.watch(printerSettingsProvider).settings;
+                          final status = !printer.isConfigured
+                              ? 'Chưa cấu hình — chạm để cài đặt'
+                              : '${_printerTypeLabel(printer.type)} · ${printer.paper.label}'
+                                  '${printer.address.isNotEmpty ? ' · ${printer.address}' : ''}';
+                          return _SettingsTile(
+                            icon: Icons.print_outlined,
+                            title: 'Máy in bill 80mm',
+                            subtitle: status,
+                            onTap: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const PrinterSettingsScreen(),
+                              ),
+                            ),
+                          );
+                        },
                       ),
                     ],
                   ),

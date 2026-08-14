@@ -3,11 +3,20 @@ import 'package:isar/isar.dart';
 
 import '../services/vlxd_isar_service.dart';
 import '../services/vlxd_neon_sync_service.dart';
+import '../services/vlxd_einvoice_settings.dart';
 import '../models/vlxd_product.dart';
 import '../models/vlxd_order.dart';
 import '../models/vlxd_inventory.dart';
 import '../models/vlxd_partner.dart';
 import '../models/vlxd_finance.dart';
+
+// Settings
+final vlxdEinvoiceSettingsProvider =
+    ChangeNotifierProvider<VlxdEinvoiceSettingsStore>((ref) {
+  final store = VlxdEinvoiceSettingsStore();
+  store.load();
+  return store;
+});
 
 // Inventory Stocks
 final vlxdStocksProvider = FutureProvider<List<VlxdInventoryStock>>((ref) async {

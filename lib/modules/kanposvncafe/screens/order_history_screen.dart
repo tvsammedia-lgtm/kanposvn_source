@@ -7,6 +7,10 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 import '../models/cafe_order.dart';
 import '../providers/cafe_providers.dart';
 import '../services/bill_printer.dart';
+import '../../../core/auth/auth_service.dart';
+import '../../../core/printer/printer_actions.dart';
+import '../../../core/printer/printer_service.dart';
+import '../../../core/printer/receipt_data.dart';
 
 enum _DateBasis { created, printed }
 
@@ -133,6 +137,14 @@ class _OrderHistoryScreenState extends ConsumerState<OrderHistoryScreen> {
         ),
         actions: [
           TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Đóng')),
+          OutlinedButton.icon(
+            icon: const Icon(Icons.print_outlined, size: 18),
+            label: const Text('In 80mm'),
+            onPressed: () async {
+              Navigator.pop(ctx);
+              await _printReceipt80(order);
+            },
+          ),
           ElevatedButton.icon(
             style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFD97706)),
             icon: const Icon(Icons.print, color: Colors.white, size: 18),
@@ -146,6 +158,51 @@ class _OrderHistoryScreenState extends ConsumerState<OrderHistoryScreen> {
         ],
       ),
     );
+  }
+
+  Future<void> _printReceipt80(CafeOrder order) async {
+    final storeName = await AuthService.loadSavedStoreName();
+    final storePhone = await AuthService.loadSavedStorePhone();
+    final receipt = ReceiptData(
+      shopName: storeName ?? 'KANPOSVN',
+      shopPhone: storePhone,
+      title: 'HÓA ĐƠN THANH TOÁN',
+      orderCode: order.orderCode,
+      date: order.paidAt ?? order.createdAt,
+      table: order.tableName ?? '',
+      customer: order.customerName,
+      paymentMethod: order.paymentMethod.label,
+      qrData: order.orderCode,
+      items: order.items.map((item) {
+        final unitPrice = item.unitPrice + item.selectedSize.extraPrice;
+        final toppings = item.selectedToppings
+            .map((t) => '${t.name} ${_currency.format(t.price)}')
+            .join(', ');
+        return ReceiptItem(
+          name: '${item.menuItemName} (${item.selectedSize.name})',
+          quantity: item.quantity.toDouble(),
+          unitPrice: unitPrice,
+          total: item.totalPrice,
+          extra: toppings.isNotEmpty
+              ? toppings
+              : (item.note.isNotEmpty ? item.note : ''),
+        );
+      }).toList(),
+      subtotal: order.subtotal,
+      discount: order.totalDiscount,
+      grandTotal: order.grandTotal,
+    );
+    final printer = ref.read(printerSettingsProvider).settings;
+    if (!printer.isConfigured) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Chưa cấu hình máy in 80mm. Vào Cài đặt → Máy in để cấu hình.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+    await printReceipt80(context, ref, receipt);
   }
 
   void _openQrScanner() {

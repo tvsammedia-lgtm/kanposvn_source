@@ -33,6 +33,9 @@ dependencies:
   share_plus: ^12.0.2
   url_launcher: ^6.3.0
   google_fonts: ^6.2.1
+  usb_serial: ^0.5.2
+  blue_thermal_printer: ^1.2.3
+  esc_pos_utils_plus: 2.0.4
 
 dev_dependencies:
   flutter_test:
@@ -43,6 +46,8 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/images/
   fonts:
     - family: Roboto
       fonts:

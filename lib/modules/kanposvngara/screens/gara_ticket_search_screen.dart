@@ -7,6 +7,8 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 import '../models/gara_repair_order.dart';
 import '../providers/gara_providers.dart';
 import '../services/gara_receipt_printer.dart';
+import '../../../core/printer/printer_actions.dart';
+import '../../../core/printer/printer_service.dart';
 
 class GaraTicketSearchScreen extends ConsumerStatefulWidget {
   const GaraTicketSearchScreen({super.key});
@@ -96,6 +98,14 @@ class _GaraTicketSearchScreenState extends ConsumerState<GaraTicketSearchScreen>
         ),
         actions: [
           TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Đóng')),
+          OutlinedButton.icon(
+            icon: const Icon(Icons.print_outlined, size: 18),
+            label: const Text('In 80mm'),
+            onPressed: () {
+              Navigator.pop(ctx);
+              _printTicket80(order);
+            },
+          ),
           ElevatedButton.icon(
             style: ElevatedButton.styleFrom(backgroundColor: Colors.teal),
             icon: const Icon(Icons.print, color: Colors.white, size: 18),
@@ -108,6 +118,35 @@ class _GaraTicketSearchScreenState extends ConsumerState<GaraTicketSearchScreen>
         ],
       ),
     );
+  }
+
+  Future<void> _printTicket80(GaraRepairOrder order) async {
+    try {
+      final printer = ref.read(printerSettingsProvider).settings;
+      if (!printer.isConfigured) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Chưa cấu hình máy in 80mm. Vào Cài đặt → Máy in để cấu hình.'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+        return;
+      }
+      await order.customer.load();
+      await order.vehicle.load();
+      await order.details.load();
+      final details = order.details.toList();
+      for (final d in details) {
+        await d.product.load();
+      }
+      await printReceipt80(context, ref, await buildGaraReceiptData(order, details));
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('In phiếu 80mm thất bại: $e')));
+      }
+    }
   }
 
   void _openQrScanner() {

@@ -22,8 +22,8 @@ class RideIsarService {
     final dir = await getApplicationDocumentsDirectory();
     return await Isar.open(
       [
-        KanRideDriverSchema,
-        KanRideBookingSchema,
+        RideDriverSchema,
+        RideBookingSchema,
         KanRideVehicleTypeSchema,
         KanRideTripSchema,
         KanRideWalletSchema,
@@ -36,15 +36,18 @@ class RideIsarService {
     );
   }
 
-  Future<List<KanRideBooking>> getPendingBookings() async {
+  Future<List<RideBooking>> getPendingBookings() async {
     final isar = await db;
-    return await isar.kanRideBookings.filter().statusEqualTo('pending').findAll();
+    return await isar.rideBookings
+        .filter()
+        .statusEqualTo(BookingStatus.findingDriver)
+        .findAll();
   }
 
-  Future<void> saveBooking(KanRideBooking booking) async {
+  Future<void> saveBooking(RideBooking booking) async {
     final isar = await db;
     await isar.writeTxn(() async {
-      await isar.kanRideBookings.put(booking);
+      await isar.rideBookings.put(booking);
     });
   }
 }

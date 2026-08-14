@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../theme/app_colors.dart';
 import '../providers.dart';
 import '../router/module_selector_screen.dart';
+import 'account_switcher_button.dart';
 
 final currentScreenIndexProvider = StateProvider<int>((ref) => 0);
 
@@ -39,8 +40,9 @@ class AppShell extends ConsumerWidget {
                           color: (module?.color ?? AppColors.primary).withValues(alpha: 0.15),
                           borderRadius: BorderRadius.circular(10),
                         ),
-                        child: Icon(module?.icon ?? Icons.store,
-                          color: module?.color ?? AppColors.primary, size: 20),
+                        padding: const EdgeInsets.all(6),
+                        child: Image.asset('assets/images/logo.png',
+                          fit: BoxFit.contain),
                       ),
                       const SizedBox(width: 12),
                       Expanded(
@@ -137,7 +139,41 @@ class AppShell extends ConsumerWidget {
               ],
             ),
           ),
-          Expanded(child: child),
+          Expanded(
+            child: Column(
+              children: [
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: AppColors.sidebarBg,
+                    border: Border(
+                      bottom: BorderSide(
+                        color: AppColors.border.withValues(alpha: 0.1),
+                      ),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          module?.label ?? 'KanPosVN',
+                          style: const TextStyle(
+                            color: AppColors.textLight,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      const AccountSwitcherButton(foregroundColor: Colors.white),
+                    ],
+                  ),
+                ),
+                Expanded(child: child),
+              ],
+            ),
+          ),
         ],
       ),
     );

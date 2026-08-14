@@ -3,7 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/auth/employee_management_screen.dart';
 import '../../../core/db/database_service.dart';
 import '../../../core/providers.dart';
-import '../../../core/router/module_selector_screen.dart';
+import '../../../core/widgets/account_switcher_button.dart';
+import '../cafe_tab_defs.dart';
 import '../providers/cafe_providers.dart';
 import '../services/cafe_seed_data.dart';
 import '../services/cafe_permission_service.dart';
@@ -14,7 +15,6 @@ import 'menu_recipe_screen.dart';
 import 'inventory_screen.dart';
 import 'finance_accounting_screen.dart';
 import 'dashboard_reports_screen.dart';
-import 'sync_neon_screen.dart';
 import 'customer_supplier_screen.dart';
 import 'purchase_import_screen.dart';
 import 'voucher_screen.dart';
@@ -24,6 +24,7 @@ import 'cafe_sales_report_screen.dart';
 import 'cafe_permission_screen.dart';
 import 'cafe_reports_screen.dart';
 import 'cafe_einvoice_screen.dart';
+import 'cafe_settings_screen.dart';
 
 class KanPosVNCafeShell extends ConsumerStatefulWidget {
   const KanPosVNCafeShell({super.key});
@@ -124,12 +125,6 @@ class _KanPosVNCafeShellState extends ConsumerState<KanPosVNCafeShell> {
       icon: Icons.receipt,
     ),
     const _CafeTab(
-      id: 'sync_neon',
-      screen: SyncNeonScreen(),
-      label: 'Vercel Neon',
-      icon: Icons.cloud_sync,
-    ),
-    const _CafeTab(
       id: 'order_history',
       screen: OrderHistoryScreen(),
       label: 'Tra cứu hóa đơn',
@@ -155,9 +150,15 @@ class _KanPosVNCafeShellState extends ConsumerState<KanPosVNCafeShell> {
       shortLabel: 'Báo cáo',
       icon: Icons.description,
     ),
-    const _CafeTab(
+    _CafeTab(
       id: 'employees',
-      screen: EmployeeManagementScreen(),
+      screen: EmployeeManagementScreen(
+        availableTabs: [
+          for (final t in cafeTabDefs)
+            EmployeeTabOption(id: t.id, label: t.label),
+        ],
+        roleTabs: CafePermissionService.defaultPermissions(),
+      ),
       label: 'Quản lý nhân viên',
       shortLabel: 'NV',
       icon: Icons.badge,
@@ -176,15 +177,32 @@ class _KanPosVNCafeShellState extends ConsumerState<KanPosVNCafeShell> {
       shortLabel: 'HĐĐT',
       icon: Icons.receipt_long,
     ),
+    const _CafeTab(
+      id: 'settings',
+      screen: CafeSettingsScreen(),
+      label: 'Cài Đặt',
+      shortLabel: 'Cài Đặt',
+      icon: Icons.settings,
+    ),
   ];
 
   /// Lọc tab theo role tài khoản (Owner/Manager xem hết, nhân viên xem theo
   /// cấu hình phân quyền trong màn hình "Phân quyền").
+  ///
+  /// [customTabs] là danh sách tab được check riêng cho từng nhân viên trong
+  /// "Quản lý nhân viên" — nếu có thì ưu tiên hơn cấu hình theo role.
   static List<_CafeTab> _tabsForRole(
     bool isManager,
     String? role,
     Map<String, Set<String>> permissions,
+    List<String>? customTabs,
   ) {
+    if (!isManager && customTabs != null) {
+      final filtered = _allTabs
+          .where((t) => customTabs.contains(t.id))
+          .toList();
+      if (filtered.isNotEmpty) return filtered;
+    }
     final allowed = allowedTabIdsForRole(isManager, role, permissions);
     final filtered = _allTabs.where((t) => allowed.contains(t.id)).toList();
     // An toàn: role không được cấu hình tab nào → ít nhất vẫn thấy Sơ đồ Bàn.
@@ -208,7 +226,13 @@ class _KanPosVNCafeShellState extends ConsumerState<KanPosVNCafeShell> {
     final activeTabId = ref.watch(cafeActiveTabIdProvider);
     final auth = ref.watch(authServiceProvider);
     final tabPermissions = ref.watch(cafeTabPermissionsProvider);
-    final tabs = _tabsForRole(auth.isManager, auth.employeeRole, tabPermissions);
+    final customTabs = auth.employeeAllowedTabs;
+    final tabs = _tabsForRole(
+      auth.isManager,
+      auth.employeeRole,
+      tabPermissions,
+      customTabs,
+    );
     // Ưu tiên tab theo id (điều hướng bằng tên thay vì index cứng) —
     // chống lệch index khi danh sách tab bị lọc theo role.
     final activeIndex =
@@ -242,50 +266,13 @@ class _KanPosVNCafeShellState extends ConsumerState<KanPosVNCafeShell> {
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
             ),
             const SizedBox(width: 12),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-              decoration: BoxDecoration(
-                color: Colors.white24,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Text(
-                'Isar Offline + Vercel Neon Sync',
-                style: TextStyle(fontSize: 11, color: Colors.white),
-              ),
-            ),
           ],
         ),
         actions: [
-          Container(
-            margin: const EdgeInsets.symmetric(horizontal: 8),
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-            decoration: BoxDecoration(
-              color: Colors.white24,
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(Icons.person, size: 16, color: Colors.white),
-                const SizedBox(width: 6),
-                ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 200),
-                  child: Text(
-                    auth.displayName,
-                    style: const TextStyle(
-                      fontSize: 13,
-                      color: Colors.white,
-                      fontWeight: FontWeight.w600,
-                    ),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ],
-            ),
-          ),
+          const AccountSwitcherButton(foregroundColor: Colors.white),
           IconButton(
             icon: const Icon(Icons.sync),
-            tooltip: 'Đồng bộ Neon DB',
+            tooltip: 'Đồng bộ dữ liệu',
             onPressed: () async {
               final syncService = ref.read(cafeNeonSyncServiceProvider);
               final success = await syncService.triggerSync();
@@ -294,22 +281,13 @@ class _KanPosVNCafeShellState extends ConsumerState<KanPosVNCafeShell> {
                   SnackBar(
                     content: Text(
                       success
-                          ? 'Đồng bộ Neon DB qua Vercel API thành công!'
-                          : 'Đồng bộ thất bại, đã lưu vào Isar SyncQueue',
+                          ? 'Đồng bộ dữ liệu thành công!'
+                          : 'Đồng bộ thất bại, dữ liệu đã được lưu hàng chờ',
                     ),
                     backgroundColor: success ? Colors.green : Colors.orange,
                   ),
                 );
               }
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.person),
-            tooltip: 'Đổi tài khoản',
-            onPressed: () async {
-              final auth = ref.read(authServiceProvider);
-              ref.read(selectedModuleProvider.notifier).state = null;
-              await auth.signOut();
             },
           ),
         ],

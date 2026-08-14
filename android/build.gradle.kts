@@ -33,6 +33,16 @@ subprojects {
         }
     }
 }
+// blue_thermal_printer 1.2.3 (old) khong khai bao namespace -> loi voi AGP moi.
+subprojects {
+    if (name == "blue_thermal_printer") {
+        plugins.withId("com.android.library") {
+            extensions.configure<com.android.build.gradle.LibraryExtension>("android") {
+                namespace = "id.kakzaki.blue_thermal_printer"
+            }
+        }
+    }
+}
 subprojects {
     project.evaluationDependsOn(":app")
 }

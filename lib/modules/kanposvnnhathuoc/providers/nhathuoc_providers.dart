@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:isar/isar.dart';
 import '../services/nhathuoc_isar_service.dart';
 import '../services/nhathuoc_neon_sync_service.dart';
+import '../services/nhathuoc_einvoice_settings.dart';
 import '../models/nhathuoc_medicine.dart';
 import '../models/nhathuoc_patient.dart';
 import '../models/nhathuoc_order.dart';
@@ -16,6 +17,14 @@ final nhathuocIsarServiceProvider = Provider<NhathuocIsarService>((ref) {
 final nhathuocNeonSyncServiceProvider = Provider<NhathuocNeonSyncService>((ref) {
   final isarService = ref.watch(nhathuocIsarServiceProvider);
   return NhathuocNeonSyncService(isarService);
+});
+
+// Settings
+final nhathuocEinvoiceSettingsProvider =
+    ChangeNotifierProvider<NhathuocEinvoiceSettingsStore>((ref) {
+  final store = NhathuocEinvoiceSettingsStore();
+  store.load();
+  return store;
 });
 
 // Medicines

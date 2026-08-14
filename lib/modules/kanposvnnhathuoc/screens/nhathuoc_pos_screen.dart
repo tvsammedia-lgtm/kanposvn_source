@@ -6,6 +6,10 @@ import '../models/nhathuoc_medicine.dart';
 import '../models/nhathuoc_order.dart';
 import '../models/nhathuoc_patient.dart';
 import '../models/nhathuoc_prescription.dart';
+import '../../../core/auth/auth_service.dart';
+import '../../../core/printer/printer_actions.dart';
+import '../../../core/printer/receipt_data.dart';
+import '../../../core/printer/receipt_print_mode.dart';
 
 class NhathuocPosScreen extends ConsumerStatefulWidget {
   const NhathuocPosScreen({super.key});
@@ -47,7 +51,7 @@ class _NhathuocPosScreenState extends ConsumerState<NhathuocPosScreen> {
 
   double get _totalAmount => _cart.fold(0.0, (sum, item) => sum + item.total);
 
-  void _checkout() async {
+  void _completeCheckout(ReceiptPrintMode mode) async {
     if (_cart.isEmpty) return;
 
     final order = NhathuocOrder()
@@ -66,6 +70,41 @@ class _NhathuocPosScreenState extends ConsumerState<NhathuocPosScreen> {
     ref.read(nhathuocFinanceProvider.notifier).calculateMetrics(); // Refresh dashboard
 
     if (mounted) {
+      final storeName = await AuthService.loadSavedStoreName();
+      final storePhone = await AuthService.loadSavedStorePhone();
+      final patient = order.patient.value;
+      try {
+        await printReceiptByMode(
+          context,
+          ref,
+          ReceiptData(
+            shopName: storeName ?? 'KANPOSVN NHÀ THUỐC',
+            shopPhone: storePhone,
+            title: 'HÓA ĐƠN BÁN THUỐC',
+            orderCode: order.orderCode,
+            date: order.orderDate ?? DateTime.now(),
+            customer: patient?.name ?? '',
+            qrData: order.orderCode,
+            items: _cart
+                .map((item) => ReceiptItem(
+                      name: item.medicine.value?.name ?? 'Thuốc',
+                      quantity: item.quantity,
+                      unitPrice: item.unitPrice,
+                      total: item.total,
+                      extra: item.dosageInstructions,
+                    ))
+                .toList(),
+            subtotal: _totalAmount,
+            grandTotal: order.totalAmount,
+          ),
+          mode,
+          pdfFilename: 'HoaDon_${order.orderCode}.pdf',
+        );
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('In hóa đơn thất bại: $e')),
+        );
+      }
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Thanh toán thành công!')));
       setState(() {
         _cart.clear();
@@ -260,12 +299,62 @@ class _NhathuocPosScreenState extends ConsumerState<NhathuocPosScreen> {
                         ],
                       ),
                       const SizedBox(height: 16),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: SizedBox(
+                              height: 44,
+                              child: ElevatedButton.icon(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.orange,
+                                  foregroundColor: Colors.white,
+                                ),
+                                onPressed: _cart.isEmpty
+                                    ? null
+                                    : () => _completeCheckout(
+                                          ReceiptPrintMode.thermal80,
+                                        ),
+                                icon: const Icon(Icons.print, size: 16),
+                                label: const Text('IN BILL 80mm',
+                                    style: TextStyle(
+                                        fontSize: 12, fontWeight: FontWeight.bold)),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: SizedBox(
+                              height: 44,
+                              child: ElevatedButton.icon(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.red,
+                                  foregroundColor: Colors.white,
+                                ),
+                                onPressed: _cart.isEmpty
+                                    ? null
+                                    : () => _completeCheckout(
+                                          ReceiptPrintMode.pdf,
+                                        ),
+                                icon: const Icon(Icons.picture_as_pdf, size: 16),
+                                label: const Text('IN PDF',
+                                    style: TextStyle(
+                                        fontSize: 12, fontWeight: FontWeight.bold)),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
                       SizedBox(
                         width: double.infinity,
                         height: 50,
                         child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(backgroundColor: Colors.green, foregroundColor: Colors.white),
-                          onPressed: _cart.isEmpty ? null : _checkout,
+                          style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.green,
+                              foregroundColor: Colors.white),
+                          onPressed: _cart.isEmpty
+                              ? null
+                              : () => _completeCheckout(ReceiptPrintMode.auto),
                           child: const Text('Thanh Toán', style: TextStyle(fontSize: 18)),
                         ),
                       )

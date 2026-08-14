@@ -4,9 +4,42 @@ import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 import 'package:qr/qr.dart';
 import '../../../core/auth/auth_service.dart';
+import '../../../core/printer/receipt_data.dart';
 import '../models/invoice.dart';
 
 final _currency = NumberFormat.currency(locale: 'vi_VN', symbol: 'đ');
+
+Future<ReceiptData> buildTapHoaReceiptData(
+  TapHoaInvoice invoice,
+  List<TapHoaInvoiceItem> items,
+) async {
+  final storeName = await AuthService.loadSavedStoreName();
+  final storePhone = await AuthService.loadSavedStorePhone();
+  final isDebt = invoice.paymentMethod == 'debt';
+  return ReceiptData(
+    shopName: storeName ?? 'KANPOSVN',
+    shopPhone: storePhone,
+    title: 'HÓA ĐƠN BÁN HÀNG',
+    orderCode: invoice.invoiceNumber,
+    date: invoice.createdAt,
+    customer: invoice.customerName,
+    paymentMethod: _paymentMethodLabel(invoice.paymentMethod),
+    qrData: invoice.invoiceId,
+    items: items
+        .map((i) => ReceiptItem(
+              name: i.productName,
+              quantity: i.quantity,
+              unitPrice: i.price,
+              total: i.total,
+            ))
+        .toList(),
+    subtotal: invoice.totalAmount,
+    discount: invoice.discountAmount,
+    grandTotal: invoice.finalAmount,
+    cashReceived: isDebt ? null : invoice.amountPaid,
+    change: isDebt ? null : (invoice.changeAmount > 0 ? invoice.changeAmount : null),
+  );
+}
 
 String _paymentMethodLabel(String method) {
   switch (method) {
@@ -51,13 +84,14 @@ Future<void> printTapHoaReceiptPdf(
   final pdf = pw.Document();
 
   pdf.addPage(
-    pw.Page(
+    pw.MultiPage(
       pageFormat: PdfPageFormat(80 * PdfPageFormat.mm, 297 * PdfPageFormat.mm),
       margin: const pw.EdgeInsets.symmetric(horizontal: 5, vertical: 5),
       theme: theme,
-      build: (ctx) => pw.Column(
-        crossAxisAlignment: pw.CrossAxisAlignment.start,
-        children: [
+      build: (ctx) => [
+        pw.Column(
+          crossAxisAlignment: pw.CrossAxisAlignment.start,
+          children: [
           pw.Center(child: pw.Text(storeName ?? 'KANPOSVN', textAlign: pw.TextAlign.center, style: pw.TextStyle(font: fontBold, fontSize: 14, fontWeight: pw.FontWeight.bold))),
           if (storePhone != null && storePhone.isNotEmpty)
             pw.Center(child: pw.Text('ĐT: $storePhone', textAlign: pw.TextAlign.center, style: pw.TextStyle(fontSize: 8))),
@@ -120,7 +154,8 @@ Future<void> printTapHoaReceiptPdf(
           pw.SizedBox(height: 5),
           pw.Center(child: pw.Text('Cảm ơn quý khách và hẹn gặp lại!', style: pw.TextStyle(font: fontBold, fontSize: 9, fontWeight: pw.FontWeight.bold))),
         ],
-      ),
+        ),
+      ],
     ),
   );
 

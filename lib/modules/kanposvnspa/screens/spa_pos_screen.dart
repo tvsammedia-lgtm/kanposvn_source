@@ -8,6 +8,9 @@ import '../models/spa_service_model.dart';
 import '../models/spa_technician.dart';
 import '../models/spa_session.dart';
 import '../models/spa_customer.dart';
+import '../../../core/printer/printer_actions.dart';
+import '../../../core/printer/receipt_data.dart';
+import '../../../core/printer/receipt_print_mode.dart';
 
 class SpaPosScreen extends ConsumerStatefulWidget {
   final SpaBed bed;
@@ -36,6 +39,52 @@ class _SpaPosScreenState extends ConsumerState<SpaPosScreen> {
   void dispose() {
     _timer?.cancel();
     super.dispose();
+  }
+
+  Future<void> _completePayment(
+    BuildContext context,
+    SpaSession session,
+    ReceiptPrintMode mode,
+  ) async {
+    ref.read(spaSessionsProvider.notifier).checkoutSession(session);
+    final svc = session.service.value;
+    final cus = session.customer.value;
+    final total = session.totalAmount;
+    try {
+      await printReceiptByMode(
+        context,
+        ref,
+        ReceiptData(
+          shopName: 'KANPOSVN SPA',
+          title: 'HÓA ĐƠN THANH TOÁN',
+          orderCode: session.sessionId.length > 8
+              ? session.sessionId.substring(0, 8)
+              : session.sessionId,
+          date: DateTime.now(),
+          customer: cus?.name ?? '',
+          qrData: session.sessionId,
+          items: [
+            if (svc != null)
+              ReceiptItem(
+                name: svc.name,
+                quantity: 1,
+                unitPrice: svc.price,
+                total: svc.price,
+              ),
+          ],
+          subtotal: total,
+          grandTotal: total,
+        ),
+        mode,
+        pdfFilename: 'HoaDon_${session.sessionId.substring(0, 8)}.pdf',
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('In hóa đơn thất bại: $e')),
+      );
+    }
+    if (mounted) Navigator.pop(context);
   }
 
   @override
@@ -198,15 +247,68 @@ class _SpaPosScreenState extends ConsumerState<SpaPosScreen> {
                       const SizedBox(height: 32),
                       Text('Tổng tiền: ${activeSession.totalAmount.toStringAsFixed(0)} đ', style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.red)),
                       const SizedBox(height: 32),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: ElevatedButton.icon(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.orange,
+                                padding: const EdgeInsets.all(12),
+                              ),
+                              onPressed: () => _completePayment(
+                                context,
+                                activeSession,
+                                ReceiptPrintMode.thermal80,
+                              ),
+                              icon: const Icon(Icons.print,
+                                  color: Colors.white, size: 16),
+                              label: const Text('IN BILL 80mm',
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold)),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: ElevatedButton.icon(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.red,
+                                padding: const EdgeInsets.all(12),
+                              ),
+                              onPressed: () => _completePayment(
+                                context,
+                                activeSession,
+                                ReceiptPrintMode.pdf,
+                              ),
+                              icon: const Icon(Icons.picture_as_pdf,
+                                  color: Colors.white, size: 16),
+                              label: const Text('IN PDF',
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold)),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(backgroundColor: Colors.green, padding: const EdgeInsets.all(16)),
-                          onPressed: () {
-                            ref.read(spaSessionsProvider.notifier).checkoutSession(activeSession);
-                            Navigator.pop(context);
-                          },
-                          child: const Text('HOÀN THÀNH & THANH TOÁN', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+                          style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.green,
+                              padding: const EdgeInsets.all(16)),
+                          onPressed: () => _completePayment(
+                            context,
+                            activeSession,
+                            ReceiptPrintMode.auto,
+                          ),
+                          child: const Text('HOÀN THÀNH & THANH TOÁN',
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold)),
                         ),
                       )
                     ],

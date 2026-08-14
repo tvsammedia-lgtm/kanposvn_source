@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/auth/employee_auth.dart';
+import '../../../core/auth/employee_management_screen.dart';
+import '../../../core/auth/employee_role_policy.dart';
 import '../../../core/providers.dart';
 import '../../../core/router/module_selector_screen.dart';
 import '../providers/taphoa_providers.dart';
@@ -14,6 +17,7 @@ import 'partner_screen.dart';
 import 'finance_screen.dart';
 import 'debt_screen.dart';
 import 'report_screen.dart';
+import 'taphoa_settings_screen.dart';
 
 class TapHoaDashboardScreen extends ConsumerStatefulWidget {
   const TapHoaDashboardScreen({Key? key}) : super(key: key);
@@ -24,6 +28,103 @@ class TapHoaDashboardScreen extends ConsumerStatefulWidget {
 
 class _TapHoaDashboardScreenState extends ConsumerState<TapHoaDashboardScreen> {
   bool _isInit = false;
+
+  static final Map<String, Set<String>> _roleTabs = {
+    EmployeeRoles.cashier: const {'pos', 'finance', 'debt', 'report'},
+    EmployeeRoles.sale: const {'pos'},
+    EmployeeRoles.warehouse: const {'products', 'import', 'inventory'},
+    EmployeeRoles.accountant: const {'finance', 'debt', 'report', 'settings'},
+  };
+
+  /// Các chức năng (action card) của module — dùng chung cho dashboard,
+  /// màn hình "Quản lý nhân viên" (check/uncheck) và lọc theo role.
+  static final Map<String, ({String label, IconData icon, Color color, Widget Function() screen})>
+      _actionDefs = {
+    'pos': (
+      label: 'Bán hàng (POS)',
+      icon: Icons.point_of_sale,
+      color: Colors.blueAccent,
+      screen: () => const TapHoaPosScreen(),
+    ),
+    'products': (
+      label: 'Quản lý hàng hóa',
+      icon: Icons.category,
+      color: Colors.greenAccent,
+      screen: () => const TapHoaProductManagementScreen(),
+    ),
+    'import': (
+      label: 'Nhập hàng',
+      icon: Icons.add_shopping_cart,
+      color: Colors.orangeAccent,
+      screen: () => const TapHoaInventoryImportScreen(),
+    ),
+    'inventory': (
+      label: 'Tồn kho & Kiểm kê',
+      icon: Icons.fact_check,
+      color: Colors.purpleAccent,
+      screen: () => const TapHoaInventoryScreen(),
+    ),
+    'partners': (
+      label: 'Khách hàng & NCC',
+      icon: Icons.people,
+      color: Colors.teal,
+      screen: () => const TapHoaPartnerScreen(),
+    ),
+    'employees': (
+      label: 'Quản lý nhân viên',
+      icon: Icons.badge,
+      color: Colors.brown,
+      screen: () => EmployeeManagementScreen(
+        availableTabs: [
+          for (final e in _actionDefs.entries)
+            EmployeeTabOption(id: e.key, label: e.value.label),
+        ],
+        roleTabs: _roleTabs,
+      ),
+    ),
+    'finance': (
+      label: 'Thu chi & Tài chính',
+      icon: Icons.account_balance_wallet,
+      color: Colors.indigo,
+      screen: () => const TapHoaFinanceScreen(),
+    ),
+    'debt': (
+      label: 'Công nợ',
+      icon: Icons.credit_score,
+      color: Colors.redAccent,
+      screen: () => const TapHoaDebtScreen(),
+    ),
+    'report': (
+      label: 'Báo cáo',
+      icon: Icons.bar_chart,
+      color: Colors.cyan,
+      screen: () => const TapHoaReportScreen(),
+    ),
+    'settings': (
+      label: 'Cài Đặt',
+      icon: Icons.settings,
+      color: Colors.blueGrey,
+      screen: () => const TapHoaSettingsScreen(),
+    ),
+  };
+
+  /// Các action card được phép hiển thị theo role/tùy chỉnh của nhân viên.
+  List<MapEntry<String, ({String label, IconData icon, Color color, Widget Function() screen})>>
+      _visibleActions() {
+    final auth = ref.watch(authServiceProvider);
+    final customTabs = auth.employeeAllowedTabs;
+    return _actionDefs.entries.where((e) {
+      if (auth.isManager) return true;
+      // Tùy chỉnh tab riêng cho nhân viên (Owner check/uncheck trong "Quản lý nhân viên").
+      if (customTabs != null) return customTabs.contains(e.key);
+      return EmployeeRolePolicy.isAllowed(
+        isManager: false,
+        role: auth.employeeRole,
+        tabId: e.key,
+        roleTabs: _roleTabs,
+      );
+    }).toList();
+  }
 
   @override
   void initState() {
@@ -230,6 +331,7 @@ class _TapHoaDashboardScreenState extends ConsumerState<TapHoaDashboardScreen> {
   }
 
   Widget _buildActionGrid(BuildContext context) {
+    final actions = _visibleActions();
     return GridView.count(
       crossAxisCount: MediaQuery.of(context).size.width > 900 ? 4 : 2,
       shrinkWrap: true,
@@ -238,62 +340,14 @@ class _TapHoaDashboardScreenState extends ConsumerState<TapHoaDashboardScreen> {
       crossAxisSpacing: 16,
       childAspectRatio: 1.4,
       children: [
-        _buildActionCard(
-          context,
-          title: 'Bán hàng (POS)',
-          icon: Icons.point_of_sale,
-          color: Colors.blueAccent,
-          onTap: () => _push(context, const TapHoaPosScreen()),
-        ),
-        _buildActionCard(
-          context,
-          title: 'Quản lý hàng hóa',
-          icon: Icons.category,
-          color: Colors.greenAccent,
-          onTap: () => _push(context, const TapHoaProductManagementScreen()),
-        ),
-        _buildActionCard(
-          context,
-          title: 'Nhập hàng',
-          icon: Icons.add_shopping_cart,
-          color: Colors.orangeAccent,
-          onTap: () => _push(context, const TapHoaInventoryImportScreen()),
-        ),
-        _buildActionCard(
-          context,
-          title: 'Tồn kho & Kiểm kê',
-          icon: Icons.fact_check,
-          color: Colors.purpleAccent,
-          onTap: () => _push(context, const TapHoaInventoryScreen()),
-        ),
-        _buildActionCard(
-          context,
-          title: 'Khách hàng & NCC',
-          icon: Icons.people,
-          color: Colors.teal,
-          onTap: () => _push(context, const TapHoaPartnerScreen()),
-        ),
-        _buildActionCard(
-          context,
-          title: 'Thu chi & Tài chính',
-          icon: Icons.account_balance_wallet,
-          color: Colors.indigo,
-          onTap: () => _push(context, const TapHoaFinanceScreen()),
-        ),
-        _buildActionCard(
-          context,
-          title: 'Công nợ',
-          icon: Icons.credit_score,
-          color: Colors.redAccent,
-          onTap: () => _push(context, const TapHoaDebtScreen()),
-        ),
-        _buildActionCard(
-          context,
-          title: 'Báo cáo',
-          icon: Icons.bar_chart,
-          color: Colors.cyan,
-          onTap: () => _push(context, const TapHoaReportScreen()),
-        ),
+        for (final entry in actions)
+          _buildActionCard(
+            context,
+            title: entry.value.label,
+            icon: entry.value.icon,
+            color: entry.value.color,
+            onTap: () => _push(context, entry.value.screen()),
+          ),
       ],
     );
   }

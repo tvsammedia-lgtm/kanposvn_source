@@ -4,6 +4,7 @@ import '../../../core/auth/employee_auth.dart';
 import '../../../core/auth/employee_management_screen.dart';
 import '../../../core/auth/employee_role_policy.dart';
 import '../../../core/providers.dart';
+import '../../../core/widgets/account_switcher_button.dart';
 import '../providers/vantai_providers.dart';
 import '../services/vantai_seed_data.dart';
 import 'vantai_dashboard_screen.dart';
@@ -79,6 +80,15 @@ class _KanPosVNBanvevantaiShellState extends ConsumerState<KanPosVNBanvevantaiSh
     final safeIndex = _selectedIndex < tabs.length ? _selectedIndex : 0;
 
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: auth.currentModule?.color ?? const Color(0xFF0891B2),
+        foregroundColor: Colors.white,
+        title: const Text('KanPosVN - Vận Tải & Vé',
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+        actions: const [
+          AccountSwitcherButton(foregroundColor: Colors.white),
+        ],
+      ),
       body: Row(
         children: [
           NavigationRail(

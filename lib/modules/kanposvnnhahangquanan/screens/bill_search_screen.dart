@@ -7,6 +7,9 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 import '../../../core/auth/auth_service.dart';
+import '../../../core/printer/printer_actions.dart';
+import '../../../core/printer/printer_service.dart';
+import '../../../core/printer/receipt_data.dart';
 
 class BillSearchScreen extends ConsumerStatefulWidget {
   const BillSearchScreen({super.key});
@@ -304,6 +307,66 @@ class _BillSearchScreenState extends ConsumerState<BillSearchScreen> {
                                 ],
                               ),
                               const SizedBox(height: 24),
+                              SizedBox(
+                                width: double.infinity,
+                                height: 50,
+                                child: OutlinedButton.icon(
+                                  onPressed: () async {
+                                    final printer =
+                                        ref.read(printerSettingsProvider).settings;
+                                    if (!printer.isConfigured) {
+                                      if (mounted) {
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
+                                          const SnackBar(
+                                            content: Text(
+                                                'Chưa cấu hình máy in 80mm. Vào Cài đặt → Máy in để cấu hình.'),
+                                            backgroundColor: Colors.red,
+                                          ),
+                                        );
+                                      }
+                                      return;
+                                    }
+                                    final storeName = await AuthService
+                                        .loadSavedStoreName();
+                                    final storePhone = await AuthService
+                                        .loadSavedStorePhone();
+                                    final order = _foundOrder!;
+                                    await printReceipt80(
+                                      context,
+                                      ref,
+                                      ReceiptData(
+                                        shopName:
+                                            storeName ?? 'NHÀ HÀNG QUÁN ĂN',
+                                        shopPhone: storePhone,
+                                        title: 'HÓA ĐƠN THANH TOÁN',
+                                        orderCode: order.orderId.length > 8
+                                            ? order.orderId.substring(0, 8)
+                                            : order.orderId,
+                                        date: order.closedAt ?? DateTime.now(),
+                                        table:
+                                            '${order.table.value?.name ?? ''} (${order.table.value?.zone ?? ''})',
+                                        qrData: order.orderId,
+                                        items: order.details
+                                            .map((d) => ReceiptItem(
+                                                  name: d.itemName,
+                                                  quantity:
+                                                      d.quantity.toDouble(),
+                                                  unitPrice: d.price,
+                                                  total: d.price * d.quantity,
+                                                ))
+                                            .toList(),
+                                        subtotal: order.totalAmount,
+                                        grandTotal: order.totalAmount,
+                                      ),
+                                    );
+                                  },
+                                  icon: const Icon(Icons.print_outlined),
+                                  label: const Text('IN HÓA ĐƠN 80mm',
+                                      style: TextStyle(fontSize: 16)),
+                                ),
+                              ),
+                              const SizedBox(height: 8),
                               SizedBox(
                                 width: double.infinity,
                                 height: 50,

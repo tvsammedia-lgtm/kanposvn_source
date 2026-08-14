@@ -4,11 +4,31 @@ import '../providers.dart';
 import '../theme/app_colors.dart';
 import 'employee_auth.dart';
 
+/// Một tab (tab bar) trong module — dùng để Owner check/uncheck quyền sử dụng
+/// tab của từng nhân viên (đặc biệt là nhân viên Bán hàng).
+class EmployeeTabOption {
+  final String id;
+  final String label;
+
+  const EmployeeTabOption({required this.id, required this.label});
+}
+
 /// Quản lý tài khoản nội bộ (Cấp 2): Manager, Thu ngân, Bán hàng, Kho, Kế toán.
 ///
 /// Chỉ Owner (đăng nhập Cloud) và Manager được phép truy cập.
+///
+/// Truyền [availableTabs] (danh sách tab của module) để hiển thị phần
+/// check/uncheck tab cho từng nhân viên; [roleTabs] (map role -> tab mặc định)
+/// để mặc định sẵn đúng các tab theo role khi chưa tùy chỉnh.
 class EmployeeManagementScreen extends ConsumerStatefulWidget {
-  const EmployeeManagementScreen({super.key});
+  final List<EmployeeTabOption>? availableTabs;
+  final Map<String, Set<String>>? roleTabs;
+
+  const EmployeeManagementScreen({
+    super.key,
+    this.availableTabs,
+    this.roleTabs,
+  });
 
   @override
   ConsumerState<EmployeeManagementScreen> createState() =>
@@ -23,9 +43,15 @@ class _EmployeeManagementScreenState
 
   String? get _storeId => ref.read(authServiceProvider).storeId;
 
-  String get _storeAppCode =>
-      ref.read(authServiceProvider).storeAppCode ??
-      ref.read(authServiceProvider).defaultStoreModule.appCode;
+  String get _storeAppCode {
+    final auth = ref.read(authServiceProvider);
+    // Tài khoản nội bộ được tạo theo MODULE đang mở: mỗi module có danh sách
+    // "Quản lý nhân viên" riêng. Nhân viên chỉ login được vào module nào mà
+    // Owner đã tạo user local cho họ ở đây.
+    return auth.currentModule?.appCode ??
+        auth.storeAppCode ??
+        auth.defaultStoreModule.appCode;
+  }
 
   @override
   void initState() {
@@ -131,7 +157,16 @@ class _EmployeeManagementScreenState
       appBar: AppBar(
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
-        title: const Text('Quản lý nhân viên'),
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('Quản lý nhân viên'),
+            Text(
+              'Module: ${auth.currentModule?.label ?? _storeAppCode}',
+              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w400),
+            ),
+          ],
+        ),
       ),
       floatingActionButton: FloatingActionButton.extended(
         backgroundColor: AppColors.primary,
@@ -211,6 +246,7 @@ class _EmployeeManagementScreenState
               fullName: emp.fullName,
               role: emp.role,
               status: !emp.status,
+              allowedTabs: emp.allowedTabs,
               createdAt: emp.createdAt,
               updatedAt: DateTime.now(),
             ),
@@ -226,6 +262,13 @@ class _EmployeeManagementScreenState
     final passwordCtrl = TextEditingController();
     String role = existing?.role ?? EmployeeRoles.sale;
     bool status = existing?.status ?? true;
+    final tabs = widget.availableTabs;
+    final roleTabs = widget.roleTabs;
+    // Các tab được check sẵn: ưu tiên tùy chỉnh riêng của nhân viên, nếu chưa
+    // có thì dùng mặc định theo role (hoặc tất cả tab nếu không có roleTabs).
+    Set<String> selectedTabs = existing?.allowedTabs != null
+        ? Set.of(existing!.allowedTabs!)
+        : _defaultTabsForRole(role, tabs: tabs, roleTabs: roleTabs);
 
     showDialog<void>(
       context: context,
@@ -277,10 +320,55 @@ class _EmployeeManagementScreenState
                         .toList(),
                     onChanged: (value) {
                       if (value != null) {
-                        setDialogState(() => role = value);
+                        setDialogState(() {
+                          role = value;
+                          // Đổi role => reset lại các tab mặc định theo role mới.
+                          selectedTabs = existing?.allowedTabs != null
+                              ? Set.of(existing!.allowedTabs!)
+                              : _defaultTabsForRole(role,
+                                  tabs: tabs, roleTabs: roleTabs);
+                        });
                       }
                     },
                   ),
+                  if (tabs != null && role != EmployeeRoles.manager) ...[
+                    const SizedBox(height: 12),
+                    const Divider(),
+                    Row(
+                      children: [
+                        const Icon(Icons.tab, size: 18, color: AppColors.primary),
+                        const SizedBox(width: 8),
+                        const Expanded(
+                          child: Text(
+                            'Các tab được phép sử dụng',
+                            style: TextStyle(fontWeight: FontWeight.w600),
+                          ),
+                        ),
+                        TextButton(
+                          onPressed: () => setDialogState(() {
+                            selectedTabs = tabs.map((t) => t.id).toSet();
+                          }),
+                          child: const Text('Chọn tất cả'),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    for (final t in tabs)
+                      CheckboxListTile(
+                        dense: true,
+                        contentPadding: EdgeInsets.zero,
+                        controlAffinity: ListTileControlAffinity.leading,
+                        title: Text(t.label, style: const TextStyle(fontSize: 14)),
+                        value: selectedTabs.contains(t.id),
+                        onChanged: (v) => setDialogState(() {
+                          if (v == true) {
+                            selectedTabs.add(t.id);
+                          } else {
+                            selectedTabs.remove(t.id);
+                          }
+                        }),
+                      ),
+                  ],
                   const SizedBox(height: 12),
                   SwitchListTile(
                     contentPadding: EdgeInsets.zero,
@@ -316,6 +404,14 @@ class _EmployeeManagementScreenState
                     );
                     return;
                   }
+                  if (tabs != null && role != EmployeeRoles.manager && selectedTabs.isEmpty) {
+                    ScaffoldMessenger.of(ctx).showSnackBar(
+                      const SnackBar(
+                        content: Text('Vui lòng chọn ít nhất 1 tab cho nhân viên'),
+                      ),
+                    );
+                    return;
+                  }
                   Navigator.pop(ctx);
                   await _save(
                     EmployeeAccount(
@@ -329,6 +425,9 @@ class _EmployeeManagementScreenState
                       fullName: fullName,
                       role: role,
                       status: status,
+                      allowedTabs: tabs != null && role != EmployeeRoles.manager
+                          ? selectedTabs.toList()
+                          : existing?.allowedTabs,
                       createdAt: existing?.createdAt,
                       updatedAt: DateTime.now(),
                     ),
@@ -341,6 +440,18 @@ class _EmployeeManagementScreenState
         },
       ),
     );
+  }
+
+  /// Các tab mặc định của một role: dùng theo map [roleTabs] nếu có; ngược lại
+  /// cho phép tất cả tab của module.
+  Set<String> _defaultTabsForRole(
+    String role, {
+    List<EmployeeTabOption>? tabs,
+    Map<String, Set<String>>? roleTabs,
+  }) {
+    final defaults = roleTabs?[role];
+    if (defaults != null) return Set.of(defaults);
+    return tabs?.map((t) => t.id).toSet() ?? <String>{};
   }
 }
 

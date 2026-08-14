@@ -8,6 +8,8 @@ import '../models/gara_customer.dart';
 import '../models/gara_inventory.dart';
 import '../models/gara_finance.dart';
 import '../services/gara_receipt_printer.dart';
+import '../../../core/printer/printer_actions.dart';
+import '../../../core/printer/printer_service.dart';
 
 class GaraWorkOrderScreen extends ConsumerStatefulWidget {
   const GaraWorkOrderScreen({super.key});
@@ -112,7 +114,19 @@ class _GaraWorkOrderScreenState extends ConsumerState<GaraWorkOrderScreen> {
     if (mounted) {
       try {
         await _selectedOrder!.vehicle.load();
-        await printGaraReceiptPdf(_selectedOrder!, List<GaraRepairDetail>.from(_currentDetails));
+        final printer = ref.read(printerSettingsProvider).settings;
+        if (printer.isConfigured) {
+          await printReceipt80(
+            context,
+            ref,
+            await buildGaraReceiptData(
+              _selectedOrder!,
+              List<GaraRepairDetail>.from(_currentDetails),
+            ),
+          );
+        } else {
+          await printGaraReceiptPdf(_selectedOrder!, List<GaraRepairDetail>.from(_currentDetails));
+        }
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('In phiếu thất bại: $e')));

@@ -9,37 +9,37 @@ part of 'ride_booking.dart';
 // coverage:ignore-file
 // ignore_for_file: duplicate_ignore, non_constant_identifier_names, constant_identifier_names, invalid_use_of_protected_member, unnecessary_cast, prefer_const_constructors, lines_longer_than_80_chars, require_trailing_commas, inference_failure_on_function_invocation, unnecessary_parenthesis, unnecessary_raw_strings, unnecessary_null_checks, join_return_with_assignment, prefer_final_locals, avoid_js_rounded_ints, avoid_positional_boolean_parameters, always_specify_types
 
-extension GetKanRideBookingCollection on Isar {
-  IsarCollection<KanRideBooking> get kanRideBookings => this.collection();
+extension GetRideBookingCollection on Isar {
+  IsarCollection<RideBooking> get rideBookings => this.collection();
 }
 
-const KanRideBookingSchema = CollectionSchema(
-  name: r'KanRideBooking',
-  id: -1676966498689216112,
+const RideBookingSchema = CollectionSchema(
+  name: r'RideBooking',
+  id: -1846116325170251143,
   properties: {
-    r'bookingId': PropertySchema(
+    r'acceptedAt': PropertySchema(
       id: 0,
-      name: r'bookingId',
-      type: IsarType.string,
-    ),
-    r'createdAt': PropertySchema(
-      id: 1,
-      name: r'createdAt',
+      name: r'acceptedAt',
       type: IsarType.dateTime,
     ),
-    r'customerId': PropertySchema(
+    r'completedAt': PropertySchema(
+      id: 1,
+      name: r'completedAt',
+      type: IsarType.dateTime,
+    ),
+    r'createdAt': PropertySchema(
       id: 2,
-      name: r'customerId',
-      type: IsarType.string,
+      name: r'createdAt',
+      type: IsarType.dateTime,
     ),
     r'distanceKm': PropertySchema(
       id: 3,
       name: r'distanceKm',
       type: IsarType.double,
     ),
-    r'driverId': PropertySchema(
+    r'driverUuid': PropertySchema(
       id: 4,
-      name: r'driverId',
+      name: r'driverUuid',
       type: IsarType.string,
     ),
     r'dropoffAddress': PropertySchema(
@@ -62,56 +62,105 @@ const KanRideBookingSchema = CollectionSchema(
       name: r'estimatedPrice',
       type: IsarType.double,
     ),
-    r'isSynced': PropertySchema(
+    r'finalPrice': PropertySchema(
       id: 9,
-      name: r'isSynced',
+      name: r'finalPrice',
+      type: IsarType.double,
+    ),
+    r'isSharedRide': PropertySchema(
+      id: 10,
+      name: r'isSharedRide',
       type: IsarType.bool,
     ),
+    r'passengerUuid': PropertySchema(
+      id: 11,
+      name: r'passengerUuid',
+      type: IsarType.string,
+    ),
     r'pickupAddress': PropertySchema(
-      id: 10,
+      id: 12,
       name: r'pickupAddress',
       type: IsarType.string,
     ),
+    r'pickupAt': PropertySchema(
+      id: 13,
+      name: r'pickupAt',
+      type: IsarType.dateTime,
+    ),
     r'pickupLat': PropertySchema(
-      id: 11,
+      id: 14,
       name: r'pickupLat',
       type: IsarType.double,
     ),
     r'pickupLng': PropertySchema(
-      id: 12,
+      id: 15,
       name: r'pickupLng',
       type: IsarType.double,
     ),
+    r'requestedVehicleType': PropertySchema(
+      id: 16,
+      name: r'requestedVehicleType',
+      type: IsarType.byte,
+      enumMap: _RideBookingrequestedVehicleTypeEnumValueMap,
+    ),
     r'status': PropertySchema(
-      id: 13,
+      id: 17,
       name: r'status',
-      type: IsarType.string,
+      type: IsarType.byte,
+      enumMap: _RideBookingstatusEnumValueMap,
     ),
-    r'updatedAt': PropertySchema(
-      id: 14,
-      name: r'updatedAt',
-      type: IsarType.dateTime,
+    r'syncStatus': PropertySchema(
+      id: 18,
+      name: r'syncStatus',
+      type: IsarType.byte,
+      enumMap: _RideBookingsyncStatusEnumValueMap,
     ),
-    r'vehicleTypeId': PropertySchema(
-      id: 15,
-      name: r'vehicleTypeId',
+    r'uuid': PropertySchema(
+      id: 19,
+      name: r'uuid',
       type: IsarType.string,
     )
   },
-  estimateSize: _kanRideBookingEstimateSize,
-  serialize: _kanRideBookingSerialize,
-  deserialize: _kanRideBookingDeserialize,
-  deserializeProp: _kanRideBookingDeserializeProp,
-  idName: r'isarId',
+  estimateSize: _rideBookingEstimateSize,
+  serialize: _rideBookingSerialize,
+  deserialize: _rideBookingDeserialize,
+  deserializeProp: _rideBookingDeserializeProp,
+  idName: r'id',
   indexes: {
-    r'bookingId': IndexSchema(
-      id: 4804924406505946939,
-      name: r'bookingId',
+    r'uuid': IndexSchema(
+      id: 2134397340427724972,
+      name: r'uuid',
       unique: true,
       replace: true,
       properties: [
         IndexPropertySchema(
-          name: r'bookingId',
+          name: r'uuid',
+          type: IndexType.hash,
+          caseSensitive: true,
+        )
+      ],
+    ),
+    r'passengerUuid': IndexSchema(
+      id: -1636725924250270831,
+      name: r'passengerUuid',
+      unique: false,
+      replace: false,
+      properties: [
+        IndexPropertySchema(
+          name: r'passengerUuid',
+          type: IndexType.hash,
+          caseSensitive: true,
+        )
+      ],
+    ),
+    r'driverUuid': IndexSchema(
+      id: 3863677328561972722,
+      name: r'driverUuid',
+      unique: false,
+      replace: false,
+      properties: [
+        IndexPropertySchema(
+          name: r'driverUuid',
           type: IndexType.hash,
           caseSensitive: true,
         )
@@ -120,85 +169,117 @@ const KanRideBookingSchema = CollectionSchema(
   },
   links: {},
   embeddedSchemas: {},
-  getId: _kanRideBookingGetId,
-  getLinks: _kanRideBookingGetLinks,
-  attach: _kanRideBookingAttach,
+  getId: _rideBookingGetId,
+  getLinks: _rideBookingGetLinks,
+  attach: _rideBookingAttach,
   version: '3.1.0+1',
 );
 
-int _kanRideBookingEstimateSize(
-  KanRideBooking object,
+int _rideBookingEstimateSize(
+  RideBooking object,
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
   var bytesCount = offsets.last;
-  bytesCount += 3 + object.bookingId.length * 3;
-  bytesCount += 3 + object.customerId.length * 3;
   {
-    final value = object.driverId;
+    final value = object.driverUuid;
     if (value != null) {
       bytesCount += 3 + value.length * 3;
     }
   }
-  bytesCount += 3 + object.dropoffAddress.length * 3;
-  bytesCount += 3 + object.pickupAddress.length * 3;
-  bytesCount += 3 + object.status.length * 3;
-  bytesCount += 3 + object.vehicleTypeId.length * 3;
+  {
+    final value = object.dropoffAddress;
+    if (value != null) {
+      bytesCount += 3 + value.length * 3;
+    }
+  }
+  {
+    final value = object.passengerUuid;
+    if (value != null) {
+      bytesCount += 3 + value.length * 3;
+    }
+  }
+  {
+    final value = object.pickupAddress;
+    if (value != null) {
+      bytesCount += 3 + value.length * 3;
+    }
+  }
+  {
+    final value = object.uuid;
+    if (value != null) {
+      bytesCount += 3 + value.length * 3;
+    }
+  }
   return bytesCount;
 }
 
-void _kanRideBookingSerialize(
-  KanRideBooking object,
+void _rideBookingSerialize(
+  RideBooking object,
   IsarWriter writer,
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
-  writer.writeString(offsets[0], object.bookingId);
-  writer.writeDateTime(offsets[1], object.createdAt);
-  writer.writeString(offsets[2], object.customerId);
+  writer.writeDateTime(offsets[0], object.acceptedAt);
+  writer.writeDateTime(offsets[1], object.completedAt);
+  writer.writeDateTime(offsets[2], object.createdAt);
   writer.writeDouble(offsets[3], object.distanceKm);
-  writer.writeString(offsets[4], object.driverId);
+  writer.writeString(offsets[4], object.driverUuid);
   writer.writeString(offsets[5], object.dropoffAddress);
   writer.writeDouble(offsets[6], object.dropoffLat);
   writer.writeDouble(offsets[7], object.dropoffLng);
   writer.writeDouble(offsets[8], object.estimatedPrice);
-  writer.writeBool(offsets[9], object.isSynced);
-  writer.writeString(offsets[10], object.pickupAddress);
-  writer.writeDouble(offsets[11], object.pickupLat);
-  writer.writeDouble(offsets[12], object.pickupLng);
-  writer.writeString(offsets[13], object.status);
-  writer.writeDateTime(offsets[14], object.updatedAt);
-  writer.writeString(offsets[15], object.vehicleTypeId);
+  writer.writeDouble(offsets[9], object.finalPrice);
+  writer.writeBool(offsets[10], object.isSharedRide);
+  writer.writeString(offsets[11], object.passengerUuid);
+  writer.writeString(offsets[12], object.pickupAddress);
+  writer.writeDateTime(offsets[13], object.pickupAt);
+  writer.writeDouble(offsets[14], object.pickupLat);
+  writer.writeDouble(offsets[15], object.pickupLng);
+  writer.writeByte(offsets[16], object.requestedVehicleType.index);
+  writer.writeByte(offsets[17], object.status.index);
+  writer.writeByte(offsets[18], object.syncStatus.index);
+  writer.writeString(offsets[19], object.uuid);
 }
 
-KanRideBooking _kanRideBookingDeserialize(
+RideBooking _rideBookingDeserialize(
   Id id,
   IsarReader reader,
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
-  final object = KanRideBooking();
-  object.bookingId = reader.readString(offsets[0]);
-  object.createdAt = reader.readDateTime(offsets[1]);
-  object.customerId = reader.readString(offsets[2]);
+  final object = RideBooking();
+  object.acceptedAt = reader.readDateTimeOrNull(offsets[0]);
+  object.completedAt = reader.readDateTimeOrNull(offsets[1]);
+  object.createdAt = reader.readDateTimeOrNull(offsets[2]);
   object.distanceKm = reader.readDouble(offsets[3]);
-  object.driverId = reader.readStringOrNull(offsets[4]);
-  object.dropoffAddress = reader.readString(offsets[5]);
-  object.dropoffLat = reader.readDouble(offsets[6]);
-  object.dropoffLng = reader.readDouble(offsets[7]);
+  object.driverUuid = reader.readStringOrNull(offsets[4]);
+  object.dropoffAddress = reader.readStringOrNull(offsets[5]);
+  object.dropoffLat = reader.readDoubleOrNull(offsets[6]);
+  object.dropoffLng = reader.readDoubleOrNull(offsets[7]);
   object.estimatedPrice = reader.readDouble(offsets[8]);
-  object.isSynced = reader.readBool(offsets[9]);
-  object.isarId = id;
-  object.pickupAddress = reader.readString(offsets[10]);
-  object.pickupLat = reader.readDouble(offsets[11]);
-  object.pickupLng = reader.readDouble(offsets[12]);
-  object.status = reader.readString(offsets[13]);
-  object.updatedAt = reader.readDateTime(offsets[14]);
-  object.vehicleTypeId = reader.readString(offsets[15]);
+  object.finalPrice = reader.readDouble(offsets[9]);
+  object.id = id;
+  object.isSharedRide = reader.readBool(offsets[10]);
+  object.passengerUuid = reader.readStringOrNull(offsets[11]);
+  object.pickupAddress = reader.readStringOrNull(offsets[12]);
+  object.pickupAt = reader.readDateTimeOrNull(offsets[13]);
+  object.pickupLat = reader.readDoubleOrNull(offsets[14]);
+  object.pickupLng = reader.readDoubleOrNull(offsets[15]);
+  object.requestedVehicleType = _RideBookingrequestedVehicleTypeValueEnumMap[
+          reader.readByteOrNull(offsets[16])] ??
+      VehicleType.motorBike;
+  object.status =
+      _RideBookingstatusValueEnumMap[reader.readByteOrNull(offsets[17])] ??
+          BookingStatus.findingDriver;
+  object.syncStatus =
+      _RideBookingsyncStatusValueEnumMap[reader.readByteOrNull(offsets[18])] ??
+          SyncStatus.synced;
+  object.uuid = reader.readStringOrNull(offsets[19]);
   return object;
 }
 
-P _kanRideBookingDeserializeProp<P>(
+P _rideBookingDeserializeProp<P>(
   IsarReader reader,
   int propertyId,
   int offset,
@@ -206,228 +287,433 @@ P _kanRideBookingDeserializeProp<P>(
 ) {
   switch (propertyId) {
     case 0:
-      return (reader.readString(offset)) as P;
+      return (reader.readDateTimeOrNull(offset)) as P;
     case 1:
-      return (reader.readDateTime(offset)) as P;
+      return (reader.readDateTimeOrNull(offset)) as P;
     case 2:
-      return (reader.readString(offset)) as P;
+      return (reader.readDateTimeOrNull(offset)) as P;
     case 3:
       return (reader.readDouble(offset)) as P;
     case 4:
       return (reader.readStringOrNull(offset)) as P;
     case 5:
-      return (reader.readString(offset)) as P;
+      return (reader.readStringOrNull(offset)) as P;
     case 6:
-      return (reader.readDouble(offset)) as P;
+      return (reader.readDoubleOrNull(offset)) as P;
     case 7:
-      return (reader.readDouble(offset)) as P;
+      return (reader.readDoubleOrNull(offset)) as P;
     case 8:
       return (reader.readDouble(offset)) as P;
     case 9:
-      return (reader.readBool(offset)) as P;
+      return (reader.readDouble(offset)) as P;
     case 10:
-      return (reader.readString(offset)) as P;
+      return (reader.readBool(offset)) as P;
     case 11:
-      return (reader.readDouble(offset)) as P;
+      return (reader.readStringOrNull(offset)) as P;
     case 12:
-      return (reader.readDouble(offset)) as P;
+      return (reader.readStringOrNull(offset)) as P;
     case 13:
-      return (reader.readString(offset)) as P;
+      return (reader.readDateTimeOrNull(offset)) as P;
     case 14:
-      return (reader.readDateTime(offset)) as P;
+      return (reader.readDoubleOrNull(offset)) as P;
     case 15:
-      return (reader.readString(offset)) as P;
+      return (reader.readDoubleOrNull(offset)) as P;
+    case 16:
+      return (_RideBookingrequestedVehicleTypeValueEnumMap[
+              reader.readByteOrNull(offset)] ??
+          VehicleType.motorBike) as P;
+    case 17:
+      return (_RideBookingstatusValueEnumMap[reader.readByteOrNull(offset)] ??
+          BookingStatus.findingDriver) as P;
+    case 18:
+      return (_RideBookingsyncStatusValueEnumMap[
+              reader.readByteOrNull(offset)] ??
+          SyncStatus.synced) as P;
+    case 19:
+      return (reader.readStringOrNull(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
   }
 }
 
-Id _kanRideBookingGetId(KanRideBooking object) {
-  return object.isarId;
+const _RideBookingrequestedVehicleTypeEnumValueMap = {
+  'motorBike': 0,
+  'evBike': 1,
+  'car4Seats': 2,
+  'car7Seats': 3,
+  'delivery': 4,
+};
+const _RideBookingrequestedVehicleTypeValueEnumMap = {
+  0: VehicleType.motorBike,
+  1: VehicleType.evBike,
+  2: VehicleType.car4Seats,
+  3: VehicleType.car7Seats,
+  4: VehicleType.delivery,
+};
+const _RideBookingstatusEnumValueMap = {
+  'findingDriver': 0,
+  'accepted': 1,
+  'arrived': 2,
+  'inProgress': 3,
+  'completed': 4,
+  'cancelled': 5,
+};
+const _RideBookingstatusValueEnumMap = {
+  0: BookingStatus.findingDriver,
+  1: BookingStatus.accepted,
+  2: BookingStatus.arrived,
+  3: BookingStatus.inProgress,
+  4: BookingStatus.completed,
+  5: BookingStatus.cancelled,
+};
+const _RideBookingsyncStatusEnumValueMap = {
+  'synced': 0,
+  'pending': 1,
+  'failed': 2,
+};
+const _RideBookingsyncStatusValueEnumMap = {
+  0: SyncStatus.synced,
+  1: SyncStatus.pending,
+  2: SyncStatus.failed,
+};
+
+Id _rideBookingGetId(RideBooking object) {
+  return object.id;
 }
 
-List<IsarLinkBase<dynamic>> _kanRideBookingGetLinks(KanRideBooking object) {
+List<IsarLinkBase<dynamic>> _rideBookingGetLinks(RideBooking object) {
   return [];
 }
 
-void _kanRideBookingAttach(
-    IsarCollection<dynamic> col, Id id, KanRideBooking object) {
-  object.isarId = id;
+void _rideBookingAttach(
+    IsarCollection<dynamic> col, Id id, RideBooking object) {
+  object.id = id;
 }
 
-extension KanRideBookingByIndex on IsarCollection<KanRideBooking> {
-  Future<KanRideBooking?> getByBookingId(String bookingId) {
-    return getByIndex(r'bookingId', [bookingId]);
+extension RideBookingByIndex on IsarCollection<RideBooking> {
+  Future<RideBooking?> getByUuid(String? uuid) {
+    return getByIndex(r'uuid', [uuid]);
   }
 
-  KanRideBooking? getByBookingIdSync(String bookingId) {
-    return getByIndexSync(r'bookingId', [bookingId]);
+  RideBooking? getByUuidSync(String? uuid) {
+    return getByIndexSync(r'uuid', [uuid]);
   }
 
-  Future<bool> deleteByBookingId(String bookingId) {
-    return deleteByIndex(r'bookingId', [bookingId]);
+  Future<bool> deleteByUuid(String? uuid) {
+    return deleteByIndex(r'uuid', [uuid]);
   }
 
-  bool deleteByBookingIdSync(String bookingId) {
-    return deleteByIndexSync(r'bookingId', [bookingId]);
+  bool deleteByUuidSync(String? uuid) {
+    return deleteByIndexSync(r'uuid', [uuid]);
   }
 
-  Future<List<KanRideBooking?>> getAllByBookingId(
-      List<String> bookingIdValues) {
-    final values = bookingIdValues.map((e) => [e]).toList();
-    return getAllByIndex(r'bookingId', values);
+  Future<List<RideBooking?>> getAllByUuid(List<String?> uuidValues) {
+    final values = uuidValues.map((e) => [e]).toList();
+    return getAllByIndex(r'uuid', values);
   }
 
-  List<KanRideBooking?> getAllByBookingIdSync(List<String> bookingIdValues) {
-    final values = bookingIdValues.map((e) => [e]).toList();
-    return getAllByIndexSync(r'bookingId', values);
+  List<RideBooking?> getAllByUuidSync(List<String?> uuidValues) {
+    final values = uuidValues.map((e) => [e]).toList();
+    return getAllByIndexSync(r'uuid', values);
   }
 
-  Future<int> deleteAllByBookingId(List<String> bookingIdValues) {
-    final values = bookingIdValues.map((e) => [e]).toList();
-    return deleteAllByIndex(r'bookingId', values);
+  Future<int> deleteAllByUuid(List<String?> uuidValues) {
+    final values = uuidValues.map((e) => [e]).toList();
+    return deleteAllByIndex(r'uuid', values);
   }
 
-  int deleteAllByBookingIdSync(List<String> bookingIdValues) {
-    final values = bookingIdValues.map((e) => [e]).toList();
-    return deleteAllByIndexSync(r'bookingId', values);
+  int deleteAllByUuidSync(List<String?> uuidValues) {
+    final values = uuidValues.map((e) => [e]).toList();
+    return deleteAllByIndexSync(r'uuid', values);
   }
 
-  Future<Id> putByBookingId(KanRideBooking object) {
-    return putByIndex(r'bookingId', object);
+  Future<Id> putByUuid(RideBooking object) {
+    return putByIndex(r'uuid', object);
   }
 
-  Id putByBookingIdSync(KanRideBooking object, {bool saveLinks = true}) {
-    return putByIndexSync(r'bookingId', object, saveLinks: saveLinks);
+  Id putByUuidSync(RideBooking object, {bool saveLinks = true}) {
+    return putByIndexSync(r'uuid', object, saveLinks: saveLinks);
   }
 
-  Future<List<Id>> putAllByBookingId(List<KanRideBooking> objects) {
-    return putAllByIndex(r'bookingId', objects);
+  Future<List<Id>> putAllByUuid(List<RideBooking> objects) {
+    return putAllByIndex(r'uuid', objects);
   }
 
-  List<Id> putAllByBookingIdSync(List<KanRideBooking> objects,
+  List<Id> putAllByUuidSync(List<RideBooking> objects,
       {bool saveLinks = true}) {
-    return putAllByIndexSync(r'bookingId', objects, saveLinks: saveLinks);
+    return putAllByIndexSync(r'uuid', objects, saveLinks: saveLinks);
   }
 }
 
-extension KanRideBookingQueryWhereSort
-    on QueryBuilder<KanRideBooking, KanRideBooking, QWhere> {
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterWhere> anyIsarId() {
+extension RideBookingQueryWhereSort
+    on QueryBuilder<RideBooking, RideBooking, QWhere> {
+  QueryBuilder<RideBooking, RideBooking, QAfterWhere> anyId() {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(const IdWhereClause.any());
     });
   }
 }
 
-extension KanRideBookingQueryWhere
-    on QueryBuilder<KanRideBooking, KanRideBooking, QWhereClause> {
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterWhereClause> isarIdEqualTo(
-      Id isarId) {
+extension RideBookingQueryWhere
+    on QueryBuilder<RideBooking, RideBooking, QWhereClause> {
+  QueryBuilder<RideBooking, RideBooking, QAfterWhereClause> idEqualTo(Id id) {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(IdWhereClause.between(
-        lower: isarId,
-        upper: isarId,
+        lower: id,
+        upper: id,
       ));
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterWhereClause>
-      isarIdNotEqualTo(Id isarId) {
+  QueryBuilder<RideBooking, RideBooking, QAfterWhereClause> idNotEqualTo(
+      Id id) {
     return QueryBuilder.apply(this, (query) {
       if (query.whereSort == Sort.asc) {
         return query
             .addWhereClause(
-              IdWhereClause.lessThan(upper: isarId, includeUpper: false),
+              IdWhereClause.lessThan(upper: id, includeUpper: false),
             )
             .addWhereClause(
-              IdWhereClause.greaterThan(lower: isarId, includeLower: false),
+              IdWhereClause.greaterThan(lower: id, includeLower: false),
             );
       } else {
         return query
             .addWhereClause(
-              IdWhereClause.greaterThan(lower: isarId, includeLower: false),
+              IdWhereClause.greaterThan(lower: id, includeLower: false),
             )
             .addWhereClause(
-              IdWhereClause.lessThan(upper: isarId, includeUpper: false),
+              IdWhereClause.lessThan(upper: id, includeUpper: false),
             );
       }
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterWhereClause>
-      isarIdGreaterThan(Id isarId, {bool include = false}) {
+  QueryBuilder<RideBooking, RideBooking, QAfterWhereClause> idGreaterThan(Id id,
+      {bool include = false}) {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(
-        IdWhereClause.greaterThan(lower: isarId, includeLower: include),
+        IdWhereClause.greaterThan(lower: id, includeLower: include),
       );
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterWhereClause>
-      isarIdLessThan(Id isarId, {bool include = false}) {
+  QueryBuilder<RideBooking, RideBooking, QAfterWhereClause> idLessThan(Id id,
+      {bool include = false}) {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(
-        IdWhereClause.lessThan(upper: isarId, includeUpper: include),
+        IdWhereClause.lessThan(upper: id, includeUpper: include),
       );
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterWhereClause> isarIdBetween(
-    Id lowerIsarId,
-    Id upperIsarId, {
+  QueryBuilder<RideBooking, RideBooking, QAfterWhereClause> idBetween(
+    Id lowerId,
+    Id upperId, {
     bool includeLower = true,
     bool includeUpper = true,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(IdWhereClause.between(
-        lower: lowerIsarId,
+        lower: lowerId,
         includeLower: includeLower,
-        upper: upperIsarId,
+        upper: upperId,
         includeUpper: includeUpper,
       ));
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterWhereClause>
-      bookingIdEqualTo(String bookingId) {
+  QueryBuilder<RideBooking, RideBooking, QAfterWhereClause> uuidIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(IndexWhereClause.equalTo(
-        indexName: r'bookingId',
-        value: [bookingId],
+        indexName: r'uuid',
+        value: [null],
       ));
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterWhereClause>
-      bookingIdNotEqualTo(String bookingId) {
+  QueryBuilder<RideBooking, RideBooking, QAfterWhereClause> uuidIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.between(
+        indexName: r'uuid',
+        lower: [null],
+        includeLower: false,
+        upper: [],
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterWhereClause> uuidEqualTo(
+      String? uuid) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.equalTo(
+        indexName: r'uuid',
+        value: [uuid],
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterWhereClause> uuidNotEqualTo(
+      String? uuid) {
     return QueryBuilder.apply(this, (query) {
       if (query.whereSort == Sort.asc) {
         return query
             .addWhereClause(IndexWhereClause.between(
-              indexName: r'bookingId',
+              indexName: r'uuid',
               lower: [],
-              upper: [bookingId],
+              upper: [uuid],
               includeUpper: false,
             ))
             .addWhereClause(IndexWhereClause.between(
-              indexName: r'bookingId',
-              lower: [bookingId],
+              indexName: r'uuid',
+              lower: [uuid],
               includeLower: false,
               upper: [],
             ));
       } else {
         return query
             .addWhereClause(IndexWhereClause.between(
-              indexName: r'bookingId',
-              lower: [bookingId],
+              indexName: r'uuid',
+              lower: [uuid],
               includeLower: false,
               upper: [],
             ))
             .addWhereClause(IndexWhereClause.between(
-              indexName: r'bookingId',
+              indexName: r'uuid',
               lower: [],
-              upper: [bookingId],
+              upper: [uuid],
+              includeUpper: false,
+            ));
+      }
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterWhereClause>
+      passengerUuidIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.equalTo(
+        indexName: r'passengerUuid',
+        value: [null],
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterWhereClause>
+      passengerUuidIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.between(
+        indexName: r'passengerUuid',
+        lower: [null],
+        includeLower: false,
+        upper: [],
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterWhereClause>
+      passengerUuidEqualTo(String? passengerUuid) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.equalTo(
+        indexName: r'passengerUuid',
+        value: [passengerUuid],
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterWhereClause>
+      passengerUuidNotEqualTo(String? passengerUuid) {
+    return QueryBuilder.apply(this, (query) {
+      if (query.whereSort == Sort.asc) {
+        return query
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'passengerUuid',
+              lower: [],
+              upper: [passengerUuid],
+              includeUpper: false,
+            ))
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'passengerUuid',
+              lower: [passengerUuid],
+              includeLower: false,
+              upper: [],
+            ));
+      } else {
+        return query
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'passengerUuid',
+              lower: [passengerUuid],
+              includeLower: false,
+              upper: [],
+            ))
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'passengerUuid',
+              lower: [],
+              upper: [passengerUuid],
+              includeUpper: false,
+            ));
+      }
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterWhereClause> driverUuidIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.equalTo(
+        indexName: r'driverUuid',
+        value: [null],
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterWhereClause>
+      driverUuidIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.between(
+        indexName: r'driverUuid',
+        lower: [null],
+        includeLower: false,
+        upper: [],
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterWhereClause> driverUuidEqualTo(
+      String? driverUuid) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.equalTo(
+        indexName: r'driverUuid',
+        value: [driverUuid],
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterWhereClause>
+      driverUuidNotEqualTo(String? driverUuid) {
+    return QueryBuilder.apply(this, (query) {
+      if (query.whereSort == Sort.asc) {
+        return query
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'driverUuid',
+              lower: [],
+              upper: [driverUuid],
+              includeUpper: false,
+            ))
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'driverUuid',
+              lower: [driverUuid],
+              includeLower: false,
+              upper: [],
+            ));
+      } else {
+        return query
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'driverUuid',
+              lower: [driverUuid],
+              includeLower: false,
+              upper: [],
+            ))
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'driverUuid',
+              lower: [],
+              upper: [driverUuid],
               includeUpper: false,
             ));
       }
@@ -435,146 +721,176 @@ extension KanRideBookingQueryWhere
   }
 }
 
-extension KanRideBookingQueryFilter
-    on QueryBuilder<KanRideBooking, KanRideBooking, QFilterCondition> {
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterFilterCondition>
-      bookingIdEqualTo(
-    String value, {
-    bool caseSensitive = true,
-  }) {
+extension RideBookingQueryFilter
+    on QueryBuilder<RideBooking, RideBooking, QFilterCondition> {
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      acceptedAtIsNull() {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'bookingId',
-        value: value,
-        caseSensitive: caseSensitive,
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'acceptedAt',
       ));
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterFilterCondition>
-      bookingIdGreaterThan(
-    String value, {
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      acceptedAtIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'acceptedAt',
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      acceptedAtEqualTo(DateTime? value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'acceptedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      acceptedAtGreaterThan(
+    DateTime? value, {
     bool include = false,
-    bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         include: include,
-        property: r'bookingId',
+        property: r'acceptedAt',
         value: value,
-        caseSensitive: caseSensitive,
       ));
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterFilterCondition>
-      bookingIdLessThan(
-    String value, {
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      acceptedAtLessThan(
+    DateTime? value, {
     bool include = false,
-    bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.lessThan(
         include: include,
-        property: r'bookingId',
+        property: r'acceptedAt',
         value: value,
-        caseSensitive: caseSensitive,
       ));
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterFilterCondition>
-      bookingIdBetween(
-    String lower,
-    String upper, {
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      acceptedAtBetween(
+    DateTime? lower,
+    DateTime? upper, {
     bool includeLower = true,
     bool includeUpper = true,
-    bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.between(
-        property: r'bookingId',
+        property: r'acceptedAt',
         lower: lower,
         includeLower: includeLower,
         upper: upper,
         includeUpper: includeUpper,
-        caseSensitive: caseSensitive,
       ));
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterFilterCondition>
-      bookingIdStartsWith(
-    String value, {
-    bool caseSensitive = true,
-  }) {
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      completedAtIsNull() {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.startsWith(
-        property: r'bookingId',
-        value: value,
-        caseSensitive: caseSensitive,
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'completedAt',
       ));
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterFilterCondition>
-      bookingIdEndsWith(
-    String value, {
-    bool caseSensitive = true,
-  }) {
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      completedAtIsNotNull() {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.endsWith(
-        property: r'bookingId',
-        value: value,
-        caseSensitive: caseSensitive,
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'completedAt',
       ));
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterFilterCondition>
-      bookingIdContains(String value, {bool caseSensitive = true}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.contains(
-        property: r'bookingId',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterFilterCondition>
-      bookingIdMatches(String pattern, {bool caseSensitive = true}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.matches(
-        property: r'bookingId',
-        wildcard: pattern,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterFilterCondition>
-      bookingIdIsEmpty() {
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      completedAtEqualTo(DateTime? value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'bookingId',
-        value: '',
+        property: r'completedAt',
+        value: value,
       ));
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterFilterCondition>
-      bookingIdIsNotEmpty() {
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      completedAtGreaterThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
-        property: r'bookingId',
-        value: '',
+        include: include,
+        property: r'completedAt',
+        value: value,
       ));
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterFilterCondition>
-      createdAtEqualTo(DateTime value) {
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      completedAtLessThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'completedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      completedAtBetween(
+    DateTime? lower,
+    DateTime? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'completedAt',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      createdAtIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'createdAt',
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      createdAtIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'createdAt',
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      createdAtEqualTo(DateTime? value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'createdAt',
@@ -583,9 +899,9 @@ extension KanRideBookingQueryFilter
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterFilterCondition>
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
       createdAtGreaterThan(
-    DateTime value, {
+    DateTime? value, {
     bool include = false,
   }) {
     return QueryBuilder.apply(this, (query) {
@@ -597,9 +913,9 @@ extension KanRideBookingQueryFilter
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterFilterCondition>
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
       createdAtLessThan(
-    DateTime value, {
+    DateTime? value, {
     bool include = false,
   }) {
     return QueryBuilder.apply(this, (query) {
@@ -611,10 +927,10 @@ extension KanRideBookingQueryFilter
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterFilterCondition>
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
       createdAtBetween(
-    DateTime lower,
-    DateTime upper, {
+    DateTime? lower,
+    DateTime? upper, {
     bool includeLower = true,
     bool includeUpper = true,
   }) {
@@ -629,143 +945,7 @@ extension KanRideBookingQueryFilter
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterFilterCondition>
-      customerIdEqualTo(
-    String value, {
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'customerId',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterFilterCondition>
-      customerIdGreaterThan(
-    String value, {
-    bool include = false,
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        include: include,
-        property: r'customerId',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterFilterCondition>
-      customerIdLessThan(
-    String value, {
-    bool include = false,
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.lessThan(
-        include: include,
-        property: r'customerId',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterFilterCondition>
-      customerIdBetween(
-    String lower,
-    String upper, {
-    bool includeLower = true,
-    bool includeUpper = true,
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.between(
-        property: r'customerId',
-        lower: lower,
-        includeLower: includeLower,
-        upper: upper,
-        includeUpper: includeUpper,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterFilterCondition>
-      customerIdStartsWith(
-    String value, {
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.startsWith(
-        property: r'customerId',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterFilterCondition>
-      customerIdEndsWith(
-    String value, {
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.endsWith(
-        property: r'customerId',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterFilterCondition>
-      customerIdContains(String value, {bool caseSensitive = true}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.contains(
-        property: r'customerId',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterFilterCondition>
-      customerIdMatches(String pattern, {bool caseSensitive = true}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.matches(
-        property: r'customerId',
-        wildcard: pattern,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterFilterCondition>
-      customerIdIsEmpty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'customerId',
-        value: '',
-      ));
-    });
-  }
-
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterFilterCondition>
-      customerIdIsNotEmpty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        property: r'customerId',
-        value: '',
-      ));
-    });
-  }
-
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterFilterCondition>
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
       distanceKmEqualTo(
     double value, {
     double epsilon = Query.epsilon,
@@ -779,7 +959,7 @@ extension KanRideBookingQueryFilter
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterFilterCondition>
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
       distanceKmGreaterThan(
     double value, {
     bool include = false,
@@ -795,7 +975,7 @@ extension KanRideBookingQueryFilter
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterFilterCondition>
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
       distanceKmLessThan(
     double value, {
     bool include = false,
@@ -811,7 +991,7 @@ extension KanRideBookingQueryFilter
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterFilterCondition>
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
       distanceKmBetween(
     double lower,
     double upper, {
@@ -831,40 +1011,40 @@ extension KanRideBookingQueryFilter
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterFilterCondition>
-      driverIdIsNull() {
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      driverUuidIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNull(
-        property: r'driverId',
+        property: r'driverUuid',
       ));
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterFilterCondition>
-      driverIdIsNotNull() {
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      driverUuidIsNotNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNotNull(
-        property: r'driverId',
+        property: r'driverUuid',
       ));
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterFilterCondition>
-      driverIdEqualTo(
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      driverUuidEqualTo(
     String? value, {
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'driverId',
+        property: r'driverUuid',
         value: value,
         caseSensitive: caseSensitive,
       ));
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterFilterCondition>
-      driverIdGreaterThan(
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      driverUuidGreaterThan(
     String? value, {
     bool include = false,
     bool caseSensitive = true,
@@ -872,15 +1052,15 @@ extension KanRideBookingQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         include: include,
-        property: r'driverId',
+        property: r'driverUuid',
         value: value,
         caseSensitive: caseSensitive,
       ));
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterFilterCondition>
-      driverIdLessThan(
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      driverUuidLessThan(
     String? value, {
     bool include = false,
     bool caseSensitive = true,
@@ -888,15 +1068,15 @@ extension KanRideBookingQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.lessThan(
         include: include,
-        property: r'driverId',
+        property: r'driverUuid',
         value: value,
         caseSensitive: caseSensitive,
       ));
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterFilterCondition>
-      driverIdBetween(
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      driverUuidBetween(
     String? lower,
     String? upper, {
     bool includeLower = true,
@@ -905,7 +1085,7 @@ extension KanRideBookingQueryFilter
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.between(
-        property: r'driverId',
+        property: r'driverUuid',
         lower: lower,
         includeLower: includeLower,
         upper: upper,
@@ -915,79 +1095,97 @@ extension KanRideBookingQueryFilter
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterFilterCondition>
-      driverIdStartsWith(
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      driverUuidStartsWith(
     String value, {
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.startsWith(
-        property: r'driverId',
+        property: r'driverUuid',
         value: value,
         caseSensitive: caseSensitive,
       ));
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterFilterCondition>
-      driverIdEndsWith(
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      driverUuidEndsWith(
     String value, {
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.endsWith(
-        property: r'driverId',
+        property: r'driverUuid',
         value: value,
         caseSensitive: caseSensitive,
       ));
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterFilterCondition>
-      driverIdContains(String value, {bool caseSensitive = true}) {
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      driverUuidContains(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.contains(
-        property: r'driverId',
+        property: r'driverUuid',
         value: value,
         caseSensitive: caseSensitive,
       ));
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterFilterCondition>
-      driverIdMatches(String pattern, {bool caseSensitive = true}) {
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      driverUuidMatches(String pattern, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.matches(
-        property: r'driverId',
+        property: r'driverUuid',
         wildcard: pattern,
         caseSensitive: caseSensitive,
       ));
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterFilterCondition>
-      driverIdIsEmpty() {
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      driverUuidIsEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'driverId',
+        property: r'driverUuid',
         value: '',
       ));
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterFilterCondition>
-      driverIdIsNotEmpty() {
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      driverUuidIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
-        property: r'driverId',
+        property: r'driverUuid',
         value: '',
       ));
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterFilterCondition>
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      dropoffAddressIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'dropoffAddress',
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      dropoffAddressIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'dropoffAddress',
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
       dropoffAddressEqualTo(
-    String value, {
+    String? value, {
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
@@ -999,9 +1197,9 @@ extension KanRideBookingQueryFilter
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterFilterCondition>
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
       dropoffAddressGreaterThan(
-    String value, {
+    String? value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -1015,9 +1213,9 @@ extension KanRideBookingQueryFilter
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterFilterCondition>
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
       dropoffAddressLessThan(
-    String value, {
+    String? value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -1031,10 +1229,10 @@ extension KanRideBookingQueryFilter
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterFilterCondition>
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
       dropoffAddressBetween(
-    String lower,
-    String upper, {
+    String? lower,
+    String? upper, {
     bool includeLower = true,
     bool includeUpper = true,
     bool caseSensitive = true,
@@ -1051,7 +1249,7 @@ extension KanRideBookingQueryFilter
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterFilterCondition>
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
       dropoffAddressStartsWith(
     String value, {
     bool caseSensitive = true,
@@ -1065,7 +1263,7 @@ extension KanRideBookingQueryFilter
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterFilterCondition>
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
       dropoffAddressEndsWith(
     String value, {
     bool caseSensitive = true,
@@ -1079,7 +1277,7 @@ extension KanRideBookingQueryFilter
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterFilterCondition>
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
       dropoffAddressContains(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.contains(
@@ -1090,7 +1288,7 @@ extension KanRideBookingQueryFilter
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterFilterCondition>
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
       dropoffAddressMatches(String pattern, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.matches(
@@ -1101,7 +1299,7 @@ extension KanRideBookingQueryFilter
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterFilterCondition>
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
       dropoffAddressIsEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
@@ -1111,7 +1309,7 @@ extension KanRideBookingQueryFilter
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterFilterCondition>
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
       dropoffAddressIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
@@ -1121,9 +1319,27 @@ extension KanRideBookingQueryFilter
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterFilterCondition>
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      dropoffLatIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'dropoffLat',
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      dropoffLatIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'dropoffLat',
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
       dropoffLatEqualTo(
-    double value, {
+    double? value, {
     double epsilon = Query.epsilon,
   }) {
     return QueryBuilder.apply(this, (query) {
@@ -1135,9 +1351,9 @@ extension KanRideBookingQueryFilter
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterFilterCondition>
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
       dropoffLatGreaterThan(
-    double value, {
+    double? value, {
     bool include = false,
     double epsilon = Query.epsilon,
   }) {
@@ -1151,9 +1367,9 @@ extension KanRideBookingQueryFilter
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterFilterCondition>
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
       dropoffLatLessThan(
-    double value, {
+    double? value, {
     bool include = false,
     double epsilon = Query.epsilon,
   }) {
@@ -1167,10 +1383,10 @@ extension KanRideBookingQueryFilter
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterFilterCondition>
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
       dropoffLatBetween(
-    double lower,
-    double upper, {
+    double? lower,
+    double? upper, {
     bool includeLower = true,
     bool includeUpper = true,
     double epsilon = Query.epsilon,
@@ -1187,9 +1403,27 @@ extension KanRideBookingQueryFilter
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterFilterCondition>
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      dropoffLngIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'dropoffLng',
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      dropoffLngIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'dropoffLng',
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
       dropoffLngEqualTo(
-    double value, {
+    double? value, {
     double epsilon = Query.epsilon,
   }) {
     return QueryBuilder.apply(this, (query) {
@@ -1201,9 +1435,9 @@ extension KanRideBookingQueryFilter
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterFilterCondition>
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
       dropoffLngGreaterThan(
-    double value, {
+    double? value, {
     bool include = false,
     double epsilon = Query.epsilon,
   }) {
@@ -1217,9 +1451,9 @@ extension KanRideBookingQueryFilter
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterFilterCondition>
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
       dropoffLngLessThan(
-    double value, {
+    double? value, {
     bool include = false,
     double epsilon = Query.epsilon,
   }) {
@@ -1233,10 +1467,10 @@ extension KanRideBookingQueryFilter
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterFilterCondition>
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
       dropoffLngBetween(
-    double lower,
-    double upper, {
+    double? lower,
+    double? upper, {
     bool includeLower = true,
     bool includeUpper = true,
     double epsilon = Query.epsilon,
@@ -1253,7 +1487,7 @@ extension KanRideBookingQueryFilter
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterFilterCondition>
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
       estimatedPriceEqualTo(
     double value, {
     double epsilon = Query.epsilon,
@@ -1267,7 +1501,7 @@ extension KanRideBookingQueryFilter
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterFilterCondition>
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
       estimatedPriceGreaterThan(
     double value, {
     bool include = false,
@@ -1283,7 +1517,7 @@ extension KanRideBookingQueryFilter
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterFilterCondition>
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
       estimatedPriceLessThan(
     double value, {
     bool include = false,
@@ -1299,7 +1533,7 @@ extension KanRideBookingQueryFilter
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterFilterCondition>
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
       estimatedPriceBetween(
     double lower,
     double upper, {
@@ -1319,56 +1553,109 @@ extension KanRideBookingQueryFilter
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterFilterCondition>
-      isSyncedEqualTo(bool value) {
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      finalPriceEqualTo(
+    double value, {
+    double epsilon = Query.epsilon,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'isSynced',
+        property: r'finalPrice',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      finalPriceGreaterThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'finalPrice',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      finalPriceLessThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'finalPrice',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      finalPriceBetween(
+    double lower,
+    double upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'finalPrice',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition> idEqualTo(
+      Id value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'id',
         value: value,
       ));
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterFilterCondition>
-      isarIdEqualTo(Id value) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'isarId',
-        value: value,
-      ));
-    });
-  }
-
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterFilterCondition>
-      isarIdGreaterThan(
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition> idGreaterThan(
     Id value, {
     bool include = false,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         include: include,
-        property: r'isarId',
+        property: r'id',
         value: value,
       ));
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterFilterCondition>
-      isarIdLessThan(
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition> idLessThan(
     Id value, {
     bool include = false,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.lessThan(
         include: include,
-        property: r'isarId',
+        property: r'id',
         value: value,
       ));
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterFilterCondition>
-      isarIdBetween(
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition> idBetween(
     Id lower,
     Id upper, {
     bool includeLower = true,
@@ -1376,7 +1663,7 @@ extension KanRideBookingQueryFilter
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.between(
-        property: r'isarId',
+        property: r'id',
         lower: lower,
         includeLower: includeLower,
         upper: upper,
@@ -1385,9 +1672,191 @@ extension KanRideBookingQueryFilter
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterFilterCondition>
-      pickupAddressEqualTo(
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      isSharedRideEqualTo(bool value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'isSharedRide',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      passengerUuidIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'passengerUuid',
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      passengerUuidIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'passengerUuid',
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      passengerUuidEqualTo(
+    String? value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'passengerUuid',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      passengerUuidGreaterThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'passengerUuid',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      passengerUuidLessThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'passengerUuid',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      passengerUuidBetween(
+    String? lower,
+    String? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'passengerUuid',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      passengerUuidStartsWith(
     String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'passengerUuid',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      passengerUuidEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'passengerUuid',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      passengerUuidContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'passengerUuid',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      passengerUuidMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'passengerUuid',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      passengerUuidIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'passengerUuid',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      passengerUuidIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'passengerUuid',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      pickupAddressIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'pickupAddress',
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      pickupAddressIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'pickupAddress',
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      pickupAddressEqualTo(
+    String? value, {
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
@@ -1399,9 +1868,9 @@ extension KanRideBookingQueryFilter
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterFilterCondition>
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
       pickupAddressGreaterThan(
-    String value, {
+    String? value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -1415,9 +1884,9 @@ extension KanRideBookingQueryFilter
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterFilterCondition>
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
       pickupAddressLessThan(
-    String value, {
+    String? value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -1431,10 +1900,10 @@ extension KanRideBookingQueryFilter
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterFilterCondition>
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
       pickupAddressBetween(
-    String lower,
-    String upper, {
+    String? lower,
+    String? upper, {
     bool includeLower = true,
     bool includeUpper = true,
     bool caseSensitive = true,
@@ -1451,7 +1920,7 @@ extension KanRideBookingQueryFilter
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterFilterCondition>
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
       pickupAddressStartsWith(
     String value, {
     bool caseSensitive = true,
@@ -1465,7 +1934,7 @@ extension KanRideBookingQueryFilter
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterFilterCondition>
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
       pickupAddressEndsWith(
     String value, {
     bool caseSensitive = true,
@@ -1479,7 +1948,7 @@ extension KanRideBookingQueryFilter
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterFilterCondition>
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
       pickupAddressContains(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.contains(
@@ -1490,7 +1959,7 @@ extension KanRideBookingQueryFilter
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterFilterCondition>
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
       pickupAddressMatches(String pattern, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.matches(
@@ -1501,7 +1970,7 @@ extension KanRideBookingQueryFilter
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterFilterCondition>
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
       pickupAddressIsEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
@@ -1511,7 +1980,7 @@ extension KanRideBookingQueryFilter
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterFilterCondition>
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
       pickupAddressIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
@@ -1521,9 +1990,100 @@ extension KanRideBookingQueryFilter
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterFilterCondition>
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      pickupAtIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'pickupAt',
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      pickupAtIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'pickupAt',
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition> pickupAtEqualTo(
+      DateTime? value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'pickupAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      pickupAtGreaterThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'pickupAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      pickupAtLessThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'pickupAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition> pickupAtBetween(
+    DateTime? lower,
+    DateTime? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'pickupAt',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      pickupLatIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'pickupLat',
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      pickupLatIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'pickupLat',
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
       pickupLatEqualTo(
-    double value, {
+    double? value, {
     double epsilon = Query.epsilon,
   }) {
     return QueryBuilder.apply(this, (query) {
@@ -1535,9 +2095,9 @@ extension KanRideBookingQueryFilter
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterFilterCondition>
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
       pickupLatGreaterThan(
-    double value, {
+    double? value, {
     bool include = false,
     double epsilon = Query.epsilon,
   }) {
@@ -1551,9 +2111,9 @@ extension KanRideBookingQueryFilter
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterFilterCondition>
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
       pickupLatLessThan(
-    double value, {
+    double? value, {
     bool include = false,
     double epsilon = Query.epsilon,
   }) {
@@ -1567,10 +2127,10 @@ extension KanRideBookingQueryFilter
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterFilterCondition>
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
       pickupLatBetween(
-    double lower,
-    double upper, {
+    double? lower,
+    double? upper, {
     bool includeLower = true,
     bool includeUpper = true,
     double epsilon = Query.epsilon,
@@ -1587,9 +2147,27 @@ extension KanRideBookingQueryFilter
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterFilterCondition>
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      pickupLngIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'pickupLng',
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      pickupLngIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'pickupLng',
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
       pickupLngEqualTo(
-    double value, {
+    double? value, {
     double epsilon = Query.epsilon,
   }) {
     return QueryBuilder.apply(this, (query) {
@@ -1601,9 +2179,9 @@ extension KanRideBookingQueryFilter
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterFilterCondition>
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
       pickupLngGreaterThan(
-    double value, {
+    double? value, {
     bool include = false,
     double epsilon = Query.epsilon,
   }) {
@@ -1617,9 +2195,9 @@ extension KanRideBookingQueryFilter
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterFilterCondition>
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
       pickupLngLessThan(
-    double value, {
+    double? value, {
     bool include = false,
     double epsilon = Query.epsilon,
   }) {
@@ -1633,10 +2211,10 @@ extension KanRideBookingQueryFilter
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterFilterCondition>
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
       pickupLngBetween(
-    double lower,
-    double upper, {
+    double? lower,
+    double? upper, {
     bool includeLower = true,
     bool includeUpper = true,
     double epsilon = Query.epsilon,
@@ -1653,63 +2231,242 @@ extension KanRideBookingQueryFilter
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterFilterCondition>
-      statusEqualTo(
-    String value, {
-    bool caseSensitive = true,
-  }) {
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      requestedVehicleTypeEqualTo(VehicleType value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'status',
+        property: r'requestedVehicleType',
         value: value,
-        caseSensitive: caseSensitive,
       ));
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterFilterCondition>
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      requestedVehicleTypeGreaterThan(
+    VehicleType value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'requestedVehicleType',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      requestedVehicleTypeLessThan(
+    VehicleType value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'requestedVehicleType',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      requestedVehicleTypeBetween(
+    VehicleType lower,
+    VehicleType upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'requestedVehicleType',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition> statusEqualTo(
+      BookingStatus value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'status',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
       statusGreaterThan(
-    String value, {
+    BookingStatus value, {
     bool include = false,
-    bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         include: include,
         property: r'status',
         value: value,
-        caseSensitive: caseSensitive,
       ));
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterFilterCondition>
-      statusLessThan(
-    String value, {
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition> statusLessThan(
+    BookingStatus value, {
     bool include = false,
-    bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.lessThan(
         include: include,
         property: r'status',
         value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition> statusBetween(
+    BookingStatus lower,
+    BookingStatus upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'status',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      syncStatusEqualTo(SyncStatus value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'syncStatus',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      syncStatusGreaterThan(
+    SyncStatus value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'syncStatus',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      syncStatusLessThan(
+    SyncStatus value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'syncStatus',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      syncStatusBetween(
+    SyncStatus lower,
+    SyncStatus upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'syncStatus',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition> uuidIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'uuid',
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      uuidIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'uuid',
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition> uuidEqualTo(
+    String? value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'uuid',
+        value: value,
         caseSensitive: caseSensitive,
       ));
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterFilterCondition>
-      statusBetween(
-    String lower,
-    String upper, {
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition> uuidGreaterThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'uuid',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition> uuidLessThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'uuid',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition> uuidBetween(
+    String? lower,
+    String? upper, {
     bool includeLower = true,
     bool includeUpper = true,
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.between(
-        property: r'status',
+        property: r'uuid',
         lower: lower,
         includeLower: includeLower,
         upper: upper,
@@ -1719,948 +2476,853 @@ extension KanRideBookingQueryFilter
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterFilterCondition>
-      statusStartsWith(
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition> uuidStartsWith(
     String value, {
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.startsWith(
-        property: r'status',
+        property: r'uuid',
         value: value,
         caseSensitive: caseSensitive,
       ));
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterFilterCondition>
-      statusEndsWith(
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition> uuidEndsWith(
     String value, {
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.endsWith(
-        property: r'status',
+        property: r'uuid',
         value: value,
         caseSensitive: caseSensitive,
       ));
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterFilterCondition>
-      statusContains(String value, {bool caseSensitive = true}) {
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition> uuidContains(
+      String value,
+      {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.contains(
-        property: r'status',
+        property: r'uuid',
         value: value,
         caseSensitive: caseSensitive,
       ));
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterFilterCondition>
-      statusMatches(String pattern, {bool caseSensitive = true}) {
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition> uuidMatches(
+      String pattern,
+      {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.matches(
-        property: r'status',
+        property: r'uuid',
         wildcard: pattern,
         caseSensitive: caseSensitive,
       ));
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterFilterCondition>
-      statusIsEmpty() {
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition> uuidIsEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'status',
+        property: r'uuid',
         value: '',
       ));
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterFilterCondition>
-      statusIsNotEmpty() {
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      uuidIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
-        property: r'status',
-        value: '',
-      ));
-    });
-  }
-
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterFilterCondition>
-      updatedAtEqualTo(DateTime value) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'updatedAt',
-        value: value,
-      ));
-    });
-  }
-
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterFilterCondition>
-      updatedAtGreaterThan(
-    DateTime value, {
-    bool include = false,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        include: include,
-        property: r'updatedAt',
-        value: value,
-      ));
-    });
-  }
-
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterFilterCondition>
-      updatedAtLessThan(
-    DateTime value, {
-    bool include = false,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.lessThan(
-        include: include,
-        property: r'updatedAt',
-        value: value,
-      ));
-    });
-  }
-
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterFilterCondition>
-      updatedAtBetween(
-    DateTime lower,
-    DateTime upper, {
-    bool includeLower = true,
-    bool includeUpper = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.between(
-        property: r'updatedAt',
-        lower: lower,
-        includeLower: includeLower,
-        upper: upper,
-        includeUpper: includeUpper,
-      ));
-    });
-  }
-
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterFilterCondition>
-      vehicleTypeIdEqualTo(
-    String value, {
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'vehicleTypeId',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterFilterCondition>
-      vehicleTypeIdGreaterThan(
-    String value, {
-    bool include = false,
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        include: include,
-        property: r'vehicleTypeId',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterFilterCondition>
-      vehicleTypeIdLessThan(
-    String value, {
-    bool include = false,
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.lessThan(
-        include: include,
-        property: r'vehicleTypeId',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterFilterCondition>
-      vehicleTypeIdBetween(
-    String lower,
-    String upper, {
-    bool includeLower = true,
-    bool includeUpper = true,
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.between(
-        property: r'vehicleTypeId',
-        lower: lower,
-        includeLower: includeLower,
-        upper: upper,
-        includeUpper: includeUpper,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterFilterCondition>
-      vehicleTypeIdStartsWith(
-    String value, {
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.startsWith(
-        property: r'vehicleTypeId',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterFilterCondition>
-      vehicleTypeIdEndsWith(
-    String value, {
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.endsWith(
-        property: r'vehicleTypeId',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterFilterCondition>
-      vehicleTypeIdContains(String value, {bool caseSensitive = true}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.contains(
-        property: r'vehicleTypeId',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterFilterCondition>
-      vehicleTypeIdMatches(String pattern, {bool caseSensitive = true}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.matches(
-        property: r'vehicleTypeId',
-        wildcard: pattern,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterFilterCondition>
-      vehicleTypeIdIsEmpty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'vehicleTypeId',
-        value: '',
-      ));
-    });
-  }
-
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterFilterCondition>
-      vehicleTypeIdIsNotEmpty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        property: r'vehicleTypeId',
+        property: r'uuid',
         value: '',
       ));
     });
   }
 }
 
-extension KanRideBookingQueryObject
-    on QueryBuilder<KanRideBooking, KanRideBooking, QFilterCondition> {}
+extension RideBookingQueryObject
+    on QueryBuilder<RideBooking, RideBooking, QFilterCondition> {}
 
-extension KanRideBookingQueryLinks
-    on QueryBuilder<KanRideBooking, KanRideBooking, QFilterCondition> {}
+extension RideBookingQueryLinks
+    on QueryBuilder<RideBooking, RideBooking, QFilterCondition> {}
 
-extension KanRideBookingQuerySortBy
-    on QueryBuilder<KanRideBooking, KanRideBooking, QSortBy> {
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterSortBy> sortByBookingId() {
+extension RideBookingQuerySortBy
+    on QueryBuilder<RideBooking, RideBooking, QSortBy> {
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy> sortByAcceptedAt() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'bookingId', Sort.asc);
+      return query.addSortBy(r'acceptedAt', Sort.asc);
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterSortBy>
-      sortByBookingIdDesc() {
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy> sortByAcceptedAtDesc() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'bookingId', Sort.desc);
+      return query.addSortBy(r'acceptedAt', Sort.desc);
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterSortBy> sortByCreatedAt() {
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy> sortByCompletedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'completedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy> sortByCompletedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'completedAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy> sortByCreatedAt() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'createdAt', Sort.asc);
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterSortBy>
-      sortByCreatedAtDesc() {
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy> sortByCreatedAtDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'createdAt', Sort.desc);
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterSortBy>
-      sortByCustomerId() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'customerId', Sort.asc);
-    });
-  }
-
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterSortBy>
-      sortByCustomerIdDesc() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'customerId', Sort.desc);
-    });
-  }
-
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterSortBy>
-      sortByDistanceKm() {
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy> sortByDistanceKm() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'distanceKm', Sort.asc);
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterSortBy>
-      sortByDistanceKmDesc() {
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy> sortByDistanceKmDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'distanceKm', Sort.desc);
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterSortBy> sortByDriverId() {
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy> sortByDriverUuid() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'driverId', Sort.asc);
+      return query.addSortBy(r'driverUuid', Sort.asc);
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterSortBy>
-      sortByDriverIdDesc() {
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy> sortByDriverUuidDesc() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'driverId', Sort.desc);
+      return query.addSortBy(r'driverUuid', Sort.desc);
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterSortBy>
-      sortByDropoffAddress() {
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy> sortByDropoffAddress() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'dropoffAddress', Sort.asc);
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterSortBy>
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy>
       sortByDropoffAddressDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'dropoffAddress', Sort.desc);
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterSortBy>
-      sortByDropoffLat() {
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy> sortByDropoffLat() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'dropoffLat', Sort.asc);
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterSortBy>
-      sortByDropoffLatDesc() {
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy> sortByDropoffLatDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'dropoffLat', Sort.desc);
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterSortBy>
-      sortByDropoffLng() {
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy> sortByDropoffLng() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'dropoffLng', Sort.asc);
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterSortBy>
-      sortByDropoffLngDesc() {
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy> sortByDropoffLngDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'dropoffLng', Sort.desc);
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterSortBy>
-      sortByEstimatedPrice() {
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy> sortByEstimatedPrice() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'estimatedPrice', Sort.asc);
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterSortBy>
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy>
       sortByEstimatedPriceDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'estimatedPrice', Sort.desc);
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterSortBy> sortByIsSynced() {
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy> sortByFinalPrice() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'isSynced', Sort.asc);
+      return query.addSortBy(r'finalPrice', Sort.asc);
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterSortBy>
-      sortByIsSyncedDesc() {
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy> sortByFinalPriceDesc() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'isSynced', Sort.desc);
+      return query.addSortBy(r'finalPrice', Sort.desc);
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterSortBy>
-      sortByPickupAddress() {
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy> sortByIsSharedRide() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSharedRide', Sort.asc);
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy>
+      sortByIsSharedRideDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSharedRide', Sort.desc);
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy> sortByPassengerUuid() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'passengerUuid', Sort.asc);
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy>
+      sortByPassengerUuidDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'passengerUuid', Sort.desc);
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy> sortByPickupAddress() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'pickupAddress', Sort.asc);
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterSortBy>
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy>
       sortByPickupAddressDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'pickupAddress', Sort.desc);
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterSortBy> sortByPickupLat() {
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy> sortByPickupAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'pickupAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy> sortByPickupAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'pickupAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy> sortByPickupLat() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'pickupLat', Sort.asc);
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterSortBy>
-      sortByPickupLatDesc() {
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy> sortByPickupLatDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'pickupLat', Sort.desc);
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterSortBy> sortByPickupLng() {
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy> sortByPickupLng() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'pickupLng', Sort.asc);
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterSortBy>
-      sortByPickupLngDesc() {
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy> sortByPickupLngDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'pickupLng', Sort.desc);
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterSortBy> sortByStatus() {
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy>
+      sortByRequestedVehicleType() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'requestedVehicleType', Sort.asc);
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy>
+      sortByRequestedVehicleTypeDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'requestedVehicleType', Sort.desc);
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy> sortByStatus() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'status', Sort.asc);
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterSortBy>
-      sortByStatusDesc() {
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy> sortByStatusDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'status', Sort.desc);
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterSortBy> sortByUpdatedAt() {
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy> sortBySyncStatus() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'updatedAt', Sort.asc);
+      return query.addSortBy(r'syncStatus', Sort.asc);
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterSortBy>
-      sortByUpdatedAtDesc() {
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy> sortBySyncStatusDesc() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'updatedAt', Sort.desc);
+      return query.addSortBy(r'syncStatus', Sort.desc);
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterSortBy>
-      sortByVehicleTypeId() {
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy> sortByUuid() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'vehicleTypeId', Sort.asc);
+      return query.addSortBy(r'uuid', Sort.asc);
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterSortBy>
-      sortByVehicleTypeIdDesc() {
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy> sortByUuidDesc() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'vehicleTypeId', Sort.desc);
+      return query.addSortBy(r'uuid', Sort.desc);
     });
   }
 }
 
-extension KanRideBookingQuerySortThenBy
-    on QueryBuilder<KanRideBooking, KanRideBooking, QSortThenBy> {
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterSortBy> thenByBookingId() {
+extension RideBookingQuerySortThenBy
+    on QueryBuilder<RideBooking, RideBooking, QSortThenBy> {
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy> thenByAcceptedAt() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'bookingId', Sort.asc);
+      return query.addSortBy(r'acceptedAt', Sort.asc);
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterSortBy>
-      thenByBookingIdDesc() {
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy> thenByAcceptedAtDesc() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'bookingId', Sort.desc);
+      return query.addSortBy(r'acceptedAt', Sort.desc);
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterSortBy> thenByCreatedAt() {
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy> thenByCompletedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'completedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy> thenByCompletedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'completedAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy> thenByCreatedAt() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'createdAt', Sort.asc);
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterSortBy>
-      thenByCreatedAtDesc() {
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy> thenByCreatedAtDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'createdAt', Sort.desc);
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterSortBy>
-      thenByCustomerId() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'customerId', Sort.asc);
-    });
-  }
-
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterSortBy>
-      thenByCustomerIdDesc() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'customerId', Sort.desc);
-    });
-  }
-
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterSortBy>
-      thenByDistanceKm() {
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy> thenByDistanceKm() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'distanceKm', Sort.asc);
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterSortBy>
-      thenByDistanceKmDesc() {
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy> thenByDistanceKmDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'distanceKm', Sort.desc);
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterSortBy> thenByDriverId() {
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy> thenByDriverUuid() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'driverId', Sort.asc);
+      return query.addSortBy(r'driverUuid', Sort.asc);
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterSortBy>
-      thenByDriverIdDesc() {
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy> thenByDriverUuidDesc() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'driverId', Sort.desc);
+      return query.addSortBy(r'driverUuid', Sort.desc);
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterSortBy>
-      thenByDropoffAddress() {
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy> thenByDropoffAddress() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'dropoffAddress', Sort.asc);
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterSortBy>
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy>
       thenByDropoffAddressDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'dropoffAddress', Sort.desc);
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterSortBy>
-      thenByDropoffLat() {
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy> thenByDropoffLat() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'dropoffLat', Sort.asc);
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterSortBy>
-      thenByDropoffLatDesc() {
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy> thenByDropoffLatDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'dropoffLat', Sort.desc);
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterSortBy>
-      thenByDropoffLng() {
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy> thenByDropoffLng() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'dropoffLng', Sort.asc);
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterSortBy>
-      thenByDropoffLngDesc() {
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy> thenByDropoffLngDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'dropoffLng', Sort.desc);
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterSortBy>
-      thenByEstimatedPrice() {
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy> thenByEstimatedPrice() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'estimatedPrice', Sort.asc);
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterSortBy>
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy>
       thenByEstimatedPriceDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'estimatedPrice', Sort.desc);
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterSortBy> thenByIsSynced() {
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy> thenByFinalPrice() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'isSynced', Sort.asc);
+      return query.addSortBy(r'finalPrice', Sort.asc);
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterSortBy>
-      thenByIsSyncedDesc() {
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy> thenByFinalPriceDesc() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'isSynced', Sort.desc);
+      return query.addSortBy(r'finalPrice', Sort.desc);
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterSortBy> thenByIsarId() {
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy> thenById() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'isarId', Sort.asc);
+      return query.addSortBy(r'id', Sort.asc);
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterSortBy>
-      thenByIsarIdDesc() {
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy> thenByIdDesc() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'isarId', Sort.desc);
+      return query.addSortBy(r'id', Sort.desc);
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterSortBy>
-      thenByPickupAddress() {
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy> thenByIsSharedRide() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSharedRide', Sort.asc);
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy>
+      thenByIsSharedRideDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isSharedRide', Sort.desc);
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy> thenByPassengerUuid() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'passengerUuid', Sort.asc);
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy>
+      thenByPassengerUuidDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'passengerUuid', Sort.desc);
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy> thenByPickupAddress() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'pickupAddress', Sort.asc);
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterSortBy>
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy>
       thenByPickupAddressDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'pickupAddress', Sort.desc);
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterSortBy> thenByPickupLat() {
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy> thenByPickupAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'pickupAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy> thenByPickupAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'pickupAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy> thenByPickupLat() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'pickupLat', Sort.asc);
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterSortBy>
-      thenByPickupLatDesc() {
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy> thenByPickupLatDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'pickupLat', Sort.desc);
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterSortBy> thenByPickupLng() {
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy> thenByPickupLng() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'pickupLng', Sort.asc);
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterSortBy>
-      thenByPickupLngDesc() {
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy> thenByPickupLngDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'pickupLng', Sort.desc);
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterSortBy> thenByStatus() {
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy>
+      thenByRequestedVehicleType() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'requestedVehicleType', Sort.asc);
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy>
+      thenByRequestedVehicleTypeDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'requestedVehicleType', Sort.desc);
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy> thenByStatus() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'status', Sort.asc);
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterSortBy>
-      thenByStatusDesc() {
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy> thenByStatusDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'status', Sort.desc);
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterSortBy> thenByUpdatedAt() {
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy> thenBySyncStatus() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'updatedAt', Sort.asc);
+      return query.addSortBy(r'syncStatus', Sort.asc);
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterSortBy>
-      thenByUpdatedAtDesc() {
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy> thenBySyncStatusDesc() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'updatedAt', Sort.desc);
+      return query.addSortBy(r'syncStatus', Sort.desc);
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterSortBy>
-      thenByVehicleTypeId() {
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy> thenByUuid() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'vehicleTypeId', Sort.asc);
+      return query.addSortBy(r'uuid', Sort.asc);
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QAfterSortBy>
-      thenByVehicleTypeIdDesc() {
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy> thenByUuidDesc() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'vehicleTypeId', Sort.desc);
+      return query.addSortBy(r'uuid', Sort.desc);
     });
   }
 }
 
-extension KanRideBookingQueryWhereDistinct
-    on QueryBuilder<KanRideBooking, KanRideBooking, QDistinct> {
-  QueryBuilder<KanRideBooking, KanRideBooking, QDistinct> distinctByBookingId(
-      {bool caseSensitive = true}) {
+extension RideBookingQueryWhereDistinct
+    on QueryBuilder<RideBooking, RideBooking, QDistinct> {
+  QueryBuilder<RideBooking, RideBooking, QDistinct> distinctByAcceptedAt() {
     return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(r'bookingId', caseSensitive: caseSensitive);
+      return query.addDistinctBy(r'acceptedAt');
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QDistinct>
-      distinctByCreatedAt() {
+  QueryBuilder<RideBooking, RideBooking, QDistinct> distinctByCompletedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'completedAt');
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QDistinct> distinctByCreatedAt() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'createdAt');
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QDistinct> distinctByCustomerId(
-      {bool caseSensitive = true}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(r'customerId', caseSensitive: caseSensitive);
-    });
-  }
-
-  QueryBuilder<KanRideBooking, KanRideBooking, QDistinct>
-      distinctByDistanceKm() {
+  QueryBuilder<RideBooking, RideBooking, QDistinct> distinctByDistanceKm() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'distanceKm');
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QDistinct> distinctByDriverId(
+  QueryBuilder<RideBooking, RideBooking, QDistinct> distinctByDriverUuid(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(r'driverId', caseSensitive: caseSensitive);
+      return query.addDistinctBy(r'driverUuid', caseSensitive: caseSensitive);
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QDistinct>
-      distinctByDropoffAddress({bool caseSensitive = true}) {
+  QueryBuilder<RideBooking, RideBooking, QDistinct> distinctByDropoffAddress(
+      {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'dropoffAddress',
           caseSensitive: caseSensitive);
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QDistinct>
-      distinctByDropoffLat() {
+  QueryBuilder<RideBooking, RideBooking, QDistinct> distinctByDropoffLat() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'dropoffLat');
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QDistinct>
-      distinctByDropoffLng() {
+  QueryBuilder<RideBooking, RideBooking, QDistinct> distinctByDropoffLng() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'dropoffLng');
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QDistinct>
-      distinctByEstimatedPrice() {
+  QueryBuilder<RideBooking, RideBooking, QDistinct> distinctByEstimatedPrice() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'estimatedPrice');
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QDistinct> distinctByIsSynced() {
+  QueryBuilder<RideBooking, RideBooking, QDistinct> distinctByFinalPrice() {
     return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(r'isSynced');
+      return query.addDistinctBy(r'finalPrice');
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QDistinct>
-      distinctByPickupAddress({bool caseSensitive = true}) {
+  QueryBuilder<RideBooking, RideBooking, QDistinct> distinctByIsSharedRide() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'isSharedRide');
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QDistinct> distinctByPassengerUuid(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'passengerUuid',
+          caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QDistinct> distinctByPickupAddress(
+      {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'pickupAddress',
           caseSensitive: caseSensitive);
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QDistinct>
-      distinctByPickupLat() {
+  QueryBuilder<RideBooking, RideBooking, QDistinct> distinctByPickupAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'pickupAt');
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QDistinct> distinctByPickupLat() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'pickupLat');
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QDistinct>
-      distinctByPickupLng() {
+  QueryBuilder<RideBooking, RideBooking, QDistinct> distinctByPickupLng() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'pickupLng');
     });
   }
 
-  QueryBuilder<KanRideBooking, KanRideBooking, QDistinct> distinctByStatus(
+  QueryBuilder<RideBooking, RideBooking, QDistinct>
+      distinctByRequestedVehicleType() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'requestedVehicleType');
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QDistinct> distinctByStatus() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'status');
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QDistinct> distinctBySyncStatus() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'syncStatus');
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QDistinct> distinctByUuid(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(r'status', caseSensitive: caseSensitive);
-    });
-  }
-
-  QueryBuilder<KanRideBooking, KanRideBooking, QDistinct>
-      distinctByUpdatedAt() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(r'updatedAt');
-    });
-  }
-
-  QueryBuilder<KanRideBooking, KanRideBooking, QDistinct>
-      distinctByVehicleTypeId({bool caseSensitive = true}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(r'vehicleTypeId',
-          caseSensitive: caseSensitive);
+      return query.addDistinctBy(r'uuid', caseSensitive: caseSensitive);
     });
   }
 }
 
-extension KanRideBookingQueryProperty
-    on QueryBuilder<KanRideBooking, KanRideBooking, QQueryProperty> {
-  QueryBuilder<KanRideBooking, int, QQueryOperations> isarIdProperty() {
+extension RideBookingQueryProperty
+    on QueryBuilder<RideBooking, RideBooking, QQueryProperty> {
+  QueryBuilder<RideBooking, int, QQueryOperations> idProperty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addPropertyName(r'isarId');
+      return query.addPropertyName(r'id');
     });
   }
 
-  QueryBuilder<KanRideBooking, String, QQueryOperations> bookingIdProperty() {
+  QueryBuilder<RideBooking, DateTime?, QQueryOperations> acceptedAtProperty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addPropertyName(r'bookingId');
+      return query.addPropertyName(r'acceptedAt');
     });
   }
 
-  QueryBuilder<KanRideBooking, DateTime, QQueryOperations> createdAtProperty() {
+  QueryBuilder<RideBooking, DateTime?, QQueryOperations> completedAtProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'completedAt');
+    });
+  }
+
+  QueryBuilder<RideBooking, DateTime?, QQueryOperations> createdAtProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'createdAt');
     });
   }
 
-  QueryBuilder<KanRideBooking, String, QQueryOperations> customerIdProperty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addPropertyName(r'customerId');
-    });
-  }
-
-  QueryBuilder<KanRideBooking, double, QQueryOperations> distanceKmProperty() {
+  QueryBuilder<RideBooking, double, QQueryOperations> distanceKmProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'distanceKm');
     });
   }
 
-  QueryBuilder<KanRideBooking, String?, QQueryOperations> driverIdProperty() {
+  QueryBuilder<RideBooking, String?, QQueryOperations> driverUuidProperty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addPropertyName(r'driverId');
+      return query.addPropertyName(r'driverUuid');
     });
   }
 
-  QueryBuilder<KanRideBooking, String, QQueryOperations>
+  QueryBuilder<RideBooking, String?, QQueryOperations>
       dropoffAddressProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'dropoffAddress');
     });
   }
 
-  QueryBuilder<KanRideBooking, double, QQueryOperations> dropoffLatProperty() {
+  QueryBuilder<RideBooking, double?, QQueryOperations> dropoffLatProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'dropoffLat');
     });
   }
 
-  QueryBuilder<KanRideBooking, double, QQueryOperations> dropoffLngProperty() {
+  QueryBuilder<RideBooking, double?, QQueryOperations> dropoffLngProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'dropoffLng');
     });
   }
 
-  QueryBuilder<KanRideBooking, double, QQueryOperations>
-      estimatedPriceProperty() {
+  QueryBuilder<RideBooking, double, QQueryOperations> estimatedPriceProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'estimatedPrice');
     });
   }
 
-  QueryBuilder<KanRideBooking, bool, QQueryOperations> isSyncedProperty() {
+  QueryBuilder<RideBooking, double, QQueryOperations> finalPriceProperty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addPropertyName(r'isSynced');
+      return query.addPropertyName(r'finalPrice');
     });
   }
 
-  QueryBuilder<KanRideBooking, String, QQueryOperations>
-      pickupAddressProperty() {
+  QueryBuilder<RideBooking, bool, QQueryOperations> isSharedRideProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'isSharedRide');
+    });
+  }
+
+  QueryBuilder<RideBooking, String?, QQueryOperations> passengerUuidProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'passengerUuid');
+    });
+  }
+
+  QueryBuilder<RideBooking, String?, QQueryOperations> pickupAddressProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'pickupAddress');
     });
   }
 
-  QueryBuilder<KanRideBooking, double, QQueryOperations> pickupLatProperty() {
+  QueryBuilder<RideBooking, DateTime?, QQueryOperations> pickupAtProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'pickupAt');
+    });
+  }
+
+  QueryBuilder<RideBooking, double?, QQueryOperations> pickupLatProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'pickupLat');
     });
   }
 
-  QueryBuilder<KanRideBooking, double, QQueryOperations> pickupLngProperty() {
+  QueryBuilder<RideBooking, double?, QQueryOperations> pickupLngProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'pickupLng');
     });
   }
 
-  QueryBuilder<KanRideBooking, String, QQueryOperations> statusProperty() {
+  QueryBuilder<RideBooking, VehicleType, QQueryOperations>
+      requestedVehicleTypeProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'requestedVehicleType');
+    });
+  }
+
+  QueryBuilder<RideBooking, BookingStatus, QQueryOperations> statusProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'status');
     });
   }
 
-  QueryBuilder<KanRideBooking, DateTime, QQueryOperations> updatedAtProperty() {
+  QueryBuilder<RideBooking, SyncStatus, QQueryOperations> syncStatusProperty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addPropertyName(r'updatedAt');
+      return query.addPropertyName(r'syncStatus');
     });
   }
 
-  QueryBuilder<KanRideBooking, String, QQueryOperations>
-      vehicleTypeIdProperty() {
+  QueryBuilder<RideBooking, String?, QQueryOperations> uuidProperty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addPropertyName(r'vehicleTypeId');
+      return query.addPropertyName(r'uuid');
     });
   }
 }

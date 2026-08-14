@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/ride_providers.dart';
+import '../models/ride_booking.dart';
 import 'ride_booking_screen.dart';
 import 'ride_map_screen.dart';
 
@@ -45,7 +46,9 @@ class RideDashboardScreen extends ConsumerWidget {
               title: const Text('Bản Đồ Điều Phối'),
               onTap: () {
                 Navigator.pop(context);
-                Navigator.push(context, MaterialPageRoute(builder: (_) => const RideMapScreen()));
+                if (pendingBookings.isNotEmpty) {
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => RideMapScreen(booking: pendingBookings.first)));
+                }
               },
             ),
           ],
@@ -118,7 +121,7 @@ class RideDashboardScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildPendingBookings(List<dynamic> bookings) {
+  Widget _buildPendingBookings(List<RideBooking> bookings) {
     if (bookings.isEmpty) {
       return const Card(
         child: Padding(
@@ -143,7 +146,9 @@ class RideDashboardScreen extends ConsumerWidget {
             title: Text('${b.pickupAddress} -> ${b.dropoffAddress}', style: const TextStyle(fontWeight: FontWeight.bold)),
             subtitle: Text('Khoảng cách: ${b.distanceKm} km - Giá: ${b.estimatedPrice}đ'),
             trailing: const Icon(Icons.chevron_right),
-            onTap: () {},
+            onTap: () {
+              Navigator.push(context, MaterialPageRoute(builder: (_) => RideMapScreen(booking: b)));
+            },
           ),
         );
       },

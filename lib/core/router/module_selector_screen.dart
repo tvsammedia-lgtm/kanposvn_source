@@ -36,12 +36,17 @@ class _ModuleSelectorScreenState extends ConsumerState<ModuleSelectorScreen> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.store_mall_directory, size: 64, color: AppColors.primaryLight),
+                    Image.asset(
+                      'assets/images/logo.png',
+                      width: 72,
+                      height: 72,
+                      fit: BoxFit.contain,
+                    ),
                     const SizedBox(height: 16),
                     Text('KanPosVN',
                       style: TextStyle(color: AppColors.textLight, fontSize: 32, fontWeight: FontWeight.bold)),
                     const SizedBox(height: 8),
-                    Text('${'hello'.tr}, ${auth.user?['full_name'] ?? 'User'}',
+                    Text('${'hello'.tr}, ${auth.displayName}',
                       style: TextStyle(color: AppColors.textMuted, fontSize: 16)),
                     const SizedBox(height: 32),
                     if (isLoading) ...[

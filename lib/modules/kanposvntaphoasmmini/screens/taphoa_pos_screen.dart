@@ -2,12 +2,15 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/invoice.dart';
+import '../models/partner.dart';
 import '../providers/taphoa_providers.dart';
 import '../services/taphoa_receipt_printer.dart';
 import '../widgets/taphoa_barcode_scanner.dart';
+import '../../../core/printer/printer_actions.dart';
+import '../../../core/printer/receipt_print_mode.dart';
 
 class TapHoaPosScreen extends ConsumerStatefulWidget {
-  const TapHoaPosScreen({Key? key}) : super(key: key);
+  const TapHoaPosScreen({super.key});
 
   @override
   ConsumerState<TapHoaPosScreen> createState() => _TapHoaPosScreenState();
@@ -132,67 +135,21 @@ class _TapHoaPosScreenState extends ConsumerState<TapHoaPosScreen> {
                       onPressed: cart.isEmpty
                           ? null
                           : () async {
-                              final invoiceId = 'HD_${DateTime.now().millisecondsSinceEpoch}';
-                              final invoice = TapHoaInvoice()
-                                ..invoiceId = invoiceId
-                                ..invoiceNumber = 'HD${DateTime.now().millisecondsSinceEpoch}'
-                                ..createdAt = DateTime.now()
-                                ..customerId = customerId
-                                ..customerName = customerName
-                                ..totalAmount = totalAmount
-                                ..discountAmount = 0
-                                ..finalAmount = totalAmount
-                                ..paymentMethod = paymentMethod
-                                ..status = 'completed'
-                                ..amountPaid = paymentMethod == 'debt' ? 0 : amountPaid
-                                ..changeAmount =
-                                    paymentMethod == 'debt' ? 0 : (change > 0 ? change : 0)
-                                ..cashierName = 'Thu ngân';
-
-                              final items = <TapHoaInvoiceItem>[];
-                              for (var i in cart) {
-                                items.add(TapHoaInvoiceItem()
-                                  ..invoiceItemId = i.invoiceItemId
-                                  ..invoiceId = invoiceId
-                                  ..productId = i.productId
-                                  ..productName = i.productName
-                                  ..productCode = i.productCode
-                                  ..quantity = i.quantity
-                                  ..price = i.price
-                                  ..discount = i.discount
-                                  ..total = i.total);
-                              }
-
                               final customer = customerId.isEmpty
                                   ? null
                                   : customers
                                       .where((c) => c.customerId == customerId)
                                       .firstOrNull;
-
-                              await ref
-                                  .read(tapHoaInvoicesProvider.notifier)
-                                  .checkout(invoice, items, customer: customer);
-                              ref.read(tapHoaPosCartProvider.notifier).startNewOrder();
-                              ref.read(tapHoaInventoryProvider.notifier).loadInventory();
-
-                              final stateContext = this.context;
-                              if (mounted) {
-                                Navigator.of(stateContext).pop();
-                              }
-                              try {
-                                await printTapHoaReceiptPdf(invoice, items);
-                              } catch (e) {
-                                if (mounted) {
-                                  ScaffoldMessenger.of(stateContext).showSnackBar(
-                                    SnackBar(content: Text('In hóa đơn thất bại: $e')),
-                                  );
-                                }
-                              }
-                              if (mounted) {
-                                ScaffoldMessenger.of(stateContext).showSnackBar(
-                                  const SnackBar(content: Text('Thanh toán thành công!')),
-                                );
-                              }
+                              Navigator.of(context).pop();
+                              await _completeCheckout(
+                                cart,
+                                ReceiptPrintMode.auto,
+                                amountPaid: amountPaid,
+                                paymentMethod: paymentMethod,
+                                customerId: customerId,
+                                customerName: customerName,
+                                customer: customer,
+                              );
                             },
                       child: const Text('THANH TOÁN', style: TextStyle(fontSize: 16)),
                     ),
@@ -204,6 +161,80 @@ class _TapHoaPosScreenState extends ConsumerState<TapHoaPosScreen> {
         );
       },
     );
+  }
+
+  /// Hoàn tất thanh toán (tạo hóa đơn, trừ kho, ghi doanh thu) rồi in theo [mode].
+  Future<void> _completeCheckout(
+    List<TapHoaInvoiceItem> cart,
+    ReceiptPrintMode mode, {
+    double? amountPaid,
+    String paymentMethod = 'cash',
+    String customerId = '',
+    String customerName = '',
+    TapHoaCustomer? customer,
+  }) async {
+    if (cart.isEmpty) return;
+    final totalAmount = cart.fold<double>(0, (s, i) => s + i.total);
+    final paid = amountPaid ?? totalAmount;
+    final change = paid - totalAmount;
+
+    final invoiceId = 'HD_${DateTime.now().millisecondsSinceEpoch}';
+    final invoice = TapHoaInvoice()
+      ..invoiceId = invoiceId
+      ..invoiceNumber = 'HD${DateTime.now().millisecondsSinceEpoch}'
+      ..createdAt = DateTime.now()
+      ..customerId = customerId
+      ..customerName = customerName
+      ..totalAmount = totalAmount
+      ..discountAmount = 0
+      ..finalAmount = totalAmount
+      ..paymentMethod = paymentMethod
+      ..status = 'completed'
+      ..amountPaid = paymentMethod == 'debt' ? 0 : paid
+      ..changeAmount = paymentMethod == 'debt' ? 0 : (change > 0 ? change : 0)
+      ..cashierName = 'Thu ngân';
+
+    final items = <TapHoaInvoiceItem>[];
+    for (var i in cart) {
+      items.add(TapHoaInvoiceItem()
+        ..invoiceItemId = i.invoiceItemId
+        ..invoiceId = invoiceId
+        ..productId = i.productId
+        ..productName = i.productName
+        ..productCode = i.productCode
+        ..quantity = i.quantity
+        ..price = i.price
+        ..discount = i.discount
+        ..total = i.total);
+    }
+
+    await ref
+        .read(tapHoaInvoicesProvider.notifier)
+        .checkout(invoice, items, customer: customer);
+    ref.read(tapHoaPosCartProvider.notifier).startNewOrder();
+    ref.read(tapHoaInventoryProvider.notifier).loadInventory();
+
+    final stateContext = context;
+    try {
+      await printReceiptByMode(
+        stateContext,
+        ref,
+        await buildTapHoaReceiptData(invoice, items),
+        mode,
+        pdfFilename: 'HoaDon_${invoice.invoiceNumber}.pdf',
+      );
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(stateContext).showSnackBar(
+          SnackBar(content: Text('In hóa đơn thất bại: $e')),
+        );
+      }
+    }
+    if (mounted) {
+      ScaffoldMessenger.of(stateContext).showSnackBar(
+        const SnackBar(content: Text('Thanh toán thành công!')),
+      );
+    }
   }
 
   Widget _methodChip(StateSetter setSheetState, String value, String label, IconData icon,
@@ -489,6 +520,54 @@ class _TapHoaPosScreenState extends ConsumerState<TapHoaPosScreen> {
                           ],
                         ),
                         const SizedBox(height: 16),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: SizedBox(
+                                height: 44,
+                                child: ElevatedButton.icon(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.orange,
+                                    foregroundColor: Colors.white,
+                                  ),
+                                  onPressed: cart.isEmpty
+                                      ? null
+                                      : () => _completeCheckout(
+                                            cart,
+                                            ReceiptPrintMode.thermal80,
+                                          ),
+                                  icon: const Icon(Icons.print, size: 16),
+                                  label: const Text('IN BILL 80mm',
+                                      style: TextStyle(
+                                          fontSize: 12, fontWeight: FontWeight.bold)),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: SizedBox(
+                                height: 44,
+                                child: ElevatedButton.icon(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.red,
+                                    foregroundColor: Colors.white,
+                                  ),
+                                  onPressed: cart.isEmpty
+                                      ? null
+                                      : () => _completeCheckout(
+                                            cart,
+                                            ReceiptPrintMode.pdf,
+                                          ),
+                                  icon: const Icon(Icons.picture_as_pdf, size: 16),
+                                  label: const Text('IN PDF',
+                                      style: TextStyle(
+                                          fontSize: 12, fontWeight: FontWeight.bold)),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
                         SizedBox(
                           width: double.infinity,
                           height: 50,
@@ -499,7 +578,7 @@ class _TapHoaPosScreenState extends ConsumerState<TapHoaPosScreen> {
                             ),
                             onPressed: cart.isEmpty ? null : () => _showPaymentSheet(cart),
                             child: const Text('THANH TOÁN',
-                                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                           ),
                         ),
                       ],

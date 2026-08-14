@@ -5,6 +5,10 @@ import '../services/bill_printer.dart';
 import '../models/cafe_menu.dart';
 import '../models/cafe_order.dart';
 import '../providers/cafe_providers.dart';
+import '../../../core/auth/auth_service.dart';
+import '../../../core/printer/printer_actions.dart';
+import '../../../core/printer/receipt_data.dart';
+import '../../../core/printer/receipt_print_mode.dart';
 
 class PosOrderScreen extends ConsumerStatefulWidget {
   const PosOrderScreen({super.key});
@@ -550,7 +554,7 @@ class _PosOrderScreenState extends ConsumerState<PosOrderScreen> {
                   children: [
                     SizedBox(
                       width: constraints.maxWidth >= 420
-                          ? (constraints.maxWidth / 3) - 8
+                          ? (constraints.maxWidth / 4) - 8
                           : double.infinity,
                       child: OutlinedButton.icon(
                         icon: const Icon(Icons.print, size: 18),
@@ -564,32 +568,57 @@ class _PosOrderScreenState extends ConsumerState<PosOrderScreen> {
                     ),
                     SizedBox(
                       width: constraints.maxWidth >= 420
-                          ? (constraints.maxWidth / 3) - 8
+                          ? (constraints.maxWidth / 4) - 8
                           : double.infinity,
-                      child: OutlinedButton.icon(
-                        icon: const Icon(
-                          Icons.picture_as_pdf,
-                          size: 18,
-                          color: Colors.red,
+                      child: ElevatedButton.icon(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.orange,
+                          padding: const EdgeInsets.symmetric(vertical: 12),
                         ),
+                        icon: const Icon(Icons.print, size: 18, color: Colors.white),
                         label: const Text(
-                          'In PDF',
-                          style: TextStyle(color: Colors.red),
+                          'In 80mm',
+                          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
                         ),
                         onPressed: cart.items.isEmpty
                             ? null
-                            : () async {
-                                await _printReceiptPdf(
+                            : () => _completePayment(
                                   context,
                                   cart,
-                                  createPdfFirst: true,
-                                );
-                              },
+                                  ReceiptPrintMode.thermal80,
+                                ),
                       ),
                     ),
                     SizedBox(
                       width: constraints.maxWidth >= 420
-                          ? (constraints.maxWidth / 3) - 8
+                          ? (constraints.maxWidth / 4) - 8
+                          : double.infinity,
+                      child: ElevatedButton.icon(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.red,
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                        ),
+                        icon: const Icon(
+                          Icons.picture_as_pdf,
+                          size: 18,
+                          color: Colors.white,
+                        ),
+                        label: const Text(
+                          'In PDF',
+                          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                        ),
+                        onPressed: cart.items.isEmpty
+                            ? null
+                            : () => _completePayment(
+                                  context,
+                                  cart,
+                                  ReceiptPrintMode.pdf,
+                                ),
+                      ),
+                    ),
+                    SizedBox(
+                      width: constraints.maxWidth >= 420
+                          ? (constraints.maxWidth / 4) - 8
                           : double.infinity,
                       child: ElevatedButton.icon(
                         style: ElevatedButton.styleFrom(
@@ -618,6 +647,72 @@ class _PosOrderScreenState extends ConsumerState<PosOrderScreen> {
           ),
         );
       },
+    );
+  }
+
+  Future<void> _completePayment(
+    BuildContext context,
+    CafeOrder cart,
+    ReceiptPrintMode mode,
+  ) async {
+    final completedOrder = await ref
+        .read(cafePosCartProvider.notifier)
+        .checkout(PaymentMethod.tienMat, ref);
+    if (!context.mounted || !mounted) return;
+    try {
+      await printReceiptByMode(
+        context,
+        ref,
+        await _buildReceipt(completedOrder),
+        mode,
+        pdfFilename: 'HoaDon_${completedOrder.orderCode}.pdf',
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('In hóa đơn thất bại: $e')),
+      );
+    }
+    if (!context.mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text(
+          'Thanh toán hoàn tất! Đã tự động trừ kho nguyên liệu và thêm vào hàng chờ đồng bộ.',
+        ),
+      ),
+    );
+  }
+
+  Future<ReceiptData> _buildReceipt(CafeOrder cart) async {
+    final storeName = await AuthService.loadSavedStoreName();
+    final storePhone = await AuthService.loadSavedStorePhone();
+    return ReceiptData(
+      shopName: storeName ?? 'KANPOSVN',
+      shopPhone: storePhone,
+      title: 'HÓA ĐƠN THANH TOÁN',
+      orderCode: cart.orderCode,
+      date: cart.paidAt ?? DateTime.now(),
+      table: cart.tableName ?? '',
+      customer: cart.customerName,
+      paymentMethod: cart.paymentMethod.label,
+      qrData: cart.orderCode,
+      items: cart.items.map((item) {
+        final unitPrice = item.unitPrice + item.selectedSize.extraPrice;
+        final toppings = item.selectedToppings
+            .map((t) => '${t.name} ${currencyFormatter.format(t.price)}')
+            .join(', ');
+        return ReceiptItem(
+          name: '${item.menuItemName} (${item.selectedSize.name})',
+          quantity: item.quantity.toDouble(),
+          unitPrice: unitPrice,
+          total: item.totalPrice,
+          extra: toppings.isNotEmpty
+              ? toppings
+              : (item.note.isNotEmpty ? item.note : ''),
+        );
+      }).toList(),
+      subtotal: cart.subtotal,
+      discount: cart.totalDiscount,
+      grandTotal: cart.grandTotal,
     );
   }
 
@@ -792,16 +887,19 @@ class _PosOrderScreenState extends ConsumerState<PosOrderScreen> {
                         .read(cafePosCartProvider.notifier)
                         .checkout(selectedMethod, ref);
                     if (!screenContext.mounted || !mounted) return;
-                    await _printReceiptPdf(
+                    await printReceiptByMode(
                       screenContext,
-                      completedOrder,
-                      createPdfFirst: true,
+                      ref,
+                      await _buildReceipt(completedOrder),
+                      ReceiptPrintMode.auto,
+                      pdfFilename:
+                          'HoaDon_${completedOrder.orderCode}.pdf',
                     );
                     if (!screenContext.mounted) return;
                     ScaffoldMessenger.of(screenContext).showSnackBar(
                       const SnackBar(
                         content: Text(
-                          'Thanh toán hoàn tất! Đã tự động trừ kho nguyên liệu và thêm vào SyncQueue.',
+                          'Thanh toán hoàn tất! Đã tự động trừ kho nguyên liệu và thêm vào hàng chờ đồng bộ.',
                         ),
                       ),
                     );
