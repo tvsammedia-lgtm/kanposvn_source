@@ -50,6 +50,38 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     await sql`INSERT INTO audit_logs (user_name, action, module, details) VALUES (${admin.email}, 'Sua user', 'Users', ${'Doi email user: ' + targetEmail + ' -> ' + body.email})`;
   }
 
+  // Gia hạn free 7 ngày: unlock + kéo dài subscription_end thêm 7 ngày (tính từ
+  // max(subscription_end hiện tại, now) — không reset) + đồng bộ licenses để app
+  // Flutter / Zalo Mini App không khóa lại + đếm số lần gia hạn free.
+  const grantFree7 = async (): Promise<void> => {
+    const userRows = await sql`
+      SELECT subscription_end FROM users WHERE id = ${id}
+    `;
+    const now = new Date();
+    const base = userRows[0].subscription_end
+      ? new Date(Math.max(new Date(userRows[0].subscription_end).getTime(), now.getTime()))
+      : now;
+    const newEnd = new Date(base.getTime() + 7 * 24 * 60 * 60 * 1000);
+    await sql`
+      UPDATE users SET active = true, subscription_end = ${newEnd.toISOString()}, free_renewal_count = free_renewal_count + 1
+      WHERE id = ${id}
+    `;
+    const licRows = await sql`
+      SELECT id, expires_at FROM licenses WHERE user_id = ${id}
+    `;
+    for (const lic of licRows) {
+      const licBase = lic.expires_at
+        ? new Date(Math.max(new Date(lic.expires_at).getTime(), now.getTime()))
+        : now;
+      const newLicEnd = new Date(licBase.getTime() + 7 * 24 * 60 * 60 * 1000);
+      await sql`
+        UPDATE licenses SET status = 'active', expires_at = ${newLicEnd.toISOString()}
+        WHERE id = ${lic.id}
+      `;
+    }
+    await sql`INSERT INTO audit_logs (user_name, action, module, details) VALUES (${admin.email}, 'Gia han free 7 ngay', 'Users', ${'User: ' + id + ' -> ' + newEnd.toISOString()})`;
+  };
+
   if (body.active !== undefined) {
     if (body.active) {
       // Unlock kèm gia hạn theo đơn paid gần nhất (giống luồng xác nhận chuyển khoản),
@@ -77,7 +109,16 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
           WHERE id = ${id}
         `;
       } else {
-        await sql`UPDATE users SET active = true WHERE id = ${id}`;
+        const currentEnd = userRows[0].subscription_end
+          ? new Date(userRows[0].subscription_end)
+          : null;
+        if (currentEnd && currentEnd.getTime() < Date.now()) {
+          // Hết hạn, không có đơn paid: gia hạn free 7 ngày để user thực sự được unlock
+          // (không bị auto-lock khóa lại, app cũng mở lại license).
+          await grantFree7();
+        } else {
+          await sql`UPDATE users SET active = true WHERE id = ${id}`;
+        }
       }
     } else {
       await sql`UPDATE users SET active = false WHERE id = ${id}`;
@@ -86,36 +127,12 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   }
 
   if (body.free_extend) {
-    // Gia hạn free thêm 7 ngày: unlock + kéo dài subscription_end thêm đúng 7 ngày
-    // (tính từ max(subscription_end hiện tại, now) — không reset).
-    const userRows = await sql`
-      SELECT subscription_end FROM users WHERE id = ${id}
-    `;
-    const now = new Date();
-    const base = userRows[0].subscription_end
-      ? new Date(Math.max(new Date(userRows[0].subscription_end).getTime(), now.getTime()))
-      : now;
-    const newEnd = new Date(base.getTime() + 7 * 24 * 60 * 60 * 1000);
-    await sql`
-      UPDATE users SET active = true, subscription_end = ${newEnd.toISOString()}, free_renewal_count = free_renewal_count + 1
-      WHERE id = ${id}
-    `;
-    // Đồng bộ licenses (app kiểm tra bảng này): kéo dài expires_at thêm 7 ngày, mở lại status active
-    // để app Flutter / Zalo Mini App không khóa lại user.
-    const licRows = await sql`
-      SELECT id, expires_at FROM licenses WHERE user_id = ${id}
-    `;
-    for (const lic of licRows) {
-      const licBase = lic.expires_at
-        ? new Date(Math.max(new Date(lic.expires_at).getTime(), now.getTime()))
-        : now;
-      const newLicEnd = new Date(licBase.getTime() + 7 * 24 * 60 * 60 * 1000);
-      await sql`
-        UPDATE licenses SET status = 'active', expires_at = ${newLicEnd.toISOString()}
-        WHERE id = ${lic.id}
-      `;
-    }
-    await sql`INSERT INTO audit_logs (user_name, action, module, details) VALUES (${admin.email}, 'Gia han free 7 ngay', 'Users', ${'User: ' + id + ' -> ' + newEnd.toISOString()})`;
+    await grantFree7();
+  }
+
+  if (body.free_renewal_count !== undefined) {
+    const count = Math.max(0, parseInt(body.free_renewal_count) || 0);
+    await sql`UPDATE users SET free_renewal_count = ${count} WHERE id = ${id}`;
   }
 
   if (body.password) {

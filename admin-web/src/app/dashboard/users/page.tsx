@@ -25,6 +25,13 @@ const PLANS = [
   { value: 'forever', label: 'Vĩnh Viễn' },
 ];
 
+const EDIT_PLANS = [
+  { value: '7', label: '7 ngày' },
+  { value: '365', label: '365 ngày' },
+  { value: 'forever', label: 'Vĩnh Viễn' },
+  { value: 'free7', label: 'Gia hạn free +7 ngày' },
+];
+
 const EMPTY_FORM = { email: '', password: '', full_name: '', birth_year: '', cccd: '', phone: '', subscription_plan: '7' };
 
 function calcEndDate(planDays: string): string {
@@ -54,7 +61,7 @@ export default function UsersPage() {
   const [pwError, setPwError] = useState('');
   const [pwSuccess, setPwSuccess] = useState('');
   const [editingUser, setEditingUser] = useState<User | null>(null);
-  const [editForm, setEditForm] = useState({ email: '', full_name: '', cccd: '', phone: '', subscription_plan: '7' });
+  const [editForm, setEditForm] = useState({ email: '', full_name: '', cccd: '', phone: '', subscription_plan: '7', active: true, free_renewal_count: '0' });
   const [editError, setEditError] = useState('');
   const [editSuccess, setEditSuccess] = useState('');
   const [currentUser, setCurrentUser] = useState<{ email: string; role?: string } | null>(null);
@@ -180,6 +187,8 @@ export default function UsersPage() {
       cccd: u.cccd || '',
       phone: u.phone || '',
       subscription_plan: u.subscription_plan || '7',
+      active: u.active,
+      free_renewal_count: String(u.free_renewal_count ?? 0),
     });
     setEditingUser(u);
     setEditError('');
@@ -191,10 +200,24 @@ export default function UsersPage() {
     if (!editingUser) return;
     setEditError('');
     setEditSuccess('');
+    const isFree7 = editForm.subscription_plan === 'free7';
+    const payload: Record<string, unknown> = {
+      email: editForm.email,
+      full_name: editForm.full_name,
+      cccd: editForm.cccd,
+      phone: editForm.phone,
+    };
+    if (isFree7) {
+      payload.free_extend = true;
+    } else {
+      payload.active = editForm.active;
+      payload.subscription_plan = editForm.subscription_plan;
+      payload.free_renewal_count = editForm.free_renewal_count;
+    }
     const res = await fetch(`/api/users/${editingUser.id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-      body: JSON.stringify(editForm),
+      body: JSON.stringify(payload),
     });
     const data = await res.json();
     if (!res.ok) { setEditError(data.error || 'Loi khi sua thong tin'); return; }
@@ -401,6 +424,27 @@ export default function UsersPage() {
                     className="w-full mt-1 border rounded-lg px-4 py-2"
                   />
                 </label>
+                <label className="block">
+                  <span className="text-sm text-gray-600">Trang thai</span>
+                  <select
+                    value={editForm.active ? 'true' : 'false'}
+                    onChange={(e) => setEditForm({ ...editForm, active: e.target.value === 'true' })}
+                    className="w-full mt-1 border rounded-lg px-4 py-2"
+                  >
+                    <option value="true">Hoat dong</option>
+                    <option value="false">Tam ngung</option>
+                  </select>
+                </label>
+                <label className="block">
+                  <span className="text-sm text-gray-600">So lan gia han free</span>
+                  <input
+                    type="number"
+                    min={0}
+                    value={editForm.free_renewal_count}
+                    onChange={(e) => setEditForm({ ...editForm, free_renewal_count: e.target.value })}
+                    className="w-full mt-1 border rounded-lg px-4 py-2"
+                  />
+                </label>
                 <label className="block col-span-2">
                   <span className="text-sm text-gray-600">Goi (so ngay su dung)</span>
                   <select
@@ -408,10 +452,15 @@ export default function UsersPage() {
                     onChange={(e) => setEditForm({ ...editForm, subscription_plan: e.target.value })}
                     className="w-full mt-1 border rounded-lg px-4 py-2"
                   >
-                    {PLANS.map(p => <option key={p.value} value={p.value}>{p.label}</option>)}
+                    {EDIT_PLANS.map(p => <option key={p.value} value={p.value}>{p.label}</option>)}
                   </select>
                 </label>
               </div>
+              {editForm.subscription_plan === 'free7' && (
+                <div className="text-xs text-green-700 bg-green-50 border border-green-200 rounded-lg px-3 py-2">
+                  Gia han free +7 ngay: user se duoc mo khoa, keo dai 7 ngay va dong bo len app Flutter.
+                </div>
+              )}
               <div className="flex gap-2">
                 <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Luu</button>
                 <button type="button" onClick={() => setEditingUser(null)} className="bg-gray-300 px-4 py-2 rounded-lg">Huy</button>
