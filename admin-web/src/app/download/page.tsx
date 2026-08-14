@@ -60,6 +60,12 @@ const DEFAULT_WIN_ASSETS: Asset[] = [
     download_count: 0,
     browser_download_url: '',
   },
+  {
+    name: 'kanposvn.exe',
+    size: 0,
+    download_count: 0,
+    browser_download_url: '',
+  },
 ];
 
 function formatBytes(bytes: number): string {
@@ -71,6 +77,7 @@ function formatBytes(bytes: number): string {
 function assetLabel(name: string): string {
   if (name === 'app-release.apk') return 'APK phổ thông (mọi máy)';
   if (name === 'kanposvn-windows-x64.zip') return 'Bản Windows 64-bit (.zip)';
+  if (name === 'kanposvn.exe') return 'Bản Windows 64-bit (.exe)';
   return name
     .replace('app-', '')
     .replace('-release.apk', '')

@@ -1,4 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { readFile } from 'fs/promises';
+import { existsSync } from 'fs';
+import path from 'path';
 
 const GITHUB_REPO = process.env.GITHUB_REPO || 'tvsammedia-lgtm/kanposvn_source';
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN || '';
@@ -11,6 +14,9 @@ function authHeaders(): Record<string, string> {
   return headers;
 }
 
+// Thử phục vụ file từ public/downloads/ trưực (được CI copy binary vào).
+// Nếu file tồn tại -> trả file trực tiếp (ổn định với repo private).
+// Nếu file không tồn tại -> proxy từ GitHub Releases.
 export async function GET(req: NextRequest) {
   const tag = req.nextUrl.searchParams.get('tag') || 'latest';
   const asset = req.nextUrl.searchParams.get('asset') || '';
@@ -18,6 +24,37 @@ export async function GET(req: NextRequest) {
     return new NextResponse('Missing asset param', { status: 400 });
   }
 
+  // Check local file first
+  const localPath = path.join(
+    process.cwd(),
+    'public',
+    'downloads',
+    asset,
+  );
+  if (existsSync(localPath)) {
+    try {
+      const fileBuffer = await readFile(localPath);
+      const ext = path.extname(asset).toLowerCase();
+      let contentType = 'application/octet-stream';
+      if (ext === '.apk') contentType = 'application/vnd.android.package';
+      else if (ext === '.exe') contentType = 'application/x-msdownload';
+      else if (ext === '.zip') contentType = 'application/zip';
+
+      return new NextResponse(fileBuffer, {
+        status: 200,
+        headers: {
+          'Content-Type': contentType,
+          'Content-Disposition': `attachment; filename="${asset}"`,
+          'Access-Control-Allow-Origin': '*',
+          'Cache-Control': 'public, max-age=60',
+        },
+      });
+    } catch (e) {
+      // Fall through to GitHub proxy
+    }
+  }
+
+  // Fall back to GitHub Releases proxy
   try {
     const releaseUrl =
       tag === 'latest'
