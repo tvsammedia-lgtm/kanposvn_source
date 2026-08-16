@@ -41,7 +41,17 @@ class _EmployeeManagementScreenState
   bool _loading = true;
   String? _error;
 
-  String? get _storeId => ref.read(authServiceProvider).storeId;
+  /// Store dùng làm khóa mở Isar lưu trữ tài khoản nhân viên.
+  ///
+  /// Với tài khoản Cloud Owner là cửa hàng có `stores` (store-model), dùng
+  /// `storeId`. Với cửa hàng mô hình chi nhánh (branch-model, không có hàng
+  /// `stores`) — ví dụ Kinh doanh khách sạn — `storeId` null; lúc này dùng
+  /// `warehouseId` (kho chính "Cửa hàng chính" của chi nhánh) làm khóa để
+  /// nhóm nhân viên theo cửa hàng, tránh lỗi "Không xác định được cửa hàng".
+  String? get _storeId {
+    final auth = ref.read(authServiceProvider);
+    return auth.storeId ?? auth.warehouseId ?? auth.branchId;
+  }
 
   String get _storeAppCode {
     final auth = ref.read(authServiceProvider);
