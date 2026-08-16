@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/auth/employee_auth.dart';
 import '../../../core/auth/employee_management_screen.dart';
 import '../../../core/auth/employee_role_policy.dart';
+import '../../../core/theme/app_colors.dart';
 import '../../../core/providers.dart';
 import '../../../core/sync/api_config.dart';
 import '../../../core/widgets/account_switcher_button.dart';
@@ -28,6 +29,7 @@ class KanPosVNKhachSanShell extends ConsumerStatefulWidget {
 class _KanPosVNKhachSanShellState extends ConsumerState<KanPosVNKhachSanShell> {
   int _selectedIndex = 0;
   bool _isInit = false;
+  String? _initError;
 
   @override
   void initState() {
@@ -36,16 +38,21 @@ class _KanPosVNKhachSanShellState extends ConsumerState<KanPosVNKhachSanShell> {
   }
 
   Future<void> _initData() async {
-    final isarService = ref.read(hotelIsarServiceProvider);
-    await HotelSeedData.seed(isarService);
-    ref.read(hotelRoomsProvider.notifier).loadRooms();
-    ref.read(hotelBookingsProvider.notifier).loadBookings();
-    ref.read(hotelServiceItemsProvider.notifier).loadItems();
-    ref.read(hotelCheckInsProvider.notifier).loadCheckIns();
-    if (mounted) {
-      setState(() {
-        _isInit = true;
-      });
+    try {
+      final isarService = ref.read(hotelIsarServiceProvider);
+      await HotelSeedData.seed(isarService);
+      ref.read(hotelRoomsProvider.notifier).loadRooms();
+      ref.read(hotelBookingsProvider.notifier).loadBookings();
+      ref.read(hotelServiceItemsProvider.notifier).loadItems();
+      ref.read(hotelCheckInsProvider.notifier).loadCheckIns();
+      if (mounted) {
+        setState(() {
+          _isInit = true;
+        });
+      }
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _initError = '$e');
     }
   }
 
@@ -101,6 +108,44 @@ class _KanPosVNKhachSanShellState extends ConsumerState<KanPosVNKhachSanShell> {
   @override
   Widget build(BuildContext context) {
     if (!_isInit) {
+      if (_initError != null) {
+        return Scaffold(
+          backgroundColor: AppColors.sidebarBg,
+          body: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(32),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.error_outline, color: AppColors.danger, size: 40),
+                  const SizedBox(height: 12),
+                  Text('Không thể nạp dữ liệu khách sạn',
+                    style: TextStyle(
+                      color: AppColors.textLight,
+                      fontSize: 17,
+                      fontWeight: FontWeight.w600,
+                    )),
+                  const SizedBox(height: 8),
+                  Text(_initError!,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: AppColors.textMuted, fontSize: 12)),
+                  const SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: () {
+                      setState(() {
+                        _initError = null;
+                        _isInit = false;
+                      });
+                      _initData();
+                    },
+                    child: const Text('Thử lại'),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      }
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -168,15 +170,39 @@ class _AutoSelectWrapper extends ConsumerStatefulWidget {
 }
 
 class _AutoSelectWrapperState extends ConsumerState<_AutoSelectWrapper> {
+  // Thời gian chờ tối đa cho bước tự chọn module/branch sau login. Nếu vẫn chưa
+  // có provider nào được đặt (ví dụ: _selectModule bị lỗi/hang) thì rời spinner
+  // "Đang tải dữ liệu..." sang ModuleSelector để người dùng chọn thủ công — tránh
+  // treo vĩnh viễn ở màn hình loading.
+  static const _fallbackDuration = Duration(seconds: 3);
+  Timer? _fallbackTimer;
+  bool _showFallback = false;
+
   @override
   void initState() {
     super.initState();
+    _fallbackTimer = Timer(_fallbackDuration, () {
+      if (mounted &&
+          ref.read(selectedModuleProvider) == null &&
+          ref.read(branchSelectorModuleProvider) == null) {
+        setState(() => _showFallback = true);
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _fallbackTimer?.cancel();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final auth = ref.watch(authServiceProvider);
     if (auth.findMatchingModule() == null) {
+      return const ModuleSelectorScreen();
+    }
+    if (_showFallback) {
       return const ModuleSelectorScreen();
     }
     return const Scaffold(
