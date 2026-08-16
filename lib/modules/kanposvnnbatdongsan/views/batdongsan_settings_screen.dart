@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/providers.dart';
-import '../../../../core/auth/auth_service.dart';
 
 class BatDongSanSettingsScreen extends ConsumerWidget {
   const BatDongSanSettingsScreen({super.key});
