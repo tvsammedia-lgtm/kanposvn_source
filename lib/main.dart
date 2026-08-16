@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/theme/app_theme.dart';
-import 'core/theme/app_colors.dart';
 import 'core/db/database_service.dart';
 import 'core/module_enum.dart';
 import 'core/providers.dart';
@@ -63,7 +62,6 @@ class KanPosVNApp extends ConsumerStatefulWidget {
 
 class _KanPosVNAppState extends ConsumerState<KanPosVNApp> {
   bool _sessionLoaded = false;
-  String? _sessionError;
 
   @override
   void initState() {
@@ -74,82 +72,22 @@ class _KanPosVNAppState extends ConsumerState<KanPosVNApp> {
 
   Future<void> _loadAuthSession() async {
     final auth = ref.read(authServiceProvider);
-    await auth.loadSavedSession();
+    try {
+      // Nạp dữ liệu phiên cũ (tên/SĐT Owner, cờ "đã đăng nhập máy này"...) để
+      // màn hình đăng nhập & luồng nhân viên Cấp 2 vẫn hoạt động đúng.
+      await auth.loadSavedSession().timeout(const Duration(seconds: 10));
+    } catch (_) {
+      // Không để màn hình khởi động treo mãi nếu nạp phiên chậm/lỗi.
+    }
+    // LUÔN bắt đầu bằng màn hình đăng nhập: không tự khôi phục phiên cũ.
+    if (auth.isAuthenticated) {
+      await auth.signOut();
+    }
     if (mounted) {
       setState(() {
         _sessionLoaded = true;
       });
     }
-    _tryAutoSelectModule();
-  }
-
-  void _tryAutoSelectModule() {
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      if (!mounted) return;
-      try {
-        final auth = ref.read(authServiceProvider);
-        final db = ref.read(databaseServiceProvider);
-        final selectedModule = ref.read(selectedModuleProvider);
-
-        if (auth.isAuthenticated && selectedModule == null) {
-          // User đã chọn module trước đó → tiếp tục đúng module đó.
-          // (Tài khoản nội bộ vẫn phải qua màn hình chọn module.)
-          if (auth.currentModule != null && !auth.isEmployeeLogin) {
-            if (auth.isStoreUser && auth.storeId != null) {
-              await db.initStore(storeId: auth.storeId!, module: auth.currentModule!);
-            } else {
-              await db.init(module: auth.currentModule!);
-            }
-            if (!mounted) return;
-            // Mô hình 1 module = nhiều chi nhánh: nếu module có chi nhánh → yêu
-            // cầu chọn lại chi nhánh trước khi vào shell (đúng chi nhánh đang dùng).
-            final branches = await auth.fetchBranches(auth.currentModule!.appCode);
-            if (!mounted) return;
-            if (branches.isNotEmpty) {
-              ref.read(branchSelectorModuleProvider.notifier).state = auth.currentModule;
-              return;
-            }
-            ref.read(selectedModuleProvider.notifier).state = auth.currentModule;
-            return;
-          }
-
-          final modules = auth.accessibleModules;
-
-          // User gán nhiều module → để màn hình chọn module quyết định.
-          if (modules.length > 1) {
-            return;
-          }
-
-          // Cửa hàng đăng ký qua Web/Zalo: vào thẳng POS, dùng DB riêng của cửa hàng.
-          // (Tài khoản nội bộ luôn phải qua màn hình chọn module trước.)
-          if (auth.isStoreUser && !auth.isEmployeeLogin) {
-            final storeId = auth.storeId;
-            if (storeId != null) {
-              await db.initStore(
-                storeId: storeId,
-                module: auth.defaultStoreModule,
-              );
-              if (!mounted) return;
-              ref.read(selectedModuleProvider.notifier).state =
-                  auth.defaultStoreModule;
-            }
-            return;
-          }
-
-          final match = auth.findMatchingModule();
-          if (match != null) {
-            await db.init(module: match);
-            if (!mounted) return;
-            ref.read(selectedModuleProvider.notifier).state = match;
-          }
-        }
-      } catch (e) {
-        // Không treo mãi ở "Đang xác thực..." → hiện lỗi + nút Thử lại.
-        if (mounted) {
-          setState(() => _sessionError = '$e');
-        }
-      }
-    });
   }
 
   @override
@@ -202,42 +140,6 @@ class _KanPosVNAppState extends ConsumerState<KanPosVNApp> {
       // Mô hình 1 module = nhiều chi nhánh: module này có chi nhánh → chọn chi
       // nhánh trước khi vào shell (module selector hoặc auto-resume đã đặt provider).
       home = BranchSelectorScreen(module: branchModule);
-    } else if (_sessionError != null) {
-      home = Scaffold(
-        backgroundColor: AppColors.sidebarBg,
-        body: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(32),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.error_outline, color: AppColors.danger, size: 48),
-                const SizedBox(height: 16),
-                Text('Không thể nạp dữ liệu',
-                  style: const TextStyle(
-                    color: AppColors.textLight,
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(_sessionError!,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(color: AppColors.textMuted, fontSize: 13),
-                ),
-                const SizedBox(height: 24),
-                ElevatedButton(
-                  onPressed: () {
-                    setState(() => _sessionError = null);
-                    _tryAutoSelectModule();
-                  },
-                  child: const Text('Thử lại'),
-                ),
-              ],
-            ),
-          ),
-        ),
-      );
     } else {
       home = const _AutoSelectWrapper();
     }
