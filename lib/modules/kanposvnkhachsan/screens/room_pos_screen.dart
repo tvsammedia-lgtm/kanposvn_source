@@ -7,6 +7,7 @@ import '../models/hotel_room.dart';
 import '../models/hotel_service.dart';
 import '../providers/hotel_providers.dart';
 import '../services/hotel_billing_service.dart';
+import '../../../core/auth/auth_service.dart';
 import '../../../core/printer/printer_actions.dart';
 import '../../../core/printer/receipt_data.dart';
 import '../../../core/printer/receipt_print_mode.dart';
@@ -360,11 +361,14 @@ class _RoomPosScreenState extends ConsumerState<RoomPosScreen> {
     );
 
     try {
+      final storeName = await AuthService.loadSavedStoreName();
+      final storePhone = await AuthService.loadSavedStorePhone();
       await printReceiptByMode(
         context,
         ref,
         ReceiptData(
-          shopName: 'KANPOSVN KHÁCH SẠN',
+          shopName: storeName ?? 'KANPOSVN KHÁCH SẠN',
+          shopPhone: storePhone,
           title: 'HÓA ĐƠN THANH TOÁN',
           orderCode: widget.checkIn.checkInId.length > 8
               ? widget.checkIn.checkInId.substring(0, 8)
