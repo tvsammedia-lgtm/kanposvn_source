@@ -7,7 +7,7 @@ import '../models/hotel_room.dart';
 import '../models/hotel_service.dart';
 import '../providers/hotel_providers.dart';
 import '../services/hotel_billing_service.dart';
-import '../../../core/auth/auth_service.dart';
+import '../services/hotel_receipt_builder.dart';
 import '../../../core/printer/printer_actions.dart';
 import '../../../core/printer/receipt_data.dart';
 import '../../../core/printer/receipt_print_mode.dart';
@@ -346,6 +346,12 @@ class _RoomPosScreenState extends ConsumerState<RoomPosScreen> {
         widget.checkIn.expectedCheckOut ??
         DateTime.now();
 
+    // Tính toán thanh toán: amountDue = (phòng + dịch vụ) − giảm giá − đã cọc.
+    final gross = roomCharge + serviceTotal;
+    final prePaid = (widget.checkIn.prePaid).clamp(0.0, double.infinity);
+    final amountDue = (gross - discount - prePaid).clamp(0.0, double.infinity);
+    final received = (cashReceived ?? amountDue);
+
     await ref.read(hotelCheckInsProvider.notifier).checkout(
           widget.checkIn,
           roomTotalCharge: roomCharge,
@@ -355,57 +361,29 @@ class _RoomPosScreenState extends ConsumerState<RoomPosScreen> {
 
     final orderItems = ref.read(hotelOrderItemsProvider(widget.checkIn.id));
     final items = orderItems.maybeWhen(
-      data: (list) => list
-          .map((oi) => ReceiptItem(
-                name: oi.serviceItem.value?.itemName ?? '',
-                quantity: oi.quantity.toDouble(),
-                unitPrice: oi.unitPrice,
-                total: oi.totalPrice,
-              ))
-          .toList(),
+      data: (list) => serviceItemsToReceiptItems(list),
       orElse: () => <ReceiptItem>[],
     );
 
-    // Tổng chi phí suốt chuyến ở (phòng + dịch vụ).
-    final gross = roomCharge + serviceTotal;
-    // Khách đã đặt cọc (trả trước) tại check-in → số tiền thực tế do khách
-    // thanh toán tại check-out = tổng chi phí - giảm giá - đã cọc.
-    final prePaid = (widget.checkIn.prePaid).clamp(0.0, double.infinity);
-    final amountDue = (gross - discount - prePaid).clamp(0.0, double.infinity);
-    final received = (cashReceived ?? amountDue);
-    final change = (received - amountDue).clamp(0.0, double.infinity);
-
     try {
-      final storeName = await AuthService.loadSavedStoreName();
-      final storePhone = await AuthService.loadSavedStorePhone();
+      final receipt = await buildHotelReceiptData(
+        gross: gross,
+        discount: discount,
+        prePaid: prePaid,
+        items: items,
+        checkInId: widget.checkIn.checkInId,
+        customerName: widget.checkIn.customerName,
+        roomName: widget.room.roomName,
+        checkInTime: checkInTime,
+        checkoutTime: now,
+        cashReceived: received,
+        paymentMethod: paymentMethod,
+      );
       await printReceiptByMode(
         context,
         ref,
-        ReceiptData(
-          shopName: storeName ?? 'KANPOSVN KHÁCH SẠN',
-          shopPhone: storePhone,
-          title: 'HÓA ĐƠN THANH TOÁN',
-          orderCode: widget.checkIn.checkInId.length > 8
-              ? widget.checkIn.checkInId.substring(0, 8)
-              : widget.checkIn.checkInId,
-          date: DateTime.now(),
-          customer: widget.checkIn.customerName.isEmpty
-              ? 'Khách vãng lai'
-              : widget.checkIn.customerName,
-          table: 'Phòng ${widget.room.roomName}',
-          paymentMethod: paymentMethod,
-          items: items,
-          subtotal: gross,
-          discount: discount,
-          grandTotal: amountDue,
-          cashReceived: received,
-          change: change,
-          qrData: widget.checkIn.checkInId,
-          note: 'Giờ vào: ${_fmt(checkInTime)} | Giờ ra: ${_fmt(now)}'
-              '${prePaid > 0 ? " | Đã cọc: ${prePaid.toStringAsFixed(0)}đ | Còn lại: ${amountDue.toStringAsFixed(0)}đ" : ""}',
-        ),
+        receipt,
         mode,
-        pdfFilename: 'HoaDon_${widget.checkIn.checkInId.substring(0, 8)}.pdf',
       );
     } catch (e) {
       if (!mounted) return;

@@ -18,6 +18,7 @@ import 'hotel_finance_screen.dart';
 import 'hotel_reports_screen.dart';
 import 'hotel_settings_screen.dart';
 import 'hotel_room_pricing_screen.dart';
+import 'hotel_bill_search_screen.dart';
 
 class KanPosVNKhachSanShell extends ConsumerStatefulWidget {
   const KanPosVNKhachSanShell({super.key});
@@ -57,10 +58,11 @@ class _KanPosVNKhachSanShellState extends ConsumerState<KanPosVNKhachSanShell> {
   }
 
   static final Map<String, Set<String>> _roleTabs = {
-    EmployeeRoles.cashier: const {'booking', 'checkin', 'services'},
+    EmployeeRoles.cashier: const {'booking', 'checkin', 'services', 'bills'},
     EmployeeRoles.sale: const {'booking', 'checkin'},
     EmployeeRoles.warehouse: const {'services'},
-    EmployeeRoles.accountant: const {'rooms', 'finance', 'reports', 'settings', 'room_pricing'},
+    EmployeeRoles.accountant:
+        const {'rooms', 'finance', 'reports', 'settings', 'room_pricing', 'bills'},
   };
 
   /// Định nghĩa các tab của module (id, icon, label) — thứ tự hiển thị.
@@ -71,6 +73,7 @@ class _KanPosVNKhachSanShellState extends ConsumerState<KanPosVNKhachSanShell> {
     'services': (icon: Icons.room_service, label: 'Dịch vụ'),
     'finance': (icon: Icons.account_balance, label: 'Kế toán'),
     'reports': (icon: Icons.description, label: 'Báo cáo chung'),
+    'bills': (icon: Icons.receipt_long, label: 'Tìm hóa đơn'),
     'employees': (icon: Icons.badge, label: 'Quản Lý NV'),
     'settings': (icon: Icons.settings, label: 'Cài Đặt'),
     'room_pricing': (icon: Icons.price_change, label: 'Thiết lập Phòng/Món ăn'),
@@ -83,6 +86,7 @@ class _KanPosVNKhachSanShellState extends ConsumerState<KanPosVNKhachSanShell> {
     'services': () => const HotelServicesScreen(),
     'finance': () => const HotelFinanceScreen(),
     'reports': () => const HotelReportsScreen(),
+    'bills': () => const HotelBillSearchScreen(),
     'employees': () => EmployeeManagementScreen(
       availableTabs: [
         for (final e in _tabDefs.entries)
