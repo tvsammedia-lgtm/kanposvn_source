@@ -132,6 +132,7 @@ class _KanPosVNNhathuocShellState extends ConsumerState<KanPosVNNhathuocShell> {
               });
             },
             labelType: NavigationRailLabelType.all,
+            scrollable: true,
             destinations: [
               for (final t in tabs)
                 NavigationRailDestination(

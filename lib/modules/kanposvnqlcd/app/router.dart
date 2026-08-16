@@ -5,6 +5,7 @@ import '../../../../core/auth/employee_management_screen.dart';
 import '../features/auth/controller/auth_controller.dart';
 import '../features/auth/view/user_management_screen.dart';
 import '../features/cutting_entry/view/cutting_entry_screen.dart';
+import '../features/settings/view/settings_screen.dart';
 import '../features/ticket_search/view/ticket_search_screen.dart';
 import '../features/ticket_print/view/ticket_preview_screen.dart';
 import '../features/sync/view/sync_screen.dart';
@@ -22,6 +23,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       return null;
     },
     routes: [
+      GoRoute(
+        path: '/settings',
+        builder: (context, state) => const SettingsScreen(),
+      ),
       GoRoute(
         path: '/users',
         builder: (context, state) => const UserManagementScreen(),

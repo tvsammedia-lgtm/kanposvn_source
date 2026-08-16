@@ -133,6 +133,7 @@ class _KanPosVNGaraShellState extends ConsumerState<KanPosVNGaraShell> {
               ref.read(garaTabIndexProvider.notifier).state = index;
             },
             labelType: NavigationRailLabelType.all,
+            scrollable: true,
             destinations: [
               for (final t in tabs)
                 NavigationRailDestination(

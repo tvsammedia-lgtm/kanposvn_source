@@ -64,6 +64,7 @@ export async function POST(req: NextRequest) {
     const smsResult = await sendSms(
       normalizedPhone,
       `Ma xac nhan KanPosVN cua ban la: ${code}. Hieu luc 5 phut.`,
+      code,
     );
     if (!smsResult.ok) {
       return NextResponse.json(

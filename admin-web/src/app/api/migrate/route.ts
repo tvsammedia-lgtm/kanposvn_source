@@ -89,6 +89,7 @@ export async function POST(req: NextRequest) {
     ['licenses_store_id', 'ALTER TABLE licenses ADD COLUMN IF NOT EXISTS store_id UUID REFERENCES stores(id)'],
     ['licenses_index_store', 'CREATE INDEX IF NOT EXISTS idx_licenses_store ON licenses(store_id)'],
     ['apps_show_in_registration', 'ALTER TABLE apps ADD COLUMN IF NOT EXISTS show_in_registration BOOLEAN NOT NULL DEFAULT true'],
+    ['apps_price', 'ALTER TABLE apps ADD COLUMN IF NOT EXISTS price INTEGER DEFAULT NULL'],
     ['pos_app', `INSERT INTO apps (app_code, app_name, description, package_name, platform)
       SELECT 'pos', 'KanPosVN', 'POS cho cửa hàng đăng ký qua Web/Zalo', 'kanposvn.pos', 'mobile'
       WHERE NOT EXISTS (SELECT 1 FROM apps WHERE app_code = 'pos')`],
@@ -136,9 +137,10 @@ export async function POST(req: NextRequest) {
     ['packages_seed_yearly', `INSERT INTO packages (key, label, days, price, sort)
       SELECT 'yearly', '365 ngày', 365, 899000, 2
       WHERE NOT EXISTS (SELECT 1 FROM packages WHERE key = 'yearly')`],
-    ['packages_seed_forever', `INSERT INTO packages (key, label, days, price, forever, sort)
-      SELECT 'forever', 'Vĩnh Viễn', 0, 2999000, true, 3
+    ['packages_seed_forever', `INSERT INTO packages (key, label, days, price, forever, active, sort)
+      SELECT 'forever', 'Vĩnh Viễn', 0, 2999000, true, false, 3
       WHERE NOT EXISTS (SELECT 1 FROM packages WHERE key = 'forever')`],
+    ['packages_disable_forever', "UPDATE packages SET active = false WHERE key = 'forever'"],
     ['crm_sales_table', `CREATE TABLE IF NOT EXISTS crm_sales (
       id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
       order_code VARCHAR(32) UNIQUE NOT NULL,
@@ -152,6 +154,43 @@ export async function POST(req: NextRequest) {
       status VARCHAR(20) NOT NULL DEFAULT 'active',
       created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
     )`],
+    ['customers_table', `CREATE TABLE IF NOT EXISTS customers (
+      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      customer_code VARCHAR(32) UNIQUE,
+      owner_user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+      name VARCHAR(255) NOT NULL DEFAULT '',
+      phone VARCHAR(20) DEFAULT '',
+      email VARCHAR(255) DEFAULT '',
+      active BOOLEAN DEFAULT true,
+      created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+    )`],
+    ['customers_index_owner', 'CREATE INDEX IF NOT EXISTS idx_customers_owner ON customers(owner_user_id)'],
+    ['branches_table', `CREATE TABLE IF NOT EXISTS branches (
+      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      customer_id UUID REFERENCES customers(id) ON DELETE CASCADE,
+      branch_code VARCHAR(32) DEFAULT '',
+      name VARCHAR(255) NOT NULL DEFAULT '',
+      phone VARCHAR(20) DEFAULT '',
+      address VARCHAR(500) DEFAULT '',
+      app_code VARCHAR(100) UNIQUE NOT NULL,
+      active BOOLEAN DEFAULT true,
+      created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+    )`],
+    ['branches_index_customer', 'CREATE INDEX IF NOT EXISTS idx_branches_customer ON branches(customer_id)'],
+    ['branches_index_app', 'CREATE INDEX IF NOT EXISTS idx_branches_app ON branches(app_code)'],
+    ['branch_users_table', `CREATE TABLE IF NOT EXISTS branch_users (
+      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      branch_id UUID REFERENCES branches(id) ON DELETE CASCADE,
+      user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+      role_id UUID REFERENCES roles(id) ON DELETE CASCADE,
+      can_login BOOLEAN DEFAULT true,
+      created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+      UNIQUE(branch_id, user_id)
+    )`],
+    ['branch_users_index_branch', 'CREATE INDEX IF NOT EXISTS idx_branch_users_branch ON branch_users(branch_id)'],
+    ['branch_users_index_user', 'CREATE INDEX IF NOT EXISTS idx_branch_users_user ON branch_users(user_id)'],
+    ['licenses_branch_id', 'ALTER TABLE licenses ADD COLUMN IF NOT EXISTS branch_id UUID REFERENCES branches(id)'],
+    ['licenses_index_branch', 'CREATE INDEX IF NOT EXISTS idx_licenses_branch ON licenses(branch_id)'],
   ];
 
   for (const [name, sqlStr] of migrations) {

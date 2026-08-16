@@ -25,7 +25,7 @@ export async function GET(req: NextRequest) {
   const registration = req.nextUrl.searchParams.get('registration') === '1';
   if (registration) {
     const apps = await sql`
-      SELECT id, app_code, app_name, show_in_registration
+      SELECT id, app_code, app_name, show_in_registration, price
       FROM apps
       WHERE show_in_registration = true
       ORDER BY app_name
@@ -33,7 +33,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json(apps, { headers: corsHeaders() });
   }
   const apps = await sql`
-    SELECT id, app_code, app_name, description, package_name, app_url, platform, show_in_registration, created_at
+    SELECT id, app_code, app_name, description, package_name, app_url, platform, show_in_registration, price, created_at
     FROM apps ORDER BY app_name
   `;
   return NextResponse.json(apps, { headers: corsHeaders() });
@@ -46,7 +46,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Chua dang nhap' }, { status: 401, headers: corsHeaders() });
   }
 
-  const { app_code, app_name, description, package_name, app_url, platform } = await req.json();
+  const { app_code, app_name, description, package_name, app_url, platform, price } = await req.json();
   if (!app_code || !app_name) {
     return NextResponse.json({ error: 'app_code và app_name là bắt buộc' }, { status: 400, headers: corsHeaders() });
   }
@@ -57,9 +57,9 @@ export async function POST(req: NextRequest) {
   }
 
   const result = await sql`
-    INSERT INTO apps (app_code, app_name, description, package_name, app_url, platform)
-    VALUES (${app_code}, ${app_name}, ${description || ''}, ${package_name || ''}, ${app_url || ''}, ${platform || 'flutter'})
-    RETURNING id, app_code, app_name, description, package_name, app_url, platform, created_at
+    INSERT INTO apps (app_code, app_name, description, package_name, app_url, platform, price)
+    VALUES (${app_code}, ${app_name}, ${description || ''}, ${package_name || ''}, ${app_url || ''}, ${platform || 'flutter'}, ${typeof price === 'number' && price > 0 ? price : null})
+    RETURNING id, app_code, app_name, description, package_name, app_url, platform, price, created_at
   `;
 
   await sql`

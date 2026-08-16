@@ -10,10 +10,19 @@ interface App {
   package_name: string;
   app_url: string;
   platform: string;
+  price: number | null;
   created_at: string;
 }
 
-const EMPTY_FORM = { app_code: '', app_name: '', description: '', package_name: '', app_url: '', platform: 'flutter' };
+const EMPTY_FORM = { app_code: '', app_name: '', description: '', package_name: '', app_url: '', platform: 'flutter', price: '' };
+
+const toPrice = (v: string): number | null => {
+  const n = Number(v);
+  return v.trim() !== '' && !isNaN(n) && n > 0 ? n : null;
+};
+
+const formatVND = (n: number) =>
+  new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND', maximumFractionDigits: 0 }).format(n);
 
 export default function AppsPage() {
   const [apps, setApps] = useState<App[]>([]);
@@ -52,7 +61,7 @@ export default function AppsPage() {
     const res = await fetch('/api/apps', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-      body: JSON.stringify(form),
+      body: JSON.stringify({ ...form, price: toPrice(form.price) }),
     });
     const data = await res.json();
     if (!res.ok) { setError(data.error); return; }
@@ -76,7 +85,7 @@ export default function AppsPage() {
     const res = await fetch(`/api/apps/${editingApp.id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-      body: JSON.stringify(form),
+      body: JSON.stringify({ ...form, price: toPrice(form.price) }),
     });
     const data = await res.json();
     if (!res.ok) { setError(data.error); return; }
@@ -106,6 +115,7 @@ export default function AppsPage() {
       package_name: app.package_name || '',
       app_url: app.app_url || '',
       platform: app.platform || 'flutter',
+      price: app.price != null ? String(app.price) : '',
     });
     setEditingApp(app);
     setShowCreate(false);
@@ -161,6 +171,17 @@ export default function AppsPage() {
                 <option value="native">Native</option>
               </select>
             </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Giá (VND / 365 ngày)</label>
+              <input
+                type="number"
+                min="0"
+                placeholder="VD: 899000 (để trống = dùng giá mặc định)"
+                value={form.price}
+                onChange={(e) => setForm({ ...form, price: e.target.value })}
+                className="border rounded-lg px-4 py-2 w-full"
+              />
+            </div>
             <div className="col-span-2 flex gap-2">
               <button type="submit" className="bg-green-600 text-white px-4 py-2 rounded-lg">{editingApp ? 'Cập nhật' : 'Tạo'}</button>
               <button type="button" onClick={cancelForm} className="bg-gray-300 px-4 py-2 rounded-lg">Hủy</button>
@@ -179,6 +200,7 @@ export default function AppsPage() {
               <th className="text-left px-4 py-3 text-sm font-semibold text-gray-600">Mô tả</th>
               <th className="text-left px-4 py-3 text-sm font-semibold text-gray-600">Package</th>
               <th className="text-left px-4 py-3 text-sm font-semibold text-gray-600">Platform</th>
+              <th className="text-left px-4 py-3 text-sm font-semibold text-gray-600">Giá (365 ngày)</th>
               <th className="text-left px-4 py-3 text-sm font-semibold text-gray-600">Thao tác</th>
             </tr>
           </thead>
@@ -191,6 +213,9 @@ export default function AppsPage() {
                 <td className="px-4 py-3 text-xs font-mono text-gray-500">{app.package_name || '-'}</td>
                 <td className="px-4 py-3">
                   <span className="text-xs px-2 py-1 rounded-full bg-purple-100 text-purple-700">{app.platform}</span>
+                </td>
+                <td className="px-4 py-3 text-sm font-semibold text-gray-700">
+                  {app.price != null ? formatVND(app.price) : <span className="text-gray-400">Mặc định</span>}
                 </td>
                 <td className="px-4 py-3">
                   <div className="flex gap-1">

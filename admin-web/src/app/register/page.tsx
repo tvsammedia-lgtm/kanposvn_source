@@ -55,7 +55,7 @@ export default function RegisterPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<RegisterResult | null>(null);
-  const [modules, setModules] = useState<{ app_code: string; app_name: string }[]>([]);
+  const [modules, setModules] = useState<{ app_code: string; app_name: string; price: number | null }[]>([]);
   const [packages, setPackages] = useState<Package[]>([]);
   const [banks, setBanks] = useState<BankAccount[]>([]);
   const [otpSent, setOtpSent] = useState(false);
@@ -76,18 +76,18 @@ export default function RegisterPage() {
         ]);
         const appData = await appRes.json();
         if (Array.isArray(appData) && appData.length > 0) {
-          setModules(appData.map((m: { app_code: string; app_name: string }) => ({ app_code: m.app_code, app_name: m.app_name })));
+          setModules(appData.map((m: { app_code: string; app_name: string; price?: number | null }) => ({ app_code: m.app_code, app_name: m.app_name, price: m.price ?? null })));
         } else {
-          setModules(STORE_MODULES.map((m) => ({ app_code: m.app_code, app_name: m.name })));
+          setModules(STORE_MODULES.map((m) => ({ app_code: m.app_code, app_name: m.name, price: null })));
         }
-        if (pkgRes.ok) setPackages(await pkgRes.json());
+        if (pkgRes.ok) setPackages((await pkgRes.json()).filter((p: { forever?: boolean }) => !p.forever));
         if (bankRes.ok) {
           const data = await bankRes.json();
           setBanks(Array.isArray(data) ? data : []);
           if (Array.isArray(data) && data.length > 0) setBankAccountId(data[0].id);
         }
       } catch {
-        setModules(STORE_MODULES.map((m) => ({ app_code: m.app_code, app_name: m.name })));
+        setModules(STORE_MODULES.map((m) => ({ app_code: m.app_code, app_name: m.name, price: null })));
       }
       // Fallback gói nếu API chưa trả về (server mới hoặc lỗi mạng)
       setPackages((prev) =>
@@ -96,7 +96,6 @@ export default function RegisterPage() {
           : [
               { key: 'trial', label: 'Dùng thử 7 ngày', days: 7, price: 0, trial: true, forever: false, sort: 1 },
               { key: 'yearly', label: '365 ngày', days: 365, price: 899000, trial: false, forever: false, sort: 2 },
-              { key: 'forever', label: 'Vĩnh Viễn', days: 0, price: 2999000, trial: false, forever: true, sort: 3 },
             ],
       );
     })();
@@ -199,6 +198,7 @@ export default function RegisterPage() {
   const inputCls =
     'w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none';
   const selectedPlan = packages.find((p) => p.key === planKey);
+  const selectedModule = modules.find((m) => m.app_code === appCode);
 
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
@@ -376,23 +376,37 @@ export default function RegisterPage() {
                 {packages.length === 0 ? (
                   <div className="text-sm text-gray-400">Đang tải gói...</div>
                 ) : (
-                  <div className="grid grid-cols-3 gap-2">
-                    {packages.map((p) => (
-                      <button
-                        key={p.key}
-                        type="button"
-                        onClick={() => setPlanKey(p.key)}
-                        className={`px-2 py-3 rounded-lg border text-center transition-colors ${
-                          planKey === p.key
-                            ? 'border-green-600 bg-green-50 text-green-700'
-                            : 'border-gray-300 text-gray-700 hover:border-green-400'
-                        }`}
-                      >
-                        <div className="text-xs font-semibold">{p.label}</div>
-                        <div className="text-sm font-bold mt-1">{p.price === 0 ? 'Miễn phí' : formatVND(p.price)}</div>
-                      </button>
-                    ))}
-                  </div>
+                  <>
+                    <div className="grid grid-cols-3 gap-2">
+                      {packages.map((p) => (
+                        <button
+                          key={p.key}
+                          type="button"
+                          onClick={() => setPlanKey(p.key)}
+                          className={`px-2 py-3 rounded-lg border text-center transition-colors ${
+                            planKey === p.key
+                              ? 'border-green-600 bg-green-50 text-green-700'
+                              : 'border-gray-300 text-gray-700 hover:border-green-400'
+                          }`}
+                        >
+                          <div className="text-xs font-semibold">{p.label}</div>
+                          <div className="text-sm font-bold mt-1">
+                            {p.price === 0
+                              ? 'Miễn phí'
+                              : p.key === 'yearly' && selectedModule?.price != null
+                                ? formatVND(selectedModule.price)
+                                : formatVND(p.price)}
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                    {selectedPlan && !selectedPlan.trial && selectedModule?.price != null && (
+                      <p className="text-xs text-gray-500 mt-1">
+                        Giá gói 365 ngày của <b>{selectedModule.app_name}</b>:{' '}
+                        <b className="text-green-700">{formatVND(selectedModule.price)}</b>
+                      </p>
+                    )}
+                  </>
                 )}
               </div>
 
@@ -443,7 +457,10 @@ export default function RegisterPage() {
                             : 'border-gray-300 text-gray-700 hover:border-green-400'
                         }`}
                       >
-                        {m.app_name}
+                        <div className="font-medium">{m.app_name}</div>
+                        <div className={`text-xs mt-0.5 ${appCode === m.app_code ? 'text-green-700' : 'text-gray-400'}`}>
+                          {m.price != null ? formatVND(m.price) + ' / 365 ngày' : 'Giá mặc định'}
+                        </div>
                       </button>
                     ))}
                   </div>

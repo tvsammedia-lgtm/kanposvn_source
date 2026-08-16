@@ -118,7 +118,7 @@ class _KanPosVNKhachSanShellState extends ConsumerState<KanPosVNKhachSanShell> {
         roleTabs: _roleTabs,
       );
     }).toList();
-    final safeIndex = _selectedIndex < tabs.length ? _selectedIndex : 0;
+    final safeIndex = tabs.isNotEmpty ? (_selectedIndex < tabs.length ? _selectedIndex : 0) : 0;
 
     return Scaffold(
       appBar: AppBar(
@@ -174,6 +174,7 @@ class _KanPosVNKhachSanShellState extends ConsumerState<KanPosVNKhachSanShell> {
               selectedIndex: safeIndex,
               onDestinationSelected: (index) => setState(() => _selectedIndex = index),
               labelType: NavigationRailLabelType.all,
+              scrollable: true,
               selectedIconTheme: const IconThemeData(color: Color(0xFF0284C7)),
               selectedLabelTextStyle: const TextStyle(color: Color(0xFF0284C7), fontWeight: FontWeight.bold),
               destinations: [
@@ -182,7 +183,7 @@ class _KanPosVNKhachSanShellState extends ConsumerState<KanPosVNKhachSanShell> {
               ],
             ),
           if (isDesktop) const VerticalDivider(thickness: 1, width: 1),
-          Expanded(child: tabs[safeIndex].screen),
+          Expanded(child: tabs.isNotEmpty ? tabs[safeIndex].screen : const Text('Không có quyền truy cập tab')),
         ],
       ),
       bottomNavigationBar: isDesktop

@@ -27,6 +27,53 @@ export async function GET(req: NextRequest) {
       );
     }
 
+    // Mô hình chi nhánh (customers → branches): nếu app_code thuộc một chi nhánh
+    // thì tên cửa hàng HIỂN THỊ trên POS là branch.name (KHÔNG phải user.full_name).
+    // Bọc try/catch để khi chưa chạy migration (bảng chưa tồn tại) vẫn rơi về logic cũ.
+    let branch: any = null;
+    try {
+      const branchRows = await sql`
+        SELECT b.*, c.name AS customer_name, c.owner_user_id
+        FROM branches b
+        JOIN customers c ON c.id = b.customer_id
+        WHERE b.app_code = ${appCode}
+        LIMIT 1
+      `;
+      branch = branchRows[0] ?? null;
+    } catch {
+      branch = null;
+    }
+
+    if (branch) {
+      const [user] = await sql`
+        SELECT id, email, phone, full_name, shop_name, shop_address, active
+        FROM users WHERE id = ${branch.owner_user_id}
+      `;
+      if (!user) {
+        return NextResponse.json(
+          { error: 'Không tìm thấy tài khoản owner' },
+          { status: 404, headers: corsHeaders() },
+        );
+      }
+      const fullName = user.full_name || branch.customer_name || '';
+      const branchName = branch.name || user.shop_name || branch.customer_name || '';
+      return NextResponse.json(
+        {
+          full_name: fullName,
+          name: fullName,
+          phone: branch.phone || user.phone || '',
+          email: user.email || '',
+          shop_name: branchName,
+          shop_address: branch.address || user.shop_address || '',
+          branch_code: branch.branch_code || '',
+          branch_id: branch.id,
+          customer_name: branch.customer_name || '',
+          app_code: appCode,
+        },
+        { headers: corsHeaders() },
+      );
+    }
+
     // Owner = user có quyền dùng app_code này. Ưu tiên:
     //   1. user sở hữu license của app_code (active, mới nhất);
     //   2. chủ store (stores.owner_user_id) nếu app_code đang dùng gói chung ('pos');

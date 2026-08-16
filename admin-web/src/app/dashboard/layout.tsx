@@ -31,6 +31,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     { href: '/dashboard/modules', label: 'Ẩn/Hiện Ngành nghề & Module', icon: '🧩' },
     { href: '/dashboard/pricing', label: 'Gia & Ban quyen', icon: '💳' },
     { href: '/dashboard/users', label: 'Quan ly Users', icon: '👥' },
+    { href: '/dashboard/customers', label: 'Khach hang & Chi nhanh', icon: '🏢' },
     { href: '/dashboard/permissions', label: 'Quyen User - Apps', icon: '🔐' },
     { href: '/dashboard/role-permissions', label: 'Quyen Roles', icon: '🛡️' },
     { href: '/dashboard/sync', label: 'Dong bo', icon: '🔄' },

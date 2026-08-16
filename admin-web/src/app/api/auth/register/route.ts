@@ -115,8 +115,18 @@ export async function POST(req: NextRequest) {
     }
     await sql`UPDATE sms_otps SET used = true WHERE id = ${otp.id}`;
 
-    // Gói dịch vụ: trial = dùng ngay 7 ngày; yearly/forever = chuyển khoản rồi kích hoạt
+    // Gói dịch vụ: trial = dùng ngay 7 ngày; yearly = chuyển khoản rồi kích hoạt
     const selectedPlan = getPlan((plan as string) || 'trial');
+    if (selectedPlan.key === 'forever') {
+      return NextResponse.json(
+        { error: 'Gói Vĩnh Viễn đã ngừng bán. Vui lòng chọn gói 365 ngày.' },
+        { status: 400, headers: corsHeaders() },
+      );
+    }
+    // Giá bán theo từng app_code (apps.price) — chưa đặt giá thì dùng giá mặc định của gói
+    const appPriceRows = await sql`SELECT price FROM apps WHERE app_code = ${appCode}`;
+    const appPrice: number | null = appPriceRows.length > 0 && appPriceRows[0].price ? appPriceRows[0].price : null;
+    const amount = selectedPlan.trial || selectedPlan.key === 'trial' ? 0 : (appPrice ?? selectedPlan.price);
     if (selectedPlan.trial !== true && selectedPlan.key !== 'trial') {
       // gói trả phí phải kèm tài khoản ngân hàng đích
       if (!bank_account_id) {
@@ -205,7 +215,7 @@ export async function POST(req: NextRequest) {
         payment_method, bank_code, bank_account_id, description
       )
       VALUES (
-        ${orderCode}, ${user.id}, ${appCode}, ${selectedPlan.key}, ${selectedPlan.price}, 'VND',
+        ${orderCode}, ${user.id}, ${appCode}, ${selectedPlan.key}, ${amount}, 'VND',
         'pending', 'bank_transfer', ${bank.bank_code}, ${bank.id},
         ${'Thanh toán gói ' + selectedPlan.label + ' qua chuyển khoản - Mã đơn: ' + orderCode}
       )

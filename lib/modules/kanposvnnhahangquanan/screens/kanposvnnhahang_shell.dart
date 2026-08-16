@@ -138,6 +138,7 @@ class _KanPosVNRestaurantShellState extends ConsumerState<KanPosVNRestaurantShel
               });
             },
             labelType: NavigationRailLabelType.all,
+            scrollable: true,
             destinations: [
               for (final t in tabs)
                 NavigationRailDestination(

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -20,6 +21,11 @@ class AuthService extends ChangeNotifier {
   static const _kExpiresAtKey = 'auth_expires_at';
   static const _kEmployeeKey = 'auth_employee';
   static const _kOwnerHasLoggedInKey = 'auth_owner_logged_in';
+  /// Thông tin CHI NHÁNH (mô hình Khách hàng → Chi nhánh → License).
+  /// Tên chi nhánh là tên cửa hàng HIỂN THỊ trên POS khi in hóa đơn.
+  static const _kBranchNameKey = 'auth_branch_name';
+  static const _kBranchPhoneKey = 'auth_branch_phone';
+  static const _kBranchIdKey = 'auth_branch_id';
   /// Danh sách module của CỬA HÀNG (Owner được cấp quyền) — bền vững, không bị
   /// xóa khi đăng xuất. Login nhân viên quét danh sách này để tìm tài khoản
   /// trong từng module ("Quản lý nhân viên" của module đó).
@@ -208,6 +214,7 @@ class AuthService extends ChangeNotifier {
         await _persistSession();
         _isLoading = false;
         notifyListeners();
+        unawaited(refreshBranchInfo());
         return true;
       } else {
         _errorMessage =
@@ -395,6 +402,7 @@ class AuthService extends ChangeNotifier {
     _currentAppCode = module.appCode;
     await _persistSession();
     notifyListeners();
+    unawaited(refreshBranchInfo());
     return true;
   }
 
@@ -499,6 +507,8 @@ class AuthService extends ChangeNotifier {
       if (ownerPhone != null && ownerPhone.isNotEmpty) {
         await prefs.setString(_kOwnerPhoneKey, ownerPhone);
       }
+
+      unawaited(refreshBranchInfo());
 
       notifyListeners();
       return isAuthenticated;
@@ -616,21 +626,58 @@ class AuthService extends ChangeNotifier {
   }
 
   /// Tên chủ cửa hàng (Owner) đã đăng ký — tiêu đề in hóa đơn, phiếu chi...
-  /// Ưu tiên tên Owner; nếu chưa có thì dùng tên cửa hàng đã lưu.
+  /// Ưu tiên tên CHI NHÁNH (branch.name) → tên Owner → tên cửa hàng đã lưu.
   static Future<String?> loadSavedStoreName() async {
     final prefs = await SharedPreferences.getInstance();
+    final branchName = prefs.getString(_kBranchNameKey);
+    if (branchName != null && branchName.isNotEmpty) return branchName;
     final ownerName = prefs.getString(_kOwnerNameKey);
     if (ownerName != null && ownerName.isNotEmpty) return ownerName;
     return prefs.getString(_kStoreNameKey);
   }
 
   /// SĐT chủ cửa hàng (Owner) đã đăng ký — dùng cho in hóa đơn, phiếu chi...
-  /// Ưu tiên SĐT Owner; nếu chưa có thì dùng SĐT cửa hàng đã lưu.
+  /// Ưu tiên SĐT CHI NHÁNH (branch.phone) → SĐT Owner → SĐT cửa hàng đã lưu.
   static Future<String?> loadSavedStorePhone() async {
     final prefs = await SharedPreferences.getInstance();
+    final branchPhone = prefs.getString(_kBranchPhoneKey);
+    if (branchPhone != null && branchPhone.isNotEmpty) return branchPhone;
     final ownerPhone = prefs.getString(_kOwnerPhoneKey);
     if (ownerPhone != null && ownerPhone.isNotEmpty) return ownerPhone;
     return prefs.getString(_kStorePhoneKey);
+  }
+
+  /// Lấy thông tin chi nhánh từ server (`/api/owner/info?app_code=...`) và lưu
+  /// branch name/phone/id để POS in tên cửa hàng theo CHI NHÁNH.
+  ///
+  /// Chỉ ghi đè khi response có `branch_id` (mô hình chi nhánh). Với cửa hàng
+  /// cũ (không phải branch) thì giữ nguyên hành vi hiện tại.
+  Future<void> refreshBranchInfo({String? appCode}) async {
+    if (_token == null) return;
+    final code = appCode ?? _currentAppCode ?? _storeAppCode ?? 'kanposvn';
+    try {
+      final res = await _client
+          .get(
+            Uri.parse('${ApiConfig.baseUrl}/api/owner/info').replace(
+              queryParameters: {'app_code': code},
+            ),
+            headers: {'Authorization': 'Bearer $_token'},
+          )
+          .timeout(const Duration(seconds: 8));
+      if (res.statusCode != 200) return;
+      final json =
+          jsonDecode(utf8.decode(res.bodyBytes)) as Map<String, dynamic>;
+      if (json['branch_id'] == null) return;
+      final prefs = await SharedPreferences.getInstance();
+      final name = json['shop_name']?.toString() ?? '';
+      final phone = json['phone']?.toString() ?? '';
+      final branchId = json['branch_id']?.toString() ?? '';
+      if (name.isNotEmpty) await prefs.setString(_kBranchNameKey, name);
+      if (phone.isNotEmpty) await prefs.setString(_kBranchPhoneKey, phone);
+      if (branchId.isNotEmpty) await prefs.setString(_kBranchIdKey, branchId);
+    } catch (e) {
+      // Best-effort: không làm hỏng phiên đăng nhập khi lỗi mạng.
+    }
   }
 
   /// Store ID đã lưu trên máy (dùng để đăng nhập tài khoản nội bộ ngoại tuyến).

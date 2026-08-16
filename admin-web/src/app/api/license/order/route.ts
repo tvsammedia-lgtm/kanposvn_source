@@ -48,6 +48,12 @@ export async function POST(req: NextRequest) {
     const { app_code, plan } = body;
     const appCode = (app_code || 'kanposvncafe') as string;
     const planInfo = getPlan(plan || 'yearly');
+    if (planInfo.key === 'forever') {
+      return NextResponse.json(
+        { error: 'Gói Vĩnh Viễn đã ngừng bán. Vui lòng chọn gói 365 ngày.' },
+        { status: 400, headers: corsHeaders() },
+      );
+    }
 
     const user = await resolveUser(sql, req, body);
     if (!user) {
@@ -64,10 +70,15 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Giá bán theo từng app_code (apps.price) — chưa đặt giá thì dùng giá mặc định của gói
+    const priceRows = await sql`SELECT price FROM apps WHERE app_code = ${appCode}`;
+    const appPrice: number | null = priceRows.length > 0 && priceRows[0].price ? priceRows[0].price : null;
+    const amount = appPrice ?? planInfo.price;
+
     const orderCode = newOrderCode();
     const created = await sql`
       INSERT INTO orders (order_code, user_id, zalo_id, app_code, plan, amount, currency, status, payment_method, description)
-      VALUES (${orderCode}, ${user.id}, ${user.zalo_id || ''}, ${appCode}, ${planInfo.key}, ${planInfo.price}, 'VND', 'pending', 'zalo_miniapp', ${`Thanh toán gói ${planInfo.label} KanPosVN`})
+      VALUES (${orderCode}, ${user.id}, ${user.zalo_id || ''}, ${appCode}, ${planInfo.key}, ${amount}, 'VND', 'pending', 'zalo_miniapp', ${`Thanh toán gói ${planInfo.label} KanPosVN`})
       RETURNING *
     `;
     const order = created[0];
@@ -80,7 +91,7 @@ export async function POST(req: NextRequest) {
         plan: planInfo.key,
         plan_label: planInfo.label,
         days: planInfo.days,
-        amount: planInfo.price,
+        amount,
         currency: 'VND',
         status: order.status,
         // Mock payment: sau khi co merchant ZaloPay, thay bang du lieu goi CreateOrder cua ZaloPay

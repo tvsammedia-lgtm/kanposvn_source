@@ -14,8 +14,10 @@ import '../screens/payroll/salary_entry_screen.dart';
 import '../screens/payroll/payroll_edit_screen.dart';
 import '../screens/kpi/kpi_screen.dart';
 import '../screens/reports/reports_screen.dart';
+import '../screens/settings/payroll_settings_screen.dart';
 import '../screens/shell/app_shell.dart';
 import '../services/auth_service.dart';
+import '../../../core/auth/employee_management_screen.dart';
 
 final appRouter = GoRouter(
   initialLocation: '/dashboard',
@@ -86,6 +88,16 @@ final appRouter = GoRouter(
           path: '/attendance',
           pageBuilder: (c, s) =>
               const NoTransitionPage(child: AttendanceScreen()),
+        ),
+        GoRoute(
+          path: '/employee-management',
+          pageBuilder: (c, s) =>
+              const NoTransitionPage(child: EmployeeManagementScreen()),
+        ),
+        GoRoute(
+          path: '/settings',
+          pageBuilder: (c, s) =>
+              const NoTransitionPage(child: PayrollSettingsScreen()),
         ),
         GoRoute(
           path: '/payroll',
@@ -200,5 +212,17 @@ const navItems = [
     icon: Icons.bar_chart_outlined,
     activeIcon: Icons.bar_chart,
     label: 'Báo cáo',
+  ),
+  NavItem(
+    path: '/settings',
+    icon: Icons.settings_outlined,
+    activeIcon: Icons.settings,
+    label: 'Cài Đặt',
+  ),
+  NavItem(
+    path: '/employees',
+    icon: Icons.badge_outlined,
+    activeIcon: Icons.badge,
+    label: 'Quản Lý NV',
   ),
 ];

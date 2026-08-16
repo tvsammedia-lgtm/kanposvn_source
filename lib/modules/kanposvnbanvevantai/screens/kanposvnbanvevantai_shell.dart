@@ -99,6 +99,7 @@ class _KanPosVNBanvevantaiShellState extends ConsumerState<KanPosVNBanvevantaiSh
               });
             },
             labelType: NavigationRailLabelType.all,
+            scrollable: true,
             destinations: [
               for (final t in tabs)
                 NavigationRailDestination(

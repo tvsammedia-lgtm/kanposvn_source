@@ -42,6 +42,12 @@ export async function POST(req: NextRequest) {
     const { app_code, plan } = body;
     const appCode = (app_code || 'kanposvncafe') as string;
     const planInfo = getPlan(plan || 'yearly');
+    if (planInfo.key === 'forever') {
+      return NextResponse.json(
+        { error: 'Gói Vĩnh Viễn đã ngừng bán. Vui lòng chọn gói 365 ngày.' },
+        { status: 400, headers: corsHeaders() },
+      );
+    }
 
     const user = await resolveUser(sql, req, body);
     if (!user) {
@@ -51,11 +57,16 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Giá bán theo từng app_code (apps.price) — chưa đặt giá thì dùng giá mặc định của gói
+    const priceRows = await sql`SELECT price FROM apps WHERE app_code = ${appCode}`;
+    const appPrice: number | null = priceRows.length > 0 && priceRows[0].price ? priceRows[0].price : null;
+    const amount = appPrice ?? planInfo.price;
+
     const now = new Date();
     const orderCode = newOrderCode();
     await sql`
       INSERT INTO orders (order_code, user_id, zalo_id, app_code, plan, amount, currency, status, payment_method, paid_at, description)
-      VALUES (${orderCode}, ${user.id}, ${user.zalo_id || ''}, ${appCode}, ${planInfo.key}, ${planInfo.price}, 'VND', 'paid', 'zalo_miniapp', ${now.toISOString()}, ${`Gia hạn gói ${planInfo.label}`})
+      VALUES (${orderCode}, ${user.id}, ${user.zalo_id || ''}, ${appCode}, ${planInfo.key}, ${amount}, 'VND', 'paid', 'zalo_miniapp', ${now.toISOString()}, ${`Gia hạn gói ${planInfo.label}`})
     `;
 
     const licRows = await sql`
@@ -101,7 +112,7 @@ export async function POST(req: NextRequest) {
         plan: planInfo.key,
         forever: planInfo.forever || false,
         days_added: days,
-        amount: planInfo.price,
+        amount,
         expires_at: newExpiry,
       },
       { headers: corsHeaders() },

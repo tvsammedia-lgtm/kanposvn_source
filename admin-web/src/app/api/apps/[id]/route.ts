@@ -49,13 +49,16 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   if (body.app_url !== undefined) await sql`UPDATE apps SET app_url = ${body.app_url} WHERE id = ${id}`;
   if (body.platform !== undefined) await sql`UPDATE apps SET platform = ${body.platform} WHERE id = ${id}`;
   if (body.show_in_registration !== undefined) await sql`UPDATE apps SET show_in_registration = ${body.show_in_registration} WHERE id = ${id}`;
+  if (body.price !== undefined) {
+    await sql`UPDATE apps SET price = ${typeof body.price === 'number' && body.price > 0 ? body.price : null} WHERE id = ${id}`;
+  }
 
   await sql`
     INSERT INTO audit_logs (user_name, action, module, details)
     VALUES (${admin.email}, 'Cập nhật app', 'Apps', ${'Cập nhật app: ' + existing[0].app_code})
   `;
 
-  const updated = await sql`SELECT id, app_code, app_name, description, package_name, app_url, platform, show_in_registration, created_at FROM apps WHERE id = ${id}`;
+  const updated = await sql`SELECT id, app_code, app_name, description, package_name, app_url, platform, show_in_registration, price, created_at FROM apps WHERE id = ${id}`;
   return NextResponse.json(updated[0], { headers: corsHeaders() });
 }
 

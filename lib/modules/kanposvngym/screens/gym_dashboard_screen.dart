@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../providers/gym_providers.dart';
 import 'gym_members_screen.dart';
 import 'gym_pos_screen.dart';
 import 'gym_trainer_screen.dart';
+import 'gym_settings_screen.dart';
+import '../../../core/auth/employee_management_screen.dart';
 
 class GymDashboardScreen extends ConsumerWidget {
   const GymDashboardScreen({super.key});
@@ -53,15 +56,28 @@ class GymDashboardScreen extends ConsumerWidget {
             ListTile(
               leading: const Icon(Icons.fitness_center),
               title: const Text('Gói Tập (Plans)'),
-              onTap: () {
-                Navigator.pop(context);
-              },
+              onTap: () {},
             ),
             ListTile(
               leading: const Icon(Icons.qr_code_scanner),
               title: const Text('Check-in'),
+              onTap: () {},
+            ),
+            const Divider(height: 1),
+            ListTile(
+              leading: const Icon(Icons.settings, color: Colors.amber),
+              title: const Text('Cài Đặt'),
               onTap: () {
                 Navigator.pop(context);
+                Navigator.push(context, MaterialPageRoute(builder: (_) => const GymSettingsScreen()));
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.badge, color: Colors.amber),
+              title: const Text('Quản Lý NV'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(context, MaterialPageRoute(builder: (_) => const EmployeeManagementScreen()));
               },
             ),
           ],

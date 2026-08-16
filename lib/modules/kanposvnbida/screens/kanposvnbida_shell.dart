@@ -124,6 +124,7 @@ class _KanPosVNBidaShellState extends ConsumerState<KanPosVNBidaShell> {
               });
             },
             labelType: NavigationRailLabelType.all,
+            scrollable: true,
             destinations: [
               for (final t in tabs)
                 NavigationRailDestination(
