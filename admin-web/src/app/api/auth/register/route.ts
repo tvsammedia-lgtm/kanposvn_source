@@ -8,6 +8,7 @@ import {
   getPlan,
   newOrderCode,
 } from '@/lib/pricing';
+import { ensureDefaultBranch } from '@/lib/default_branch';
 
 function corsHeaders() {
   return {
@@ -179,8 +180,10 @@ export async function POST(req: NextRequest) {
       const [license] = await sql`
         INSERT INTO licenses (user_id, store_id, app_code, device_id, plan, status, started_at, expires_at)
         VALUES (${user.id}, ${store.id}, ${appCode}, '', 'trial', 'active', ${now.toISOString()}, ${expiresAt.toISOString()})
-        RETURNING plan, expires_at
+        RETURNING id, plan, expires_at
       `;
+
+      await ensureDefaultBranch(sql, { userId: user.id, appCode, licenseId: license.id });
 
       await sql`
         UPDATE users SET subscription_plan = 'trial', subscription_start = ${now.toISOString()}, subscription_end = ${expiresAt.toISOString()}
@@ -221,6 +224,11 @@ export async function POST(req: NextRequest) {
       )
       RETURNING order_code, amount, created_at
     `;
+
+    // Tạo khách hàng + chi nhánh + kho mặc định ngay khi đăng ký.
+    // License chưa có (chờ chuyển khoản) nên chưa gắn branch; bước thanh toán
+    // (/api/license/pay) sẽ gắn branch_id vào license khi kích hoạt.
+    await ensureDefaultBranch(sql, { userId: user.id, appCode, licenseId: '' });
 
     return NextResponse.json(
       {
