@@ -36,7 +36,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 
   const licenses = await sql`
     SELECT id, user_id, app_code, device_id, plan, status, started_at, expires_at, created_at
-    FROM licenses WHERE app_code = ${branch.app_code}
+    FROM licenses WHERE branch_id = ${id}
     ORDER BY started_at DESC
   `;
 
@@ -79,7 +79,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     await sql`
       INSERT INTO licenses (user_id, app_code, device_id, plan, status, started_at, expires_at, branch_id)
       VALUES (${userId}, ${branch.app_code}, '', ${planKey}, 'active', ${now.toISOString()}, ${expiresAt?.toISOString() || null}, ${id})
-      ON CONFLICT (user_id, app_code, device_id) DO UPDATE SET
+      ON CONFLICT (user_id, branch_id, device_id) WHERE branch_id IS NOT NULL DO UPDATE SET
         plan = ${planKey}, status = 'active', started_at = ${now.toISOString()}, expires_at = ${expiresAt?.toISOString() || null}
     `;
 

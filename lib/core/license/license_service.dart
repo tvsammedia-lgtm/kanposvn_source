@@ -54,6 +54,7 @@ class LicenseService extends ChangeNotifier {
   Future<LicenseStatus?> check({
     required String token,
     required String appCode,
+    String? branchId,
   }) async {
     if (_isChecking) return _status;
     _isChecking = true;
@@ -66,6 +67,7 @@ class LicenseService extends ChangeNotifier {
         queryParameters: {
           'app_code': appCode,
           'device_id': deviceId,
+          if (branchId != null && branchId.isNotEmpty) 'branch_id': branchId,
         },
       );
       final res = await _client

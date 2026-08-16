@@ -15,11 +15,13 @@ export async function OPTIONS() {
 
 // Hồ sơ OWNER CLOUD USER của một app_code (POS gọi để in tiêu đề bill/báo cáo "Họ tên - SĐT").
 // GET /api/owner/info?app_code=kanvlxd_one
+// GET /api/owner/info?app_code=kanposvncafe&branch_id=<id>   (mô hình 1 module = nhiều chi nhánh)
 // Trả về: { full_name, name, phone, email, shop_name, shop_address, app_code }
 export async function GET(req: NextRequest) {
   const sql = getSql();
   try {
     const appCode = req.nextUrl.searchParams.get('app_code') || '';
+    const branchId = req.nextUrl.searchParams.get('branch_id') || '';
     if (!appCode) {
       return NextResponse.json(
         { error: 'Thiếu app_code' },
@@ -29,16 +31,26 @@ export async function GET(req: NextRequest) {
 
     // Mô hình chi nhánh (customers → branches): nếu app_code thuộc một chi nhánh
     // thì tên cửa hàng HIỂN THỊ trên POS là branch.name (KHÔNG phải user.full_name).
+    // Khi có branch_id thì trả đúng chi nhánh đó (1 module có thể có nhiều chi nhánh);
+    // không có branch_id thì dùng app_code (trả chi nhánh đầu tiên — tương thích ngược).
     // Bọc try/catch để khi chưa chạy migration (bảng chưa tồn tại) vẫn rơi về logic cũ.
     let branch: any = null;
     try {
-      const branchRows = await sql`
-        SELECT b.*, c.name AS customer_name, c.owner_user_id
-        FROM branches b
-        JOIN customers c ON c.id = b.customer_id
-        WHERE b.app_code = ${appCode}
-        LIMIT 1
-      `;
+      const branchRows = branchId
+        ? await sql`
+          SELECT b.*, c.name AS customer_name, c.owner_user_id
+          FROM branches b
+          JOIN customers c ON c.id = b.customer_id
+          WHERE b.id = ${branchId} AND b.app_code = ${appCode}
+          LIMIT 1
+        `
+        : await sql`
+          SELECT b.*, c.name AS customer_name, c.owner_user_id
+          FROM branches b
+          JOIN customers c ON c.id = b.customer_id
+          WHERE b.app_code = ${appCode}
+          LIMIT 1
+        `;
       branch = branchRows[0] ?? null;
     } catch {
       branch = null;

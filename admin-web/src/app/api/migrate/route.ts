@@ -191,6 +191,16 @@ export async function POST(req: NextRequest) {
     ['branch_users_index_user', 'CREATE INDEX IF NOT EXISTS idx_branch_users_user ON branch_users(user_id)'],
     ['licenses_branch_id', 'ALTER TABLE licenses ADD COLUMN IF NOT EXISTS branch_id UUID REFERENCES branches(id)'],
     ['licenses_index_branch', 'CREATE INDEX IF NOT EXISTS idx_licenses_branch ON licenses(branch_id)'],
+    // Migration 015: 1 module (app_code) = nhiều chi nhánh.
+    // - Bỏ UNIQUE trên branches.app_code: cho phép nhiều chi nhánh dùng chung 1 module.
+    // - Bỏ UNIQUE(user_id, app_code, device_id) trên licenses: 1 user có thể có nhiều
+    //   license của CÙNG app_code (mỗi chi nhánh 1 license, phân biệt bằng branch_id).
+    // - Thêm partial unique index: license theo (user_id, branch_id, device_id) khi có
+    //   branch_id; license cũ (đăng ký Web/Zalo) vẫn unique theo (user_id, app_code, device_id).
+    ['015_branches_drop_app_unique', 'ALTER TABLE branches DROP CONSTRAINT IF EXISTS branches_app_code_key'],
+    ['015_licenses_drop_user_app_device_unique', 'ALTER TABLE licenses DROP CONSTRAINT IF EXISTS licenses_user_id_app_code_device_id_key'],
+    ['015_licenses_branch_unique', 'CREATE UNIQUE INDEX IF NOT EXISTS idx_licenses_user_branch_device ON licenses(user_id, branch_id, device_id) WHERE branch_id IS NOT NULL'],
+    ['015_licenses_legacy_unique', 'CREATE UNIQUE INDEX IF NOT EXISTS idx_licenses_user_app_device_legacy ON licenses(user_id, app_code, device_id) WHERE branch_id IS NULL'],
   ];
 
   for (const [name, sqlStr] of migrations) {

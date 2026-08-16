@@ -41,7 +41,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       l.id AS license_id, l.plan, l.status AS license_status, l.started_at, l.expires_at
     FROM branches b
     LEFT JOIN apps a ON a.app_code = b.app_code
-    LEFT JOIN licenses l ON l.app_code = b.app_code AND l.user_id = ${customer.owner_user_id}
+    LEFT JOIN licenses l ON l.branch_id = b.id AND l.user_id = ${customer.owner_user_id} AND l.device_id = ''
     WHERE b.customer_id = ${id}
     ORDER BY b.created_at ASC
   `;
@@ -74,10 +74,9 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   const ownerUserId: string = String(customer.owner_user_id);
 
   try {
-    const dupBranch = await sql`SELECT id FROM branches WHERE app_code = ${app_code}`;
-    if (dupBranch.length > 0) {
-      return NextResponse.json({ error: 'app_code da duoc dung boi chi nhanh khac' }, { status: 409, headers: corsHeaders() });
-    }
+    // Migration 015: 1 module (app_code) có thể có NHIỀU chi nhánh — bỏ check
+    // "app_code đã được dùng bởi chi nhánh khác". Cùng 1 module được dùng bởi
+    // nhiều chi nhánh của cùng customer (vd: CAFE-01, CAFE-02 cùng kanposvncafe).
 
     // Dam bao app_code ton tai trong bang apps (de license/check + owner/info hoat dong).
     const appRows = await sql`SELECT id FROM apps WHERE app_code = ${app_code}`;
@@ -95,7 +94,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       RETURNING *
     `;
 
-    // Tao license cho owner user theo chi nhanh (1 branch = 1 app_code).
+    // Tao license cho owner user theo chi nhanh (1 branch = 1 license, device_id = '').
     const planKey = license_plan || 'trial';
     const planInfo = getPlan(planKey);
     const now = new Date();
@@ -105,7 +104,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     await sql`
       INSERT INTO licenses (user_id, app_code, device_id, plan, status, started_at, expires_at, branch_id)
       VALUES (${ownerUserId}, ${app_code}, '', ${planKey}, 'active', ${now.toISOString()}, ${expiresAt?.toISOString() || null}, ${result[0].id})
-      ON CONFLICT (user_id, app_code, device_id) DO UPDATE SET
+      ON CONFLICT (user_id, branch_id, device_id) WHERE branch_id IS NOT NULL DO UPDATE SET
         plan = ${planKey}, status = 'active', started_at = ${now.toISOString()}, expires_at = ${expiresAt?.toISOString() || null}
     `;
 

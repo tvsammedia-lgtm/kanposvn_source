@@ -21,6 +21,10 @@ export async function GET(req: NextRequest) {
     const auth = req.headers.get('authorization');
     const appCode = req.nextUrl.searchParams.get('app_code') || 'kanposvncafe';
     const deviceId = req.nextUrl.searchParams.get('device_id') || '';
+    // Migration 015: 1 module = nhiều chi nhánh. Khi có branch_id thì license của
+    // chi nhánh đó được kiểm tra theo (user_id, branch_id, device_id). Không có
+    // branch_id (cửa hàng đăng ký Web/Zalo) → giữ nguyên hành vi cũ theo app_code.
+    const branchId = req.nextUrl.searchParams.get('branch_id') || '';
 
     let userId: string | null = null;
     if (auth?.startsWith('Bearer ')) {
@@ -76,27 +80,39 @@ export async function GET(req: NextRequest) {
 
     let lic = null;
     if (deviceId) {
-      const rows = await sql`
-        SELECT * FROM licenses WHERE user_id = ${userId} AND app_code = ${appCode} AND device_id = ${deviceId}
-      `;
+      const rows = branchId
+        ? await sql`
+          SELECT * FROM licenses WHERE user_id = ${userId} AND branch_id = ${branchId} AND device_id = ${deviceId}
+        `
+        : await sql`
+          SELECT * FROM licenses WHERE user_id = ${userId} AND app_code = ${appCode} AND device_id = ${deviceId}
+        `;
       if (rows.length > 0) lic = rows[0];
     }
 
     if (!lic) {
-      const accountRows = await sql`
-        SELECT * FROM licenses WHERE user_id = ${userId} AND app_code = ${appCode} AND device_id = ''
-      `;
+      const accountRows = branchId
+        ? await sql`
+          SELECT * FROM licenses WHERE user_id = ${userId} AND branch_id = ${branchId} AND device_id = ''
+        `
+        : await sql`
+          SELECT * FROM licenses WHERE user_id = ${userId} AND app_code = ${appCode} AND device_id = ''
+        `;
       if (accountRows.length > 0) {
         lic = accountRows[0];
         if (deviceId) {
-          const countRows = await sql`
-            SELECT COUNT(*)::int AS n FROM licenses WHERE user_id = ${userId} AND app_code = ${appCode} AND status = 'active'
-          `;
+          const countRows = branchId
+            ? await sql`
+              SELECT COUNT(*)::int AS n FROM licenses WHERE user_id = ${userId} AND branch_id = ${branchId} AND status = 'active'
+            `
+            : await sql`
+              SELECT COUNT(*)::int AS n FROM licenses WHERE user_id = ${userId} AND app_code = ${appCode} AND status = 'active'
+            `;
           const activeCount = countRows[0]?.n ?? 0;
           if (activeCount < MAX_DEVICES) {
             const newLic = await sql`
-              INSERT INTO licenses (user_id, app_code, device_id, plan, status, started_at, expires_at)
-              VALUES (${userId}, ${appCode}, ${deviceId}, ${lic.plan}, ${lic.status}, ${lic.started_at}, ${lic.expires_at})
+              INSERT INTO licenses (user_id, app_code, device_id, plan, status, started_at, expires_at, branch_id)
+              VALUES (${userId}, ${appCode}, ${deviceId}, ${lic.plan}, ${lic.status}, ${lic.started_at}, ${lic.expires_at}, ${branchId || null})
               RETURNING *
             `;
             lic = newLic[0];
@@ -156,6 +172,7 @@ export async function GET(req: NextRequest) {
         expires_at: lic.expires_at,
         days_left: daysLeft,
         device_id: deviceId,
+        branch_id: lic.branch_id || null,
         message: forever
           ? 'License hợp lệ · Vĩnh Viễn'
           : daysLeft <= 7

@@ -8,6 +8,7 @@ import 'core/module_enum.dart';
 import 'core/providers.dart';
 import 'core/router/login_screen.dart';
 import 'core/router/module_selector_screen.dart';
+import 'core/router/branch_selector_screen.dart';
 import 'core/update/update_checker.dart';
 import 'core/ai/ai_assistant_widget.dart';
 import 'modules/kanposvncafe/screens/kanposvncafe_shell.dart';
@@ -100,6 +101,14 @@ class _KanPosVNAppState extends ConsumerState<KanPosVNApp> {
               await db.init(module: auth.currentModule!);
             }
             if (!mounted) return;
+            // Mô hình 1 module = nhiều chi nhánh: nếu module có chi nhánh → yêu
+            // cầu chọn lại chi nhánh trước khi vào shell (đúng chi nhánh đang dùng).
+            final branches = await auth.fetchBranches(auth.currentModule!.appCode);
+            if (!mounted) return;
+            if (branches.isNotEmpty) {
+              ref.read(branchSelectorModuleProvider.notifier).state = auth.currentModule;
+              return;
+            }
             ref.read(selectedModuleProvider.notifier).state = auth.currentModule;
             return;
           }
@@ -178,6 +187,7 @@ class _KanPosVNAppState extends ConsumerState<KanPosVNApp> {
     }
 
     Widget home;
+    final branchModule = ref.watch(branchSelectorModuleProvider);
     if (const bool.fromEnvironment('TEST_QLCD')) {
       home = UpdateAndLicenseChecker(
         appCode: AppModule.kanposvnqlcd.appCode,
@@ -188,6 +198,10 @@ class _KanPosVNAppState extends ConsumerState<KanPosVNApp> {
         appCode: selectedModule.appCode,
         child: _MainShell(module: selectedModule),
       );
+    } else if (branchModule != null) {
+      // Mô hình 1 module = nhiều chi nhánh: module này có chi nhánh → chọn chi
+      // nhánh trước khi vào shell (module selector hoặc auto-resume đã đặt provider).
+      home = BranchSelectorScreen(module: branchModule);
     } else if (_sessionError != null) {
       home = Scaffold(
         backgroundColor: AppColors.sidebarBg,

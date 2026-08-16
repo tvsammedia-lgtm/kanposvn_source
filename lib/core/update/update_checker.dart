@@ -53,7 +53,11 @@ class _UpdateAndLicenseCheckerState
 
     final auth = ref.read(authServiceProvider);
     final license = ref.read(licenseServiceProvider);
-    await license.check(token: token, appCode: auth.licenseAppCode);
+    await license.check(
+      token: token,
+      appCode: auth.licenseAppCode,
+      branchId: auth.branchId,
+    );
     if (!mounted) return;
 
     final status = license.status;

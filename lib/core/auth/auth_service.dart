@@ -132,6 +132,15 @@ class AuthService extends ChangeNotifier {
   String get licenseAppCode =>
       isStoreUser ? (_storeAppCode ?? storeLicenseAppCode) : (_currentAppCode ?? 'kanposvn');
 
+  String? _branchId;
+  String? get branchId => _branchId;
+
+  String? _branchName;
+  String? get branchName => _branchName;
+
+  String? _branchPhone;
+  String? get branchPhone => _branchPhone;
+
   bool _isLoading = false;
   bool get isLoading => _isLoading;
 
@@ -420,6 +429,9 @@ class AuthService extends ChangeNotifier {
     _storeModules = [];
     _isStoreTrial = false;
     _licenseExpiresAt = null;
+    _branchId = null;
+    _branchName = null;
+    _branchPhone = null;
     await _clearSession();
     notifyListeners();
     return;
@@ -440,6 +452,10 @@ class AuthService extends ChangeNotifier {
       _isStoreTrial = prefs.getBool(_kTrialKey) ?? false;
       final expiresStr = prefs.getString(_kExpiresAtKey);
       _licenseExpiresAt = expiresStr != null ? DateTime.tryParse(expiresStr) : null;
+      // Thông tin chi nhánh đã chọn lần trước (mô hình 1 module = nhiều chi nhánh).
+      _branchId = prefs.getString(_kBranchIdKey);
+      _branchName = prefs.getString(_kBranchNameKey);
+      _branchPhone = prefs.getString(_kBranchPhoneKey);
 
       // Phiên tài khoản nội bộ: không có token Cloud nhưng vẫn hợp lệ.
       if (token == null || userJson == null || permissionsJson == null) {
@@ -652,14 +668,16 @@ class AuthService extends ChangeNotifier {
   ///
   /// Chỉ ghi đè khi response có `branch_id` (mô hình chi nhánh). Với cửa hàng
   /// cũ (không phải branch) thì giữ nguyên hành vi hiện tại.
-  Future<void> refreshBranchInfo({String? appCode}) async {
+  Future<void> refreshBranchInfo({String? appCode, String? branchId}) async {
     if (_token == null) return;
     final code = appCode ?? _currentAppCode ?? _storeAppCode ?? 'kanposvn';
     try {
+      final params = <String, String>{'app_code': code};
+      if (branchId != null && branchId.isNotEmpty) params['branch_id'] = branchId;
       final res = await _client
           .get(
             Uri.parse('${ApiConfig.baseUrl}/api/owner/info').replace(
-              queryParameters: {'app_code': code},
+              queryParameters: params,
             ),
             headers: {'Authorization': 'Bearer $_token'},
           )
@@ -671,12 +689,70 @@ class AuthService extends ChangeNotifier {
       final prefs = await SharedPreferences.getInstance();
       final name = json['shop_name']?.toString() ?? '';
       final phone = json['phone']?.toString() ?? '';
-      final branchId = json['branch_id']?.toString() ?? '';
+      final branchId2 = json['branch_id']?.toString() ?? '';
+      _branchName = name;
+      _branchPhone = phone;
+      _branchId = branchId2;
       if (name.isNotEmpty) await prefs.setString(_kBranchNameKey, name);
       if (phone.isNotEmpty) await prefs.setString(_kBranchPhoneKey, phone);
-      if (branchId.isNotEmpty) await prefs.setString(_kBranchIdKey, branchId);
+      if (branchId2.isNotEmpty) await prefs.setString(_kBranchIdKey, branchId2);
+      notifyListeners();
     } catch (e) {
       // Best-effort: không làm hỏng phiên đăng nhập khi lỗi mạng.
+    }
+  }
+
+  /// Danh sách CHI NHÁNH của module (app_code) mà user đang đăng nhập được phép dùng.
+  ///
+  /// Gọi `/api/owner/branches?app_code=...`. Trả về danh sách rỗng nếu module đó
+  /// không có chi nhánh (cửa hàng đăng ký Web/Zalo cũ) hoặc bị lỗi mạng — luồng
+  /// chọn module/đăng nhập KHÔNG bị chặn bởi lỗi này.
+  Future<List<Map<String, dynamic>>> fetchBranches(String appCode) async {
+    if (_token == null) return [];
+    try {
+      final res = await _client
+          .get(
+            Uri.parse('${ApiConfig.baseUrl}/api/owner/branches').replace(
+              queryParameters: {'app_code': appCode},
+            ),
+            headers: {'Authorization': 'Bearer $_token'},
+          )
+          .timeout(const Duration(seconds: 8));
+      if (res.statusCode != 200) return [];
+      final json =
+          jsonDecode(utf8.decode(res.bodyBytes)) as Map<String, dynamic>;
+      final list = json['branches'];
+      if (list is List) {
+        return list
+            .map((e) => Map<String, dynamic>.from(e as Map<String, dynamic>))
+            .toList();
+      }
+      return [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  /// Chọn chi nhánh sau khi vào module (mô hình 1 module = nhiều chi nhánh).
+  ///
+  /// Lưu branch id/name/phone (in báo cáo, bill title) và gọi refreshBranchInfo
+  /// với branch_id để lấy đúng thông tin chi nhánh đã chọn.
+  Future<void> selectBranch(Map<String, dynamic> branch) async {
+    final id = branch['id']?.toString() ?? '';
+    final name = branch['name']?.toString() ?? '';
+    final phone = branch['phone']?.toString() ?? '';
+    if (id.isEmpty) return;
+    _branchId = id;
+    _branchName = name;
+    _branchPhone = phone;
+    final prefs = await SharedPreferences.getInstance();
+    if (name.isNotEmpty) await prefs.setString(_kBranchNameKey, name);
+    if (phone.isNotEmpty) await prefs.setString(_kBranchPhoneKey, phone);
+    await prefs.setString(_kBranchIdKey, id);
+    notifyListeners();
+    final code = _currentAppCode ?? _storeAppCode;
+    if (code != null) {
+      unawaited(refreshBranchInfo(appCode: code, branchId: id));
     }
   }
 

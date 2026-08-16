@@ -5,6 +5,7 @@ import '../theme/app_colors.dart';
 import '../providers.dart';
 import '../l10n/translations.dart';
 import '../sync/sync_providers.dart';
+import 'branch_selector_screen.dart';
 
 final selectedModuleProvider = StateProvider<AppModule?>((ref) => null);
 
@@ -122,6 +123,16 @@ class _ModuleSelectorScreenState extends ConsumerState<ModuleSelectorScreen> {
 
       if (module.appCode == 'kanposvncafe' || module.appCode == 'nhansu') {
         ref.read(syncEngineProvider).triggerSync();
+      }
+
+      // Mô hình 1 module = nhiều chi nhánh: nếu module có CHI NHÁNH (user được
+      // cấp quyền) thì vào màn hình chọn chi nhánh trước, KHÔNG vào shell ngay.
+      // Module không có chi nhánh (cửa hàng đăng ký Web/Zalo cũ) → vào thẳng.
+      final branches = await auth.fetchBranches(module.appCode);
+      if (branches.isNotEmpty) {
+        ref.read(branchSelectorModuleProvider.notifier).state = module;
+        if (mounted) setState(() => _loadingModule = null);
+        return;
       }
 
       // Đặt selectedModule không phụ thuộc context (màn hình có thể đã bị thay thế).

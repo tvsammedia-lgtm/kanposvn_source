@@ -10,6 +10,7 @@ import '../sync/sync_providers.dart';
 import '../auth/auth_service.dart';
 import '../auth/employee_auth.dart';
 import 'module_selector_screen.dart';
+import 'branch_selector_screen.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -239,6 +240,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         return;
       }
       await db.initStore(storeId: storeId, module: auth.defaultStoreModule);
+      // Mô hình 1 module = nhiều chi nhánh: cửa hàng có chi nhánh → chọn chi nhánh.
+      final branches = await auth.fetchBranches(auth.defaultStoreModule.appCode);
+      if (!mounted) return;
+      if (branches.isNotEmpty) {
+        setState(() => _isLoading = false);
+        ref.read(branchSelectorModuleProvider.notifier).state = auth.defaultStoreModule;
+        return;
+      }
       ref.read(selectedModuleProvider.notifier).state = auth.defaultStoreModule;
       if (mounted) {
         setState(() {
@@ -281,6 +290,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       // đang mở thay vì màn hình "Đang xác thực...".
       await db.init(module: module);
       await auth.switchModule(module);
+
+      // Mô hình 1 module = nhiều chi nhánh: module có chi nhánh → chọn chi nhánh.
+      final branches = await auth.fetchBranches(module.appCode);
+      if (!mounted) return;
+      if (branches.isNotEmpty) {
+        setState(() => _isLoading = false);
+        ref.read(branchSelectorModuleProvider.notifier).state = module;
+        return;
+      }
 
       // Đặt selectedModule kể cả khi LoginScreen đã bị thay thế (mounted == false).
       moduleNotifier.state = module;
