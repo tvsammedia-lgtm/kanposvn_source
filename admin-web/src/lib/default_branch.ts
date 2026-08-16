@@ -1,4 +1,5 @@
 import { getSql } from '@/lib/db';
+import { ensureDefaultWarehouse } from '@/lib/default_warehouse';
 
 type SqlFn = ReturnType<typeof getSql>;
 
@@ -63,6 +64,15 @@ export async function ensureDefaultBranch(
     await sql`
       UPDATE licenses SET branch_id = ${branch.id} WHERE id = ${licenseId}
     `;
+  }
+
+  // 5. Mô hình kho: tự cấp Kho mặc định "Kho chính" cho chi nhánh (migration 017).
+  if (branch) {
+    await ensureDefaultWarehouse(sql, {
+      customerId: customer.id,
+      branchId: branch.id,
+      branchName: branch.name,
+    });
   }
 
   return branch?.id ?? '';

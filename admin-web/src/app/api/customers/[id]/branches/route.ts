@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getSql } from '@/lib/db';
 import { verifyToken } from '@/lib/auth';
 import { getPlan } from '@/lib/pricing';
+import { ensureDefaultWarehouse } from '@/lib/default_warehouse';
 
 function corsHeaders() {
   return {
@@ -100,6 +101,9 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       })
       RETURNING *
     `;
+
+    // Mô hình kho (migration 017): mỗi chi nhánh tự có Kho mặc định "Kho chính".
+    await ensureDefaultWarehouse(sql, { customerId: id, branchId: result[0].id, branchName: name });
 
     // Tao license cho owner user theo chi nhanh (1 branch = 1 license, device_id = '').
     const planKey = license_plan || 'trial';
