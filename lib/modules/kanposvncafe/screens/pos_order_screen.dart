@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -5,6 +6,7 @@ import '../services/bill_printer.dart';
 import '../models/cafe_menu.dart';
 import '../models/cafe_order.dart';
 import '../providers/cafe_providers.dart';
+import '../../../core/api/warehouse_api.dart';
 import '../../../core/auth/auth_service.dart';
 import '../../../core/printer/printer_actions.dart';
 import '../../../core/printer/receipt_data.dart';
@@ -659,6 +661,8 @@ class _PosOrderScreenState extends ConsumerState<PosOrderScreen> {
         .read(cafePosCartProvider.notifier)
         .checkout(PaymentMethod.tienMat, ref);
     if (!context.mounted || !mounted) return;
+    // Trừ tồn kho Cloud của chi nhánh đang dùng (best-effort, không chặn bán).
+    unawaited(_postCloudSaleDeductions(completedOrder));
     try {
       await printReceiptByMode(
         context,
@@ -680,6 +684,41 @@ class _PosOrderScreenState extends ConsumerState<PosOrderScreen> {
         ),
       ),
     );
+  }
+
+  /// Trừ tồn kho Kho đa chi nhánh khi bán hàng: với mỗi mặt hàng khớp chính xác
+  /// tên với sản phẩm Cloud thì ghi giao dịch SALE vào kho đang dùng của chi
+  /// nhánh. Best-effort: lỗi mạng/không khớp sản phẩm thì bỏ qua, không ảnh
+  /// hưởng tới hóa đơn đã thanh toán.
+  Future<void> _postCloudSaleDeductions(CafeOrder order) async {
+    final auth = AuthService.instance;
+    final whId = auth?.warehouseId;
+    final code = auth?.currentAppCode ?? auth?.storeAppCode;
+    if (auth == null || whId == null || whId.isEmpty || code == null) return;
+    try {
+      final products = await WarehouseApi.fetchProducts(code);
+      final byName = <String, WhProduct>{};
+      for (final p in products) {
+        final key = p.name.trim().toLowerCase();
+        byName.putIfAbsent(key, () => p);
+      }
+      final matched = <({String productId, double qty})>[];
+      for (final item in order.items) {
+        final p = byName[item.menuItemName.trim().toLowerCase()];
+        if (p != null) {
+          matched.add((productId: p.id, qty: item.quantity.toDouble()));
+        }
+      }
+      if (matched.isEmpty) return;
+      await WarehouseApi.postSaleDeductions(
+        appCode: code,
+        warehouseId: whId,
+        orderCode: order.orderCode,
+        items: matched,
+      );
+    } catch (e) {
+      // Best-effort: không làm hỏng luồng thanh toán.
+    }
   }
 
   Future<ReceiptData> _buildReceipt(CafeOrder cart) async {

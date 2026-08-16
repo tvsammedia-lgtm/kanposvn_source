@@ -7,6 +7,10 @@ import '../module_enum.dart';
 import '../sync/api_config.dart';
 
 class AuthService extends ChangeNotifier {
+  /// Singleton được `authServiceProvider` gán khi provider khởi tạo — để các
+  /// client tĩnh (WarehouseApi, ...) đọc token/context mà không cần Riverpod.
+  static AuthService? instance;
+
   static const _kTokenKey = 'auth_token';
   static const _kUserKey = 'auth_user';
   static const _kPermissionsKey = 'auth_permissions';
@@ -26,6 +30,12 @@ class AuthService extends ChangeNotifier {
   static const _kBranchNameKey = 'auth_branch_name';
   static const _kBranchPhoneKey = 'auth_branch_phone';
   static const _kBranchIdKey = 'auth_branch_id';
+  /// Mô hình Kho đa chi nhánh (Customer → Branch → Warehouse → Stock).
+  /// Customer id của doanh nghiệp + KHO đang dùng của chi nhánh (mặc định).
+  static const _kCustomerIdKey = 'auth_customer_id';
+  static const _kWarehouseIdKey = 'auth_warehouse_id';
+  static const _kWarehouseNameKey = 'auth_warehouse_name';
+  static const _kWarehouseCodeKey = 'auth_warehouse_code';
   /// Danh sách module của CỬA HÀNG (Owner được cấp quyền) — bền vững, không bị
   /// xóa khi đăng xuất. Login nhân viên quét danh sách này để tìm tài khoản
   /// trong từng module ("Quản lý nhân viên" của module đó).
@@ -140,6 +150,20 @@ class AuthService extends ChangeNotifier {
 
   String? _branchPhone;
   String? get branchPhone => _branchPhone;
+
+  /// Khách hàng (doanh nghiệp) đang sử dụng — mô hình Kho đa chi nhánh.
+  String? _customerId;
+  String? get customerId => _customerId;
+
+  /// Kho đang dùng của chi nhánh (mặc định khi chọn chi nhánh).
+  String? _warehouseId;
+  String? get warehouseId => _warehouseId;
+
+  String? _warehouseName;
+  String? get warehouseName => _warehouseName;
+
+  String? _warehouseCode;
+  String? get warehouseCode => _warehouseCode;
 
   bool _isLoading = false;
   bool get isLoading => _isLoading;
@@ -432,6 +456,10 @@ class AuthService extends ChangeNotifier {
     _branchId = null;
     _branchName = null;
     _branchPhone = null;
+    _customerId = null;
+    _warehouseId = null;
+    _warehouseName = null;
+    _warehouseCode = null;
     await _clearSession();
     notifyListeners();
     return;
@@ -456,6 +484,11 @@ class AuthService extends ChangeNotifier {
       _branchId = prefs.getString(_kBranchIdKey);
       _branchName = prefs.getString(_kBranchNameKey);
       _branchPhone = prefs.getString(_kBranchPhoneKey);
+      // Kho đa chi nhánh: khôi phục customer + kho đã chọn lần trước.
+      _customerId = prefs.getString(_kCustomerIdKey);
+      _warehouseId = prefs.getString(_kWarehouseIdKey);
+      _warehouseName = prefs.getString(_kWarehouseNameKey);
+      _warehouseCode = prefs.getString(_kWarehouseCodeKey);
 
       // Phiên tài khoản nội bộ: không có token Cloud nhưng vẫn hợp lệ.
       if (token == null || userJson == null || permissionsJson == null) {
@@ -589,6 +622,26 @@ class AuthService extends ChangeNotifier {
     } else {
       await prefs.remove(_kStoreAppCodeKey);
     }
+    if (_customerId != null) {
+      await prefs.setString(_kCustomerIdKey, _customerId!);
+    } else {
+      await prefs.remove(_kCustomerIdKey);
+    }
+    if (_warehouseId != null) {
+      await prefs.setString(_kWarehouseIdKey, _warehouseId!);
+    } else {
+      await prefs.remove(_kWarehouseIdKey);
+    }
+    if (_warehouseName != null) {
+      await prefs.setString(_kWarehouseNameKey, _warehouseName!);
+    } else {
+      await prefs.remove(_kWarehouseNameKey);
+    }
+    if (_warehouseCode != null) {
+      await prefs.setString(_kWarehouseCodeKey, _warehouseCode!);
+    } else {
+      await prefs.remove(_kWarehouseCodeKey);
+    }
     if (_employee != null) {
       // Phiên nhân viên: lưu module của RIÊNG employee, KHÔNG đụng đến
       // `_kStoreModulesKey` (danh sách module cửa hàng cho login nhân viên khác).
@@ -629,6 +682,13 @@ class AuthService extends ChangeNotifier {
     await prefs.remove(_kCurrentAppCodeKey);
     await prefs.remove(_kTrialKey);
     await prefs.remove(_kExpiresAtKey);
+    await prefs.remove(_kBranchNameKey);
+    await prefs.remove(_kBranchPhoneKey);
+    await prefs.remove(_kBranchIdKey);
+    await prefs.remove(_kCustomerIdKey);
+    await prefs.remove(_kWarehouseIdKey);
+    await prefs.remove(_kWarehouseNameKey);
+    await prefs.remove(_kWarehouseCodeKey);
     // KHÔNG xóa _kStoreModulesKey: đây là dữ liệu CỬA HÀNG (danh sách module
     // Owner được cấp quyền), phải giữ để tài khoản nhân viên (Cấp 2) vẫn quét
     // được các module sau khi Owner đăng xuất — tương tự _kStoreIdKey.
@@ -708,6 +768,7 @@ class AuthService extends ChangeNotifier {
       if (branchId2.isNotEmpty) await prefs.setString(_kBranchIdKey, branchId2);
       if (ownerName.isNotEmpty) await prefs.setString(_kOwnerNameKey, ownerName);
       notifyListeners();
+      unawaited(refreshWarehouseInfo(appCode: code, branchId: branchId2));
     } catch (e) {
       // Best-effort: không làm hỏng phiên đăng nhập khi lỗi mạng.
     }
@@ -764,13 +825,112 @@ class AuthService extends ChangeNotifier {
     final code = _currentAppCode ?? _storeAppCode;
     if (code != null) {
       unawaited(refreshBranchInfo(appCode: code, branchId: id));
+      unawaited(refreshWarehouseInfo(appCode: code, branchId: id));
     }
+  }
+
+  /// Lấy danh sách KHO của chi nhánh (`/api/owner/warehouses`) và tự chọn KHO
+  /// mặc định — mô hình Customer → Branch → Warehouse → Stock.
+  ///
+  /// Lưu customer_id (doanh nghiệp) + warehouse id/name/code vào máy để POS và
+  /// màn hình Kho biết kho đang dùng. Best-effort: lỗi mạng không làm hỏng
+  /// phiên; nếu chưa có kho thì giữ nguyên kho đã chọn trước đó.
+  Future<void> refreshWarehouseInfo({String? appCode, String? branchId}) async {
+    if (_token == null) return;
+    final code = appCode ?? _currentAppCode ?? _storeAppCode ?? 'kanposvn';
+    try {
+      final params = <String, String>{'app_code': code};
+      if (branchId != null && branchId.isNotEmpty) {
+        params['branch_id'] = branchId;
+      }
+      final res = await _client
+          .get(
+            Uri.parse('${ApiConfig.baseUrl}/api/owner/warehouses').replace(
+              queryParameters: params,
+            ),
+            headers: {'Authorization': 'Bearer $_token'},
+          )
+          .timeout(const Duration(seconds: 8));
+      if (res.statusCode != 200) return;
+      final json =
+          jsonDecode(utf8.decode(res.bodyBytes)) as Map<String, dynamic>;
+      final customer = json['customer'];
+      final list = json['warehouses'];
+      if (list is! List || list.isEmpty) return;
+
+      final prefs = await SharedPreferences.getInstance();
+      final customerId = customer is Map<String, dynamic>
+          ? customer['id']?.toString()
+          : null;
+      if (customerId != null && customerId.isNotEmpty) {
+        _customerId = customerId;
+        await prefs.setString(_kCustomerIdKey, customerId);
+      }
+
+      // Ưu tiên kho mặc định (is_default) → kho chi nhánh đầu tiên.
+      Map<String, dynamic>? chosen;
+      for (final w in list) {
+        if (w is Map<String, dynamic> && w['is_default'] == true) {
+          chosen = w;
+          break;
+        }
+      }
+      chosen ??= list.firstWhere(
+        (w) =>
+            w is Map<String, dynamic> && w['warehouse_type'] != 'CENTRAL',
+        orElse: () => list.first,
+      ) as Map<String, dynamic>;
+
+      final whId = chosen['id']?.toString() ?? '';
+      if (whId.isEmpty) return;
+      _warehouseId = whId;
+      _warehouseName = chosen['warehouse_name']?.toString() ?? '';
+      _warehouseCode = chosen['warehouse_code']?.toString() ?? '';
+      await prefs.setString(_kWarehouseIdKey, whId);
+      await prefs.setString(_kWarehouseNameKey, _warehouseName!);
+      await prefs.setString(_kWarehouseCodeKey, _warehouseCode!);
+      notifyListeners();
+    } catch (e) {
+      // Best-effort: không làm hỏng phiên đăng nhập khi lỗi mạng.
+    }
+  }
+
+  /// Người dùng tự đổi KHO đang dùng trong màn hình Kho (lưu để POS trừ đúng kho).
+  Future<void> selectWarehouse(Map<String, dynamic> warehouse) async {
+    final id = warehouse['id']?.toString() ?? '';
+    if (id.isEmpty) return;
+    _warehouseId = id;
+    _warehouseName = warehouse['warehouse_name']?.toString() ?? '';
+    _warehouseCode = warehouse['warehouse_code']?.toString() ?? '';
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_kWarehouseIdKey, id);
+    await prefs.setString(_kWarehouseNameKey, _warehouseName!);
+    await prefs.setString(_kWarehouseCodeKey, _warehouseCode!);
+    notifyListeners();
   }
 
   /// Store ID đã lưu trên máy (dùng để đăng nhập tài khoản nội bộ ngoại tuyến).
   static Future<String?> loadSavedStoreId() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString(_kStoreIdKey);
+  }
+
+  /// Customer id (doanh nghiệp) đã lưu — mô hình Kho đa chi nhánh.
+  static Future<String?> loadSavedCustomerId() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_kCustomerIdKey);
+  }
+
+  /// Tên KHO đang dùng đã lưu — hiển thị/trừ kho đúng chi nhánh khi bán hàng.
+  static Future<String?> loadSavedWarehouseName() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_kWarehouseNameKey);
+  }
+
+  /// Id KHO đang dùng đã lưu (POS trừ tồn kho đúng kho của chi nhánh).
+  static Future<String?> loadSavedWarehouseId() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_kWarehouseIdKey);
   }
 
   /// App code của cửa hàng đã lưu trên máy.

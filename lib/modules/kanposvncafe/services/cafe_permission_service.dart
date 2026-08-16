@@ -30,7 +30,7 @@ class CafePermissionService {
           'voucher',
           'order_history',
         },
-        EmployeeRoles.warehouse: const {'inventory', 'purchase'},
+        EmployeeRoles.warehouse: const {'inventory', 'warehouse', 'purchase'},
         EmployeeRoles.accountant: const {
           'dashboard',
           'finance',

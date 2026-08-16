@@ -14,6 +14,7 @@ const List<CafeTabDef> cafeTabDefs = [
   CafeTabDef(id: 'dashboard', label: 'Dashboard'),
   CafeTabDef(id: 'menu', label: 'Menu & Recipe'),
   CafeTabDef(id: 'inventory', label: 'Kho Hàng'),
+  CafeTabDef(id: 'warehouse', label: 'Kho Đa Chi Nhánh'),
   CafeTabDef(id: 'finance', label: 'Thu Chi & KT'),
   CafeTabDef(id: 'customers', label: 'KH & NCC'),
   CafeTabDef(id: 'purchase', label: 'Nhập hàng'),

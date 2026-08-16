@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/auth/employee_management_screen.dart';
 import '../../../core/db/database_service.dart';
 import '../../../core/providers.dart';
+import '../../../core/warehouse/warehouse_screen.dart';
 import '../../../core/widgets/account_switcher_button.dart';
 import '../cafe_tab_defs.dart';
 import '../providers/cafe_providers.dart';
@@ -97,6 +98,13 @@ class _KanPosVNCafeShellState extends ConsumerState<KanPosVNCafeShell> {
       label: 'Kho Hàng',
       shortLabel: 'Kho',
       icon: Icons.inventory_2,
+    ),
+    const _CafeTab(
+      id: 'warehouse',
+      screen: WarehouseScreen(),
+      label: 'Kho Đa Chi Nhánh',
+      shortLabel: 'Kho Cloud',
+      icon: Icons.warehouse_outlined,
     ),
     const _CafeTab(
       id: 'finance',
