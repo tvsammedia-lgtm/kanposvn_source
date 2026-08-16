@@ -27,15 +27,45 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    // Owner = user sở hữu license của app_code (ưu tiên license active, mới nhất).
-    const [ownerLic] = await sql`
+    // Owner = user có quyền dùng app_code này. Ưu tiên:
+    //   1. user sở hữu license của app_code (active, mới nhất);
+    //   2. chủ store (stores.owner_user_id) nếu app_code đang dùng gói chung ('pos');
+    //   3. bất kỳ user có permission cho app_code (mới nhất theo license).
+    const ownerLicRows = await sql`
       SELECT user_id FROM licenses
       WHERE app_code = ${appCode}
       ORDER BY CASE WHEN status = 'active' THEN 0 ELSE 1 END, started_at DESC
       LIMIT 1
     `;
 
-    if (!ownerLic?.user_id) {
+    let ownerId: string | null = ownerLicRows[0]?.user_id ?? null;
+
+    if (!ownerId) {
+      const storeRows = await sql`
+        SELECT u.id FROM user_permissions p
+        JOIN apps a ON a.id = p.app_id
+        JOIN users u ON u.id = p.user_id
+        JOIN stores s ON s.owner_user_id = u.id
+        WHERE a.app_code = ${appCode} AND p.can_login = true
+        LIMIT 1
+      `;
+      ownerId = storeRows[0]?.id ?? null;
+    }
+
+    if (!ownerId) {
+      const permRows = await sql`
+        SELECT u.id FROM user_permissions p
+        JOIN apps a ON a.id = p.app_id
+        JOIN users u ON u.id = p.user_id
+        LEFT JOIN licenses l ON l.user_id = u.id
+        WHERE a.app_code = ${appCode} AND p.can_login = true
+        ORDER BY l.started_at DESC
+        LIMIT 1
+      `;
+      ownerId = permRows[0]?.id ?? null;
+    }
+
+    if (!ownerId) {
       return NextResponse.json(
         { error: `Không tìm thấy owner cho app ${appCode}` },
         { status: 404, headers: corsHeaders() },
@@ -44,7 +74,7 @@ export async function GET(req: NextRequest) {
 
     const [user] = await sql`
       SELECT id, email, phone, full_name, shop_name, shop_address, active
-      FROM users WHERE id = ${ownerLic.user_id}
+      FROM users WHERE id = ${ownerId}
     `;
 
     if (!user) {
