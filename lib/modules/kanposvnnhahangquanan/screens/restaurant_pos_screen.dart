@@ -90,6 +90,7 @@ class _RestaurantPosScreenState extends ConsumerState<RestaurantPosScreen> {
 
   Future<void> _printReceipt(ReceiptPrintMode mode) async {
     final storeName = await AuthService.loadSavedStoreName();
+    final ownerName = await AuthService.loadSavedOwnerName();
     final storePhone = await AuthService.loadSavedStorePhone();
     final order = _currentOrder!;
     await printReceiptByMode(
@@ -97,6 +98,7 @@ class _RestaurantPosScreenState extends ConsumerState<RestaurantPosScreen> {
       ref,
       ReceiptData(
         shopName: storeName ?? 'NHÀ HÀNG QUÁN ĂN',
+        shopOwnerName: ownerName,
         shopPhone: storePhone,
         title: 'HÓA ĐƠN THANH TOÁN',
         orderCode: order.orderId.length > 8

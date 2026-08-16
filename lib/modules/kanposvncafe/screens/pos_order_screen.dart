@@ -684,9 +684,11 @@ class _PosOrderScreenState extends ConsumerState<PosOrderScreen> {
 
   Future<ReceiptData> _buildReceipt(CafeOrder cart) async {
     final storeName = await AuthService.loadSavedStoreName();
+    final ownerName = await AuthService.loadSavedOwnerName();
     final storePhone = await AuthService.loadSavedStorePhone();
     return ReceiptData(
       shopName: storeName ?? 'KANPOSVN',
+      shopOwnerName: ownerName,
       shopPhone: storePhone,
       title: 'HÓA ĐƠN THANH TOÁN',
       orderCode: cart.orderCode,

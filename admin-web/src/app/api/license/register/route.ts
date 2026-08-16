@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getSql } from '@/lib/db';
 import { hashPassword, signToken } from '@/lib/auth';
 import { getPlan } from '@/lib/pricing';
+import { ensureDefaultBranch } from '@/lib/default_branch';
 
 function corsHeaders() {
   return {
@@ -112,11 +113,22 @@ export async function POST(req: NextRequest) {
     const licRows = await sql`
       SELECT * FROM licenses WHERE user_id = ${userId} AND app_code = ${appCode}
     `;
+    let licenseId = '';
     if (licRows.length === 0) {
-      await sql`
+      // Migration 016: tạo license kèm branch mặc định "Cửa hàng chính" — khách
+      // mua app chưa có chi nhánh KHÔNG BAO GIỜ để license.branch_id = null.
+      const created = await sql`
         INSERT INTO licenses (user_id, app_code, device_id, plan, status, started_at, expires_at)
         VALUES (${userId}, ${appCode}, '', 'trial', 'active', ${now.toISOString()}, ${trialEnd.toISOString()})
+        RETURNING id
       `;
+      licenseId = created[0]?.id ?? '';
+    } else if (!licRows[0].branch_id) {
+      licenseId = String(licRows[0].id);
+    }
+
+    if (licenseId) {
+      await ensureDefaultBranch(sql, { userId, appCode, licenseId });
     }
 
     await sql`

@@ -70,6 +70,7 @@ class _BillSearchScreenState extends ConsumerState<BillSearchScreen> {
 
   Future<void> _printReceipt(RestaurantOrder order) async {
     final storeName = await AuthService.loadSavedStoreName();
+    final ownerName = await AuthService.loadSavedOwnerName();
     final storePhone = await AuthService.loadSavedStorePhone();
     final pdf = pw.Document();
 
@@ -88,6 +89,14 @@ class _BillSearchScreenState extends ConsumerState<BillSearchScreen> {
                   style: pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold),
                 ),
               ),
+              if (ownerName != null && ownerName.isNotEmpty && ownerName != storeName)
+                pw.Center(
+                  child: pw.Text(
+                    ownerName,
+                    textAlign: pw.TextAlign.center,
+                    style: pw.TextStyle(fontSize: 12, fontWeight: pw.FontWeight.bold),
+                  ),
+                ),
               if (storePhone != null && storePhone.isNotEmpty)
                 pw.Center(
                   child: pw.Text(
@@ -329,6 +338,8 @@ class _BillSearchScreenState extends ConsumerState<BillSearchScreen> {
                                     }
                                     final storeName = await AuthService
                                         .loadSavedStoreName();
+                                    final ownerName = await AuthService
+                                        .loadSavedOwnerName();
                                     final storePhone = await AuthService
                                         .loadSavedStorePhone();
                                     final order = _foundOrder!;
@@ -338,6 +349,7 @@ class _BillSearchScreenState extends ConsumerState<BillSearchScreen> {
                                       ReceiptData(
                                         shopName:
                                             storeName ?? 'NHÀ HÀNG QUÁN ĂN',
+                                        shopOwnerName: ownerName,
                                         shopPhone: storePhone,
                                         title: 'HÓA ĐƠN THANH TOÁN',
                                         orderCode: order.orderId.length > 8

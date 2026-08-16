@@ -41,7 +41,7 @@ export async function GET(req: NextRequest) {
 
     const branches = await sql`
       SELECT
-        b.id, b.branch_code, b.name, b.phone, b.address, b.app_code, b.active, b.created_at,
+        b.id, b.branch_code, b.name, b.phone, b.address, b.app_code, b.active, b.created_at, b.is_default,
         c.name AS customer_name,
         l.id AS license_id, l.plan AS license_plan, l.status AS license_status, l.expires_at AS license_expires_at
       FROM branches b
@@ -55,7 +55,7 @@ export async function GET(req: NextRequest) {
             SELECT 1 FROM branch_users bu WHERE bu.branch_id = b.id AND bu.user_id = ${payload.id} AND bu.can_login = true
           )
         )
-      ORDER BY b.created_at ASC
+      ORDER BY b.is_default DESC, b.created_at ASC
     `;
 
     return NextResponse.json(
@@ -68,6 +68,7 @@ export async function GET(req: NextRequest) {
           address: b.address,
           app_code: b.app_code,
           customer_name: b.customer_name,
+          is_default: b.is_default === true,
           license: b.license_id
             ? {
                 plan: b.license_plan,

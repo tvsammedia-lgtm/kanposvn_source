@@ -168,6 +168,11 @@ class ReceiptBuilder {
     // Header
     centerLine(receipt.shopName ?? 'KANPOSVN',
         bold: true, size: PosTextSize.size2);
+    if (receipt.shopOwnerName != null &&
+        receipt.shopOwnerName!.isNotEmpty &&
+        receipt.shopOwnerName != receipt.shopName) {
+      centerLine(receipt.shopOwnerName!, bold: true, size: PosTextSize.size1);
+    }
     if (receipt.shopAddress != null && receipt.shopAddress!.isNotEmpty) {
       centerLine(receipt.shopAddress!);
     }

@@ -14,10 +14,12 @@ Future<ReceiptData> buildTapHoaReceiptData(
   List<TapHoaInvoiceItem> items,
 ) async {
   final storeName = await AuthService.loadSavedStoreName();
+  final ownerName = await AuthService.loadSavedOwnerName();
   final storePhone = await AuthService.loadSavedStorePhone();
   final isDebt = invoice.paymentMethod == 'debt';
   return ReceiptData(
     shopName: storeName ?? 'KANPOSVN',
+    shopOwnerName: ownerName,
     shopPhone: storePhone,
     title: 'HÓA ĐƠN BÁN HÀNG',
     orderCode: invoice.invoiceNumber,
@@ -61,6 +63,7 @@ Future<void> printTapHoaReceiptPdf(
   List<TapHoaInvoiceItem> items,
 ) async {
   final storeName = await AuthService.loadSavedStoreName();
+  final ownerName = await AuthService.loadSavedOwnerName();
   final storePhone = await AuthService.loadSavedStorePhone();
   pw.Font? font;
   pw.Font? fontBold;
@@ -93,6 +96,8 @@ Future<void> printTapHoaReceiptPdf(
           crossAxisAlignment: pw.CrossAxisAlignment.start,
           children: [
           pw.Center(child: pw.Text(storeName ?? 'KANPOSVN', textAlign: pw.TextAlign.center, style: pw.TextStyle(font: fontBold, fontSize: 14, fontWeight: pw.FontWeight.bold))),
+          if (ownerName != null && ownerName.isNotEmpty && ownerName != storeName)
+            pw.Center(child: pw.Text(ownerName, textAlign: pw.TextAlign.center, style: pw.TextStyle(font: fontBold, fontSize: 10, fontWeight: pw.FontWeight.bold))),
           if (storePhone != null && storePhone.isNotEmpty)
             pw.Center(child: pw.Text('ĐT: $storePhone', textAlign: pw.TextAlign.center, style: pw.TextStyle(fontSize: 8))),
           pw.Center(child: pw.Text('HÓA ĐƠN BÁN HÀNG', style: pw.TextStyle(font: fontBold, fontSize: 10, fontWeight: pw.FontWeight.bold))),

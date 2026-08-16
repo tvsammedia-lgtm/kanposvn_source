@@ -44,14 +44,14 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 
   const branches = await sql`
     SELECT
-      b.id, b.branch_code, b.name, b.phone, b.address, b.app_code, b.active, b.created_at,
+      b.id, b.branch_code, b.name, b.phone, b.address, b.app_code, b.active, b.created_at, b.is_default,
       a.app_name,
       l.id AS license_id, l.plan, l.status AS license_status, l.started_at, l.expires_at
     FROM branches b
     LEFT JOIN apps a ON a.app_code = b.app_code
     LEFT JOIN licenses l ON l.app_code = b.app_code AND l.user_id = ${customer.owner_user_id}
     WHERE b.customer_id = ${id}
-    ORDER BY b.created_at ASC
+    ORDER BY b.is_default DESC, b.created_at ASC
   `;
 
   return NextResponse.json({ ...customer, branches }, { headers: corsHeaders() });

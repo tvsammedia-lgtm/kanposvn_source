@@ -71,6 +71,7 @@ class _NhathuocPosScreenState extends ConsumerState<NhathuocPosScreen> {
 
     if (mounted) {
       final storeName = await AuthService.loadSavedStoreName();
+      final ownerName = await AuthService.loadSavedOwnerName();
       final storePhone = await AuthService.loadSavedStorePhone();
       final patient = order.patient.value;
       try {
@@ -79,6 +80,7 @@ class _NhathuocPosScreenState extends ConsumerState<NhathuocPosScreen> {
           ref,
           ReceiptData(
             shopName: storeName ?? 'KANPOSVN NHÀ THUỐC',
+            shopOwnerName: ownerName,
             shopPhone: storePhone,
             title: 'HÓA ĐƠN BÁN THUỐC',
             orderCode: order.orderCode,

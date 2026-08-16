@@ -15,12 +15,14 @@ Future<ReceiptData> buildVlxdReceiptData(
   List<VlxdOrderDetail> details,
 ) async {
   final storeName = await AuthService.loadSavedStoreName();
+  final ownerName = await AuthService.loadSavedOwnerName();
   final storePhone = await AuthService.loadSavedStorePhone();
   final einvoice = await VlxdEinvoiceSettingsStore.loadOnce();
   return ReceiptData(
     shopName: einvoice.companyName.isNotEmpty
         ? einvoice.companyName
         : (storeName ?? 'KANPOSVN VLXD'),
+    shopOwnerName: ownerName,
     shopPhone: einvoice.phone.isNotEmpty ? einvoice.phone : storePhone,
     shopAddress: einvoice.address,
     shopTaxCode: einvoice.taxCode,
@@ -48,6 +50,7 @@ Future<ReceiptData> buildVlxdReceiptData(
 
 Future<void> printVlxdReceiptPdf(VlxdOrder order, List<VlxdOrderDetail> details) async {
   final storeName = await AuthService.loadSavedStoreName();
+  final ownerName = await AuthService.loadSavedOwnerName();
   final storePhone = await AuthService.loadSavedStorePhone();
   pw.Font? font;
   pw.Font? fontBold;
@@ -80,6 +83,8 @@ Future<void> printVlxdReceiptPdf(VlxdOrder order, List<VlxdOrderDetail> details)
           crossAxisAlignment: pw.CrossAxisAlignment.start,
           children: [
           pw.Center(child: pw.Text(storeName ?? 'KANPOSVN VLXD', textAlign: pw.TextAlign.center, style: pw.TextStyle(font: fontBold, fontSize: 14, fontWeight: pw.FontWeight.bold))),
+          if (ownerName != null && ownerName.isNotEmpty && ownerName != storeName)
+            pw.Center(child: pw.Text(ownerName, textAlign: pw.TextAlign.center, style: pw.TextStyle(font: fontBold, fontSize: 10, fontWeight: pw.FontWeight.bold))),
           if (storePhone != null && storePhone.isNotEmpty)
             pw.Center(child: pw.Text('ĐT: $storePhone', textAlign: pw.TextAlign.center, style: pw.TextStyle(fontSize: 8))),
           pw.Center(child: pw.Text('HÓA ĐƠN BÁN LẺ', style: pw.TextStyle(font: fontBold, fontSize: 10, fontWeight: pw.FontWeight.bold))),

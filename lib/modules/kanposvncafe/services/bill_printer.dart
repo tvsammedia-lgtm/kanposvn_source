@@ -21,6 +21,7 @@ Future<void> printBillPdf(
   bool createPdfFileFirst = false,
 }) async {
   final storeName = await AuthService.loadSavedStoreName();
+  final ownerName = await AuthService.loadSavedOwnerName();
   final storePhone = await AuthService.loadSavedStorePhone();
   pw.Font? font;
   pw.Font? fontBold;
@@ -62,6 +63,14 @@ Future<void> printBillPdf(
               ),
             ),
           ),
+          if (ownerName != null && ownerName.isNotEmpty && ownerName != storeName)
+            pw.Center(
+              child: pw.Text(
+                ownerName,
+                textAlign: pw.TextAlign.center,
+                style: pw.TextStyle(font: fontBold, fontSize: 10, fontWeight: pw.FontWeight.bold),
+              ),
+            ),
           if (storePhone != null && storePhone.isNotEmpty)
             pw.Center(
               child: pw.Text(

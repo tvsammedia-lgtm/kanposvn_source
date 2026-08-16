@@ -201,6 +201,21 @@ export async function POST(req: NextRequest) {
     ['015_licenses_drop_user_app_device_unique', 'ALTER TABLE licenses DROP CONSTRAINT IF EXISTS licenses_user_id_app_code_device_id_key'],
     ['015_licenses_branch_unique', 'CREATE UNIQUE INDEX IF NOT EXISTS idx_licenses_user_branch_device ON licenses(user_id, branch_id, device_id) WHERE branch_id IS NOT NULL'],
     ['015_licenses_legacy_unique', 'CREATE UNIQUE INDEX IF NOT EXISTS idx_licenses_user_app_device_legacy ON licenses(user_id, app_code, device_id) WHERE branch_id IS NULL'],
+    // Migration 016: Branch mặc định "Cửa hàng chính" (is_default) khi khách mua app.
+    // Khách mua app chưa có chi nhánh → hệ thống tự cấp 1 Branch mặc định miễn phí
+    // thuộc license đầu tiên (không bao giờ để license.branch_id = null).
+    ['016_branches_is_default', 'ALTER TABLE branches ADD COLUMN IF NOT EXISTS is_default BOOLEAN NOT NULL DEFAULT false'],
+    ['016_branches_backfill_default', `UPDATE branches b
+      SET is_default = true
+      WHERE b.id IN (
+        SELECT DISTINCT ON (customer_id) id
+        FROM branches
+        ORDER BY customer_id, created_at ASC, id ASC
+      )
+      AND NOT EXISTS (
+        SELECT 1 FROM branches x WHERE x.customer_id = b.customer_id AND x.is_default = true
+      )`],
+    ['016_branches_index_default', 'CREATE INDEX IF NOT EXISTS idx_branches_default ON branches(customer_id, is_default)'],
   ];
 
   for (const [name, sqlStr] of migrations) {

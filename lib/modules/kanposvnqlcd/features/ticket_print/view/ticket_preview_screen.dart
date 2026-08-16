@@ -14,6 +14,7 @@ class TicketPreviewScreen extends ConsumerWidget {
 
   Future<pw.Document> _generatePdf(List<CutDetail> details) async {
     final storeName = await AuthService.loadSavedStoreName();
+    final ownerName = await AuthService.loadSavedOwnerName();
     final storePhone = await AuthService.loadSavedStorePhone();
     final pdf = pw.Document();
 
@@ -44,6 +45,14 @@ class TicketPreviewScreen extends ConsumerWidget {
                 style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold),
               ),
             ),
+            if (ownerName != null && ownerName.isNotEmpty && ownerName != storeName)
+              pw.Center(
+                child: pw.Text(
+                  ownerName,
+                  textAlign: pw.TextAlign.center,
+                  style: pw.TextStyle(fontSize: 11, fontWeight: pw.FontWeight.bold),
+                ),
+              ),
             if (storePhone != null && storePhone.isNotEmpty)
               pw.Center(
                 child: pw.Text(

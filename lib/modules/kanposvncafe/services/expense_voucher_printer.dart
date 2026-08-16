@@ -10,6 +10,7 @@ final _dateFmt = DateFormat('dd/MM/yyyy HH:mm');
 
 Future<void> printExpenseVoucher(CashTransaction tx) async {
   final storeName = await AuthService.loadSavedStoreName();
+  final ownerName = await AuthService.loadSavedOwnerName();
   final storePhone = await AuthService.loadSavedStorePhone();
   pw.Font? font;
   pw.Font? fontBold;
@@ -46,6 +47,14 @@ Future<void> printExpenseVoucher(CashTransaction tx) async {
               style: pw.TextStyle(font: fontBold, fontSize: 14, fontWeight: pw.FontWeight.bold),
             ),
           ),
+          if (ownerName != null && ownerName.isNotEmpty && ownerName != storeName)
+            pw.Center(
+              child: pw.Text(
+                ownerName,
+                textAlign: pw.TextAlign.center,
+                style: pw.TextStyle(font: fontBold, fontSize: 10, fontWeight: pw.FontWeight.bold),
+              ),
+            ),
           if (storePhone != null && storePhone.isNotEmpty)
             pw.Center(
               child: pw.Text(
@@ -128,6 +137,7 @@ Future<void> printExpenseSummary({
   required DateTime to,
 }) async {
   final storeName = await AuthService.loadSavedStoreName();
+  final ownerName = await AuthService.loadSavedOwnerName();
   final storePhone = await AuthService.loadSavedStorePhone();
   pw.Font? font;
   pw.Font? fontBold;
@@ -181,6 +191,14 @@ Future<void> printExpenseSummary({
               style: pw.TextStyle(font: fontBold, fontSize: 18, fontWeight: pw.FontWeight.bold),
             ),
           ),
+          if (ownerName != null && ownerName.isNotEmpty && ownerName != storeName)
+            pw.Center(
+              child: pw.Text(
+                ownerName,
+                textAlign: pw.TextAlign.center,
+                style: pw.TextStyle(font: fontBold, fontSize: 12, fontWeight: pw.FontWeight.bold),
+              ),
+            ),
           if (storePhone != null && storePhone.isNotEmpty)
             pw.Center(
               child: pw.Text(

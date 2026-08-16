@@ -14,6 +14,7 @@ Future<ReceiptData> buildGaraReceiptData(
   List<GaraRepairDetail> details,
 ) async {
   final storeName = await AuthService.loadSavedStoreName();
+  final ownerName = await AuthService.loadSavedOwnerName();
   final storePhone = await AuthService.loadSavedStorePhone();
   final customer = order.customer.value;
   final vehicle = order.vehicle.value;
@@ -23,6 +24,7 @@ Future<ReceiptData> buildGaraReceiptData(
           '${vehicle.licensePlate.isNotEmpty ? ' - BS: ${vehicle.licensePlate}' : ''}';
   return ReceiptData(
     shopName: storeName ?? 'KANPOSVN GARA',
+    shopOwnerName: ownerName,
     shopPhone: storePhone,
     title: 'PHIẾU THANH TOÁN & GIAO XE',
     orderCode: order.orderCode,
@@ -49,6 +51,7 @@ Future<ReceiptData> buildGaraReceiptData(
 
 Future<void> printGaraReceiptPdf(GaraRepairOrder order, List<GaraRepairDetail> details) async {
   final storeName = await AuthService.loadSavedStoreName();
+  final ownerName = await AuthService.loadSavedOwnerName();
   final storePhone = await AuthService.loadSavedStorePhone();
   pw.Font? font;
   pw.Font? fontBold;
@@ -83,6 +86,8 @@ Future<void> printGaraReceiptPdf(GaraRepairOrder order, List<GaraRepairDetail> d
         crossAxisAlignment: pw.CrossAxisAlignment.start,
         children: [
           pw.Center(child: pw.Text(storeName ?? 'KANPOSVN GARA', textAlign: pw.TextAlign.center, style: pw.TextStyle(font: fontBold, fontSize: 14, fontWeight: pw.FontWeight.bold))),
+          if (ownerName != null && ownerName.isNotEmpty && ownerName != storeName)
+            pw.Center(child: pw.Text(ownerName, textAlign: pw.TextAlign.center, style: pw.TextStyle(font: fontBold, fontSize: 10, fontWeight: pw.FontWeight.bold))),
           if (storePhone != null && storePhone.isNotEmpty)
             pw.Center(child: pw.Text('ĐT: $storePhone', textAlign: pw.TextAlign.center, style: pw.TextStyle(fontSize: 8))),
           pw.Center(child: pw.Text('PHIẾU THANH TOÁN & GIAO XE', style: pw.TextStyle(font: fontBold, fontSize: 10, fontWeight: pw.FontWeight.bold))),

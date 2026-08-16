@@ -17,6 +17,7 @@ class ReceiptItem {
 class ReceiptData {
   const ReceiptData({
     this.shopName,
+    this.shopOwnerName,
     this.shopPhone,
     this.shopAddress,
     this.shopTaxCode,
@@ -42,6 +43,7 @@ class ReceiptData {
   });
 
   final String? shopName;
+  final String? shopOwnerName;
   final String? shopPhone;
   final String? shopAddress;
   final String? shopTaxCode;

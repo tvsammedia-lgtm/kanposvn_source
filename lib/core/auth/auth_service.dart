@@ -663,6 +663,15 @@ class AuthService extends ChangeNotifier {
     return prefs.getString(_kStorePhoneKey);
   }
 
+  /// Tên chủ cửa hàng (Owner) đã đăng ký — dòng thứ 2 trên tiêu đề bill khi có
+  /// chi nhánh (vd: "CỬA HÀNG CHÍNH" + "Nguyễn Văn A"). Migration 016.
+  static Future<String?> loadSavedOwnerName() async {
+    final prefs = await SharedPreferences.getInstance();
+    final ownerName = prefs.getString(_kOwnerNameKey);
+    if (ownerName != null && ownerName.isNotEmpty) return ownerName;
+    return prefs.getString(_kStoreNameKey);
+  }
+
   /// Lấy thông tin chi nhánh từ server (`/api/owner/info?app_code=...`) và lưu
   /// branch name/phone/id để POS in tên cửa hàng theo CHI NHÁNH.
   ///
@@ -690,12 +699,14 @@ class AuthService extends ChangeNotifier {
       final name = json['shop_name']?.toString() ?? '';
       final phone = json['phone']?.toString() ?? '';
       final branchId2 = json['branch_id']?.toString() ?? '';
+      final ownerName = json['full_name']?.toString() ?? '';
       _branchName = name;
       _branchPhone = phone;
       _branchId = branchId2;
       if (name.isNotEmpty) await prefs.setString(_kBranchNameKey, name);
       if (phone.isNotEmpty) await prefs.setString(_kBranchPhoneKey, phone);
       if (branchId2.isNotEmpty) await prefs.setString(_kBranchIdKey, branchId2);
+      if (ownerName.isNotEmpty) await prefs.setString(_kOwnerNameKey, ownerName);
       notifyListeners();
     } catch (e) {
       // Best-effort: không làm hỏng phiên đăng nhập khi lỗi mạng.

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSql } from '@/lib/db';
 import { getPlan } from '@/lib/pricing';
+import { ensureDefaultBranch } from '@/lib/default_branch';
 
 function corsHeaders() {
   return {
@@ -68,16 +69,29 @@ export async function POST(req: NextRequest) {
           return new Date(base.getTime() + days * 24 * 60 * 60 * 1000).toISOString();
         })();
 
+    let licenseId = '';
     if (licRows.length === 0) {
-      await sql`
+      // Migration 016: license mới phải gắn branch mặc định "Cửa hàng chính".
+      const created = await sql`
         INSERT INTO licenses (user_id, app_code, device_id, plan, status, started_at, expires_at)
         VALUES (${order.user_id}, ${order.app_code}, '', ${planInfo.key}, 'active', ${now.toISOString()}, ${newExpiry})
+        RETURNING id
       `;
+      licenseId = created[0]?.id ?? '';
     } else {
       await sql`
         UPDATE licenses SET plan = ${planInfo.key}, status = 'active', expires_at = ${newExpiry}, started_at = ${licRows[0].started_at}
         WHERE id = ${licRows[0].id}
       `;
+      if (!licRows[0].branch_id) licenseId = String(licRows[0].id);
+    }
+
+    if (licenseId) {
+      await ensureDefaultBranch(sql, {
+        userId: String(order.user_id),
+        appCode: String(order.app_code),
+        licenseId,
+      });
     }
 
     await sql`

@@ -162,9 +162,11 @@ class _OrderHistoryScreenState extends ConsumerState<OrderHistoryScreen> {
 
   Future<void> _printReceipt80(CafeOrder order) async {
     final storeName = await AuthService.loadSavedStoreName();
+    final ownerName = await AuthService.loadSavedOwnerName();
     final storePhone = await AuthService.loadSavedStorePhone();
     final receipt = ReceiptData(
       shopName: storeName ?? 'KANPOSVN',
+      shopOwnerName: ownerName,
       shopPhone: storePhone,
       title: 'HÓA ĐƠN THANH TOÁN',
       orderCode: order.orderCode,

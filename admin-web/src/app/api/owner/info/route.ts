@@ -49,6 +49,7 @@ export async function GET(req: NextRequest) {
           FROM branches b
           JOIN customers c ON c.id = b.customer_id
           WHERE b.app_code = ${appCode}
+          ORDER BY b.is_default DESC, b.created_at ASC
           LIMIT 1
         `;
       branch = branchRows[0] ?? null;
@@ -79,6 +80,7 @@ export async function GET(req: NextRequest) {
           shop_address: branch.address || user.shop_address || '',
           branch_code: branch.branch_code || '',
           branch_id: branch.id,
+          is_default: branch.is_default === true,
           customer_name: branch.customer_name || '',
           app_code: appCode,
         },

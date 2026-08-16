@@ -50,6 +50,14 @@ Future<void> printReceiptPdf(
                     font: fontBold, fontSize: 14, fontWeight: pw.FontWeight.bold),
               ),
             ),
+            if (receipt.shopOwnerName != null &&
+                receipt.shopOwnerName!.isNotEmpty &&
+                receipt.shopOwnerName != receipt.shopName)
+              pw.Center(
+                child: pw.Text(receipt.shopOwnerName!,
+                    textAlign: pw.TextAlign.center,
+                    style: pw.TextStyle(fontSize: 10)),
+              ),
             if (receipt.shopPhone != null && receipt.shopPhone!.isNotEmpty)
               pw.Center(
                 child: pw.Text('ĐT: ${receipt.shopPhone}',
