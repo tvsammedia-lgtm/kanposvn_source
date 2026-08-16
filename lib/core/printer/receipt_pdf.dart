@@ -189,6 +189,32 @@ Future<void> printReceiptPdf(
               pw.Text('Ghi chú: ${receipt.note}',
                   style: pw.TextStyle(fontSize: 9)),
 
+            // QR (đối với PDF) — tra cứu hóa đơn theo mã QR
+            if (receipt.qrData != null && receipt.qrData!.isNotEmpty) ...[
+              pw.SizedBox(height: 5),
+              pw.Center(
+                child: pw.BarcodeWidget(
+                  data: receipt.qrData!,
+                  barcode: pw.Barcode.qrCode(),
+                  width: 70,
+                  height: 70,
+                ),
+              ),
+              pw.SizedBox(height: 3),
+              pw.Center(
+                child: pw.Text('Quét mã QR để tra cứy hóa đơn',
+                    style: pw.TextStyle(fontSize: 8)),
+              ),
+              if (receipt.orderCode != null && receipt.orderCode!.isNotEmpty)
+                pw.Center(
+                  child: pw.Text(receipt.orderCode!,
+                      style: pw.TextStyle(
+                          font: fontBold,
+                          fontSize: 9,
+                          fontWeight: pw.FontWeight.bold)),
+                ),
+            ],
+
             pw.SizedBox(height: 5),
             pw.Center(
                 child: pw.Text(receipt.footer,

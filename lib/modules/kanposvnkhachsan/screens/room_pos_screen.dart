@@ -337,9 +337,15 @@ class _RoomPosScreenState extends ConsumerState<RoomPosScreen> {
     double roomCharge,
     double serviceTotal, {
     double discount = 0,
+    double? cashReceived,
+    String paymentMethod = 'Tiền mặt',
     ReceiptPrintMode mode = ReceiptPrintMode.auto,
   }) async {
     final checkInTime = widget.checkIn.actualCheckIn ?? widget.checkIn.createdAt;
+    final now = widget.checkIn.actualCheckOut ??
+        widget.checkIn.expectedCheckOut ??
+        DateTime.now();
+
     await ref.read(hotelCheckInsProvider.notifier).checkout(
           widget.checkIn,
           roomTotalCharge: roomCharge,
@@ -360,6 +366,15 @@ class _RoomPosScreenState extends ConsumerState<RoomPosScreen> {
       orElse: () => <ReceiptItem>[],
     );
 
+    // Tổng chi phí suốt chuyến ở (phòng + dịch vụ).
+    final gross = roomCharge + serviceTotal;
+    // Khách đã đặt cọc (trả trước) tại check-in → số tiền thực tế do khách
+    // thanh toán tại check-out = tổng chi phí - giảm giá - đã cọc.
+    final prePaid = (widget.checkIn.prePaid).clamp(0.0, double.infinity);
+    final amountDue = (gross - discount - prePaid).clamp(0.0, double.infinity);
+    final received = (cashReceived ?? amountDue);
+    final change = (received - amountDue).clamp(0.0, double.infinity);
+
     try {
       final storeName = await AuthService.loadSavedStoreName();
       final storePhone = await AuthService.loadSavedStorePhone();
@@ -378,12 +393,16 @@ class _RoomPosScreenState extends ConsumerState<RoomPosScreen> {
               ? 'Khách vãng lai'
               : widget.checkIn.customerName,
           table: 'Phòng ${widget.room.roomName}',
-          qrData: widget.checkIn.checkInId,
+          paymentMethod: paymentMethod,
           items: items,
-          subtotal: roomCharge + serviceTotal,
+          subtotal: gross,
           discount: discount,
-          grandTotal: roomCharge + serviceTotal - discount,
-          note: 'Giờ vào: ${_fmt(checkInTime)} | Giờ ra: ${_fmt(widget.checkIn.actualCheckOut ?? widget.checkIn.expectedCheckOut ?? DateTime.now())}',
+          grandTotal: amountDue,
+          cashReceived: received,
+          change: change,
+          qrData: widget.checkIn.checkInId,
+          note: 'Giờ vào: ${_fmt(checkInTime)} | Giờ ra: ${_fmt(now)}'
+              '${prePaid > 0 ? " | Đã cọc: ${prePaid.toStringAsFixed(0)}đ | Còn lại: ${amountDue.toStringAsFixed(0)}đ" : ""}',
         ),
         mode,
         pdfFilename: 'HoaDon_${widget.checkIn.checkInId.substring(0, 8)}.pdf',
@@ -398,7 +417,7 @@ class _RoomPosScreenState extends ConsumerState<RoomPosScreen> {
   }
 
   Future<void> _checkout(double roomCharge, double serviceTotal) async {
-    final controller = TextEditingController();
+    final discountController = TextEditingController();
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -411,14 +430,13 @@ class _RoomPosScreenState extends ConsumerState<RoomPosScreen> {
             const SizedBox(height: 8),
             Text('Tiền phòng: ${roomCharge.toStringAsFixed(0)} đ'),
             Text('Tiền dịch vụ: ${serviceTotal.toStringAsFixed(0)} đ'),
-            const Divider(),
             Text('Tổng: ${(roomCharge + serviceTotal).toStringAsFixed(0)} đ',
                 style: const TextStyle(fontWeight: FontWeight.bold)),
             Text('Đã cọc: ${widget.checkIn.prePaid.toStringAsFixed(0)} đ'),
-            const Divider(),
+            const SizedBox(height: 12),
             const Text('Giảm giá (đ):'),
             TextField(
-              controller: controller,
+              controller: discountController,
               keyboardType: TextInputType.number,
               inputFormatters: [FilteringTextInputFormatter.digitsOnly],
               decoration: const InputDecoration(hintText: '0'),
@@ -433,11 +451,64 @@ class _RoomPosScreenState extends ConsumerState<RoomPosScreen> {
     );
     if (confirmed != true) return;
 
-    final discount = double.tryParse(controller.text) ?? 0;
+    final discount = double.tryParse(discountController.text) ?? 0;
+    final gross = roomCharge + serviceTotal;
+    final prePaid = (widget.checkIn.prePaid).clamp(0.0, double.infinity);
+    final amountDue = (gross - discount - prePaid).clamp(0.0, double.infinity);
+
+    // Bước thanh toán: ghi nhận phương thức + số tiền khách đưa để in hóa đơn
+    // có đủ dòng "Khách đưa / Tiền thừa".
+    String paymentMethod = 'Tiền mặt';
+    final receivedController =
+        TextEditingController(text: amountDue.toStringAsFixed(0));
+    final payConfirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Thanh toán'),
+        content: SizedBox(
+          width: 300,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Số tiền cần thu: ${amountDue.toStringAsFixed(0)} đ',
+                  style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.red)),
+              const SizedBox(height: 12),
+              DropdownButtonFormField<String>(
+                value: paymentMethod,
+                items: const [
+                  DropdownMenuItem(value: 'Tiền mặt', child: Text('Tiền mặt')),
+                  DropdownMenuItem(value: 'Chuyển khoản', child: Text('Chuyển khoản')),
+                  DropdownMenuItem(value: 'Thẻ', child: Text('Thẻ')),
+                ],
+                onChanged: (v) => paymentMethod = v ?? 'Tiền mặt',
+                decoration: const InputDecoration(labelText: 'Phương thức'),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: receivedController,
+                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d*'))],
+                decoration: const InputDecoration(labelText: 'Khách đưa (đ)', hintText: '0'),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('HỦY')),
+          ElevatedButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('IN HÓA ĐƠN')),
+        ],
+      ),
+    );
+    if (payConfirmed != true) return;
+
+    final received = double.tryParse(receivedController.text) ?? amountDue;
     await _completeCheckout(
       roomCharge,
       serviceTotal,
       discount: discount,
+      cashReceived: received,
+      paymentMethod: paymentMethod,
       mode: ReceiptPrintMode.auto,
     );
   }
