@@ -33,11 +33,19 @@ export async function POST(req: NextRequest) {
     let user = userRows[0];
     let isNew = false;
 
-    // Fix user cu co password placeholder
-    if (user && user.password_hash === 'zalo_sso_no_password') {
-      const newHash = await hashPassword('kanpos123');
-      await sql`UPDATE users SET password_hash = ${newHash} WHERE id = ${user.id}`;
-      user.password_hash = newHash;
+    // Fix user cu co password placeholder hoac thieu email
+    if (user) {
+      const updates: string[] = [];
+      if (user.password_hash === 'zalo_sso_no_password') {
+        const newHash = await hashPassword('kanpos123');
+        await sql`UPDATE users SET password_hash = ${newHash} WHERE id = ${user.id}`;
+        user.password_hash = newHash;
+      }
+      if (!user.email) {
+        const fixEmail = `zalo_${zalo_id}@kanposvn.mini`;
+        await sql`UPDATE users SET email = ${fixEmail} WHERE id = ${user.id}`;
+        user.email = fixEmail;
+      }
     }
 
     if (!user) {
