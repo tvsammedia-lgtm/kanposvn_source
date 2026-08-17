@@ -1,5 +1,7 @@
+export const ZALO_APP_ID = '4098486893361701565';
+
 export const API_BASE =
-  import.meta.env.VITE_API_URL || 'https://kanposvn.vercel.app';
+  import.meta.env.VITE_API_URL || 'https://kanposvn-admin.vercel.app';
 
 export interface ZaloUser {
   id: string;

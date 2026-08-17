@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import zalo from 'zmp-sdk';
 import { API_BASE } from '../config';
 import type { LoginResponse, ZaloUser, AppModule } from '../config';
 
@@ -15,17 +16,16 @@ export default function Login({ onSuccess }: Props) {
     setError('');
 
     try {
-      // In real Zalo Mini App, use zmp-sdk to get user info
-      // For dev/testing, use mock data
-      const zaloId = import.meta.env.VITE_ZALO_ID || 'dev_' + Date.now();
-      const zaloName = import.meta.env.VITE_ZALO_NAME || 'Khach Test';
+      const profile = await zalo.getUserProfile();
 
       const res = await fetch(`${API_BASE}/api/zalo/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          zalo_id: zaloId,
-          name: zaloName,
+          zalo_id: profile.id,
+          name: profile.name,
+          phone: profile.phone_number || '',
+          avatar: profile.avatar || '',
         }),
       });
 
@@ -37,8 +37,12 @@ export default function Login({ onSuccess }: Props) {
       }
 
       onSuccess(data.user, data.apps);
-    } catch (e) {
-      setError('Loi ket noi: ' + String(e));
+    } catch (e: any) {
+      if (e?.message?.includes('getUserProfile')) {
+        setError('Vui long dang nhap bang tai khoan Zalo');
+      } else {
+        setError('Loi ket noi: ' + String(e));
+      }
     } finally {
       setLoading(false);
     }
@@ -57,7 +61,7 @@ export default function Login({ onSuccess }: Props) {
         <p className="text-sm text-gray-500 text-center mb-6">
           Nhan "Dang nhap" de ket noi tai khoan Zalo cua ban.
           <br />
-          Neu chua co tai khoan, he thong se tao moi (dung thu 30 ngay).
+          Neu chua co tai khoan, he thong se tao moi (dung thu 7 ngay).
         </p>
 
         {error && (
