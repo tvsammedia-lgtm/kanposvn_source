@@ -42,12 +42,14 @@ class _RestaurantPosScreenState extends ConsumerState<RestaurantPosScreen> {
       setState(() {
         if (activeOrder != null) {
           _currentOrder = activeOrder;
+          await ref.read(restaurantOrdersProvider.notifier).updateOrder(_currentOrder!);
         } else {
           _currentOrder = RestaurantOrder()
             ..orderId = const Uuid().v4()
             ..createdAt = DateTime.now()
             ..status = RestaurantOrderStatus.SERVING;
           _currentOrder!.table.value = widget.table;
+          await ref.read(restaurantOrdersProvider.notifier).updateOrder(_currentOrder!);
         }
       });
     }
