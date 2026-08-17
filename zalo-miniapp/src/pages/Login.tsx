@@ -1,10 +1,12 @@
 import { useState } from 'react';
-import zalo from 'zmp-sdk';
+import { login, getAccessToken } from 'zmp-sdk';
 import { API_BASE } from '../config';
-import type { LoginResponse, ZaloUser, AppModule } from '../config';
+import type { LoginResponse, ZaloUser, UserLicense } from '../config';
+
+declare const zmp: any;
 
 interface Props {
-  onSuccess: (user: ZaloUser, apps: AppModule[]) => void;
+  onSuccess: (user: ZaloUser, licenses: UserLicense[]) => void;
 }
 
 export default function Login({ onSuccess }: Props) {
@@ -16,17 +18,63 @@ export default function Login({ onSuccess }: Props) {
     setError('');
 
     try {
-      const profile = await zalo.getUserProfile();
+      await login();
+      const accessToken = await getAccessToken();
+
+      let zalo_id = '';
+      let name = '';
+      let phone = '';
+      let avatar = '';
+
+      try {
+        const infoRes = await fetch(
+          `https://graph.zalo.me/v2.0/me?access_token=${accessToken}&fields=id,name,phone,avatar`,
+        );
+        const infoData = await infoRes.json();
+        if (infoData.id) {
+          zalo_id = String(infoData.id);
+          name = infoData.name || '';
+          phone = infoData.phone || '';
+          avatar = infoData.avatar || '';
+        }
+      } catch (_) {}
+
+      if (!zalo_id) {
+        try {
+          const userInfo = await (zmp as any).getUserInfo();
+          if (userInfo) {
+            zalo_id = String(userInfo.id || userInfo.userID || '');
+            name = userInfo.name || '';
+            phone = userInfo.phone || userInfo.phoneNumber || '';
+            avatar = userInfo.avatar || '';
+          }
+        } catch (_) {}
+      }
+
+      if (!zalo_id && accessToken) {
+        try {
+          const infoRes = await fetch(
+            `https://graph.zalo.me/v2.0/me?access_token=${accessToken}&fields=id,name,phone,avatar`,
+          );
+          const infoData = await infoRes.json();
+          if (infoData.id) {
+            zalo_id = String(infoData.id);
+            name = infoData.name || '';
+            phone = infoData.phone || '';
+            avatar = infoData.avatar || '';
+          }
+        } catch (_) {}
+      }
+
+      if (!zalo_id) {
+        setError('Khong lay duoc zalo_id. Vui long thu lai.');
+        return;
+      }
 
       const res = await fetch(`${API_BASE}/api/zalo/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          zalo_id: profile.id,
-          name: profile.name,
-          phone: profile.phone_number || '',
-          avatar: profile.avatar || '',
-        }),
+        body: JSON.stringify({ zalo_id, name, phone, avatar, access_token: accessToken }),
       });
 
       const data: LoginResponse = await res.json();
@@ -36,13 +84,9 @@ export default function Login({ onSuccess }: Props) {
         return;
       }
 
-      onSuccess(data.user, data.apps);
+      onSuccess(data.user, data.licenses || []);
     } catch (e: any) {
-      if (e?.message?.includes('getUserProfile')) {
-        setError('Vui long dang nhap bang tai khoan Zalo');
-      } else {
-        setError('Loi ket noi: ' + String(e));
-      }
+      setError('Loi ket noi: ' + String(e));
     } finally {
       setLoading(false);
     }

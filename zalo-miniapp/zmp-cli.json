@@ -2,18 +2,18 @@
   "cwd": "",
   "name": "kanposvn-zalo-miniapp",
   "framework": "react-typescript",
-  "cssPreProcessor": "scss",
+  "cssPreProcessor": "none",
   "includeTailwind": true,
-  "package": "zmp-ui",
-  "stateManagement": "jotai",
-  "newProject": true,
+  "package": "none",
+  "stateManagement": "none",
+  "newProject": false,
   "template": "single-view",
   "theming": {
     "customColor": true,
-    "color": "#d97706",
+    "color": "#2563eb",
     "darkTheme": false,
-    "iconFonts": true,
+    "iconFonts": false,
     "fillBars": false,
-    "useUiKits": true
+    "useUiKits": false
   }
 }

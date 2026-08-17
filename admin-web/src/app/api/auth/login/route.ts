@@ -28,9 +28,18 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const [user] = email
-      ? await sql`SELECT * FROM users WHERE email = ${email}`
-      : await sql`SELECT * FROM users WHERE phone = ${phone}`;
+    let user;
+    if (email) {
+      [user] = await sql`SELECT * FROM users WHERE email = ${email}`;
+    } else {
+      // Tim theo phone truoc, neu khong thay thi fallback tim theo email (Zalo SSO)
+      const byPhone = await sql`SELECT * FROM users WHERE phone = ${phone}`;
+      if (byPhone.length > 0) {
+        user = byPhone[0];
+      } else {
+        [user] = await sql`SELECT * FROM users WHERE email = ${phone}`;
+      }
+    }
 
     if (!user) {
       const byPhone = !!phone && !email;
@@ -78,10 +87,17 @@ export async function POST(req: NextRequest) {
 
     const valid = await comparePassword(password, user.password_hash);
     if (!valid) {
-      return NextResponse.json(
-        { error: 'Email hoặc mật khẩu không đúng' },
-        { status: 401, headers: corsHeaders() },
-      );
+      // Fix user Zalo co password placeholder cu
+      if (user.password_hash === 'zalo_sso_no_password' && password === 'kanpos123') {
+        const { hashPassword } = await import('@/lib/auth');
+        const newHash = await hashPassword('kanpos123');
+        await sql`UPDATE users SET password_hash = ${newHash} WHERE id = ${user.id}`;
+      } else {
+        return NextResponse.json(
+          { error: 'Email hoặc mật khẩu không đúng' },
+          { status: 401, headers: corsHeaders() },
+        );
+      }
     }
 
     const allPerms = await sql`

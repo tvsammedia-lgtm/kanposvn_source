@@ -1,91 +1,93 @@
 import { useState } from 'react';
 import Login from './pages/Login';
-import AppSelector from './pages/AppSelector';
-import BranchSelector from './pages/BranchSelector';
-import POS from './pages/POS';
-import type { ZaloUser, AppModule, Branch } from './config';
+import Home from './pages/Home';
+import SoftwareList from './pages/SoftwareList';
+import MyLicenses from './pages/MyLicenses';
+import Download from './pages/Download';
+import type { ZaloUser, UserLicense } from './config';
 
-type Page = 'login' | 'apps' | 'branches' | 'pos';
+import { API_BASE } from './config';
+
+type Page = 'login' | 'home' | 'software' | 'licenses' | 'download';
 
 export default function App() {
   const [page, setPage] = useState<Page>('login');
   const [user, setUser] = useState<ZaloUser | null>(null);
-  const [apps, setApps] = useState<AppModule[]>([]);
-  const [selectedApp, setSelectedApp] = useState<AppModule | null>(null);
-  const [selectedBranch, setSelectedBranch] = useState<Branch | null>(null);
+  const [licenses, setLicenses] = useState<UserLicense[]>([]);
 
-  const handleLogin = (u: ZaloUser, a: AppModule[]) => {
+  const handleLogin = (u: ZaloUser, l: UserLicense[]) => {
     setUser(u);
-    setApps(a);
-    if (a.length === 1 && a[0].branches.length === 1) {
-      setSelectedApp(a[0]);
-      setSelectedBranch(a[0].branches[0]);
-      setPage('pos');
-    } else if (a.length === 1) {
-      setSelectedApp(a[0]);
-      setPage('branches');
-    } else {
-      setPage('apps');
+    setLicenses(l);
+    setPage('home');
+  };
+
+  const handleTrial = async (appCode: string) => {
+    if (!user) return;
+    try {
+      const res = await fetch(`${API_BASE}/api/zalo/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ zalo_id: user.zalo_id, name: user.full_name, phone: user.phone, app_code: appCode }),
+      });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+      if (data.licenses) {
+        setLicenses(data.licenses);
+        setPage('licenses');
+      }
+    } catch (e: any) {
+      throw e;
     }
   };
 
-  const handleSelectApp = (app: AppModule) => {
-    setSelectedApp(app);
-    if (app.branches.length === 1) {
-      setSelectedBranch(app.branches[0]);
-      setPage('pos');
-    } else {
-      setPage('branches');
-    }
+  const handleLogout = () => {
+    setUser(null);
+    setLicenses([]);
+    setPage('login');
   };
 
-  const handleSelectBranch = (branch: Branch) => {
-    setSelectedBranch(branch);
-    setPage('pos');
-  };
-
-  const handleBack = () => {
-    if (page === 'pos') {
-      if (apps.length === 1) setPage('login');
-      else setPage('apps');
-      setSelectedBranch(null);
-      setSelectedApp(null);
-    } else if (page === 'branches') {
-      if (apps.length === 1) setPage('login');
-      else setPage('apps');
-      setSelectedApp(null);
-    } else if (page === 'apps') {
-      setPage('login');
-    }
-  };
-
-  if (page === 'login') {
+  if (page === 'login' || !user) {
     return <Login onSuccess={handleLogin} />;
   }
 
-  if (page === 'apps') {
-    return <AppSelector apps={apps} onSelect={handleSelectApp} onBack={handleBack} />;
-  }
-
-  if (page === 'branches' && selectedApp) {
+  if (page === 'home') {
     return (
-      <BranchSelector
-        app={selectedApp}
-        onSelect={handleSelectBranch}
-        onBack={handleBack}
-      />
-    );
-  }
-
-  if (page === 'pos' && selectedApp && selectedBranch && user) {
-    return (
-      <POS
+      <Home
         user={user}
-        app={selectedApp}
-        branch={selectedBranch}
-        onBack={handleBack}
+        licenses={licenses}
+        onBrowseSoftware={() => setPage('software')}
+        onMyLicenses={() => setPage('licenses')}
+        onDownload={() => setPage('download')}
+        onLogout={handleLogout}
       />
     );
+  }
+
+  if (page === 'software') {
+    return (
+      <SoftwareList
+        user={user}
+        licenses={licenses}
+        onBack={() => setPage('home')}
+        onTrial={handleTrial}
+        onRefresh={setLicenses}
+      />
+    );
+  }
+
+  if (page === 'licenses') {
+    return (
+      <MyLicenses
+        user={user}
+        licenses={licenses}
+        onRefresh={setLicenses}
+        onBack={() => setPage('home')}
+      />
+    );
+  }
+
+  if (page === 'download') {
+    return <Download onBack={() => setPage('home')} />;
   }
 
   return <Login onSuccess={handleLogin} />;

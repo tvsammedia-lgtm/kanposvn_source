@@ -14,9 +14,11 @@
     "zmp-sdk": "^2.53.0"
   },
   "devDependencies": {
+    "@tailwindcss/vite": "^4.3.3",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "@vitejs/plugin-react": "^4.3.0",
+    "tailwindcss": "^4.3.3",
     "typescript": "^5.6.0",
     "vite": "^5.4.0"
   }

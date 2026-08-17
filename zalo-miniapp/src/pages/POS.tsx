@@ -10,7 +10,6 @@ interface Props {
 export default function POS({ user, app, branch, onBack }: Props) {
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
       <div className="bg-blue-600 text-white p-4">
         <div className="flex items-center justify-between">
           <button onClick={onBack} className="text-sm opacity-80">
@@ -24,7 +23,6 @@ export default function POS({ user, app, branch, onBack }: Props) {
         </p>
       </div>
 
-      {/* Content */}
       <div className="p-4">
         <div className="bg-white rounded-xl shadow-sm p-6 text-center">
           <div className="text-6xl mb-4">🏪</div>
@@ -48,7 +46,6 @@ export default function POS({ user, app, branch, onBack }: Props) {
           </div>
         </div>
 
-        {/* Info card */}
         <div className="mt-4 bg-white rounded-xl shadow-sm p-4">
           <h3 className="font-bold text-gray-800 mb-2">Thong tin chi nhanh</h3>
           <div className="text-sm text-gray-600 space-y-1">

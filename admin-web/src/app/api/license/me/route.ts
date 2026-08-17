@@ -54,7 +54,7 @@ export async function GET(req: NextRequest) {
     }
 
     const [licenses, orders] = await Promise.all([
-      sql`SELECT * FROM licenses WHERE user_id = ${user.id} ORDER BY created_at DESC`,
+      sql`SELECT * FROM licenses WHERE user_id = ${user.id} ORDER BY started_at DESC`,
       sql`SELECT order_code, app_code, plan, amount, status, created_at, paid_at FROM orders WHERE user_id = ${user.id} ORDER BY created_at DESC LIMIT 10`,
     ]);
 
