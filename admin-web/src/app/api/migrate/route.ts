@@ -323,6 +323,11 @@ export async function POST(req: NextRequest) {
         'active'
       FROM branches b
       WHERE NOT EXISTS (SELECT 1 FROM warehouses w WHERE w.branch_id = b.id)`],
+    // Migration 018: ZaloPay integration
+    ['018_zalopay_app_trans_id', "ALTER TABLE orders ADD COLUMN IF NOT EXISTS zalopay_app_trans_id VARCHAR(64) DEFAULT ''"],
+    ['018_zalopay_callback_url', "ALTER TABLE orders ADD COLUMN IF NOT EXISTS callback_url VARCHAR(500) DEFAULT ''"],
+    ['018_zalopay_provider', "ALTER TABLE orders ADD COLUMN IF NOT EXISTS provider VARCHAR(50) DEFAULT 'zalopay'"],
+    ['018_zalopay_index_app_trans_id', 'CREATE INDEX IF NOT EXISTS idx_orders_zalopay_app_trans_id ON orders(zalopay_app_trans_id)'],
   ];
 
   for (const [name, sqlStr] of migrations) {
