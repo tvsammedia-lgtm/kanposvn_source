@@ -39,19 +39,18 @@ class _RestaurantPosScreenState extends ConsumerState<RestaurantPosScreen> {
         orElse: () => null,
       );
 
-      setState(() {
-        if (activeOrder != null) {
-          _currentOrder = activeOrder;
-          await ref.read(restaurantOrdersProvider.notifier).updateOrder(_currentOrder!);
-        } else {
-          _currentOrder = RestaurantOrder()
-            ..orderId = const Uuid().v4()
-            ..createdAt = DateTime.now()
-            ..status = RestaurantOrderStatus.SERVING;
-          _currentOrder!.table.value = widget.table;
-          await ref.read(restaurantOrdersProvider.notifier).updateOrder(_currentOrder!);
-        }
-      });
+      // Sync: gan _currentOrder va update trang thai ban
+      if (activeOrder != null) {
+        _currentOrder = activeOrder;
+      } else {
+        _currentOrder = RestaurantOrder()
+          ..orderId = const Uuid().v4()
+          ..createdAt = DateTime.now()
+          ..status = RestaurantOrderStatus.SERVING;
+        _currentOrder!.table.value = widget.table;
+      }
+      // Async: cap nhat status ban len SERVING sau khi build xong
+      Future.microtask(() => ref.read(restaurantOrdersProvider.notifier).updateOrder(_currentOrder!));
     }
   }
   
