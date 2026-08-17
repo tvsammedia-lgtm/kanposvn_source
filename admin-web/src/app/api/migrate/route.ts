@@ -40,6 +40,12 @@ export async function POST(req: NextRequest) {
     ['subscription_start', 'ALTER TABLE users ADD COLUMN IF NOT EXISTS subscription_start TIMESTAMP WITH TIME ZONE'],
     ['subscription_end', 'ALTER TABLE users ADD COLUMN IF NOT EXISTS subscription_end TIMESTAMP WITH TIME ZONE'],
     ['zalo_id', "ALTER TABLE users ADD COLUMN IF NOT EXISTS zalo_id VARCHAR(64) DEFAULT ''"],
+    ['email_fix', "ALTER TABLE users ADD COLUMN IF NOT EXISTS email VARCHAR(255) DEFAULT ''"],
+    ['email_backfill_zalo', `UPDATE users SET email = 'zalo_' || zalo_id || '@kanposvn.mini' WHERE zalo_id <> '' AND (email IS NULL OR email = '')`],
+    ['email_unique', `DO $$ BEGIN
+      ALTER TABLE users ADD CONSTRAINT users_email_unique UNIQUE (email);
+    EXCEPTION WHEN duplicate_column THEN NULL;
+    END $$;`],
     ['orders_table', `CREATE TABLE IF NOT EXISTS orders (
       id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
       order_code VARCHAR(32) UNIQUE NOT NULL,

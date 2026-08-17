@@ -185,6 +185,17 @@ export async function POST(req: NextRequest) {
 
       await ensureDefaultBranch(sql, { userId: user.id, appCode, licenseId: license.id });
 
+      // Gan quyen Manager cho app
+      const [appRow] = await sql`SELECT id FROM apps WHERE app_code = ${appCode}`;
+      const [managerRole] = await sql`SELECT id FROM roles WHERE role_name = 'Manager'`;
+      if (appRow && managerRole) {
+        await sql`
+          INSERT INTO user_permissions (user_id, app_id, role_id, can_login)
+          VALUES (${user.id}, ${appRow.id}, ${managerRole.id}, true)
+          ON CONFLICT (user_id, app_id) DO UPDATE SET role_id = ${managerRole.id}, can_login = true
+        `;
+      }
+
       await sql`
         UPDATE users SET subscription_plan = 'trial', subscription_start = ${now.toISOString()}, subscription_end = ${expiresAt.toISOString()}
         WHERE id = ${user.id}
@@ -229,6 +240,17 @@ export async function POST(req: NextRequest) {
     // License chưa có (chờ chuyển khoản) nên chưa gắn branch; bước thanh toán
     // (/api/license/pay) sẽ gắn branch_id vào license khi kích hoạt.
     await ensureDefaultBranch(sql, { userId: user.id, appCode, licenseId: '' });
+
+    // Gan quyen Manager cho app
+    const [appRow2] = await sql`SELECT id FROM apps WHERE app_code = ${appCode}`;
+    const [managerRole2] = await sql`SELECT id FROM roles WHERE role_name = 'Manager'`;
+    if (appRow2 && managerRole2) {
+      await sql`
+        INSERT INTO user_permissions (user_id, app_id, role_id, can_login)
+        VALUES (${user.id}, ${appRow2.id}, ${managerRole2.id}, true)
+        ON CONFLICT (user_id, app_id) DO UPDATE SET role_id = ${managerRole2.id}, can_login = true
+      `;
+    }
 
     return NextResponse.json(
       {

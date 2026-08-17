@@ -119,14 +119,14 @@ export async function POST(req: NextRequest) {
             await sql`UPDATE licenses SET branch_id = ${branchRows[0].id} WHERE id = ${licRows[0].id}`;
           }
 
-          // Gán quyền user cho app
+          // Gán quyền user cho app (Manager mac dinh)
           if (app) {
-            const [adminRole] = await sql`SELECT id FROM roles WHERE role_name = 'Admin'`;
-            if (adminRole) {
+            const [managerRole] = await sql`SELECT id FROM roles WHERE role_name = 'Manager'`;
+            if (managerRole) {
               await sql`
                 INSERT INTO user_permissions (user_id, app_id, role_id, can_login)
-                VALUES (${user.id}, ${app.id}, ${adminRole.id}, true)
-                ON CONFLICT (user_id, app_id) DO UPDATE SET role_id = ${adminRole.id}, can_login = true
+                VALUES (${user.id}, ${app.id}, ${managerRole.id}, true)
+                ON CONFLICT (user_id, app_id) DO UPDATE SET role_id = ${managerRole.id}, can_login = true
               `;
             }
           }
@@ -177,12 +177,12 @@ export async function POST(req: NextRequest) {
           await sql`UPDATE licenses SET branch_id = ${branchRows[0].id} WHERE id = ${licRows[0].id}`;
         }
         if (app) {
-          const [adminRole] = await sql`SELECT id FROM roles WHERE role_name = 'Admin'`;
-          if (adminRole) {
+          const [managerRole] = await sql`SELECT id FROM roles WHERE role_name = 'Manager'`;
+          if (managerRole) {
             await sql`
               INSERT INTO user_permissions (user_id, app_id, role_id, can_login)
-              VALUES (${user.id}, ${app.id}, ${adminRole.id}, true)
-              ON CONFLICT (user_id, app_id) DO UPDATE SET role_id = ${adminRole.id}, can_login = true
+              VALUES (${user.id}, ${app.id}, ${managerRole.id}, true)
+              ON CONFLICT (user_id, app_id) DO UPDATE SET role_id = ${managerRole.id}, can_login = true
             `;
           }
         }
