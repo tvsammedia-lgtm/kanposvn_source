@@ -44,6 +44,10 @@ class RoomType {
   List<double> dailyPricesByWeekday = [0, 0, 0, 0, 0, 0, 0];
 
   int capacity = 2;
+  double area = 0; // Diện tích m²
+  double weekendPrice = 0; // Giá cuối tuần (0 = dùng basePrice)
+  double holidayPrice = 0; // Giá lễ (0 = dùng basePrice)
+  double extraPersonSurcharge = 0; // Phụ thu thêm người (đ/người)
   String description = '';
 }
 

@@ -31,6 +31,10 @@ class RoomCheckIn {
   String customerName = '';
   String customerIdentity = ''; // CMND/CCCD/Passport
   String customerPhone = '';
+  String customerAddress = ''; // Địa chỉ
+  String customerNationality = ''; // Quốc tịch
+  String vehiclePlate = ''; // Biển số xe
+  int guestCount = 1; // Số người
   
   DateTime? actualCheckIn;
   DateTime? expectedCheckOut;

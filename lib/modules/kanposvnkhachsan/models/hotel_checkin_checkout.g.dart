@@ -37,89 +37,109 @@ const RoomCheckInSchema = CollectionSchema(
       name: r'createdAt',
       type: IsarType.dateTime,
     ),
-    r'customerIdentity': PropertySchema(
+    r'customerAddress': PropertySchema(
       id: 4,
+      name: r'customerAddress',
+      type: IsarType.string,
+    ),
+    r'customerIdentity': PropertySchema(
+      id: 5,
       name: r'customerIdentity',
       type: IsarType.string,
     ),
     r'customerName': PropertySchema(
-      id: 5,
+      id: 6,
       name: r'customerName',
       type: IsarType.string,
     ),
+    r'customerNationality': PropertySchema(
+      id: 7,
+      name: r'customerNationality',
+      type: IsarType.string,
+    ),
     r'customerPhone': PropertySchema(
-      id: 6,
+      id: 8,
       name: r'customerPhone',
       type: IsarType.string,
     ),
     r'deletedAt': PropertySchema(
-      id: 7,
+      id: 9,
       name: r'deletedAt',
       type: IsarType.dateTime,
     ),
     r'deviceId': PropertySchema(
-      id: 8,
+      id: 10,
       name: r'deviceId',
       type: IsarType.string,
     ),
     r'discount': PropertySchema(
-      id: 9,
+      id: 11,
       name: r'discount',
       type: IsarType.double,
     ),
     r'expectedCheckOut': PropertySchema(
-      id: 10,
+      id: 12,
       name: r'expectedCheckOut',
       type: IsarType.dateTime,
     ),
     r'finalTotal': PropertySchema(
-      id: 11,
+      id: 13,
       name: r'finalTotal',
       type: IsarType.double,
     ),
+    r'guestCount': PropertySchema(
+      id: 14,
+      name: r'guestCount',
+      type: IsarType.long,
+    ),
     r'isCheckedOut': PropertySchema(
-      id: 12,
+      id: 15,
       name: r'isCheckedOut',
       type: IsarType.bool,
     ),
     r'isSynced': PropertySchema(
-      id: 13,
+      id: 16,
       name: r'isSynced',
       type: IsarType.bool,
     ),
     r'note': PropertySchema(
-      id: 14,
+      id: 17,
       name: r'note',
       type: IsarType.string,
     ),
     r'prePaid': PropertySchema(
-      id: 15,
+      id: 18,
       name: r'prePaid',
       type: IsarType.double,
     ),
     r'rentalType': PropertySchema(
-      id: 16,
+      id: 19,
       name: r'rentalType',
       type: IsarType.byte,
       enumMap: _RoomCheckInrentalTypeEnumValueMap,
     ),
     r'roomTotalCharge': PropertySchema(
-      id: 17,
+      id: 20,
       name: r'roomTotalCharge',
       type: IsarType.double,
     ),
     r'serviceTotalCharge': PropertySchema(
-      id: 18,
+      id: 21,
       name: r'serviceTotalCharge',
       type: IsarType.double,
     ),
     r'updatedAt': PropertySchema(
-      id: 19,
+      id: 22,
       name: r'updatedAt',
       type: IsarType.dateTime,
     ),
+    r'vehiclePlate': PropertySchema(
+      id: 23,
+      name: r'vehiclePlate',
+      type: IsarType.string,
+    ),
     r'version': PropertySchema(
-      id: 20,
+      id: 24,
       name: r'version',
       type: IsarType.long,
     )
@@ -172,11 +192,14 @@ int _roomCheckInEstimateSize(
 ) {
   var bytesCount = offsets.last;
   bytesCount += 3 + object.checkInId.length * 3;
+  bytesCount += 3 + object.customerAddress.length * 3;
   bytesCount += 3 + object.customerIdentity.length * 3;
   bytesCount += 3 + object.customerName.length * 3;
+  bytesCount += 3 + object.customerNationality.length * 3;
   bytesCount += 3 + object.customerPhone.length * 3;
   bytesCount += 3 + object.deviceId.length * 3;
   bytesCount += 3 + object.note.length * 3;
+  bytesCount += 3 + object.vehiclePlate.length * 3;
   return bytesCount;
 }
 
@@ -190,23 +213,27 @@ void _roomCheckInSerialize(
   writer.writeDateTime(offsets[1], object.actualCheckOut);
   writer.writeString(offsets[2], object.checkInId);
   writer.writeDateTime(offsets[3], object.createdAt);
-  writer.writeString(offsets[4], object.customerIdentity);
-  writer.writeString(offsets[5], object.customerName);
-  writer.writeString(offsets[6], object.customerPhone);
-  writer.writeDateTime(offsets[7], object.deletedAt);
-  writer.writeString(offsets[8], object.deviceId);
-  writer.writeDouble(offsets[9], object.discount);
-  writer.writeDateTime(offsets[10], object.expectedCheckOut);
-  writer.writeDouble(offsets[11], object.finalTotal);
-  writer.writeBool(offsets[12], object.isCheckedOut);
-  writer.writeBool(offsets[13], object.isSynced);
-  writer.writeString(offsets[14], object.note);
-  writer.writeDouble(offsets[15], object.prePaid);
-  writer.writeByte(offsets[16], object.rentalType.index);
-  writer.writeDouble(offsets[17], object.roomTotalCharge);
-  writer.writeDouble(offsets[18], object.serviceTotalCharge);
-  writer.writeDateTime(offsets[19], object.updatedAt);
-  writer.writeLong(offsets[20], object.version);
+  writer.writeString(offsets[4], object.customerAddress);
+  writer.writeString(offsets[5], object.customerIdentity);
+  writer.writeString(offsets[6], object.customerName);
+  writer.writeString(offsets[7], object.customerNationality);
+  writer.writeString(offsets[8], object.customerPhone);
+  writer.writeDateTime(offsets[9], object.deletedAt);
+  writer.writeString(offsets[10], object.deviceId);
+  writer.writeDouble(offsets[11], object.discount);
+  writer.writeDateTime(offsets[12], object.expectedCheckOut);
+  writer.writeDouble(offsets[13], object.finalTotal);
+  writer.writeLong(offsets[14], object.guestCount);
+  writer.writeBool(offsets[15], object.isCheckedOut);
+  writer.writeBool(offsets[16], object.isSynced);
+  writer.writeString(offsets[17], object.note);
+  writer.writeDouble(offsets[18], object.prePaid);
+  writer.writeByte(offsets[19], object.rentalType.index);
+  writer.writeDouble(offsets[20], object.roomTotalCharge);
+  writer.writeDouble(offsets[21], object.serviceTotalCharge);
+  writer.writeDateTime(offsets[22], object.updatedAt);
+  writer.writeString(offsets[23], object.vehiclePlate);
+  writer.writeLong(offsets[24], object.version);
 }
 
 RoomCheckIn _roomCheckInDeserialize(
@@ -220,26 +247,30 @@ RoomCheckIn _roomCheckInDeserialize(
   object.actualCheckOut = reader.readDateTimeOrNull(offsets[1]);
   object.checkInId = reader.readString(offsets[2]);
   object.createdAt = reader.readDateTime(offsets[3]);
-  object.customerIdentity = reader.readString(offsets[4]);
-  object.customerName = reader.readString(offsets[5]);
-  object.customerPhone = reader.readString(offsets[6]);
-  object.deletedAt = reader.readDateTimeOrNull(offsets[7]);
-  object.deviceId = reader.readString(offsets[8]);
-  object.discount = reader.readDouble(offsets[9]);
-  object.expectedCheckOut = reader.readDateTimeOrNull(offsets[10]);
-  object.finalTotal = reader.readDouble(offsets[11]);
+  object.customerAddress = reader.readString(offsets[4]);
+  object.customerIdentity = reader.readString(offsets[5]);
+  object.customerName = reader.readString(offsets[6]);
+  object.customerNationality = reader.readString(offsets[7]);
+  object.customerPhone = reader.readString(offsets[8]);
+  object.deletedAt = reader.readDateTimeOrNull(offsets[9]);
+  object.deviceId = reader.readString(offsets[10]);
+  object.discount = reader.readDouble(offsets[11]);
+  object.expectedCheckOut = reader.readDateTimeOrNull(offsets[12]);
+  object.finalTotal = reader.readDouble(offsets[13]);
+  object.guestCount = reader.readLong(offsets[14]);
   object.id = id;
-  object.isCheckedOut = reader.readBool(offsets[12]);
-  object.isSynced = reader.readBool(offsets[13]);
-  object.note = reader.readString(offsets[14]);
-  object.prePaid = reader.readDouble(offsets[15]);
+  object.isCheckedOut = reader.readBool(offsets[15]);
+  object.isSynced = reader.readBool(offsets[16]);
+  object.note = reader.readString(offsets[17]);
+  object.prePaid = reader.readDouble(offsets[18]);
   object.rentalType =
-      _RoomCheckInrentalTypeValueEnumMap[reader.readByteOrNull(offsets[16])] ??
+      _RoomCheckInrentalTypeValueEnumMap[reader.readByteOrNull(offsets[19])] ??
           RentalType.HOURLY;
-  object.roomTotalCharge = reader.readDouble(offsets[17]);
-  object.serviceTotalCharge = reader.readDouble(offsets[18]);
-  object.updatedAt = reader.readDateTime(offsets[19]);
-  object.version = reader.readLong(offsets[20]);
+  object.roomTotalCharge = reader.readDouble(offsets[20]);
+  object.serviceTotalCharge = reader.readDouble(offsets[21]);
+  object.updatedAt = reader.readDateTime(offsets[22]);
+  object.vehiclePlate = reader.readString(offsets[23]);
+  object.version = reader.readLong(offsets[24]);
   return object;
 }
 
@@ -265,34 +296,42 @@ P _roomCheckInDeserializeProp<P>(
     case 6:
       return (reader.readString(offset)) as P;
     case 7:
-      return (reader.readDateTimeOrNull(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 8:
       return (reader.readString(offset)) as P;
     case 9:
-      return (reader.readDouble(offset)) as P;
-    case 10:
       return (reader.readDateTimeOrNull(offset)) as P;
+    case 10:
+      return (reader.readString(offset)) as P;
     case 11:
       return (reader.readDouble(offset)) as P;
     case 12:
-      return (reader.readBool(offset)) as P;
+      return (reader.readDateTimeOrNull(offset)) as P;
     case 13:
-      return (reader.readBool(offset)) as P;
+      return (reader.readDouble(offset)) as P;
     case 14:
-      return (reader.readString(offset)) as P;
+      return (reader.readLong(offset)) as P;
     case 15:
-      return (reader.readDouble(offset)) as P;
+      return (reader.readBool(offset)) as P;
     case 16:
-      return (_RoomCheckInrentalTypeValueEnumMap[
-              reader.readByteOrNull(offset)] ??
-          RentalType.HOURLY) as P;
+      return (reader.readBool(offset)) as P;
     case 17:
-      return (reader.readDouble(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 18:
       return (reader.readDouble(offset)) as P;
     case 19:
-      return (reader.readDateTime(offset)) as P;
+      return (_RoomCheckInrentalTypeValueEnumMap[
+              reader.readByteOrNull(offset)] ??
+          RentalType.HOURLY) as P;
     case 20:
+      return (reader.readDouble(offset)) as P;
+    case 21:
+      return (reader.readDouble(offset)) as P;
+    case 22:
+      return (reader.readDateTime(offset)) as P;
+    case 23:
+      return (reader.readString(offset)) as P;
+    case 24:
       return (reader.readLong(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -847,6 +886,142 @@ extension RoomCheckInQueryFilter
   }
 
   QueryBuilder<RoomCheckIn, RoomCheckIn, QAfterFilterCondition>
+      customerAddressEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'customerAddress',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RoomCheckIn, RoomCheckIn, QAfterFilterCondition>
+      customerAddressGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'customerAddress',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RoomCheckIn, RoomCheckIn, QAfterFilterCondition>
+      customerAddressLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'customerAddress',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RoomCheckIn, RoomCheckIn, QAfterFilterCondition>
+      customerAddressBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'customerAddress',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RoomCheckIn, RoomCheckIn, QAfterFilterCondition>
+      customerAddressStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'customerAddress',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RoomCheckIn, RoomCheckIn, QAfterFilterCondition>
+      customerAddressEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'customerAddress',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RoomCheckIn, RoomCheckIn, QAfterFilterCondition>
+      customerAddressContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'customerAddress',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RoomCheckIn, RoomCheckIn, QAfterFilterCondition>
+      customerAddressMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'customerAddress',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RoomCheckIn, RoomCheckIn, QAfterFilterCondition>
+      customerAddressIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'customerAddress',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<RoomCheckIn, RoomCheckIn, QAfterFilterCondition>
+      customerAddressIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'customerAddress',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<RoomCheckIn, RoomCheckIn, QAfterFilterCondition>
       customerIdentityEqualTo(
     String value, {
     bool caseSensitive = true,
@@ -1113,6 +1288,142 @@ extension RoomCheckInQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         property: r'customerName',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<RoomCheckIn, RoomCheckIn, QAfterFilterCondition>
+      customerNationalityEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'customerNationality',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RoomCheckIn, RoomCheckIn, QAfterFilterCondition>
+      customerNationalityGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'customerNationality',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RoomCheckIn, RoomCheckIn, QAfterFilterCondition>
+      customerNationalityLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'customerNationality',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RoomCheckIn, RoomCheckIn, QAfterFilterCondition>
+      customerNationalityBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'customerNationality',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RoomCheckIn, RoomCheckIn, QAfterFilterCondition>
+      customerNationalityStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'customerNationality',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RoomCheckIn, RoomCheckIn, QAfterFilterCondition>
+      customerNationalityEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'customerNationality',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RoomCheckIn, RoomCheckIn, QAfterFilterCondition>
+      customerNationalityContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'customerNationality',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RoomCheckIn, RoomCheckIn, QAfterFilterCondition>
+      customerNationalityMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'customerNationality',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RoomCheckIn, RoomCheckIn, QAfterFilterCondition>
+      customerNationalityIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'customerNationality',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<RoomCheckIn, RoomCheckIn, QAfterFilterCondition>
+      customerNationalityIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'customerNationality',
         value: '',
       ));
     });
@@ -1667,6 +1978,62 @@ extension RoomCheckInQueryFilter
     });
   }
 
+  QueryBuilder<RoomCheckIn, RoomCheckIn, QAfterFilterCondition>
+      guestCountEqualTo(int value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'guestCount',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<RoomCheckIn, RoomCheckIn, QAfterFilterCondition>
+      guestCountGreaterThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'guestCount',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<RoomCheckIn, RoomCheckIn, QAfterFilterCondition>
+      guestCountLessThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'guestCount',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<RoomCheckIn, RoomCheckIn, QAfterFilterCondition>
+      guestCountBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'guestCount',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
   QueryBuilder<RoomCheckIn, RoomCheckIn, QAfterFilterCondition> idEqualTo(
       Id value) {
     return QueryBuilder.apply(this, (query) {
@@ -2178,6 +2545,142 @@ extension RoomCheckInQueryFilter
     });
   }
 
+  QueryBuilder<RoomCheckIn, RoomCheckIn, QAfterFilterCondition>
+      vehiclePlateEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'vehiclePlate',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RoomCheckIn, RoomCheckIn, QAfterFilterCondition>
+      vehiclePlateGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'vehiclePlate',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RoomCheckIn, RoomCheckIn, QAfterFilterCondition>
+      vehiclePlateLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'vehiclePlate',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RoomCheckIn, RoomCheckIn, QAfterFilterCondition>
+      vehiclePlateBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'vehiclePlate',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RoomCheckIn, RoomCheckIn, QAfterFilterCondition>
+      vehiclePlateStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'vehiclePlate',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RoomCheckIn, RoomCheckIn, QAfterFilterCondition>
+      vehiclePlateEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'vehiclePlate',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RoomCheckIn, RoomCheckIn, QAfterFilterCondition>
+      vehiclePlateContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'vehiclePlate',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RoomCheckIn, RoomCheckIn, QAfterFilterCondition>
+      vehiclePlateMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'vehiclePlate',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RoomCheckIn, RoomCheckIn, QAfterFilterCondition>
+      vehiclePlateIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'vehiclePlate',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<RoomCheckIn, RoomCheckIn, QAfterFilterCondition>
+      vehiclePlateIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'vehiclePlate',
+        value: '',
+      ));
+    });
+  }
+
   QueryBuilder<RoomCheckIn, RoomCheckIn, QAfterFilterCondition> versionEqualTo(
       int value) {
     return QueryBuilder.apply(this, (query) {
@@ -2318,6 +2821,19 @@ extension RoomCheckInQuerySortBy
     });
   }
 
+  QueryBuilder<RoomCheckIn, RoomCheckIn, QAfterSortBy> sortByCustomerAddress() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'customerAddress', Sort.asc);
+    });
+  }
+
+  QueryBuilder<RoomCheckIn, RoomCheckIn, QAfterSortBy>
+      sortByCustomerAddressDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'customerAddress', Sort.desc);
+    });
+  }
+
   QueryBuilder<RoomCheckIn, RoomCheckIn, QAfterSortBy>
       sortByCustomerIdentity() {
     return QueryBuilder.apply(this, (query) {
@@ -2342,6 +2858,20 @@ extension RoomCheckInQuerySortBy
       sortByCustomerNameDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'customerName', Sort.desc);
+    });
+  }
+
+  QueryBuilder<RoomCheckIn, RoomCheckIn, QAfterSortBy>
+      sortByCustomerNationality() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'customerNationality', Sort.asc);
+    });
+  }
+
+  QueryBuilder<RoomCheckIn, RoomCheckIn, QAfterSortBy>
+      sortByCustomerNationalityDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'customerNationality', Sort.desc);
     });
   }
 
@@ -2417,6 +2947,18 @@ extension RoomCheckInQuerySortBy
   QueryBuilder<RoomCheckIn, RoomCheckIn, QAfterSortBy> sortByFinalTotalDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'finalTotal', Sort.desc);
+    });
+  }
+
+  QueryBuilder<RoomCheckIn, RoomCheckIn, QAfterSortBy> sortByGuestCount() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'guestCount', Sort.asc);
+    });
+  }
+
+  QueryBuilder<RoomCheckIn, RoomCheckIn, QAfterSortBy> sortByGuestCountDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'guestCount', Sort.desc);
     });
   }
 
@@ -2520,6 +3062,19 @@ extension RoomCheckInQuerySortBy
     });
   }
 
+  QueryBuilder<RoomCheckIn, RoomCheckIn, QAfterSortBy> sortByVehiclePlate() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'vehiclePlate', Sort.asc);
+    });
+  }
+
+  QueryBuilder<RoomCheckIn, RoomCheckIn, QAfterSortBy>
+      sortByVehiclePlateDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'vehiclePlate', Sort.desc);
+    });
+  }
+
   QueryBuilder<RoomCheckIn, RoomCheckIn, QAfterSortBy> sortByVersion() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'version', Sort.asc);
@@ -2585,6 +3140,19 @@ extension RoomCheckInQuerySortThenBy
     });
   }
 
+  QueryBuilder<RoomCheckIn, RoomCheckIn, QAfterSortBy> thenByCustomerAddress() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'customerAddress', Sort.asc);
+    });
+  }
+
+  QueryBuilder<RoomCheckIn, RoomCheckIn, QAfterSortBy>
+      thenByCustomerAddressDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'customerAddress', Sort.desc);
+    });
+  }
+
   QueryBuilder<RoomCheckIn, RoomCheckIn, QAfterSortBy>
       thenByCustomerIdentity() {
     return QueryBuilder.apply(this, (query) {
@@ -2609,6 +3177,20 @@ extension RoomCheckInQuerySortThenBy
       thenByCustomerNameDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'customerName', Sort.desc);
+    });
+  }
+
+  QueryBuilder<RoomCheckIn, RoomCheckIn, QAfterSortBy>
+      thenByCustomerNationality() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'customerNationality', Sort.asc);
+    });
+  }
+
+  QueryBuilder<RoomCheckIn, RoomCheckIn, QAfterSortBy>
+      thenByCustomerNationalityDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'customerNationality', Sort.desc);
     });
   }
 
@@ -2684,6 +3266,18 @@ extension RoomCheckInQuerySortThenBy
   QueryBuilder<RoomCheckIn, RoomCheckIn, QAfterSortBy> thenByFinalTotalDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'finalTotal', Sort.desc);
+    });
+  }
+
+  QueryBuilder<RoomCheckIn, RoomCheckIn, QAfterSortBy> thenByGuestCount() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'guestCount', Sort.asc);
+    });
+  }
+
+  QueryBuilder<RoomCheckIn, RoomCheckIn, QAfterSortBy> thenByGuestCountDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'guestCount', Sort.desc);
     });
   }
 
@@ -2799,6 +3393,19 @@ extension RoomCheckInQuerySortThenBy
     });
   }
 
+  QueryBuilder<RoomCheckIn, RoomCheckIn, QAfterSortBy> thenByVehiclePlate() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'vehiclePlate', Sort.asc);
+    });
+  }
+
+  QueryBuilder<RoomCheckIn, RoomCheckIn, QAfterSortBy>
+      thenByVehiclePlateDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'vehiclePlate', Sort.desc);
+    });
+  }
+
   QueryBuilder<RoomCheckIn, RoomCheckIn, QAfterSortBy> thenByVersion() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'version', Sort.asc);
@@ -2839,6 +3446,14 @@ extension RoomCheckInQueryWhereDistinct
     });
   }
 
+  QueryBuilder<RoomCheckIn, RoomCheckIn, QDistinct> distinctByCustomerAddress(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'customerAddress',
+          caseSensitive: caseSensitive);
+    });
+  }
+
   QueryBuilder<RoomCheckIn, RoomCheckIn, QDistinct> distinctByCustomerIdentity(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
@@ -2851,6 +3466,14 @@ extension RoomCheckInQueryWhereDistinct
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'customerName', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<RoomCheckIn, RoomCheckIn, QDistinct>
+      distinctByCustomerNationality({bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'customerNationality',
+          caseSensitive: caseSensitive);
     });
   }
 
@@ -2891,6 +3514,12 @@ extension RoomCheckInQueryWhereDistinct
   QueryBuilder<RoomCheckIn, RoomCheckIn, QDistinct> distinctByFinalTotal() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'finalTotal');
+    });
+  }
+
+  QueryBuilder<RoomCheckIn, RoomCheckIn, QDistinct> distinctByGuestCount() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'guestCount');
     });
   }
 
@@ -2945,6 +3574,13 @@ extension RoomCheckInQueryWhereDistinct
     });
   }
 
+  QueryBuilder<RoomCheckIn, RoomCheckIn, QDistinct> distinctByVehiclePlate(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'vehiclePlate', caseSensitive: caseSensitive);
+    });
+  }
+
   QueryBuilder<RoomCheckIn, RoomCheckIn, QDistinct> distinctByVersion() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'version');
@@ -2987,6 +3623,13 @@ extension RoomCheckInQueryProperty
   }
 
   QueryBuilder<RoomCheckIn, String, QQueryOperations>
+      customerAddressProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'customerAddress');
+    });
+  }
+
+  QueryBuilder<RoomCheckIn, String, QQueryOperations>
       customerIdentityProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'customerIdentity');
@@ -2996,6 +3639,13 @@ extension RoomCheckInQueryProperty
   QueryBuilder<RoomCheckIn, String, QQueryOperations> customerNameProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'customerName');
+    });
+  }
+
+  QueryBuilder<RoomCheckIn, String, QQueryOperations>
+      customerNationalityProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'customerNationality');
     });
   }
 
@@ -3033,6 +3683,12 @@ extension RoomCheckInQueryProperty
   QueryBuilder<RoomCheckIn, double, QQueryOperations> finalTotalProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'finalTotal');
+    });
+  }
+
+  QueryBuilder<RoomCheckIn, int, QQueryOperations> guestCountProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'guestCount');
     });
   }
 
@@ -3083,6 +3739,12 @@ extension RoomCheckInQueryProperty
   QueryBuilder<RoomCheckIn, DateTime, QQueryOperations> updatedAtProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'updatedAt');
+    });
+  }
+
+  QueryBuilder<RoomCheckIn, String, QQueryOperations> vehiclePlateProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'vehiclePlate');
     });
   }
 

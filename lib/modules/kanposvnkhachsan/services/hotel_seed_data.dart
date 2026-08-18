@@ -41,6 +41,12 @@ class HotelSeedData {
     if (shiftCount == 0) {
       await _seedShifts(isarService, uuid);
     }
+
+    // ---- Seed Khách hàng ----
+    final customerCount = await db.hotelCustomers.count();
+    if (customerCount == 0) {
+      await _seedCustomers(isarService, uuid);
+    }
   }
 
   // -------- PHÒNG / TẦNG / LOẠI PHÒNG --------
@@ -62,21 +68,21 @@ class HotelSeedData {
     // Giá: Giờ đầu / Giờ tiếp / Qua đêm(18-20h) / Ngày
     // Qua đêm theo khung: [18-20h, 20-22h, 22h-2h(cao nhất), 2h-12h]
     final types = <RoomType>[];
-    // [hourly, extra, overnight18_20, daily]
+    // [hourly, extra, overnight18_20, daily, area, capacity, weekendExtra, extraPersonSurcharge]
     final priceSheet = <List<double>>[
-      [60000, 20000, 200000, 270000],
-      [70000, 20000, 210000, 300000],
-      [80000, 20000, 230000, 320000],
-      [90000, 20000, 240000, 350000],
-      [90000, 20000, 250000, 400000],
-      [100000, 20000, 280000, 400000],
+      [60000, 20000, 200000, 270000, 20, 2, 30000, 100000],
+      [70000, 20000, 210000, 300000, 22, 2, 30000, 100000],
+      [80000, 20000, 230000, 320000, 25, 3, 40000, 120000],
+      [90000, 20000, 240000, 350000, 28, 3, 50000, 120000],
+      [90000, 20000, 250000, 400000, 30, 4, 50000, 150000],
+      [100000, 20000, 280000, 400000, 35, 4, 60000, 150000],
     ];
     // Chênh lệch qua đêm theo khung giờ (so với 18-20h)
-    // 22h-2h cao hơn 20000-30000, các khung khác bằng nhau
-    final overnightPeakExtra = [0, 0, 20000, 0]; // [18-20, 20-22, 22-2, 2-12]
+    final overnightPeakExtra = [0, 0, 20000, 0];
     for (int i = 0; i < 6; i++) {
       final p = priceSheet[i];
       final overnightBase = p[2];
+      final dailyRate = p[3];
       types.add(RoomType()
         ..typeCode = 'LOAI${i + 1}'
         ..typeName = 'Phòng Loại ${i + 1}'
@@ -89,11 +95,15 @@ class HotelSeedData {
           overnightBase + overnightPeakExtra[2],
           overnightBase + overnightPeakExtra[3],
         ]
-        ..basePrice = p[3]
-        ..dailyPricesByWeekday = List.filled(7, p[3]) // Mặc định = giá ngày
-        ..capacity = 2
+        ..basePrice = dailyRate
+        ..dailyPricesByWeekday = List.filled(7, dailyRate)
+        ..area = p[4]
+        ..capacity = p[5].toInt()
+        ..weekendPrice = dailyRate + p[6]
+        ..holidayPrice = dailyRate + p[6] * 2
+        ..extraPersonSurcharge = p[7]
         ..description =
-            'Giờ: ${p[0].toStringAsFixed(0)}đ (+${p[1].toStringAsFixed(0)}đ) - Qua đêm: ${overnightBase.toStringAsFixed(0)}đ - Ngày: ${p[3].toStringAsFixed(0)}đ');
+            'Giờ: ${p[0].toStringAsFixed(0)}đ (+${p[1].toStringAsFixed(0)}đ) - Qua đêm: ${overnightBase.toStringAsFixed(0)}đ - Ngày: ${dailyRate.toStringAsFixed(0)}đ');
     }
 
     await isarService.saveAll(floors);
@@ -396,8 +406,35 @@ class HotelSeedData {
   static Future<void> _seedCash(HotelIsarService isarService, Uuid uuid) async {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
+    final yesterday = today.subtract(const Duration(days: 1));
 
     final cash = <HotelCashTransaction>[
+      // ── Hôm qua ──
+      HotelCashTransaction()
+        ..transactionId = uuid.v4()
+        ..type = CashTransactionType.INCOME
+        ..amount = 300000
+        ..category = 'Tiền phòng'
+        ..description = 'Thu tiền phòng 101 - Thuê theo ngày (hôm qua)'
+        ..createdBy = 'Lễ tân'
+        ..createdAt = yesterday.add(const Duration(hours: 10)),
+      HotelCashTransaction()
+        ..transactionId = uuid.v4()
+        ..type = CashTransactionType.INCOME
+        ..amount = 120000
+        ..category = 'Dịch vụ'
+        ..description = 'Thu giờ đầu phòng 203 - Thuê theo giờ'
+        ..createdBy = 'Lễ tân'
+        ..createdAt = yesterday.add(const Duration(hours: 14)),
+      HotelCashTransaction()
+        ..transactionId = uuid.v4()
+        ..type = CashTransactionType.EXPENSE
+        ..amount = 1500000
+        ..category = 'Lương'
+        ..description = 'Chi lương nhân viên ca sáng'
+        ..createdBy = 'Quản lý'
+        ..createdAt = yesterday.add(const Duration(hours: 16)),
+      // ── Hôm nay ──
       HotelCashTransaction()
         ..transactionId = uuid.v4()
         ..type = CashTransactionType.INCOME
@@ -409,16 +446,40 @@ class HotelSeedData {
       HotelCashTransaction()
         ..transactionId = uuid.v4()
         ..type = CashTransactionType.INCOME
+        ..amount = 120000
+        ..category = 'Tiền phòng'
+        ..description = 'Thu tiền phòng 205 - Thuê theo giờ (2h)'
+        ..createdBy = 'Lễ tân'
+        ..createdAt = today.add(const Duration(hours: 10)),
+      HotelCashTransaction()
+        ..transactionId = uuid.v4()
+        ..type = CashTransactionType.INCOME
         ..amount = 88000
-        ..category = 'Tiền dịch vụ'
+        ..category = 'Dịch vụ'
         ..description = 'Thu dịch vụ minibar phòng 102'
         ..createdBy = 'Lễ tân'
         ..createdAt = today.add(const Duration(hours: 11, minutes: 30)),
       HotelCashTransaction()
         ..transactionId = uuid.v4()
+        ..type = CashTransactionType.INCOME
+        ..amount = 350000
+        ..category = 'Tiền phòng'
+        ..description = 'Thu tiền phòng 301 - Qua đêm'
+        ..createdBy = 'Lễ tân'
+        ..createdAt = today.add(const Duration(hours: 12)),
+      HotelCashTransaction()
+        ..transactionId = uuid.v4()
+        ..type = CashTransactionType.INCOME
+        ..amount = 45000
+        ..category = 'Giặt ủi'
+        ..description = 'Thu giặt ủi phòng 101 (3 áo)'
+        ..createdBy = 'Buồng phòng'
+        ..createdAt = today.add(const Duration(hours: 13)),
+      HotelCashTransaction()
+        ..transactionId = uuid.v4()
         ..type = CashTransactionType.EXPENSE
         ..amount = 720000
-        ..category = 'Thanh toán nhà cung cấp'
+        ..category = 'Thanh toán NCC'
         ..description = 'Chi trả tiền mua Bia Tiger (48 lon) - Công ty TNHH Bia Sài Gòn'
         ..createdBy = 'Kế toán'
         ..createdAt = today.add(const Duration(hours: 14)),
@@ -426,10 +487,34 @@ class HotelSeedData {
         ..transactionId = uuid.v4()
         ..type = CashTransactionType.EXPENSE
         ..amount = 200000
-        ..category = 'Mua vật tư phòng'
+        ..category = 'Vệ sinh'
         ..description = 'Chi mua xà phòng, vật tư vệ sinh phòng'
         ..createdBy = 'Kế toán'
         ..createdAt = today.add(const Duration(hours: 15)),
+      HotelCashTransaction()
+        ..transactionId = uuid.v4()
+        ..type = CashTransactionType.EXPENSE
+        ..amount = 450000
+        ..category = 'Điện'
+        ..description = 'Tiền điện tháng trước'
+        ..createdBy = 'Kế toán'
+        ..createdAt = today.add(const Duration(hours: 16)),
+      HotelCashTransaction()
+        ..transactionId = uuid.v4()
+        ..type = CashTransactionType.EXPENSE
+        ..amount = 180000
+        ..category = 'Nước'
+        ..description = 'Tiền nước tháng trước'
+        ..createdBy = 'Kế toán'
+        ..createdAt = today.add(const Duration(hours: 16, minutes: 30)),
+      HotelCashTransaction()
+        ..transactionId = uuid.v4()
+        ..type = CashTransactionType.EXPENSE
+        ..amount = 120000
+        ..category = 'Internet'
+        ..description = 'Tiền internet tháng này'
+        ..createdBy = 'Kế toán'
+        ..createdAt = today.add(const Duration(hours: 17)),
     ];
     await isarService.saveAll(cash);
   }
@@ -469,5 +554,82 @@ class HotelSeedData {
         ..isClosed = true,
     ];
     await isarService.saveAll(shifts);
+  }
+
+  // -------- KHÁCH HÀNG --------
+
+  static Future<void> _seedCustomers(HotelIsarService isarService, Uuid uuid) async {
+    final customers = <HotelCustomer>[
+      HotelCustomer()
+        ..customerId = uuid.v4()
+        ..fullName = 'Nguyễn Văn An'
+        ..phoneNumber = '0901234567'
+        ..email = 'an.nguyen@gmail.com'
+        ..identityNumber = '079201012345'
+        ..address = '123 Lê Lợi, Q.1, TP.HCM'
+        ..totalVisits = 12
+        ..totalSpent = 4500000
+        ..debt = 0
+        ..loyaltyPoints = 450
+        ..membershipTier = 'VIP',
+      HotelCustomer()
+        ..customerId = uuid.v4()
+        ..fullName = 'Trần Thị Bình'
+        ..phoneNumber = '0912345678'
+        ..email = 'binh.tran@yahoo.com'
+        ..identityNumber = '079202023456'
+        ..address = '45 Nguyễn Huệ, Q.1, TP.HCM'
+        ..totalVisits = 8
+        ..totalSpent = 2800000
+        ..debt = 150000
+        ..loyaltyPoints = 280
+        ..membershipTier = 'Gold',
+      HotelCustomer()
+        ..customerId = uuid.v4()
+        ..fullName = 'Lê Minh Châu'
+        ..phoneNumber = '0923456789'
+        ..identityNumber = '079203034567'
+        ..address = '78 Hai Bà Trưng, Q.3, TP.HCM'
+        ..totalVisits = 3
+        ..totalSpent = 960000
+        ..debt = 0
+        ..loyaltyPoints = 96
+        ..membershipTier = 'Silver',
+      HotelCustomer()
+        ..customerId = uuid.v4()
+        ..fullName = 'Phạm Đức Dũng'
+        ..phoneNumber = '0934567890'
+        ..identityNumber = '079204045678'
+        ..address = '210 Võ Văn Tần, Q.3, TP.HCM'
+        ..totalVisits = 1
+        ..totalSpent = 320000
+        ..debt = 320000
+        ..loyaltyPoints = 32
+        ..membershipTier = 'Normal',
+      HotelCustomer()
+        ..customerId = uuid.v4()
+        ..fullName = 'Hoàng Thị Em'
+        ..phoneNumber = '0945678901'
+        ..email = 'em.hoang@gmail.com'
+        ..identityNumber = '079205056789'
+        ..address = '55 Nguyễn Đình Chiểu, Q.1, TP.HCM'
+        ..totalVisits = 5
+        ..totalSpent = 1750000
+        ..debt = 0
+        ..loyaltyPoints = 175
+        ..membershipTier = 'Silver',
+      HotelCustomer()
+        ..customerId = uuid.v4()
+        ..fullName = 'Đỗ Minh Giới'
+        ..phoneNumber = '0956789012'
+        ..identityNumber = '079206067890'
+        ..address = '99 Phan Đình Phùng, Phú Nhuận, TP.HCM'
+        ..totalVisits = 15
+        ..totalSpent = 7200000
+        ..debt = 500000
+        ..loyaltyPoints = 720
+        ..membershipTier = 'VIP',
+    ];
+    await isarService.saveAll(customers);
   }
 }

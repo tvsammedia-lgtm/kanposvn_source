@@ -19,6 +19,8 @@ import 'hotel_reports_screen.dart';
 import 'hotel_settings_screen.dart';
 import 'hotel_room_pricing_screen.dart';
 import 'hotel_bill_search_screen.dart';
+import 'hotel_customer_screen.dart';
+import 'hotel_dashboard_screen.dart';
 
 class KanPosVNKhachSanShell extends ConsumerStatefulWidget {
   const KanPosVNKhachSanShell({super.key});
@@ -58,32 +60,36 @@ class _KanPosVNKhachSanShellState extends ConsumerState<KanPosVNKhachSanShell> {
   }
 
   static final Map<String, Set<String>> _roleTabs = {
-    EmployeeRoles.cashier: const {'booking', 'checkin', 'services', 'bills'},
-    EmployeeRoles.sale: const {'booking', 'checkin'},
+    EmployeeRoles.cashier: const {'dashboard', 'booking', 'checkin', 'services', 'bills'},
+    EmployeeRoles.sale: const {'dashboard', 'booking', 'checkin', 'customers'},
     EmployeeRoles.warehouse: const {'services'},
     EmployeeRoles.accountant:
-        const {'rooms', 'finance', 'reports', 'settings', 'room_pricing', 'bills'},
+        const {'dashboard', 'rooms', 'finance', 'reports', 'settings', 'room_pricing', 'bills'},
   };
 
   /// Định nghĩa các tab của module (id, icon, label) — thứ tự hiển thị.
   static final Map<String, ({IconData icon, String label})> _tabDefs = {
+    'dashboard': (icon: Icons.dashboard, label: 'Dashboard'),
     'rooms': (icon: Icons.grid_view, label: 'Sơ đồ phòng'),
     'booking': (icon: Icons.book_online, label: 'Lễ tân / Đặt phòng'),
     'checkin': (icon: Icons.login, label: 'Check-in/Out'),
     'services': (icon: Icons.room_service, label: 'Dịch vụ'),
-    'finance': (icon: Icons.account_balance, label: 'Kế toán'),
+    'customers': (icon: Icons.people, label: 'Khách hàng'),
+    'finance': (icon: Icons.account_balance, label: 'Thu Chi'),
     'reports': (icon: Icons.description, label: 'Báo cáo chung'),
     'bills': (icon: Icons.receipt_long, label: 'Tìm hóa đơn'),
     'employees': (icon: Icons.badge, label: 'Quản Lý NV'),
     'settings': (icon: Icons.settings, label: 'Cài Đặt'),
-    'room_pricing': (icon: Icons.price_change, label: 'Thiết lập Phòng/Món ăn'),
+    'room_pricing': (icon: Icons.price_change, label: 'Thiết lập Giá'),
   };
 
   static final Map<String, Widget Function()> _tabScreens = {
+    'dashboard': () => const HotelDashboardScreen(),
     'rooms': () => const RoomsScreen(),
     'booking': () => const BookingScreen(),
     'checkin': () => const CheckinCheckoutScreen(),
     'services': () => const HotelServicesScreen(),
+    'customers': () => const HotelCustomerScreen(),
     'finance': () => const HotelFinanceScreen(),
     'reports': () => const HotelReportsScreen(),
     'bills': () => const HotelBillSearchScreen(),

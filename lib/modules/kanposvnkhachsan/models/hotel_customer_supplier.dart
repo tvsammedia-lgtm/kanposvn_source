@@ -16,11 +16,17 @@ class HotelCustomer {
 
   String fullName = '';
   String phoneNumber = '';
+  String email = '';
   String identityNumber = ''; // CMND/CCCD/Passport
   String address = '';
+  DateTime? dateOfBirth;
+  String note = '';
   
   int totalVisits = 0;
   double totalSpent = 0;
+  double debt = 0; // Công nợ phải thu
+  int loyaltyPoints = 0;
+  String membershipTier = ''; // VIP, Gold, Silver, Normal
   
   DateTime createdAt = DateTime.now();
 }
