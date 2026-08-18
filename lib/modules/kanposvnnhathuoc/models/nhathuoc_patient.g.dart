@@ -27,58 +27,99 @@ const NhathuocPatientSchema = CollectionSchema(
       name: r'allergies',
       type: IsarType.string,
     ),
-    r'currentDebt': PropertySchema(
+    r'citizenId': PropertySchema(
       id: 2,
+      name: r'citizenId',
+      type: IsarType.string,
+    ),
+    r'currentDebt': PropertySchema(
+      id: 3,
       name: r'currentDebt',
       type: IsarType.double,
     ),
+    r'dateOfBirth': PropertySchema(
+      id: 4,
+      name: r'dateOfBirth',
+      type: IsarType.dateTime,
+    ),
     r'deletedAt': PropertySchema(
-      id: 3,
+      id: 5,
       name: r'deletedAt',
       type: IsarType.dateTime,
     ),
     r'deviceId': PropertySchema(
-      id: 4,
+      id: 6,
       name: r'deviceId',
       type: IsarType.string,
     ),
+    r'email': PropertySchema(
+      id: 7,
+      name: r'email',
+      type: IsarType.string,
+    ),
+    r'gender': PropertySchema(
+      id: 8,
+      name: r'gender',
+      type: IsarType.byte,
+      enumMap: _NhathuocPatientgenderEnumValueMap,
+    ),
+    r'insurance': PropertySchema(
+      id: 9,
+      name: r'insurance',
+      type: IsarType.string,
+    ),
     r'isSynced': PropertySchema(
-      id: 5,
+      id: 10,
       name: r'isSynced',
       type: IsarType.bool,
     ),
     r'medicalHistory': PropertySchema(
-      id: 6,
+      id: 11,
       name: r'medicalHistory',
       type: IsarType.string,
     ),
     r'name': PropertySchema(
-      id: 7,
+      id: 12,
       name: r'name',
       type: IsarType.string,
     ),
+    r'note': PropertySchema(
+      id: 13,
+      name: r'note',
+      type: IsarType.string,
+    ),
+    r'occupation': PropertySchema(
+      id: 14,
+      name: r'occupation',
+      type: IsarType.string,
+    ),
     r'patientId': PropertySchema(
-      id: 8,
+      id: 15,
       name: r'patientId',
       type: IsarType.string,
     ),
     r'phone': PropertySchema(
-      id: 9,
+      id: 16,
       name: r'phone',
       type: IsarType.string,
     ),
     r'rewardPoints': PropertySchema(
-      id: 10,
+      id: 17,
       name: r'rewardPoints',
       type: IsarType.long,
     ),
+    r'underlyingDisease': PropertySchema(
+      id: 18,
+      name: r'underlyingDisease',
+      type: IsarType.string,
+    ),
     r'updatedAt': PropertySchema(
-      id: 11,
+      id: 19,
       name: r'updatedAt',
       type: IsarType.dateTime,
     ),
     r'version': PropertySchema(
-      id: 12,
+      id: 20,
       name: r'version',
       type: IsarType.long,
     )
@@ -119,11 +160,17 @@ int _nhathuocPatientEstimateSize(
   var bytesCount = offsets.last;
   bytesCount += 3 + object.address.length * 3;
   bytesCount += 3 + object.allergies.length * 3;
+  bytesCount += 3 + object.citizenId.length * 3;
   bytesCount += 3 + object.deviceId.length * 3;
+  bytesCount += 3 + object.email.length * 3;
+  bytesCount += 3 + object.insurance.length * 3;
   bytesCount += 3 + object.medicalHistory.length * 3;
   bytesCount += 3 + object.name.length * 3;
+  bytesCount += 3 + object.note.length * 3;
+  bytesCount += 3 + object.occupation.length * 3;
   bytesCount += 3 + object.patientId.length * 3;
   bytesCount += 3 + object.phone.length * 3;
+  bytesCount += 3 + object.underlyingDisease.length * 3;
   return bytesCount;
 }
 
@@ -135,17 +182,25 @@ void _nhathuocPatientSerialize(
 ) {
   writer.writeString(offsets[0], object.address);
   writer.writeString(offsets[1], object.allergies);
-  writer.writeDouble(offsets[2], object.currentDebt);
-  writer.writeDateTime(offsets[3], object.deletedAt);
-  writer.writeString(offsets[4], object.deviceId);
-  writer.writeBool(offsets[5], object.isSynced);
-  writer.writeString(offsets[6], object.medicalHistory);
-  writer.writeString(offsets[7], object.name);
-  writer.writeString(offsets[8], object.patientId);
-  writer.writeString(offsets[9], object.phone);
-  writer.writeLong(offsets[10], object.rewardPoints);
-  writer.writeDateTime(offsets[11], object.updatedAt);
-  writer.writeLong(offsets[12], object.version);
+  writer.writeString(offsets[2], object.citizenId);
+  writer.writeDouble(offsets[3], object.currentDebt);
+  writer.writeDateTime(offsets[4], object.dateOfBirth);
+  writer.writeDateTime(offsets[5], object.deletedAt);
+  writer.writeString(offsets[6], object.deviceId);
+  writer.writeString(offsets[7], object.email);
+  writer.writeByte(offsets[8], object.gender.index);
+  writer.writeString(offsets[9], object.insurance);
+  writer.writeBool(offsets[10], object.isSynced);
+  writer.writeString(offsets[11], object.medicalHistory);
+  writer.writeString(offsets[12], object.name);
+  writer.writeString(offsets[13], object.note);
+  writer.writeString(offsets[14], object.occupation);
+  writer.writeString(offsets[15], object.patientId);
+  writer.writeString(offsets[16], object.phone);
+  writer.writeLong(offsets[17], object.rewardPoints);
+  writer.writeString(offsets[18], object.underlyingDisease);
+  writer.writeDateTime(offsets[19], object.updatedAt);
+  writer.writeLong(offsets[20], object.version);
 }
 
 NhathuocPatient _nhathuocPatientDeserialize(
@@ -157,18 +212,28 @@ NhathuocPatient _nhathuocPatientDeserialize(
   final object = NhathuocPatient();
   object.address = reader.readString(offsets[0]);
   object.allergies = reader.readString(offsets[1]);
-  object.currentDebt = reader.readDouble(offsets[2]);
-  object.deletedAt = reader.readDateTimeOrNull(offsets[3]);
-  object.deviceId = reader.readString(offsets[4]);
+  object.citizenId = reader.readString(offsets[2]);
+  object.currentDebt = reader.readDouble(offsets[3]);
+  object.dateOfBirth = reader.readDateTimeOrNull(offsets[4]);
+  object.deletedAt = reader.readDateTimeOrNull(offsets[5]);
+  object.deviceId = reader.readString(offsets[6]);
+  object.email = reader.readString(offsets[7]);
+  object.gender =
+      _NhathuocPatientgenderValueEnumMap[reader.readByteOrNull(offsets[8])] ??
+          PatientGender.MALE;
   object.id = id;
-  object.isSynced = reader.readBool(offsets[5]);
-  object.medicalHistory = reader.readString(offsets[6]);
-  object.name = reader.readString(offsets[7]);
-  object.patientId = reader.readString(offsets[8]);
-  object.phone = reader.readString(offsets[9]);
-  object.rewardPoints = reader.readLong(offsets[10]);
-  object.updatedAt = reader.readDateTime(offsets[11]);
-  object.version = reader.readLong(offsets[12]);
+  object.insurance = reader.readString(offsets[9]);
+  object.isSynced = reader.readBool(offsets[10]);
+  object.medicalHistory = reader.readString(offsets[11]);
+  object.name = reader.readString(offsets[12]);
+  object.note = reader.readString(offsets[13]);
+  object.occupation = reader.readString(offsets[14]);
+  object.patientId = reader.readString(offsets[15]);
+  object.phone = reader.readString(offsets[16]);
+  object.rewardPoints = reader.readLong(offsets[17]);
+  object.underlyingDisease = reader.readString(offsets[18]);
+  object.updatedAt = reader.readDateTime(offsets[19]);
+  object.version = reader.readLong(offsets[20]);
   return object;
 }
 
@@ -184,31 +249,60 @@ P _nhathuocPatientDeserializeProp<P>(
     case 1:
       return (reader.readString(offset)) as P;
     case 2:
-      return (reader.readDouble(offset)) as P;
-    case 3:
-      return (reader.readDateTimeOrNull(offset)) as P;
-    case 4:
       return (reader.readString(offset)) as P;
+    case 3:
+      return (reader.readDouble(offset)) as P;
+    case 4:
+      return (reader.readDateTimeOrNull(offset)) as P;
     case 5:
-      return (reader.readBool(offset)) as P;
+      return (reader.readDateTimeOrNull(offset)) as P;
     case 6:
       return (reader.readString(offset)) as P;
     case 7:
       return (reader.readString(offset)) as P;
     case 8:
-      return (reader.readString(offset)) as P;
+      return (_NhathuocPatientgenderValueEnumMap[
+              reader.readByteOrNull(offset)] ??
+          PatientGender.MALE) as P;
     case 9:
       return (reader.readString(offset)) as P;
     case 10:
-      return (reader.readLong(offset)) as P;
+      return (reader.readBool(offset)) as P;
     case 11:
-      return (reader.readDateTime(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 12:
+      return (reader.readString(offset)) as P;
+    case 13:
+      return (reader.readString(offset)) as P;
+    case 14:
+      return (reader.readString(offset)) as P;
+    case 15:
+      return (reader.readString(offset)) as P;
+    case 16:
+      return (reader.readString(offset)) as P;
+    case 17:
+      return (reader.readLong(offset)) as P;
+    case 18:
+      return (reader.readString(offset)) as P;
+    case 19:
+      return (reader.readDateTime(offset)) as P;
+    case 20:
       return (reader.readLong(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
   }
 }
+
+const _NhathuocPatientgenderEnumValueMap = {
+  'MALE': 0,
+  'FEMALE': 1,
+  'OTHER': 2,
+};
+const _NhathuocPatientgenderValueEnumMap = {
+  0: PatientGender.MALE,
+  1: PatientGender.FEMALE,
+  2: PatientGender.OTHER,
+};
 
 Id _nhathuocPatientGetId(NhathuocPatient object) {
   return object.id;
@@ -679,6 +773,142 @@ extension NhathuocPatientQueryFilter
   }
 
   QueryBuilder<NhathuocPatient, NhathuocPatient, QAfterFilterCondition>
+      citizenIdEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'citizenId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPatient, NhathuocPatient, QAfterFilterCondition>
+      citizenIdGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'citizenId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPatient, NhathuocPatient, QAfterFilterCondition>
+      citizenIdLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'citizenId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPatient, NhathuocPatient, QAfterFilterCondition>
+      citizenIdBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'citizenId',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPatient, NhathuocPatient, QAfterFilterCondition>
+      citizenIdStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'citizenId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPatient, NhathuocPatient, QAfterFilterCondition>
+      citizenIdEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'citizenId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPatient, NhathuocPatient, QAfterFilterCondition>
+      citizenIdContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'citizenId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPatient, NhathuocPatient, QAfterFilterCondition>
+      citizenIdMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'citizenId',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPatient, NhathuocPatient, QAfterFilterCondition>
+      citizenIdIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'citizenId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPatient, NhathuocPatient, QAfterFilterCondition>
+      citizenIdIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'citizenId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPatient, NhathuocPatient, QAfterFilterCondition>
       currentDebtEqualTo(
     double value, {
     double epsilon = Query.epsilon,
@@ -740,6 +970,80 @@ extension NhathuocPatientQueryFilter
         upper: upper,
         includeUpper: includeUpper,
         epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPatient, NhathuocPatient, QAfterFilterCondition>
+      dateOfBirthIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'dateOfBirth',
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPatient, NhathuocPatient, QAfterFilterCondition>
+      dateOfBirthIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'dateOfBirth',
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPatient, NhathuocPatient, QAfterFilterCondition>
+      dateOfBirthEqualTo(DateTime? value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'dateOfBirth',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPatient, NhathuocPatient, QAfterFilterCondition>
+      dateOfBirthGreaterThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'dateOfBirth',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPatient, NhathuocPatient, QAfterFilterCondition>
+      dateOfBirthLessThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'dateOfBirth',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPatient, NhathuocPatient, QAfterFilterCondition>
+      dateOfBirthBetween(
+    DateTime? lower,
+    DateTime? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'dateOfBirth',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
       ));
     });
   }
@@ -955,6 +1259,198 @@ extension NhathuocPatientQueryFilter
   }
 
   QueryBuilder<NhathuocPatient, NhathuocPatient, QAfterFilterCondition>
+      emailEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'email',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPatient, NhathuocPatient, QAfterFilterCondition>
+      emailGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'email',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPatient, NhathuocPatient, QAfterFilterCondition>
+      emailLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'email',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPatient, NhathuocPatient, QAfterFilterCondition>
+      emailBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'email',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPatient, NhathuocPatient, QAfterFilterCondition>
+      emailStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'email',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPatient, NhathuocPatient, QAfterFilterCondition>
+      emailEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'email',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPatient, NhathuocPatient, QAfterFilterCondition>
+      emailContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'email',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPatient, NhathuocPatient, QAfterFilterCondition>
+      emailMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'email',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPatient, NhathuocPatient, QAfterFilterCondition>
+      emailIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'email',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPatient, NhathuocPatient, QAfterFilterCondition>
+      emailIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'email',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPatient, NhathuocPatient, QAfterFilterCondition>
+      genderEqualTo(PatientGender value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'gender',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPatient, NhathuocPatient, QAfterFilterCondition>
+      genderGreaterThan(
+    PatientGender value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'gender',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPatient, NhathuocPatient, QAfterFilterCondition>
+      genderLessThan(
+    PatientGender value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'gender',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPatient, NhathuocPatient, QAfterFilterCondition>
+      genderBetween(
+    PatientGender lower,
+    PatientGender upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'gender',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPatient, NhathuocPatient, QAfterFilterCondition>
       idEqualTo(Id value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
@@ -1006,6 +1502,142 @@ extension NhathuocPatientQueryFilter
         includeLower: includeLower,
         upper: upper,
         includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPatient, NhathuocPatient, QAfterFilterCondition>
+      insuranceEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'insurance',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPatient, NhathuocPatient, QAfterFilterCondition>
+      insuranceGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'insurance',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPatient, NhathuocPatient, QAfterFilterCondition>
+      insuranceLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'insurance',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPatient, NhathuocPatient, QAfterFilterCondition>
+      insuranceBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'insurance',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPatient, NhathuocPatient, QAfterFilterCondition>
+      insuranceStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'insurance',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPatient, NhathuocPatient, QAfterFilterCondition>
+      insuranceEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'insurance',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPatient, NhathuocPatient, QAfterFilterCondition>
+      insuranceContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'insurance',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPatient, NhathuocPatient, QAfterFilterCondition>
+      insuranceMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'insurance',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPatient, NhathuocPatient, QAfterFilterCondition>
+      insuranceIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'insurance',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPatient, NhathuocPatient, QAfterFilterCondition>
+      insuranceIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'insurance',
+        value: '',
       ));
     });
   }
@@ -1287,6 +1919,278 @@ extension NhathuocPatientQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         property: r'name',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPatient, NhathuocPatient, QAfterFilterCondition>
+      noteEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'note',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPatient, NhathuocPatient, QAfterFilterCondition>
+      noteGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'note',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPatient, NhathuocPatient, QAfterFilterCondition>
+      noteLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'note',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPatient, NhathuocPatient, QAfterFilterCondition>
+      noteBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'note',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPatient, NhathuocPatient, QAfterFilterCondition>
+      noteStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'note',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPatient, NhathuocPatient, QAfterFilterCondition>
+      noteEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'note',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPatient, NhathuocPatient, QAfterFilterCondition>
+      noteContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'note',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPatient, NhathuocPatient, QAfterFilterCondition>
+      noteMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'note',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPatient, NhathuocPatient, QAfterFilterCondition>
+      noteIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'note',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPatient, NhathuocPatient, QAfterFilterCondition>
+      noteIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'note',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPatient, NhathuocPatient, QAfterFilterCondition>
+      occupationEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'occupation',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPatient, NhathuocPatient, QAfterFilterCondition>
+      occupationGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'occupation',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPatient, NhathuocPatient, QAfterFilterCondition>
+      occupationLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'occupation',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPatient, NhathuocPatient, QAfterFilterCondition>
+      occupationBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'occupation',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPatient, NhathuocPatient, QAfterFilterCondition>
+      occupationStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'occupation',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPatient, NhathuocPatient, QAfterFilterCondition>
+      occupationEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'occupation',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPatient, NhathuocPatient, QAfterFilterCondition>
+      occupationContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'occupation',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPatient, NhathuocPatient, QAfterFilterCondition>
+      occupationMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'occupation',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPatient, NhathuocPatient, QAfterFilterCondition>
+      occupationIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'occupation',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPatient, NhathuocPatient, QAfterFilterCondition>
+      occupationIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'occupation',
         value: '',
       ));
     });
@@ -1621,6 +2525,142 @@ extension NhathuocPatientQueryFilter
   }
 
   QueryBuilder<NhathuocPatient, NhathuocPatient, QAfterFilterCondition>
+      underlyingDiseaseEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'underlyingDisease',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPatient, NhathuocPatient, QAfterFilterCondition>
+      underlyingDiseaseGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'underlyingDisease',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPatient, NhathuocPatient, QAfterFilterCondition>
+      underlyingDiseaseLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'underlyingDisease',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPatient, NhathuocPatient, QAfterFilterCondition>
+      underlyingDiseaseBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'underlyingDisease',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPatient, NhathuocPatient, QAfterFilterCondition>
+      underlyingDiseaseStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'underlyingDisease',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPatient, NhathuocPatient, QAfterFilterCondition>
+      underlyingDiseaseEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'underlyingDisease',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPatient, NhathuocPatient, QAfterFilterCondition>
+      underlyingDiseaseContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'underlyingDisease',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPatient, NhathuocPatient, QAfterFilterCondition>
+      underlyingDiseaseMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'underlyingDisease',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPatient, NhathuocPatient, QAfterFilterCondition>
+      underlyingDiseaseIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'underlyingDisease',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPatient, NhathuocPatient, QAfterFilterCondition>
+      underlyingDiseaseIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'underlyingDisease',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPatient, NhathuocPatient, QAfterFilterCondition>
       updatedAtEqualTo(DateTime value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
@@ -1769,6 +2809,20 @@ extension NhathuocPatientQuerySortBy
   }
 
   QueryBuilder<NhathuocPatient, NhathuocPatient, QAfterSortBy>
+      sortByCitizenId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'citizenId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocPatient, NhathuocPatient, QAfterSortBy>
+      sortByCitizenIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'citizenId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<NhathuocPatient, NhathuocPatient, QAfterSortBy>
       sortByCurrentDebt() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'currentDebt', Sort.asc);
@@ -1779,6 +2833,20 @@ extension NhathuocPatientQuerySortBy
       sortByCurrentDebtDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'currentDebt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<NhathuocPatient, NhathuocPatient, QAfterSortBy>
+      sortByDateOfBirth() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'dateOfBirth', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocPatient, NhathuocPatient, QAfterSortBy>
+      sortByDateOfBirthDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'dateOfBirth', Sort.desc);
     });
   }
 
@@ -1807,6 +2875,46 @@ extension NhathuocPatientQuerySortBy
       sortByDeviceIdDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'deviceId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<NhathuocPatient, NhathuocPatient, QAfterSortBy> sortByEmail() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'email', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocPatient, NhathuocPatient, QAfterSortBy>
+      sortByEmailDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'email', Sort.desc);
+    });
+  }
+
+  QueryBuilder<NhathuocPatient, NhathuocPatient, QAfterSortBy> sortByGender() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'gender', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocPatient, NhathuocPatient, QAfterSortBy>
+      sortByGenderDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'gender', Sort.desc);
+    });
+  }
+
+  QueryBuilder<NhathuocPatient, NhathuocPatient, QAfterSortBy>
+      sortByInsurance() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'insurance', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocPatient, NhathuocPatient, QAfterSortBy>
+      sortByInsuranceDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'insurance', Sort.desc);
     });
   }
 
@@ -1851,6 +2959,33 @@ extension NhathuocPatientQuerySortBy
     });
   }
 
+  QueryBuilder<NhathuocPatient, NhathuocPatient, QAfterSortBy> sortByNote() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'note', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocPatient, NhathuocPatient, QAfterSortBy>
+      sortByNoteDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'note', Sort.desc);
+    });
+  }
+
+  QueryBuilder<NhathuocPatient, NhathuocPatient, QAfterSortBy>
+      sortByOccupation() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'occupation', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocPatient, NhathuocPatient, QAfterSortBy>
+      sortByOccupationDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'occupation', Sort.desc);
+    });
+  }
+
   QueryBuilder<NhathuocPatient, NhathuocPatient, QAfterSortBy>
       sortByPatientId() {
     return QueryBuilder.apply(this, (query) {
@@ -1889,6 +3024,20 @@ extension NhathuocPatientQuerySortBy
       sortByRewardPointsDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'rewardPoints', Sort.desc);
+    });
+  }
+
+  QueryBuilder<NhathuocPatient, NhathuocPatient, QAfterSortBy>
+      sortByUnderlyingDisease() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'underlyingDisease', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocPatient, NhathuocPatient, QAfterSortBy>
+      sortByUnderlyingDiseaseDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'underlyingDisease', Sort.desc);
     });
   }
 
@@ -1950,6 +3099,20 @@ extension NhathuocPatientQuerySortThenBy
   }
 
   QueryBuilder<NhathuocPatient, NhathuocPatient, QAfterSortBy>
+      thenByCitizenId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'citizenId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocPatient, NhathuocPatient, QAfterSortBy>
+      thenByCitizenIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'citizenId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<NhathuocPatient, NhathuocPatient, QAfterSortBy>
       thenByCurrentDebt() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'currentDebt', Sort.asc);
@@ -1960,6 +3123,20 @@ extension NhathuocPatientQuerySortThenBy
       thenByCurrentDebtDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'currentDebt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<NhathuocPatient, NhathuocPatient, QAfterSortBy>
+      thenByDateOfBirth() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'dateOfBirth', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocPatient, NhathuocPatient, QAfterSortBy>
+      thenByDateOfBirthDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'dateOfBirth', Sort.desc);
     });
   }
 
@@ -1991,6 +3168,32 @@ extension NhathuocPatientQuerySortThenBy
     });
   }
 
+  QueryBuilder<NhathuocPatient, NhathuocPatient, QAfterSortBy> thenByEmail() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'email', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocPatient, NhathuocPatient, QAfterSortBy>
+      thenByEmailDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'email', Sort.desc);
+    });
+  }
+
+  QueryBuilder<NhathuocPatient, NhathuocPatient, QAfterSortBy> thenByGender() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'gender', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocPatient, NhathuocPatient, QAfterSortBy>
+      thenByGenderDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'gender', Sort.desc);
+    });
+  }
+
   QueryBuilder<NhathuocPatient, NhathuocPatient, QAfterSortBy> thenById() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'id', Sort.asc);
@@ -2000,6 +3203,20 @@ extension NhathuocPatientQuerySortThenBy
   QueryBuilder<NhathuocPatient, NhathuocPatient, QAfterSortBy> thenByIdDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'id', Sort.desc);
+    });
+  }
+
+  QueryBuilder<NhathuocPatient, NhathuocPatient, QAfterSortBy>
+      thenByInsurance() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'insurance', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocPatient, NhathuocPatient, QAfterSortBy>
+      thenByInsuranceDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'insurance', Sort.desc);
     });
   }
 
@@ -2044,6 +3261,33 @@ extension NhathuocPatientQuerySortThenBy
     });
   }
 
+  QueryBuilder<NhathuocPatient, NhathuocPatient, QAfterSortBy> thenByNote() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'note', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocPatient, NhathuocPatient, QAfterSortBy>
+      thenByNoteDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'note', Sort.desc);
+    });
+  }
+
+  QueryBuilder<NhathuocPatient, NhathuocPatient, QAfterSortBy>
+      thenByOccupation() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'occupation', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocPatient, NhathuocPatient, QAfterSortBy>
+      thenByOccupationDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'occupation', Sort.desc);
+    });
+  }
+
   QueryBuilder<NhathuocPatient, NhathuocPatient, QAfterSortBy>
       thenByPatientId() {
     return QueryBuilder.apply(this, (query) {
@@ -2082,6 +3326,20 @@ extension NhathuocPatientQuerySortThenBy
       thenByRewardPointsDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'rewardPoints', Sort.desc);
+    });
+  }
+
+  QueryBuilder<NhathuocPatient, NhathuocPatient, QAfterSortBy>
+      thenByUnderlyingDisease() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'underlyingDisease', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocPatient, NhathuocPatient, QAfterSortBy>
+      thenByUnderlyingDiseaseDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'underlyingDisease', Sort.desc);
     });
   }
 
@@ -2129,10 +3387,24 @@ extension NhathuocPatientQueryWhereDistinct
     });
   }
 
+  QueryBuilder<NhathuocPatient, NhathuocPatient, QDistinct> distinctByCitizenId(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'citizenId', caseSensitive: caseSensitive);
+    });
+  }
+
   QueryBuilder<NhathuocPatient, NhathuocPatient, QDistinct>
       distinctByCurrentDebt() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'currentDebt');
+    });
+  }
+
+  QueryBuilder<NhathuocPatient, NhathuocPatient, QDistinct>
+      distinctByDateOfBirth() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'dateOfBirth');
     });
   }
 
@@ -2147,6 +3419,26 @@ extension NhathuocPatientQueryWhereDistinct
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'deviceId', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<NhathuocPatient, NhathuocPatient, QDistinct> distinctByEmail(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'email', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<NhathuocPatient, NhathuocPatient, QDistinct> distinctByGender() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'gender');
+    });
+  }
+
+  QueryBuilder<NhathuocPatient, NhathuocPatient, QDistinct> distinctByInsurance(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'insurance', caseSensitive: caseSensitive);
     });
   }
 
@@ -2172,6 +3464,20 @@ extension NhathuocPatientQueryWhereDistinct
     });
   }
 
+  QueryBuilder<NhathuocPatient, NhathuocPatient, QDistinct> distinctByNote(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'note', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<NhathuocPatient, NhathuocPatient, QDistinct>
+      distinctByOccupation({bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'occupation', caseSensitive: caseSensitive);
+    });
+  }
+
   QueryBuilder<NhathuocPatient, NhathuocPatient, QDistinct> distinctByPatientId(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
@@ -2190,6 +3496,14 @@ extension NhathuocPatientQueryWhereDistinct
       distinctByRewardPoints() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'rewardPoints');
+    });
+  }
+
+  QueryBuilder<NhathuocPatient, NhathuocPatient, QDistinct>
+      distinctByUnderlyingDisease({bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'underlyingDisease',
+          caseSensitive: caseSensitive);
     });
   }
 
@@ -2228,10 +3542,23 @@ extension NhathuocPatientQueryProperty
     });
   }
 
+  QueryBuilder<NhathuocPatient, String, QQueryOperations> citizenIdProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'citizenId');
+    });
+  }
+
   QueryBuilder<NhathuocPatient, double, QQueryOperations>
       currentDebtProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'currentDebt');
+    });
+  }
+
+  QueryBuilder<NhathuocPatient, DateTime?, QQueryOperations>
+      dateOfBirthProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'dateOfBirth');
     });
   }
 
@@ -2245,6 +3572,25 @@ extension NhathuocPatientQueryProperty
   QueryBuilder<NhathuocPatient, String, QQueryOperations> deviceIdProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'deviceId');
+    });
+  }
+
+  QueryBuilder<NhathuocPatient, String, QQueryOperations> emailProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'email');
+    });
+  }
+
+  QueryBuilder<NhathuocPatient, PatientGender, QQueryOperations>
+      genderProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'gender');
+    });
+  }
+
+  QueryBuilder<NhathuocPatient, String, QQueryOperations> insuranceProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'insurance');
     });
   }
 
@@ -2267,6 +3613,18 @@ extension NhathuocPatientQueryProperty
     });
   }
 
+  QueryBuilder<NhathuocPatient, String, QQueryOperations> noteProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'note');
+    });
+  }
+
+  QueryBuilder<NhathuocPatient, String, QQueryOperations> occupationProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'occupation');
+    });
+  }
+
   QueryBuilder<NhathuocPatient, String, QQueryOperations> patientIdProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'patientId');
@@ -2282,6 +3640,13 @@ extension NhathuocPatientQueryProperty
   QueryBuilder<NhathuocPatient, int, QQueryOperations> rewardPointsProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'rewardPoints');
+    });
+  }
+
+  QueryBuilder<NhathuocPatient, String, QQueryOperations>
+      underlyingDiseaseProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'underlyingDisease');
     });
   }
 

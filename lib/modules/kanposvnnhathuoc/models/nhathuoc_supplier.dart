@@ -17,7 +17,10 @@ class NhathuocSupplier {
 
   String name = '';
   String phone = '';
+  String email = '';
+  String address = '';
   String taxCode = '';
+  String contactPerson = ''; // Người liên hệ
   
   double currentDebt = 0.0;
 }

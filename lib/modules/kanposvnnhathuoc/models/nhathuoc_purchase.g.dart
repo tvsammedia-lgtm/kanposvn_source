@@ -27,38 +27,58 @@ const NhathuocPurchaseSchema = CollectionSchema(
       name: r'deviceId',
       type: IsarType.string,
     ),
-    r'documentCode': PropertySchema(
+    r'discount': PropertySchema(
       id: 2,
+      name: r'discount',
+      type: IsarType.double,
+    ),
+    r'documentCode': PropertySchema(
+      id: 3,
       name: r'documentCode',
       type: IsarType.string,
     ),
+    r'importedBy': PropertySchema(
+      id: 4,
+      name: r'importedBy',
+      type: IsarType.string,
+    ),
     r'isSynced': PropertySchema(
-      id: 3,
+      id: 5,
       name: r'isSynced',
       type: IsarType.bool,
     ),
     r'purchaseDate': PropertySchema(
-      id: 4,
+      id: 6,
       name: r'purchaseDate',
       type: IsarType.dateTime,
     ),
     r'purchaseId': PropertySchema(
-      id: 5,
+      id: 7,
       name: r'purchaseId',
       type: IsarType.string,
     ),
+    r'supplierInvoiceNumber': PropertySchema(
+      id: 8,
+      name: r'supplierInvoiceNumber',
+      type: IsarType.string,
+    ),
     r'totalAmount': PropertySchema(
-      id: 6,
+      id: 9,
       name: r'totalAmount',
       type: IsarType.double,
     ),
     r'updatedAt': PropertySchema(
-      id: 7,
+      id: 10,
       name: r'updatedAt',
       type: IsarType.dateTime,
     ),
+    r'vat': PropertySchema(
+      id: 11,
+      name: r'vat',
+      type: IsarType.double,
+    ),
     r'version': PropertySchema(
-      id: 8,
+      id: 12,
       name: r'version',
       type: IsarType.long,
     )
@@ -113,7 +133,9 @@ int _nhathuocPurchaseEstimateSize(
   var bytesCount = offsets.last;
   bytesCount += 3 + object.deviceId.length * 3;
   bytesCount += 3 + object.documentCode.length * 3;
+  bytesCount += 3 + object.importedBy.length * 3;
   bytesCount += 3 + object.purchaseId.length * 3;
+  bytesCount += 3 + object.supplierInvoiceNumber.length * 3;
   return bytesCount;
 }
 
@@ -125,13 +147,17 @@ void _nhathuocPurchaseSerialize(
 ) {
   writer.writeDateTime(offsets[0], object.deletedAt);
   writer.writeString(offsets[1], object.deviceId);
-  writer.writeString(offsets[2], object.documentCode);
-  writer.writeBool(offsets[3], object.isSynced);
-  writer.writeDateTime(offsets[4], object.purchaseDate);
-  writer.writeString(offsets[5], object.purchaseId);
-  writer.writeDouble(offsets[6], object.totalAmount);
-  writer.writeDateTime(offsets[7], object.updatedAt);
-  writer.writeLong(offsets[8], object.version);
+  writer.writeDouble(offsets[2], object.discount);
+  writer.writeString(offsets[3], object.documentCode);
+  writer.writeString(offsets[4], object.importedBy);
+  writer.writeBool(offsets[5], object.isSynced);
+  writer.writeDateTime(offsets[6], object.purchaseDate);
+  writer.writeString(offsets[7], object.purchaseId);
+  writer.writeString(offsets[8], object.supplierInvoiceNumber);
+  writer.writeDouble(offsets[9], object.totalAmount);
+  writer.writeDateTime(offsets[10], object.updatedAt);
+  writer.writeDouble(offsets[11], object.vat);
+  writer.writeLong(offsets[12], object.version);
 }
 
 NhathuocPurchase _nhathuocPurchaseDeserialize(
@@ -143,14 +169,18 @@ NhathuocPurchase _nhathuocPurchaseDeserialize(
   final object = NhathuocPurchase();
   object.deletedAt = reader.readDateTimeOrNull(offsets[0]);
   object.deviceId = reader.readString(offsets[1]);
-  object.documentCode = reader.readString(offsets[2]);
+  object.discount = reader.readDouble(offsets[2]);
+  object.documentCode = reader.readString(offsets[3]);
   object.id = id;
-  object.isSynced = reader.readBool(offsets[3]);
-  object.purchaseDate = reader.readDateTimeOrNull(offsets[4]);
-  object.purchaseId = reader.readString(offsets[5]);
-  object.totalAmount = reader.readDouble(offsets[6]);
-  object.updatedAt = reader.readDateTime(offsets[7]);
-  object.version = reader.readLong(offsets[8]);
+  object.importedBy = reader.readString(offsets[4]);
+  object.isSynced = reader.readBool(offsets[5]);
+  object.purchaseDate = reader.readDateTimeOrNull(offsets[6]);
+  object.purchaseId = reader.readString(offsets[7]);
+  object.supplierInvoiceNumber = reader.readString(offsets[8]);
+  object.totalAmount = reader.readDouble(offsets[9]);
+  object.updatedAt = reader.readDateTime(offsets[10]);
+  object.vat = reader.readDouble(offsets[11]);
+  object.version = reader.readLong(offsets[12]);
   return object;
 }
 
@@ -166,18 +196,26 @@ P _nhathuocPurchaseDeserializeProp<P>(
     case 1:
       return (reader.readString(offset)) as P;
     case 2:
-      return (reader.readString(offset)) as P;
-    case 3:
-      return (reader.readBool(offset)) as P;
-    case 4:
-      return (reader.readDateTimeOrNull(offset)) as P;
-    case 5:
-      return (reader.readString(offset)) as P;
-    case 6:
       return (reader.readDouble(offset)) as P;
+    case 3:
+      return (reader.readString(offset)) as P;
+    case 4:
+      return (reader.readString(offset)) as P;
+    case 5:
+      return (reader.readBool(offset)) as P;
+    case 6:
+      return (reader.readDateTimeOrNull(offset)) as P;
     case 7:
-      return (reader.readDateTime(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 8:
+      return (reader.readString(offset)) as P;
+    case 9:
+      return (reader.readDouble(offset)) as P;
+    case 10:
+      return (reader.readDateTime(offset)) as P;
+    case 11:
+      return (reader.readDouble(offset)) as P;
+    case 12:
       return (reader.readLong(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -595,6 +633,72 @@ extension NhathuocPurchaseQueryFilter
   }
 
   QueryBuilder<NhathuocPurchase, NhathuocPurchase, QAfterFilterCondition>
+      discountEqualTo(
+    double value, {
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'discount',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPurchase, NhathuocPurchase, QAfterFilterCondition>
+      discountGreaterThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'discount',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPurchase, NhathuocPurchase, QAfterFilterCondition>
+      discountLessThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'discount',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPurchase, NhathuocPurchase, QAfterFilterCondition>
+      discountBetween(
+    double lower,
+    double upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'discount',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPurchase, NhathuocPurchase, QAfterFilterCondition>
       documentCodeEqualTo(
     String value, {
     bool caseSensitive = true,
@@ -782,6 +886,142 @@ extension NhathuocPurchaseQueryFilter
         includeLower: includeLower,
         upper: upper,
         includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPurchase, NhathuocPurchase, QAfterFilterCondition>
+      importedByEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'importedBy',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPurchase, NhathuocPurchase, QAfterFilterCondition>
+      importedByGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'importedBy',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPurchase, NhathuocPurchase, QAfterFilterCondition>
+      importedByLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'importedBy',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPurchase, NhathuocPurchase, QAfterFilterCondition>
+      importedByBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'importedBy',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPurchase, NhathuocPurchase, QAfterFilterCondition>
+      importedByStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'importedBy',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPurchase, NhathuocPurchase, QAfterFilterCondition>
+      importedByEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'importedBy',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPurchase, NhathuocPurchase, QAfterFilterCondition>
+      importedByContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'importedBy',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPurchase, NhathuocPurchase, QAfterFilterCondition>
+      importedByMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'importedBy',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPurchase, NhathuocPurchase, QAfterFilterCondition>
+      importedByIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'importedBy',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPurchase, NhathuocPurchase, QAfterFilterCondition>
+      importedByIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'importedBy',
+        value: '',
       ));
     });
   }
@@ -1007,6 +1247,143 @@ extension NhathuocPurchaseQueryFilter
   }
 
   QueryBuilder<NhathuocPurchase, NhathuocPurchase, QAfterFilterCondition>
+      supplierInvoiceNumberEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'supplierInvoiceNumber',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPurchase, NhathuocPurchase, QAfterFilterCondition>
+      supplierInvoiceNumberGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'supplierInvoiceNumber',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPurchase, NhathuocPurchase, QAfterFilterCondition>
+      supplierInvoiceNumberLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'supplierInvoiceNumber',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPurchase, NhathuocPurchase, QAfterFilterCondition>
+      supplierInvoiceNumberBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'supplierInvoiceNumber',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPurchase, NhathuocPurchase, QAfterFilterCondition>
+      supplierInvoiceNumberStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'supplierInvoiceNumber',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPurchase, NhathuocPurchase, QAfterFilterCondition>
+      supplierInvoiceNumberEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'supplierInvoiceNumber',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPurchase, NhathuocPurchase, QAfterFilterCondition>
+      supplierInvoiceNumberContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'supplierInvoiceNumber',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPurchase, NhathuocPurchase, QAfterFilterCondition>
+      supplierInvoiceNumberMatches(String pattern,
+          {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'supplierInvoiceNumber',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPurchase, NhathuocPurchase, QAfterFilterCondition>
+      supplierInvoiceNumberIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'supplierInvoiceNumber',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPurchase, NhathuocPurchase, QAfterFilterCondition>
+      supplierInvoiceNumberIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'supplierInvoiceNumber',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPurchase, NhathuocPurchase, QAfterFilterCondition>
       totalAmountEqualTo(
     double value, {
     double epsilon = Query.epsilon,
@@ -1124,6 +1501,72 @@ extension NhathuocPurchaseQueryFilter
         includeLower: includeLower,
         upper: upper,
         includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPurchase, NhathuocPurchase, QAfterFilterCondition>
+      vatEqualTo(
+    double value, {
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'vat',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPurchase, NhathuocPurchase, QAfterFilterCondition>
+      vatGreaterThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'vat',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPurchase, NhathuocPurchase, QAfterFilterCondition>
+      vatLessThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'vat',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPurchase, NhathuocPurchase, QAfterFilterCondition>
+      vatBetween(
+    double lower,
+    double upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'vat',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        epsilon: epsilon,
       ));
     });
   }
@@ -1297,6 +1740,20 @@ extension NhathuocPurchaseQuerySortBy
   }
 
   QueryBuilder<NhathuocPurchase, NhathuocPurchase, QAfterSortBy>
+      sortByDiscount() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'discount', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocPurchase, NhathuocPurchase, QAfterSortBy>
+      sortByDiscountDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'discount', Sort.desc);
+    });
+  }
+
+  QueryBuilder<NhathuocPurchase, NhathuocPurchase, QAfterSortBy>
       sortByDocumentCode() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'documentCode', Sort.asc);
@@ -1307,6 +1764,20 @@ extension NhathuocPurchaseQuerySortBy
       sortByDocumentCodeDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'documentCode', Sort.desc);
+    });
+  }
+
+  QueryBuilder<NhathuocPurchase, NhathuocPurchase, QAfterSortBy>
+      sortByImportedBy() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'importedBy', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocPurchase, NhathuocPurchase, QAfterSortBy>
+      sortByImportedByDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'importedBy', Sort.desc);
     });
   }
 
@@ -1353,6 +1824,20 @@ extension NhathuocPurchaseQuerySortBy
   }
 
   QueryBuilder<NhathuocPurchase, NhathuocPurchase, QAfterSortBy>
+      sortBySupplierInvoiceNumber() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'supplierInvoiceNumber', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocPurchase, NhathuocPurchase, QAfterSortBy>
+      sortBySupplierInvoiceNumberDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'supplierInvoiceNumber', Sort.desc);
+    });
+  }
+
+  QueryBuilder<NhathuocPurchase, NhathuocPurchase, QAfterSortBy>
       sortByTotalAmount() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'totalAmount', Sort.asc);
@@ -1377,6 +1862,19 @@ extension NhathuocPurchaseQuerySortBy
       sortByUpdatedAtDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'updatedAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<NhathuocPurchase, NhathuocPurchase, QAfterSortBy> sortByVat() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'vat', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocPurchase, NhathuocPurchase, QAfterSortBy>
+      sortByVatDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'vat', Sort.desc);
     });
   }
 
@@ -1426,6 +1924,20 @@ extension NhathuocPurchaseQuerySortThenBy
   }
 
   QueryBuilder<NhathuocPurchase, NhathuocPurchase, QAfterSortBy>
+      thenByDiscount() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'discount', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocPurchase, NhathuocPurchase, QAfterSortBy>
+      thenByDiscountDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'discount', Sort.desc);
+    });
+  }
+
+  QueryBuilder<NhathuocPurchase, NhathuocPurchase, QAfterSortBy>
       thenByDocumentCode() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'documentCode', Sort.asc);
@@ -1449,6 +1961,20 @@ extension NhathuocPurchaseQuerySortThenBy
       thenByIdDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'id', Sort.desc);
+    });
+  }
+
+  QueryBuilder<NhathuocPurchase, NhathuocPurchase, QAfterSortBy>
+      thenByImportedBy() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'importedBy', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocPurchase, NhathuocPurchase, QAfterSortBy>
+      thenByImportedByDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'importedBy', Sort.desc);
     });
   }
 
@@ -1495,6 +2021,20 @@ extension NhathuocPurchaseQuerySortThenBy
   }
 
   QueryBuilder<NhathuocPurchase, NhathuocPurchase, QAfterSortBy>
+      thenBySupplierInvoiceNumber() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'supplierInvoiceNumber', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocPurchase, NhathuocPurchase, QAfterSortBy>
+      thenBySupplierInvoiceNumberDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'supplierInvoiceNumber', Sort.desc);
+    });
+  }
+
+  QueryBuilder<NhathuocPurchase, NhathuocPurchase, QAfterSortBy>
       thenByTotalAmount() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'totalAmount', Sort.asc);
@@ -1519,6 +2059,19 @@ extension NhathuocPurchaseQuerySortThenBy
       thenByUpdatedAtDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'updatedAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<NhathuocPurchase, NhathuocPurchase, QAfterSortBy> thenByVat() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'vat', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocPurchase, NhathuocPurchase, QAfterSortBy>
+      thenByVatDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'vat', Sort.desc);
     });
   }
 
@@ -1554,9 +2107,23 @@ extension NhathuocPurchaseQueryWhereDistinct
   }
 
   QueryBuilder<NhathuocPurchase, NhathuocPurchase, QDistinct>
+      distinctByDiscount() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'discount');
+    });
+  }
+
+  QueryBuilder<NhathuocPurchase, NhathuocPurchase, QDistinct>
       distinctByDocumentCode({bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'documentCode', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<NhathuocPurchase, NhathuocPurchase, QDistinct>
+      distinctByImportedBy({bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'importedBy', caseSensitive: caseSensitive);
     });
   }
 
@@ -1582,6 +2149,14 @@ extension NhathuocPurchaseQueryWhereDistinct
   }
 
   QueryBuilder<NhathuocPurchase, NhathuocPurchase, QDistinct>
+      distinctBySupplierInvoiceNumber({bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'supplierInvoiceNumber',
+          caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<NhathuocPurchase, NhathuocPurchase, QDistinct>
       distinctByTotalAmount() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'totalAmount');
@@ -1592,6 +2167,12 @@ extension NhathuocPurchaseQueryWhereDistinct
       distinctByUpdatedAt() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'updatedAt');
+    });
+  }
+
+  QueryBuilder<NhathuocPurchase, NhathuocPurchase, QDistinct> distinctByVat() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'vat');
     });
   }
 
@@ -1624,10 +2205,23 @@ extension NhathuocPurchaseQueryProperty
     });
   }
 
+  QueryBuilder<NhathuocPurchase, double, QQueryOperations> discountProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'discount');
+    });
+  }
+
   QueryBuilder<NhathuocPurchase, String, QQueryOperations>
       documentCodeProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'documentCode');
+    });
+  }
+
+  QueryBuilder<NhathuocPurchase, String, QQueryOperations>
+      importedByProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'importedBy');
     });
   }
 
@@ -1651,6 +2245,13 @@ extension NhathuocPurchaseQueryProperty
     });
   }
 
+  QueryBuilder<NhathuocPurchase, String, QQueryOperations>
+      supplierInvoiceNumberProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'supplierInvoiceNumber');
+    });
+  }
+
   QueryBuilder<NhathuocPurchase, double, QQueryOperations>
       totalAmountProperty() {
     return QueryBuilder.apply(this, (query) {
@@ -1662,6 +2263,12 @@ extension NhathuocPurchaseQueryProperty
       updatedAtProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'updatedAt');
+    });
+  }
+
+  QueryBuilder<NhathuocPurchase, double, QQueryOperations> vatProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'vat');
     });
   }
 
@@ -1699,38 +2306,48 @@ const NhathuocPurchaseDetailSchema = CollectionSchema(
       name: r'deviceId',
       type: IsarType.string,
     ),
-    r'expiryDate': PropertySchema(
+    r'discount': PropertySchema(
       id: 3,
+      name: r'discount',
+      type: IsarType.double,
+    ),
+    r'expiryDate': PropertySchema(
+      id: 4,
       name: r'expiryDate',
       type: IsarType.dateTime,
     ),
     r'isSynced': PropertySchema(
-      id: 4,
+      id: 5,
       name: r'isSynced',
       type: IsarType.bool,
     ),
     r'purchasePrice': PropertySchema(
-      id: 5,
+      id: 6,
       name: r'purchasePrice',
       type: IsarType.double,
     ),
     r'quantity': PropertySchema(
-      id: 6,
+      id: 7,
       name: r'quantity',
       type: IsarType.double,
     ),
     r'totalAmount': PropertySchema(
-      id: 7,
+      id: 8,
       name: r'totalAmount',
       type: IsarType.double,
     ),
     r'updatedAt': PropertySchema(
-      id: 8,
+      id: 9,
       name: r'updatedAt',
       type: IsarType.dateTime,
     ),
+    r'vat': PropertySchema(
+      id: 10,
+      name: r'vat',
+      type: IsarType.double,
+    ),
     r'version': PropertySchema(
-      id: 9,
+      id: 11,
       name: r'version',
       type: IsarType.long,
     )
@@ -1782,13 +2399,15 @@ void _nhathuocPurchaseDetailSerialize(
   writer.writeString(offsets[0], object.batchNumber);
   writer.writeDateTime(offsets[1], object.deletedAt);
   writer.writeString(offsets[2], object.deviceId);
-  writer.writeDateTime(offsets[3], object.expiryDate);
-  writer.writeBool(offsets[4], object.isSynced);
-  writer.writeDouble(offsets[5], object.purchasePrice);
-  writer.writeDouble(offsets[6], object.quantity);
-  writer.writeDouble(offsets[7], object.totalAmount);
-  writer.writeDateTime(offsets[8], object.updatedAt);
-  writer.writeLong(offsets[9], object.version);
+  writer.writeDouble(offsets[3], object.discount);
+  writer.writeDateTime(offsets[4], object.expiryDate);
+  writer.writeBool(offsets[5], object.isSynced);
+  writer.writeDouble(offsets[6], object.purchasePrice);
+  writer.writeDouble(offsets[7], object.quantity);
+  writer.writeDouble(offsets[8], object.totalAmount);
+  writer.writeDateTime(offsets[9], object.updatedAt);
+  writer.writeDouble(offsets[10], object.vat);
+  writer.writeLong(offsets[11], object.version);
 }
 
 NhathuocPurchaseDetail _nhathuocPurchaseDetailDeserialize(
@@ -1801,14 +2420,16 @@ NhathuocPurchaseDetail _nhathuocPurchaseDetailDeserialize(
   object.batchNumber = reader.readString(offsets[0]);
   object.deletedAt = reader.readDateTimeOrNull(offsets[1]);
   object.deviceId = reader.readString(offsets[2]);
-  object.expiryDate = reader.readDateTimeOrNull(offsets[3]);
+  object.discount = reader.readDouble(offsets[3]);
+  object.expiryDate = reader.readDateTimeOrNull(offsets[4]);
   object.id = id;
-  object.isSynced = reader.readBool(offsets[4]);
-  object.purchasePrice = reader.readDouble(offsets[5]);
-  object.quantity = reader.readDouble(offsets[6]);
-  object.totalAmount = reader.readDouble(offsets[7]);
-  object.updatedAt = reader.readDateTime(offsets[8]);
-  object.version = reader.readLong(offsets[9]);
+  object.isSynced = reader.readBool(offsets[5]);
+  object.purchasePrice = reader.readDouble(offsets[6]);
+  object.quantity = reader.readDouble(offsets[7]);
+  object.totalAmount = reader.readDouble(offsets[8]);
+  object.updatedAt = reader.readDateTime(offsets[9]);
+  object.vat = reader.readDouble(offsets[10]);
+  object.version = reader.readLong(offsets[11]);
   return object;
 }
 
@@ -1826,18 +2447,22 @@ P _nhathuocPurchaseDetailDeserializeProp<P>(
     case 2:
       return (reader.readString(offset)) as P;
     case 3:
-      return (reader.readDateTimeOrNull(offset)) as P;
-    case 4:
-      return (reader.readBool(offset)) as P;
-    case 5:
       return (reader.readDouble(offset)) as P;
+    case 4:
+      return (reader.readDateTimeOrNull(offset)) as P;
+    case 5:
+      return (reader.readBool(offset)) as P;
     case 6:
       return (reader.readDouble(offset)) as P;
     case 7:
       return (reader.readDouble(offset)) as P;
     case 8:
-      return (reader.readDateTime(offset)) as P;
+      return (reader.readDouble(offset)) as P;
     case 9:
+      return (reader.readDateTime(offset)) as P;
+    case 10:
+      return (reader.readDouble(offset)) as P;
+    case 11:
       return (reader.readLong(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -2296,6 +2921,72 @@ extension NhathuocPurchaseDetailQueryFilter on QueryBuilder<
   }
 
   QueryBuilder<NhathuocPurchaseDetail, NhathuocPurchaseDetail,
+      QAfterFilterCondition> discountEqualTo(
+    double value, {
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'discount',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPurchaseDetail, NhathuocPurchaseDetail,
+      QAfterFilterCondition> discountGreaterThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'discount',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPurchaseDetail, NhathuocPurchaseDetail,
+      QAfterFilterCondition> discountLessThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'discount',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPurchaseDetail, NhathuocPurchaseDetail,
+      QAfterFilterCondition> discountBetween(
+    double lower,
+    double upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'discount',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPurchaseDetail, NhathuocPurchaseDetail,
       QAfterFilterCondition> expiryDateIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNull(
@@ -2690,6 +3381,72 @@ extension NhathuocPurchaseDetailQueryFilter on QueryBuilder<
   }
 
   QueryBuilder<NhathuocPurchaseDetail, NhathuocPurchaseDetail,
+      QAfterFilterCondition> vatEqualTo(
+    double value, {
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'vat',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPurchaseDetail, NhathuocPurchaseDetail,
+      QAfterFilterCondition> vatGreaterThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'vat',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPurchaseDetail, NhathuocPurchaseDetail,
+      QAfterFilterCondition> vatLessThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'vat',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPurchaseDetail, NhathuocPurchaseDetail,
+      QAfterFilterCondition> vatBetween(
+    double lower,
+    double upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'vat',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocPurchaseDetail, NhathuocPurchaseDetail,
       QAfterFilterCondition> versionEqualTo(int value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
@@ -2825,6 +3582,20 @@ extension NhathuocPurchaseDetailQuerySortBy
   }
 
   QueryBuilder<NhathuocPurchaseDetail, NhathuocPurchaseDetail, QAfterSortBy>
+      sortByDiscount() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'discount', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocPurchaseDetail, NhathuocPurchaseDetail, QAfterSortBy>
+      sortByDiscountDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'discount', Sort.desc);
+    });
+  }
+
+  QueryBuilder<NhathuocPurchaseDetail, NhathuocPurchaseDetail, QAfterSortBy>
       sortByExpiryDate() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'expiryDate', Sort.asc);
@@ -2909,6 +3680,20 @@ extension NhathuocPurchaseDetailQuerySortBy
   }
 
   QueryBuilder<NhathuocPurchaseDetail, NhathuocPurchaseDetail, QAfterSortBy>
+      sortByVat() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'vat', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocPurchaseDetail, NhathuocPurchaseDetail, QAfterSortBy>
+      sortByVatDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'vat', Sort.desc);
+    });
+  }
+
+  QueryBuilder<NhathuocPurchaseDetail, NhathuocPurchaseDetail, QAfterSortBy>
       sortByVersion() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'version', Sort.asc);
@@ -2964,6 +3749,20 @@ extension NhathuocPurchaseDetailQuerySortThenBy on QueryBuilder<
       thenByDeviceIdDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'deviceId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<NhathuocPurchaseDetail, NhathuocPurchaseDetail, QAfterSortBy>
+      thenByDiscount() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'discount', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocPurchaseDetail, NhathuocPurchaseDetail, QAfterSortBy>
+      thenByDiscountDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'discount', Sort.desc);
     });
   }
 
@@ -3066,6 +3865,20 @@ extension NhathuocPurchaseDetailQuerySortThenBy on QueryBuilder<
   }
 
   QueryBuilder<NhathuocPurchaseDetail, NhathuocPurchaseDetail, QAfterSortBy>
+      thenByVat() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'vat', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocPurchaseDetail, NhathuocPurchaseDetail, QAfterSortBy>
+      thenByVatDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'vat', Sort.desc);
+    });
+  }
+
+  QueryBuilder<NhathuocPurchaseDetail, NhathuocPurchaseDetail, QAfterSortBy>
       thenByVersion() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'version', Sort.asc);
@@ -3100,6 +3913,13 @@ extension NhathuocPurchaseDetailQueryWhereDistinct
       distinctByDeviceId({bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'deviceId', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<NhathuocPurchaseDetail, NhathuocPurchaseDetail, QDistinct>
+      distinctByDiscount() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'discount');
     });
   }
 
@@ -3146,6 +3966,13 @@ extension NhathuocPurchaseDetailQueryWhereDistinct
   }
 
   QueryBuilder<NhathuocPurchaseDetail, NhathuocPurchaseDetail, QDistinct>
+      distinctByVat() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'vat');
+    });
+  }
+
+  QueryBuilder<NhathuocPurchaseDetail, NhathuocPurchaseDetail, QDistinct>
       distinctByVersion() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'version');
@@ -3179,6 +4006,13 @@ extension NhathuocPurchaseDetailQueryProperty on QueryBuilder<
       deviceIdProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'deviceId');
+    });
+  }
+
+  QueryBuilder<NhathuocPurchaseDetail, double, QQueryOperations>
+      discountProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'discount');
     });
   }
 
@@ -3221,6 +4055,12 @@ extension NhathuocPurchaseDetailQueryProperty on QueryBuilder<
       updatedAtProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'updatedAt');
+    });
+  }
+
+  QueryBuilder<NhathuocPurchaseDetail, double, QQueryOperations> vatProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'vat');
     });
   }
 

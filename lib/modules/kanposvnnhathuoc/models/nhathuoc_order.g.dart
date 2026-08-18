@@ -17,64 +17,110 @@ const NhathuocOrderSchema = CollectionSchema(
   name: r'NhathuocOrder',
   id: -4171428376196864819,
   properties: {
-    r'deletedAt': PropertySchema(
+    r'cashReceived': PropertySchema(
       id: 0,
+      name: r'cashReceived',
+      type: IsarType.double,
+    ),
+    r'changeAmount': PropertySchema(
+      id: 1,
+      name: r'changeAmount',
+      type: IsarType.double,
+    ),
+    r'deletedAt': PropertySchema(
+      id: 2,
       name: r'deletedAt',
       type: IsarType.dateTime,
     ),
     r'deviceId': PropertySchema(
-      id: 1,
+      id: 3,
       name: r'deviceId',
       type: IsarType.string,
     ),
+    r'diagnosis': PropertySchema(
+      id: 4,
+      name: r'diagnosis',
+      type: IsarType.string,
+    ),
+    r'discountAmount': PropertySchema(
+      id: 5,
+      name: r'discountAmount',
+      type: IsarType.double,
+    ),
+    r'doctorName': PropertySchema(
+      id: 6,
+      name: r'doctorName',
+      type: IsarType.string,
+    ),
+    r'hospitalName': PropertySchema(
+      id: 7,
+      name: r'hospitalName',
+      type: IsarType.string,
+    ),
     r'isSynced': PropertySchema(
-      id: 2,
+      id: 8,
       name: r'isSynced',
       type: IsarType.bool,
     ),
     r'notes': PropertySchema(
-      id: 3,
+      id: 9,
       name: r'notes',
       type: IsarType.string,
     ),
     r'orderCode': PropertySchema(
-      id: 4,
+      id: 10,
       name: r'orderCode',
       type: IsarType.string,
     ),
     r'orderDate': PropertySchema(
-      id: 5,
+      id: 11,
       name: r'orderDate',
       type: IsarType.dateTime,
     ),
     r'orderId': PropertySchema(
-      id: 6,
+      id: 12,
       name: r'orderId',
       type: IsarType.string,
     ),
+    r'paymentMethod': PropertySchema(
+      id: 13,
+      name: r'paymentMethod',
+      type: IsarType.byte,
+      enumMap: _NhathuocOrderpaymentMethodEnumValueMap,
+    ),
     r'prescriptionImage': PropertySchema(
-      id: 7,
+      id: 14,
       name: r'prescriptionImage',
       type: IsarType.string,
     ),
+    r'qrAmount': PropertySchema(
+      id: 15,
+      name: r'qrAmount',
+      type: IsarType.double,
+    ),
     r'status': PropertySchema(
-      id: 8,
+      id: 16,
       name: r'status',
       type: IsarType.byte,
       enumMap: _NhathuocOrderstatusEnumValueMap,
     ),
     r'totalAmount': PropertySchema(
-      id: 9,
+      id: 17,
       name: r'totalAmount',
       type: IsarType.double,
     ),
+    r'transferAmount': PropertySchema(
+      id: 18,
+      name: r'transferAmount',
+      type: IsarType.double,
+    ),
     r'updatedAt': PropertySchema(
-      id: 10,
+      id: 19,
       name: r'updatedAt',
       type: IsarType.dateTime,
     ),
     r'version': PropertySchema(
-      id: 11,
+      id: 20,
       name: r'version',
       type: IsarType.long,
     )
@@ -128,6 +174,9 @@ int _nhathuocOrderEstimateSize(
 ) {
   var bytesCount = offsets.last;
   bytesCount += 3 + object.deviceId.length * 3;
+  bytesCount += 3 + object.diagnosis.length * 3;
+  bytesCount += 3 + object.doctorName.length * 3;
+  bytesCount += 3 + object.hospitalName.length * 3;
   bytesCount += 3 + object.notes.length * 3;
   bytesCount += 3 + object.orderCode.length * 3;
   bytesCount += 3 + object.orderId.length * 3;
@@ -141,18 +190,27 @@ void _nhathuocOrderSerialize(
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
-  writer.writeDateTime(offsets[0], object.deletedAt);
-  writer.writeString(offsets[1], object.deviceId);
-  writer.writeBool(offsets[2], object.isSynced);
-  writer.writeString(offsets[3], object.notes);
-  writer.writeString(offsets[4], object.orderCode);
-  writer.writeDateTime(offsets[5], object.orderDate);
-  writer.writeString(offsets[6], object.orderId);
-  writer.writeString(offsets[7], object.prescriptionImage);
-  writer.writeByte(offsets[8], object.status.index);
-  writer.writeDouble(offsets[9], object.totalAmount);
-  writer.writeDateTime(offsets[10], object.updatedAt);
-  writer.writeLong(offsets[11], object.version);
+  writer.writeDouble(offsets[0], object.cashReceived);
+  writer.writeDouble(offsets[1], object.changeAmount);
+  writer.writeDateTime(offsets[2], object.deletedAt);
+  writer.writeString(offsets[3], object.deviceId);
+  writer.writeString(offsets[4], object.diagnosis);
+  writer.writeDouble(offsets[5], object.discountAmount);
+  writer.writeString(offsets[6], object.doctorName);
+  writer.writeString(offsets[7], object.hospitalName);
+  writer.writeBool(offsets[8], object.isSynced);
+  writer.writeString(offsets[9], object.notes);
+  writer.writeString(offsets[10], object.orderCode);
+  writer.writeDateTime(offsets[11], object.orderDate);
+  writer.writeString(offsets[12], object.orderId);
+  writer.writeByte(offsets[13], object.paymentMethod.index);
+  writer.writeString(offsets[14], object.prescriptionImage);
+  writer.writeDouble(offsets[15], object.qrAmount);
+  writer.writeByte(offsets[16], object.status.index);
+  writer.writeDouble(offsets[17], object.totalAmount);
+  writer.writeDouble(offsets[18], object.transferAmount);
+  writer.writeDateTime(offsets[19], object.updatedAt);
+  writer.writeLong(offsets[20], object.version);
 }
 
 NhathuocOrder _nhathuocOrderDeserialize(
@@ -162,21 +220,32 @@ NhathuocOrder _nhathuocOrderDeserialize(
   Map<Type, List<int>> allOffsets,
 ) {
   final object = NhathuocOrder();
-  object.deletedAt = reader.readDateTimeOrNull(offsets[0]);
-  object.deviceId = reader.readString(offsets[1]);
+  object.cashReceived = reader.readDouble(offsets[0]);
+  object.changeAmount = reader.readDouble(offsets[1]);
+  object.deletedAt = reader.readDateTimeOrNull(offsets[2]);
+  object.deviceId = reader.readString(offsets[3]);
+  object.diagnosis = reader.readString(offsets[4]);
+  object.discountAmount = reader.readDouble(offsets[5]);
+  object.doctorName = reader.readString(offsets[6]);
+  object.hospitalName = reader.readString(offsets[7]);
   object.id = id;
-  object.isSynced = reader.readBool(offsets[2]);
-  object.notes = reader.readString(offsets[3]);
-  object.orderCode = reader.readString(offsets[4]);
-  object.orderDate = reader.readDateTimeOrNull(offsets[5]);
-  object.orderId = reader.readString(offsets[6]);
-  object.prescriptionImage = reader.readString(offsets[7]);
+  object.isSynced = reader.readBool(offsets[8]);
+  object.notes = reader.readString(offsets[9]);
+  object.orderCode = reader.readString(offsets[10]);
+  object.orderDate = reader.readDateTimeOrNull(offsets[11]);
+  object.orderId = reader.readString(offsets[12]);
+  object.paymentMethod = _NhathuocOrderpaymentMethodValueEnumMap[
+          reader.readByteOrNull(offsets[13])] ??
+      PaymentMethod.CASH;
+  object.prescriptionImage = reader.readString(offsets[14]);
+  object.qrAmount = reader.readDouble(offsets[15]);
   object.status =
-      _NhathuocOrderstatusValueEnumMap[reader.readByteOrNull(offsets[8])] ??
+      _NhathuocOrderstatusValueEnumMap[reader.readByteOrNull(offsets[16])] ??
           NhathuocOrderStatus.PENDING;
-  object.totalAmount = reader.readDouble(offsets[9]);
-  object.updatedAt = reader.readDateTime(offsets[10]);
-  object.version = reader.readLong(offsets[11]);
+  object.totalAmount = reader.readDouble(offsets[17]);
+  object.transferAmount = reader.readDouble(offsets[18]);
+  object.updatedAt = reader.readDateTime(offsets[19]);
+  object.version = reader.readLong(offsets[20]);
   return object;
 }
 
@@ -188,44 +257,82 @@ P _nhathuocOrderDeserializeProp<P>(
 ) {
   switch (propertyId) {
     case 0:
-      return (reader.readDateTimeOrNull(offset)) as P;
+      return (reader.readDouble(offset)) as P;
     case 1:
-      return (reader.readString(offset)) as P;
+      return (reader.readDouble(offset)) as P;
     case 2:
-      return (reader.readBool(offset)) as P;
+      return (reader.readDateTimeOrNull(offset)) as P;
     case 3:
       return (reader.readString(offset)) as P;
     case 4:
       return (reader.readString(offset)) as P;
     case 5:
-      return (reader.readDateTimeOrNull(offset)) as P;
+      return (reader.readDouble(offset)) as P;
     case 6:
       return (reader.readString(offset)) as P;
     case 7:
       return (reader.readString(offset)) as P;
     case 8:
+      return (reader.readBool(offset)) as P;
+    case 9:
+      return (reader.readString(offset)) as P;
+    case 10:
+      return (reader.readString(offset)) as P;
+    case 11:
+      return (reader.readDateTimeOrNull(offset)) as P;
+    case 12:
+      return (reader.readString(offset)) as P;
+    case 13:
+      return (_NhathuocOrderpaymentMethodValueEnumMap[
+              reader.readByteOrNull(offset)] ??
+          PaymentMethod.CASH) as P;
+    case 14:
+      return (reader.readString(offset)) as P;
+    case 15:
+      return (reader.readDouble(offset)) as P;
+    case 16:
       return (_NhathuocOrderstatusValueEnumMap[reader.readByteOrNull(offset)] ??
           NhathuocOrderStatus.PENDING) as P;
-    case 9:
+    case 17:
       return (reader.readDouble(offset)) as P;
-    case 10:
+    case 18:
+      return (reader.readDouble(offset)) as P;
+    case 19:
       return (reader.readDateTime(offset)) as P;
-    case 11:
+    case 20:
       return (reader.readLong(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
   }
 }
 
+const _NhathuocOrderpaymentMethodEnumValueMap = {
+  'CASH': 0,
+  'TRANSFER': 1,
+  'QR': 2,
+  'E_WALLET': 3,
+  'CREDIT': 4,
+  'MIXED': 5,
+};
+const _NhathuocOrderpaymentMethodValueEnumMap = {
+  0: PaymentMethod.CASH,
+  1: PaymentMethod.TRANSFER,
+  2: PaymentMethod.QR,
+  3: PaymentMethod.E_WALLET,
+  4: PaymentMethod.CREDIT,
+  5: PaymentMethod.MIXED,
+};
 const _NhathuocOrderstatusEnumValueMap = {
   'PENDING': 0,
   'COMPLETED': 1,
-  'CANCELLED': 2,
+  'CREDIT': 2,
+  'CANCELLED': 3,
 };
 const _NhathuocOrderstatusValueEnumMap = {
   0: NhathuocOrderStatus.PENDING,
   1: NhathuocOrderStatus.COMPLETED,
-  2: NhathuocOrderStatus.CANCELLED,
+  2: NhathuocOrderStatus.CREDIT,
+  3: NhathuocOrderStatus.CANCELLED,
 };
 
 Id _nhathuocOrderGetId(NhathuocOrder object) {
@@ -428,6 +535,138 @@ extension NhathuocOrderQueryWhere
 
 extension NhathuocOrderQueryFilter
     on QueryBuilder<NhathuocOrder, NhathuocOrder, QFilterCondition> {
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterFilterCondition>
+      cashReceivedEqualTo(
+    double value, {
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'cashReceived',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterFilterCondition>
+      cashReceivedGreaterThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'cashReceived',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterFilterCondition>
+      cashReceivedLessThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'cashReceived',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterFilterCondition>
+      cashReceivedBetween(
+    double lower,
+    double upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'cashReceived',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterFilterCondition>
+      changeAmountEqualTo(
+    double value, {
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'changeAmount',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterFilterCondition>
+      changeAmountGreaterThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'changeAmount',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterFilterCondition>
+      changeAmountLessThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'changeAmount',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterFilterCondition>
+      changeAmountBetween(
+    double lower,
+    double upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'changeAmount',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
   QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterFilterCondition>
       deletedAtIsNull() {
     return QueryBuilder.apply(this, (query) {
@@ -633,6 +872,480 @@ extension NhathuocOrderQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         property: r'deviceId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterFilterCondition>
+      diagnosisEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'diagnosis',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterFilterCondition>
+      diagnosisGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'diagnosis',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterFilterCondition>
+      diagnosisLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'diagnosis',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterFilterCondition>
+      diagnosisBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'diagnosis',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterFilterCondition>
+      diagnosisStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'diagnosis',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterFilterCondition>
+      diagnosisEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'diagnosis',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterFilterCondition>
+      diagnosisContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'diagnosis',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterFilterCondition>
+      diagnosisMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'diagnosis',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterFilterCondition>
+      diagnosisIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'diagnosis',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterFilterCondition>
+      diagnosisIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'diagnosis',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterFilterCondition>
+      discountAmountEqualTo(
+    double value, {
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'discountAmount',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterFilterCondition>
+      discountAmountGreaterThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'discountAmount',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterFilterCondition>
+      discountAmountLessThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'discountAmount',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterFilterCondition>
+      discountAmountBetween(
+    double lower,
+    double upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'discountAmount',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterFilterCondition>
+      doctorNameEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'doctorName',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterFilterCondition>
+      doctorNameGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'doctorName',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterFilterCondition>
+      doctorNameLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'doctorName',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterFilterCondition>
+      doctorNameBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'doctorName',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterFilterCondition>
+      doctorNameStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'doctorName',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterFilterCondition>
+      doctorNameEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'doctorName',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterFilterCondition>
+      doctorNameContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'doctorName',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterFilterCondition>
+      doctorNameMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'doctorName',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterFilterCondition>
+      doctorNameIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'doctorName',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterFilterCondition>
+      doctorNameIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'doctorName',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterFilterCondition>
+      hospitalNameEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'hospitalName',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterFilterCondition>
+      hospitalNameGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'hospitalName',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterFilterCondition>
+      hospitalNameLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'hospitalName',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterFilterCondition>
+      hospitalNameBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'hospitalName',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterFilterCondition>
+      hospitalNameStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'hospitalName',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterFilterCondition>
+      hospitalNameEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'hospitalName',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterFilterCondition>
+      hospitalNameContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'hospitalName',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterFilterCondition>
+      hospitalNameMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'hospitalName',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterFilterCondition>
+      hospitalNameIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'hospitalName',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterFilterCondition>
+      hospitalNameIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'hospitalName',
         value: '',
       ));
     });
@@ -1185,6 +1898,62 @@ extension NhathuocOrderQueryFilter
   }
 
   QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterFilterCondition>
+      paymentMethodEqualTo(PaymentMethod value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'paymentMethod',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterFilterCondition>
+      paymentMethodGreaterThan(
+    PaymentMethod value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'paymentMethod',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterFilterCondition>
+      paymentMethodLessThan(
+    PaymentMethod value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'paymentMethod',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterFilterCondition>
+      paymentMethodBetween(
+    PaymentMethod lower,
+    PaymentMethod upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'paymentMethod',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterFilterCondition>
       prescriptionImageEqualTo(
     String value, {
     bool caseSensitive = true,
@@ -1321,6 +2090,72 @@ extension NhathuocOrderQueryFilter
   }
 
   QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterFilterCondition>
+      qrAmountEqualTo(
+    double value, {
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'qrAmount',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterFilterCondition>
+      qrAmountGreaterThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'qrAmount',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterFilterCondition>
+      qrAmountLessThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'qrAmount',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterFilterCondition>
+      qrAmountBetween(
+    double lower,
+    double upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'qrAmount',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterFilterCondition>
       statusEqualTo(NhathuocOrderStatus value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
@@ -1433,6 +2268,72 @@ extension NhathuocOrderQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.between(
         property: r'totalAmount',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterFilterCondition>
+      transferAmountEqualTo(
+    double value, {
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'transferAmount',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterFilterCondition>
+      transferAmountGreaterThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'transferAmount',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterFilterCondition>
+      transferAmountLessThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'transferAmount',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterFilterCondition>
+      transferAmountBetween(
+    double lower,
+    double upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'transferAmount',
         lower: lower,
         includeLower: includeLower,
         upper: upper,
@@ -1638,6 +2539,34 @@ extension NhathuocOrderQueryLinks
 
 extension NhathuocOrderQuerySortBy
     on QueryBuilder<NhathuocOrder, NhathuocOrder, QSortBy> {
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterSortBy>
+      sortByCashReceived() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'cashReceived', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterSortBy>
+      sortByCashReceivedDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'cashReceived', Sort.desc);
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterSortBy>
+      sortByChangeAmount() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'changeAmount', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterSortBy>
+      sortByChangeAmountDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'changeAmount', Sort.desc);
+    });
+  }
+
   QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterSortBy> sortByDeletedAt() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'deletedAt', Sort.asc);
@@ -1661,6 +2590,60 @@ extension NhathuocOrderQuerySortBy
       sortByDeviceIdDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'deviceId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterSortBy> sortByDiagnosis() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'diagnosis', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterSortBy>
+      sortByDiagnosisDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'diagnosis', Sort.desc);
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterSortBy>
+      sortByDiscountAmount() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'discountAmount', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterSortBy>
+      sortByDiscountAmountDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'discountAmount', Sort.desc);
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterSortBy> sortByDoctorName() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'doctorName', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterSortBy>
+      sortByDoctorNameDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'doctorName', Sort.desc);
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterSortBy>
+      sortByHospitalName() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'hospitalName', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterSortBy>
+      sortByHospitalNameDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'hospitalName', Sort.desc);
     });
   }
 
@@ -1728,6 +2711,20 @@ extension NhathuocOrderQuerySortBy
   }
 
   QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterSortBy>
+      sortByPaymentMethod() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'paymentMethod', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterSortBy>
+      sortByPaymentMethodDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'paymentMethod', Sort.desc);
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterSortBy>
       sortByPrescriptionImage() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'prescriptionImage', Sort.asc);
@@ -1738,6 +2735,19 @@ extension NhathuocOrderQuerySortBy
       sortByPrescriptionImageDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'prescriptionImage', Sort.desc);
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterSortBy> sortByQrAmount() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'qrAmount', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterSortBy>
+      sortByQrAmountDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'qrAmount', Sort.desc);
     });
   }
 
@@ -1763,6 +2773,20 @@ extension NhathuocOrderQuerySortBy
       sortByTotalAmountDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'totalAmount', Sort.desc);
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterSortBy>
+      sortByTransferAmount() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'transferAmount', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterSortBy>
+      sortByTransferAmountDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'transferAmount', Sort.desc);
     });
   }
 
@@ -1794,6 +2818,34 @@ extension NhathuocOrderQuerySortBy
 
 extension NhathuocOrderQuerySortThenBy
     on QueryBuilder<NhathuocOrder, NhathuocOrder, QSortThenBy> {
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterSortBy>
+      thenByCashReceived() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'cashReceived', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterSortBy>
+      thenByCashReceivedDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'cashReceived', Sort.desc);
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterSortBy>
+      thenByChangeAmount() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'changeAmount', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterSortBy>
+      thenByChangeAmountDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'changeAmount', Sort.desc);
+    });
+  }
+
   QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterSortBy> thenByDeletedAt() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'deletedAt', Sort.asc);
@@ -1817,6 +2869,60 @@ extension NhathuocOrderQuerySortThenBy
       thenByDeviceIdDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'deviceId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterSortBy> thenByDiagnosis() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'diagnosis', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterSortBy>
+      thenByDiagnosisDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'diagnosis', Sort.desc);
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterSortBy>
+      thenByDiscountAmount() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'discountAmount', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterSortBy>
+      thenByDiscountAmountDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'discountAmount', Sort.desc);
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterSortBy> thenByDoctorName() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'doctorName', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterSortBy>
+      thenByDoctorNameDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'doctorName', Sort.desc);
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterSortBy>
+      thenByHospitalName() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'hospitalName', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterSortBy>
+      thenByHospitalNameDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'hospitalName', Sort.desc);
     });
   }
 
@@ -1896,6 +3002,20 @@ extension NhathuocOrderQuerySortThenBy
   }
 
   QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterSortBy>
+      thenByPaymentMethod() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'paymentMethod', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterSortBy>
+      thenByPaymentMethodDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'paymentMethod', Sort.desc);
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterSortBy>
       thenByPrescriptionImage() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'prescriptionImage', Sort.asc);
@@ -1906,6 +3026,19 @@ extension NhathuocOrderQuerySortThenBy
       thenByPrescriptionImageDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'prescriptionImage', Sort.desc);
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterSortBy> thenByQrAmount() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'qrAmount', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterSortBy>
+      thenByQrAmountDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'qrAmount', Sort.desc);
     });
   }
 
@@ -1931,6 +3064,20 @@ extension NhathuocOrderQuerySortThenBy
       thenByTotalAmountDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'totalAmount', Sort.desc);
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterSortBy>
+      thenByTransferAmount() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'transferAmount', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QAfterSortBy>
+      thenByTransferAmountDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'transferAmount', Sort.desc);
     });
   }
 
@@ -1962,6 +3109,20 @@ extension NhathuocOrderQuerySortThenBy
 
 extension NhathuocOrderQueryWhereDistinct
     on QueryBuilder<NhathuocOrder, NhathuocOrder, QDistinct> {
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QDistinct>
+      distinctByCashReceived() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'cashReceived');
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QDistinct>
+      distinctByChangeAmount() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'changeAmount');
+    });
+  }
+
   QueryBuilder<NhathuocOrder, NhathuocOrder, QDistinct> distinctByDeletedAt() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'deletedAt');
@@ -1972,6 +3133,34 @@ extension NhathuocOrderQueryWhereDistinct
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'deviceId', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QDistinct> distinctByDiagnosis(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'diagnosis', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QDistinct>
+      distinctByDiscountAmount() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'discountAmount');
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QDistinct> distinctByDoctorName(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'doctorName', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QDistinct> distinctByHospitalName(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'hospitalName', caseSensitive: caseSensitive);
     });
   }
 
@@ -2009,10 +3198,23 @@ extension NhathuocOrderQueryWhereDistinct
   }
 
   QueryBuilder<NhathuocOrder, NhathuocOrder, QDistinct>
+      distinctByPaymentMethod() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'paymentMethod');
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QDistinct>
       distinctByPrescriptionImage({bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'prescriptionImage',
           caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QDistinct> distinctByQrAmount() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'qrAmount');
     });
   }
 
@@ -2026,6 +3228,13 @@ extension NhathuocOrderQueryWhereDistinct
       distinctByTotalAmount() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'totalAmount');
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, NhathuocOrder, QDistinct>
+      distinctByTransferAmount() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'transferAmount');
     });
   }
 
@@ -2050,6 +3259,18 @@ extension NhathuocOrderQueryProperty
     });
   }
 
+  QueryBuilder<NhathuocOrder, double, QQueryOperations> cashReceivedProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'cashReceived');
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, double, QQueryOperations> changeAmountProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'changeAmount');
+    });
+  }
+
   QueryBuilder<NhathuocOrder, DateTime?, QQueryOperations> deletedAtProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'deletedAt');
@@ -2059,6 +3280,31 @@ extension NhathuocOrderQueryProperty
   QueryBuilder<NhathuocOrder, String, QQueryOperations> deviceIdProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'deviceId');
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, String, QQueryOperations> diagnosisProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'diagnosis');
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, double, QQueryOperations>
+      discountAmountProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'discountAmount');
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, String, QQueryOperations> doctorNameProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'doctorName');
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, String, QQueryOperations> hospitalNameProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'hospitalName');
     });
   }
 
@@ -2092,10 +3338,23 @@ extension NhathuocOrderQueryProperty
     });
   }
 
+  QueryBuilder<NhathuocOrder, PaymentMethod, QQueryOperations>
+      paymentMethodProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'paymentMethod');
+    });
+  }
+
   QueryBuilder<NhathuocOrder, String, QQueryOperations>
       prescriptionImageProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'prescriptionImage');
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, double, QQueryOperations> qrAmountProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'qrAmount');
     });
   }
 
@@ -2109,6 +3368,13 @@ extension NhathuocOrderQueryProperty
   QueryBuilder<NhathuocOrder, double, QQueryOperations> totalAmountProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'totalAmount');
+    });
+  }
+
+  QueryBuilder<NhathuocOrder, double, QQueryOperations>
+      transferAmountProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'transferAmount');
     });
   }
 

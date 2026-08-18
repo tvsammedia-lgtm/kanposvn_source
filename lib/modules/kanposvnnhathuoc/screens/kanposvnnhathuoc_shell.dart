@@ -13,6 +13,10 @@ import 'nhathuoc_pos_screen.dart';
 import 'nhathuoc_inventory_screen.dart';
 import 'nhathuoc_patient_screen.dart';
 import 'nhathuoc_prescription_screen.dart';
+import 'nhathuoc_medicine_screen.dart';
+import 'nhathuoc_supplier_screen.dart';
+import 'nhathuoc_customer_screen.dart';
+import 'nhathuoc_expense_screen.dart';
 import 'nhathuoc_settings_screen.dart';
 
 class KanPosVNNhathuocShell extends ConsumerStatefulWidget {
@@ -37,6 +41,9 @@ class _KanPosVNNhathuocShellState extends ConsumerState<KanPosVNNhathuocShell> {
     await NhathuocSeedData.seedIfEmpty(isarService);
     ref.read(nhathuocMedicinesProvider.notifier).loadMedicines();
     ref.read(nhathuocPatientsProvider.notifier).loadPatients();
+    ref.read(nhathuocSuppliersProvider.notifier).loadSuppliers();
+    ref.read(nhathuocCustomersProvider.notifier).loadCustomers();
+    ref.read(nhathuocExpensesProvider.notifier).loadExpenses();
     ref.read(nhathuocPrescriptionTemplatesProvider.notifier).loadTemplates();
     ref.read(nhathuocFinanceProvider.notifier).calculateMetrics();
     setState(() {
@@ -48,16 +55,19 @@ class _KanPosVNNhathuocShellState extends ConsumerState<KanPosVNNhathuocShell> {
     EmployeeRoles.cashier: const {'pos', 'patient', 'prescription'},
     EmployeeRoles.sale: const {'pos', 'patient'},
     EmployeeRoles.warehouse: const {'inventory', 'pos'},
-    EmployeeRoles.accountant: const {'dashboard', 'pos', 'settings'},
+    EmployeeRoles.accountant: const {'dashboard', 'pos', 'settings', 'expenses'},
   };
 
-  /// Định nghĩa các tab của module (id, icon, label) — thứ tự hiển thị.
   static final Map<String, ({IconData icon, String label})> _tabDefs = {
-    'dashboard': (icon: Icons.dashboard, label: 'Báo Cáo'),
+    'dashboard': (icon: Icons.dashboard, label: 'Dashboard'),
     'pos': (icon: Icons.point_of_sale, label: 'Bán Hàng'),
-    'inventory': (icon: Icons.inventory, label: 'Kho Thuốc'),
+    'medicines': (icon: Icons.medication, label: 'Thuốc'),
+    'inventory': (icon: Icons.inventory_2, label: 'Kho Thuốc'),
     'patient': (icon: Icons.people, label: 'Bệnh Nhân'),
+    'customers': (icon: Icons.person_search, label: 'Khách Hàng'),
+    'suppliers': (icon: Icons.business, label: 'NCC'),
     'prescription': (icon: Icons.receipt_long, label: 'Toa Mẫu'),
+    'expenses': (icon: Icons.account_balance_wallet, label: 'Thu Chi'),
     'sync': (icon: Icons.sync, label: 'Đồng bộ'),
     'employees': (icon: Icons.badge, label: 'Quản Lý NV'),
     'settings': (icon: Icons.settings, label: 'Cài Đặt'),
@@ -66,9 +76,13 @@ class _KanPosVNNhathuocShellState extends ConsumerState<KanPosVNNhathuocShell> {
   static final Map<String, Widget Function()> _tabScreens = {
     'dashboard': () => const NhathuocDashboardScreen(),
     'pos': () => const NhathuocPosScreen(),
+    'medicines': () => const NhathuocMedicineScreen(),
     'inventory': () => const NhathuocInventoryScreen(),
     'patient': () => const NhathuocPatientScreen(),
+    'customers': () => const NhathuocCustomerScreen(),
+    'suppliers': () => const NhathuocSupplierScreen(),
     'prescription': () => const NhathuocPrescriptionScreen(),
+    'expenses': () => const NhathuocExpenseScreen(),
     'sync': () => const NhathuocSyncScreen(),
     'employees': () => EmployeeManagementScreen(
       availableTabs: [
@@ -101,7 +115,6 @@ class _KanPosVNNhathuocShellState extends ConsumerState<KanPosVNNhathuocShell> {
     final customTabs = auth.employeeAllowedTabs;
     final tabs = _allTabs.where((t) {
       if (auth.isManager) return true;
-      // Tùy chỉnh tab riêng cho nhân viên (Owner check/uncheck trong "Quản Lý NV").
       if (customTabs != null) return customTabs.contains(t.id);
       return EmployeeRolePolicy.isAllowed(
         isManager: false,

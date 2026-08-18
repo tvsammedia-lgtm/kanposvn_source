@@ -6,6 +6,8 @@ import '../models/nhathuoc_order.dart';
 import '../models/nhathuoc_purchase.dart';
 import '../models/nhathuoc_sync_model.dart';
 import '../models/nhathuoc_prescription.dart';
+import '../models/nhathuoc_customer.dart';
+import '../models/nhathuoc_expense.dart';
 import 'dart:io';
 
 class NhathuocIsarService {
@@ -34,6 +36,8 @@ class NhathuocIsarService {
         NhathuocSyncQueueSchema,
         NhathuocPrescriptionTemplateSchema,
         NhathuocPrescriptionTemplateDetailSchema,
+        NhathuocCustomerSchema,
+        NhathuocExpenseSchema,
       ],
       directory: dir.path,
       name: 'nhathuoc_db',

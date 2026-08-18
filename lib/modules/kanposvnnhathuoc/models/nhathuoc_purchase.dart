@@ -18,9 +18,13 @@ class NhathuocPurchase {
   String purchaseId = '';
   
   String documentCode = '';
+  String supplierInvoiceNumber = ''; // Số hóa đơn NCC
   DateTime? purchaseDate;
+  String importedBy = ''; // Người nhập
   
   double totalAmount = 0.0;
+  double vat = 0.0; // VAT %
+  double discount = 0.0; // Chiết khấu
   
   final supplier = IsarLink<NhathuocSupplier>();
   
@@ -44,6 +48,8 @@ class NhathuocPurchaseDetail {
   double quantity = 0.0;
   double purchasePrice = 0.0;
   double totalAmount = 0.0;
+  double vat = 0.0; // VAT %
+  double discount = 0.0; // Chiết khấu %
 
   final purchase = IsarLink<NhathuocPurchase>();
   final medicine = IsarLink<NhathuocMedicine>();
