@@ -59,8 +59,10 @@ class HotelSeedData {
     }
 
     // 6 loại phòng theo giá KANHOT (LOAI1 -> LOAI6)
-    // Giá: Giờ đầu / Giờ tiếp (2-5) / Qua đêm / Ngày (12-24h)
+    // Giá: Giờ đầu / Giờ tiếp / Qua đêm(18-20h) / Ngày
+    // Qua đêm theo khung: [18-20h, 20-22h, 22h-2h(cao nhất), 2h-12h]
     final types = <RoomType>[];
+    // [hourly, extra, overnight18_20, daily]
     final priceSheet = <List<double>>[
       [60000, 20000, 200000, 270000],
       [70000, 20000, 210000, 300000],
@@ -69,18 +71,29 @@ class HotelSeedData {
       [90000, 20000, 250000, 400000],
       [100000, 20000, 280000, 400000],
     ];
+    // Chênh lệch qua đêm theo khung giờ (so với 18-20h)
+    // 22h-2h cao hơn 20000-30000, các khung khác bằng nhau
+    final overnightPeakExtra = [0, 0, 20000, 0]; // [18-20, 20-22, 22-2, 2-12]
     for (int i = 0; i < 6; i++) {
       final p = priceSheet[i];
+      final overnightBase = p[2];
       types.add(RoomType()
         ..typeCode = 'LOAI${i + 1}'
         ..typeName = 'Phòng Loại ${i + 1}'
         ..hourlyPrice = p[0]
         ..hourlyExtraHour = p[1]
-        ..overnightPrice = p[2]
+        ..overnightPrice = overnightBase
+        ..overnightPricesByTimeSlot = [
+          overnightBase + overnightPeakExtra[0],
+          overnightBase + overnightPeakExtra[1],
+          overnightBase + overnightPeakExtra[2],
+          overnightBase + overnightPeakExtra[3],
+        ]
         ..basePrice = p[3]
+        ..dailyPricesByWeekday = List.filled(7, p[3]) // Mặc định = giá ngày
         ..capacity = 2
         ..description =
-            'Giá giờ đầu: ${p[0].toStringAsFixed(0)}đ - Giờ tiếp: ${p[1].toStringAsFixed(0)}đ - Qua đêm: ${p[2].toStringAsFixed(0)}đ - Ngày: ${p[3].toStringAsFixed(0)}đ');
+            'Giờ: ${p[0].toStringAsFixed(0)}đ (+${p[1].toStringAsFixed(0)}đ) - Qua đêm: ${overnightBase.toStringAsFixed(0)}đ - Ngày: ${p[3].toStringAsFixed(0)}đ');
     }
 
     await isarService.saveAll(floors);

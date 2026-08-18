@@ -27,58 +27,68 @@ const RoomTypeSchema = CollectionSchema(
       name: r'capacity',
       type: IsarType.long,
     ),
-    r'deletedAt': PropertySchema(
+    r'dailyPricesByWeekday': PropertySchema(
       id: 2,
+      name: r'dailyPricesByWeekday',
+      type: IsarType.doubleList,
+    ),
+    r'deletedAt': PropertySchema(
+      id: 3,
       name: r'deletedAt',
       type: IsarType.dateTime,
     ),
     r'description': PropertySchema(
-      id: 3,
+      id: 4,
       name: r'description',
       type: IsarType.string,
     ),
     r'deviceId': PropertySchema(
-      id: 4,
+      id: 5,
       name: r'deviceId',
       type: IsarType.string,
     ),
     r'hourlyExtraHour': PropertySchema(
-      id: 5,
+      id: 6,
       name: r'hourlyExtraHour',
       type: IsarType.double,
     ),
     r'hourlyPrice': PropertySchema(
-      id: 6,
+      id: 7,
       name: r'hourlyPrice',
       type: IsarType.double,
     ),
     r'isSynced': PropertySchema(
-      id: 7,
+      id: 8,
       name: r'isSynced',
       type: IsarType.bool,
     ),
     r'overnightPrice': PropertySchema(
-      id: 8,
+      id: 9,
       name: r'overnightPrice',
       type: IsarType.double,
     ),
+    r'overnightPricesByTimeSlot': PropertySchema(
+      id: 10,
+      name: r'overnightPricesByTimeSlot',
+      type: IsarType.doubleList,
+    ),
     r'typeCode': PropertySchema(
-      id: 9,
+      id: 11,
       name: r'typeCode',
       type: IsarType.string,
     ),
     r'typeName': PropertySchema(
-      id: 10,
+      id: 12,
       name: r'typeName',
       type: IsarType.string,
     ),
     r'updatedAt': PropertySchema(
-      id: 11,
+      id: 13,
       name: r'updatedAt',
       type: IsarType.dateTime,
     ),
     r'version': PropertySchema(
-      id: 12,
+      id: 14,
       name: r'version',
       type: IsarType.long,
     )
@@ -117,8 +127,10 @@ int _roomTypeEstimateSize(
   Map<Type, List<int>> allOffsets,
 ) {
   var bytesCount = offsets.last;
+  bytesCount += 3 + object.dailyPricesByWeekday.length * 8;
   bytesCount += 3 + object.description.length * 3;
   bytesCount += 3 + object.deviceId.length * 3;
+  bytesCount += 3 + object.overnightPricesByTimeSlot.length * 8;
   bytesCount += 3 + object.typeCode.length * 3;
   bytesCount += 3 + object.typeName.length * 3;
   return bytesCount;
@@ -132,17 +144,19 @@ void _roomTypeSerialize(
 ) {
   writer.writeDouble(offsets[0], object.basePrice);
   writer.writeLong(offsets[1], object.capacity);
-  writer.writeDateTime(offsets[2], object.deletedAt);
-  writer.writeString(offsets[3], object.description);
-  writer.writeString(offsets[4], object.deviceId);
-  writer.writeDouble(offsets[5], object.hourlyExtraHour);
-  writer.writeDouble(offsets[6], object.hourlyPrice);
-  writer.writeBool(offsets[7], object.isSynced);
-  writer.writeDouble(offsets[8], object.overnightPrice);
-  writer.writeString(offsets[9], object.typeCode);
-  writer.writeString(offsets[10], object.typeName);
-  writer.writeDateTime(offsets[11], object.updatedAt);
-  writer.writeLong(offsets[12], object.version);
+  writer.writeDoubleList(offsets[2], object.dailyPricesByWeekday);
+  writer.writeDateTime(offsets[3], object.deletedAt);
+  writer.writeString(offsets[4], object.description);
+  writer.writeString(offsets[5], object.deviceId);
+  writer.writeDouble(offsets[6], object.hourlyExtraHour);
+  writer.writeDouble(offsets[7], object.hourlyPrice);
+  writer.writeBool(offsets[8], object.isSynced);
+  writer.writeDouble(offsets[9], object.overnightPrice);
+  writer.writeDoubleList(offsets[10], object.overnightPricesByTimeSlot);
+  writer.writeString(offsets[11], object.typeCode);
+  writer.writeString(offsets[12], object.typeName);
+  writer.writeDateTime(offsets[13], object.updatedAt);
+  writer.writeLong(offsets[14], object.version);
 }
 
 RoomType _roomTypeDeserialize(
@@ -154,18 +168,20 @@ RoomType _roomTypeDeserialize(
   final object = RoomType();
   object.basePrice = reader.readDouble(offsets[0]);
   object.capacity = reader.readLong(offsets[1]);
-  object.deletedAt = reader.readDateTimeOrNull(offsets[2]);
-  object.description = reader.readString(offsets[3]);
-  object.deviceId = reader.readString(offsets[4]);
-  object.hourlyExtraHour = reader.readDouble(offsets[5]);
-  object.hourlyPrice = reader.readDouble(offsets[6]);
+  object.dailyPricesByWeekday = reader.readDoubleList(offsets[2]) ?? [];
+  object.deletedAt = reader.readDateTimeOrNull(offsets[3]);
+  object.description = reader.readString(offsets[4]);
+  object.deviceId = reader.readString(offsets[5]);
+  object.hourlyExtraHour = reader.readDouble(offsets[6]);
+  object.hourlyPrice = reader.readDouble(offsets[7]);
   object.id = id;
-  object.isSynced = reader.readBool(offsets[7]);
-  object.overnightPrice = reader.readDouble(offsets[8]);
-  object.typeCode = reader.readString(offsets[9]);
-  object.typeName = reader.readString(offsets[10]);
-  object.updatedAt = reader.readDateTime(offsets[11]);
-  object.version = reader.readLong(offsets[12]);
+  object.isSynced = reader.readBool(offsets[8]);
+  object.overnightPrice = reader.readDouble(offsets[9]);
+  object.overnightPricesByTimeSlot = reader.readDoubleList(offsets[10]) ?? [];
+  object.typeCode = reader.readString(offsets[11]);
+  object.typeName = reader.readString(offsets[12]);
+  object.updatedAt = reader.readDateTime(offsets[13]);
+  object.version = reader.readLong(offsets[14]);
   return object;
 }
 
@@ -181,26 +197,30 @@ P _roomTypeDeserializeProp<P>(
     case 1:
       return (reader.readLong(offset)) as P;
     case 2:
-      return (reader.readDateTimeOrNull(offset)) as P;
+      return (reader.readDoubleList(offset) ?? []) as P;
     case 3:
-      return (reader.readString(offset)) as P;
+      return (reader.readDateTimeOrNull(offset)) as P;
     case 4:
       return (reader.readString(offset)) as P;
     case 5:
-      return (reader.readDouble(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 6:
       return (reader.readDouble(offset)) as P;
     case 7:
-      return (reader.readBool(offset)) as P;
-    case 8:
       return (reader.readDouble(offset)) as P;
+    case 8:
+      return (reader.readBool(offset)) as P;
     case 9:
-      return (reader.readString(offset)) as P;
+      return (reader.readDouble(offset)) as P;
     case 10:
-      return (reader.readString(offset)) as P;
+      return (reader.readDoubleList(offset) ?? []) as P;
     case 11:
-      return (reader.readDateTime(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 12:
+      return (reader.readString(offset)) as P;
+    case 13:
+      return (reader.readDateTime(offset)) as P;
+    case 14:
       return (reader.readLong(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -508,6 +528,161 @@ extension RoomTypeQueryFilter
         upper: upper,
         includeUpper: includeUpper,
       ));
+    });
+  }
+
+  QueryBuilder<RoomType, RoomType, QAfterFilterCondition>
+      dailyPricesByWeekdayElementEqualTo(
+    double value, {
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'dailyPricesByWeekday',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<RoomType, RoomType, QAfterFilterCondition>
+      dailyPricesByWeekdayElementGreaterThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'dailyPricesByWeekday',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<RoomType, RoomType, QAfterFilterCondition>
+      dailyPricesByWeekdayElementLessThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'dailyPricesByWeekday',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<RoomType, RoomType, QAfterFilterCondition>
+      dailyPricesByWeekdayElementBetween(
+    double lower,
+    double upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'dailyPricesByWeekday',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<RoomType, RoomType, QAfterFilterCondition>
+      dailyPricesByWeekdayLengthEqualTo(int length) {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'dailyPricesByWeekday',
+        length,
+        true,
+        length,
+        true,
+      );
+    });
+  }
+
+  QueryBuilder<RoomType, RoomType, QAfterFilterCondition>
+      dailyPricesByWeekdayIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'dailyPricesByWeekday',
+        0,
+        true,
+        0,
+        true,
+      );
+    });
+  }
+
+  QueryBuilder<RoomType, RoomType, QAfterFilterCondition>
+      dailyPricesByWeekdayIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'dailyPricesByWeekday',
+        0,
+        false,
+        999999,
+        true,
+      );
+    });
+  }
+
+  QueryBuilder<RoomType, RoomType, QAfterFilterCondition>
+      dailyPricesByWeekdayLengthLessThan(
+    int length, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'dailyPricesByWeekday',
+        0,
+        true,
+        length,
+        include,
+      );
+    });
+  }
+
+  QueryBuilder<RoomType, RoomType, QAfterFilterCondition>
+      dailyPricesByWeekdayLengthGreaterThan(
+    int length, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'dailyPricesByWeekday',
+        length,
+        include,
+        999999,
+        true,
+      );
+    });
+  }
+
+  QueryBuilder<RoomType, RoomType, QAfterFilterCondition>
+      dailyPricesByWeekdayLengthBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'dailyPricesByWeekday',
+        lower,
+        includeLower,
+        upper,
+        includeUpper,
+      );
     });
   }
 
@@ -1094,6 +1269,161 @@ extension RoomTypeQueryFilter
         includeUpper: includeUpper,
         epsilon: epsilon,
       ));
+    });
+  }
+
+  QueryBuilder<RoomType, RoomType, QAfterFilterCondition>
+      overnightPricesByTimeSlotElementEqualTo(
+    double value, {
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'overnightPricesByTimeSlot',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<RoomType, RoomType, QAfterFilterCondition>
+      overnightPricesByTimeSlotElementGreaterThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'overnightPricesByTimeSlot',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<RoomType, RoomType, QAfterFilterCondition>
+      overnightPricesByTimeSlotElementLessThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'overnightPricesByTimeSlot',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<RoomType, RoomType, QAfterFilterCondition>
+      overnightPricesByTimeSlotElementBetween(
+    double lower,
+    double upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'overnightPricesByTimeSlot',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<RoomType, RoomType, QAfterFilterCondition>
+      overnightPricesByTimeSlotLengthEqualTo(int length) {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'overnightPricesByTimeSlot',
+        length,
+        true,
+        length,
+        true,
+      );
+    });
+  }
+
+  QueryBuilder<RoomType, RoomType, QAfterFilterCondition>
+      overnightPricesByTimeSlotIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'overnightPricesByTimeSlot',
+        0,
+        true,
+        0,
+        true,
+      );
+    });
+  }
+
+  QueryBuilder<RoomType, RoomType, QAfterFilterCondition>
+      overnightPricesByTimeSlotIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'overnightPricesByTimeSlot',
+        0,
+        false,
+        999999,
+        true,
+      );
+    });
+  }
+
+  QueryBuilder<RoomType, RoomType, QAfterFilterCondition>
+      overnightPricesByTimeSlotLengthLessThan(
+    int length, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'overnightPricesByTimeSlot',
+        0,
+        true,
+        length,
+        include,
+      );
+    });
+  }
+
+  QueryBuilder<RoomType, RoomType, QAfterFilterCondition>
+      overnightPricesByTimeSlotLengthGreaterThan(
+    int length, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'overnightPricesByTimeSlot',
+        length,
+        include,
+        999999,
+        true,
+      );
+    });
+  }
+
+  QueryBuilder<RoomType, RoomType, QAfterFilterCondition>
+      overnightPricesByTimeSlotLengthBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'overnightPricesByTimeSlot',
+        lower,
+        includeLower,
+        upper,
+        includeUpper,
+      );
     });
   }
 
@@ -1813,6 +2143,12 @@ extension RoomTypeQueryWhereDistinct
     });
   }
 
+  QueryBuilder<RoomType, RoomType, QDistinct> distinctByDailyPricesByWeekday() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'dailyPricesByWeekday');
+    });
+  }
+
   QueryBuilder<RoomType, RoomType, QDistinct> distinctByDeletedAt() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'deletedAt');
@@ -1854,6 +2190,13 @@ extension RoomTypeQueryWhereDistinct
   QueryBuilder<RoomType, RoomType, QDistinct> distinctByOvernightPrice() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'overnightPrice');
+    });
+  }
+
+  QueryBuilder<RoomType, RoomType, QDistinct>
+      distinctByOvernightPricesByTimeSlot() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'overnightPricesByTimeSlot');
     });
   }
 
@@ -1904,6 +2247,13 @@ extension RoomTypeQueryProperty
     });
   }
 
+  QueryBuilder<RoomType, List<double>, QQueryOperations>
+      dailyPricesByWeekdayProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'dailyPricesByWeekday');
+    });
+  }
+
   QueryBuilder<RoomType, DateTime?, QQueryOperations> deletedAtProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'deletedAt');
@@ -1943,6 +2293,13 @@ extension RoomTypeQueryProperty
   QueryBuilder<RoomType, double, QQueryOperations> overnightPriceProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'overnightPrice');
+    });
+  }
+
+  QueryBuilder<RoomType, List<double>, QQueryOperations>
+      overnightPricesByTimeSlotProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'overnightPricesByTimeSlot');
     });
   }
 

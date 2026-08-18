@@ -88,6 +88,7 @@ class _RoomTypeCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final hasTimeSlots = type.overnightPricesByTimeSlot.isNotEmpty && type.overnightPricesByTimeSlot.any((p) => p > 0);
     return Card(
       elevation: 1,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
@@ -100,9 +101,13 @@ class _RoomTypeCard extends StatelessWidget {
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Ngày: ${type.basePrice.toStringAsFixed(0)} đ'),
-            Text('Giờ: ${type.hourlyPrice.toStringAsFixed(0)} đ (+${type.hourlyExtraHour.toStringAsFixed(0)} đ/giờ)'),
-            Text('Qua đêm: ${type.overnightPrice.toStringAsFixed(0)} đ'),
+            Text('Giờ: ${type.hourlyPrice.toStringAsFixed(0)}đ (+${type.hourlyExtraHour.toStringAsFixed(0)}đ/giờ)'),
+            Text('Ngày: ${type.basePrice.toStringAsFixed(0)}đ'),
+            if (hasTimeSlots)
+              Text('Đêm: ${type.overnightPricesByTimeSlot[0].toStringAsFixed(0)}đ / '
+                  '${type.overnightPricesByTimeSlot[2].toStringAsFixed(0)}đ (22h)')
+            else
+              Text('Đêm: ${type.overnightPrice.toStringAsFixed(0)}đ'),
           ],
         ),
         trailing: IconButton(
@@ -119,27 +124,50 @@ class _RoomTypeCard extends StatelessWidget {
     final hourlyCtrl = TextEditingController(text: type.hourlyPrice.toStringAsFixed(0));
     final extraCtrl = TextEditingController(text: type.hourlyExtraHour.toStringAsFixed(0));
     final overnightCtrl = TextEditingController(text: type.overnightPrice.toStringAsFixed(0));
+    // Qua đêm theo khung giờ
+    final ov1Ctrl = TextEditingController(text: (type.overnightPricesByTimeSlot.isNotEmpty ? type.overnightPricesByTimeSlot[0] : 0).toStringAsFixed(0));
+    final ov2Ctrl = TextEditingController(text: (type.overnightPricesByTimeSlot.length > 1 ? type.overnightPricesByTimeSlot[1] : 0).toStringAsFixed(0));
+    final ov3Ctrl = TextEditingController(text: (type.overnightPricesByTimeSlot.length > 2 ? type.overnightPricesByTimeSlot[2] : 0).toStringAsFixed(0));
+    final ov4Ctrl = TextEditingController(text: (type.overnightPricesByTimeSlot.length > 3 ? type.overnightPricesByTimeSlot[3] : 0).toStringAsFixed(0));
+    // Giá ngày theo thứ
+    final dayCtrls = List.generate(7, (i) =>
+        TextEditingController(text: (type.dailyPricesByWeekday.length > i ? type.dailyPricesByWeekday[i] : 0).toStringAsFixed(0)));
 
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text('Sửa loại phòng: ${type.typeName}', style: const TextStyle(fontSize: 18)),
+        title: Text('Sửa: ${type.typeName}', style: const TextStyle(fontSize: 18)),
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              TextField(
-                controller: nameCtrl,
-                decoration: const InputDecoration(labelText: 'Tên loại phòng', border: OutlineInputBorder()),
-              ),
-              const SizedBox(height: 12),
-              _priceField(controller: baseCtrl, label: 'Giá ngày (đ)'),
+              TextField(controller: nameCtrl, decoration: const InputDecoration(labelText: 'Tên loại phòng', border: OutlineInputBorder())),
               const SizedBox(height: 12),
               _priceField(controller: hourlyCtrl, label: 'Giá giờ đầu (đ)'),
               const SizedBox(height: 12),
               _priceField(controller: extraCtrl, label: 'Giá giờ thêm (đ)'),
               const SizedBox(height: 12),
-              _priceField(controller: overnightCtrl, label: 'Giá qua đêm (đ)'),
+              _priceField(controller: baseCtrl, label: 'Giá ngày (đ)'),
+              const SizedBox(height: 12),
+              _priceField(controller: overnightCtrl, label: 'Giá qua đêm mặc định (đ)'),
+              const Divider(height: 24),
+              const Text('Qua đêm theo giờ check-in:', style: TextStyle(fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
+              _priceField(controller: ov1Ctrl, label: '18h-20h (đ)'),
+              const SizedBox(height: 8),
+              _priceField(controller: ov2Ctrl, label: '20h-22h (đ)'),
+              const SizedBox(height: 8),
+              _priceField(controller: ov3Ctrl, label: '22h-2h — cao nhất (đ)'),
+              const SizedBox(height: 8),
+              _priceField(controller: ov4Ctrl, label: '2h-12h (đ)'),
+              const Divider(height: 24),
+              const Text('Giá ngày theo thứ:', style: TextStyle(fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
+              for (int i = 0; i < 7; i++)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: _priceField(controller: dayCtrls[i], label: '${_weekdayName(i)} (đ)'),
+                ),
             ],
           ),
         ),
@@ -153,7 +181,14 @@ class _RoomTypeCard extends StatelessWidget {
                 ..basePrice = double.tryParse(baseCtrl.text) ?? 0
                 ..hourlyPrice = double.tryParse(hourlyCtrl.text) ?? 0
                 ..hourlyExtraHour = double.tryParse(extraCtrl.text) ?? 0
-                ..overnightPrice = double.tryParse(overnightCtrl.text) ?? 0;
+                ..overnightPrice = double.tryParse(overnightCtrl.text) ?? 0
+                ..overnightPricesByTimeSlot = [
+                  double.tryParse(ov1Ctrl.text) ?? 0,
+                  double.tryParse(ov2Ctrl.text) ?? 0,
+                  double.tryParse(ov3Ctrl.text) ?? 0,
+                  double.tryParse(ov4Ctrl.text) ?? 0,
+                ]
+                ..dailyPricesByWeekday = dayCtrls.map((c) => double.tryParse(c.text) ?? 0).toList();
               await ref.read(hotelRoomTypesProvider.notifier).saveType(type);
               if (ctx.mounted) Navigator.pop(ctx);
             },
@@ -162,6 +197,11 @@ class _RoomTypeCard extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  static String _weekdayName(int idx) {
+    const names = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'];
+    return names[idx];
   }
 }
 

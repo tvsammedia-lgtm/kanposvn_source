@@ -28,11 +28,21 @@ class RoomType {
 
   String typeName = ''; // Standard, Superior, Deluxe, VIP...
   
-  double basePrice = 0; // Giá ngày
+  double basePrice = 0; // Giá ngày (giá mặc định / fallback)
   double hourlyPrice = 0; // Giá giờ đầu tiên
-  double hourlyExtraHour = 0; // Giá mỗi giờ tiếp theo (giờ 2-5)
-  double overnightPrice = 0; // Giá qua đêm
-  
+  double hourlyExtraHour = 0; // Giá mỗi giờ tiếp theo
+  double overnightPrice = 0; // Giá qua đêm (giá mặc định / fallback)
+
+  // Qua đêm theo khung giờ check-in (KANHOT tblPriceList ID 13-36)
+  // [0]=18h-20h, [1]=20h-22h, [2]=22h-2h (cao nhất), [3]=2h-12h
+  // Nếu tất cả = 0 → dùng overnightPrice
+  List<double> overnightPricesByTimeSlot = [0, 0, 0, 0];
+
+  // Giá ngày theo thứ trong tuần (KANHOT tblPriceList_byDate)
+  // [0]=Thứ 2, [1]=Thứ 3, ..., [6]=Chủ nhật
+  // Nếu tất cả = 0 → dùng basePrice
+  List<double> dailyPricesByWeekday = [0, 0, 0, 0, 0, 0, 0];
+
   int capacity = 2;
   String description = '';
 }
