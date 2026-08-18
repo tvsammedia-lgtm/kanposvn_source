@@ -21,37 +21,44 @@ class RestaurantPosScreen extends ConsumerStatefulWidget {
 class _RestaurantPosScreenState extends ConsumerState<RestaurantPosScreen> {
   String _selectedCategory = 'Tất cả';
   RestaurantOrder? _currentOrder;
+  bool _orderInitialized = false;
 
   @override
   void initState() {
     super.initState();
-    // Schedule a microtask to fetch the active order
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _loadOrder();
+      _tryInitOrder();
     });
   }
 
-  void _loadOrder() {
+  void _tryInitOrder() {
+    if (_orderInitialized) return;
     final ordersAsync = ref.read(restaurantOrdersProvider);
     if (ordersAsync is AsyncData) {
-      final activeOrder = ordersAsync.value!.cast<RestaurantOrder?>().firstWhere(
-        (o) => o != null && o.table.value?.id == widget.table.id && o.status == RestaurantOrderStatus.SERVING,
-        orElse: () => null,
-      );
-
-      // Sync: gan _currentOrder va update trang thai ban
-      if (activeOrder != null) {
-        _currentOrder = activeOrder;
-      } else {
-        _currentOrder = RestaurantOrder()
-          ..orderId = const Uuid().v4()
-          ..createdAt = DateTime.now()
-          ..status = RestaurantOrderStatus.SERVING;
-        _currentOrder!.table.value = widget.table;
-      }
-      // Async: cap nhat status ban len SERVING sau khi build xong
-      Future.microtask(() => ref.read(restaurantOrdersProvider.notifier).updateOrder(_currentOrder!));
+      _initOrder(ordersAsync.value!);
     }
+  }
+
+  void _initOrder(List<RestaurantOrder> orders) {
+    if (_orderInitialized) return;
+    _orderInitialized = true;
+
+    final activeOrder = orders.cast<RestaurantOrder?>().firstWhere(
+      (o) => o != null && o.table.value?.id == widget.table.id && o.status == RestaurantOrderStatus.SERVING,
+      orElse: () => null,
+    );
+
+    if (activeOrder != null) {
+      _currentOrder = activeOrder;
+    } else {
+      _currentOrder = RestaurantOrder()
+        ..orderId = const Uuid().v4()
+        ..createdAt = DateTime.now()
+        ..status = RestaurantOrderStatus.SERVING;
+      _currentOrder!.table.value = widget.table;
+    }
+    setState(() {});
+    ref.read(restaurantOrdersProvider.notifier).updateOrder(_currentOrder!);
   }
   
   void _addItem(RestaurantMenuItem item) {
@@ -141,6 +148,14 @@ class _RestaurantPosScreenState extends ConsumerState<RestaurantPosScreen> {
   @override
   Widget build(BuildContext context) {
     final menuAsync = ref.watch(restaurantMenuProvider);
+    final ordersAsync = ref.watch(restaurantOrdersProvider);
+
+    // Khi orders provider chuyen tu loading sang data, khoi tao order
+    if (!_orderInitialized && ordersAsync is AsyncData) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _initOrder(ordersAsync.value!);
+      });
+    }
 
     if (_currentOrder == null) {
        return const Scaffold(body: Center(child: CircularProgressIndicator()));

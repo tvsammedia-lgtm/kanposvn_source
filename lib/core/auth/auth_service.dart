@@ -287,6 +287,14 @@ class AuthService extends ChangeNotifier {
     _storeAppCode = storeAppCode;
     _isStoreTrial = false;
     _licenseExpiresAt = null;
+    // Nhân viên không có owner info riêng — giữ store name/phone từ phiên
+    // Owner trước đó (cùng cửa hàng) và xóa owner name/phone cũ để tránh
+    // hiển thị nhầm tên chủ cửa hàng khác trên hóa đơn.
+    final prefs = await SharedPreferences.getInstance();
+    _storeName ??= prefs.getString(_kStoreNameKey);
+    _storePhone ??= prefs.getString(_kStorePhoneKey);
+    await prefs.remove(_kOwnerNameKey);
+    await prefs.remove(_kOwnerPhoneKey);
     // Nhân viên chỉ được vào các module mà Owner đã tạo user local cho họ trong
     // "Quản lý nhân viên" của module đó. Ưu tiên danh sách module tìm được lúc
     // đăng nhập; fallback về danh sách module employee đã lưu (dữ liệu cũ).
@@ -576,6 +584,10 @@ class AuthService extends ChangeNotifier {
       await prefs.remove(_kTokenKey);
       await prefs.remove(_kUserKey);
       await prefs.remove(_kPermissionsKey);
+      // Phiên employee: xóa owner name/phone của phiên Owner trước đó
+      // (có thể là cửa hàng khác) để tránh hiển thị nhầm trên hóa đơn.
+      await prefs.remove(_kOwnerNameKey);
+      await prefs.remove(_kOwnerPhoneKey);
     } else if (_token != null && _user != null) {
       await prefs.setString(_kTokenKey, _token!);
       await prefs.setString(_kUserKey, jsonEncode(_user));
