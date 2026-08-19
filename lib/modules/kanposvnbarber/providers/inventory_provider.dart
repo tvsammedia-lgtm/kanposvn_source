@@ -1,5 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:isar/isar.dart';
 import '../models/barber_product.dart';
+import '../models/barber_inventory_transaction.dart';
+import 'barber_service_provider.dart';
 
 class InventoryItem {
   final BarberProduct product;
@@ -16,38 +19,83 @@ class InventoryItem {
 }
 
 class InventoryNotifier extends StateNotifier<AsyncValue<List<InventoryItem>>> {
-  InventoryNotifier() : super(const AsyncValue.loading()) {
+  final Isar isar;
+  InventoryNotifier(this.isar) : super(const AsyncValue.loading()) {
     loadInventory();
   }
 
   Future<void> loadInventory() async {
     state = const AsyncValue.loading();
-    
-    // Giả lập load dữ liệu kho
-    await Future.delayed(const Duration(milliseconds: 500));
-    
-    final mockData = [
-      InventoryItem(
-        product: BarberProduct()..name = 'Sáp vuốt tóc Volcanic'..category = 'Wax',
-        quantityInStock: 5, // Sắp hết
-        minimumThreshold: 10,
-      ),
-      InventoryItem(
-        product: BarberProduct()..name = 'Dầu gội Clear Men'..category = 'Shampoo',
-        quantityInStock: 25, // Bình thường
-        minimumThreshold: 10,
-      ),
-      InventoryItem(
-        product: BarberProduct()..name = 'Thuốc nhuộm LOréal đen'..category = 'Color',
-        quantityInStock: 2, // Sắp hết
-        minimumThreshold: 5,
-      ),
-    ];
-    
-    state = AsyncValue.data(mockData);
+    try {
+      final allProducts = await isar.barberProducts.where().anyId().findAll();
+      final products = allProducts.where((p) => p.isActive).toList();
+      state = AsyncValue.data(products.map((p) => InventoryItem(
+        product: p,
+        quantityInStock: p.stock,
+        minimumThreshold: p.minimumStock,
+      )).toList());
+    } catch (e, st) {
+      state = AsyncValue.error(e, st);
+    }
+  }
+
+  Future<void> importStock(String productId, int qty, String reason) async {
+    final products = await isar.barberProducts.filter().productIdEqualTo(productId).findAll();
+    if (products.isEmpty) return;
+    final p = products.first;
+    p.stock += qty;
+    await isar.writeTxn(() async {
+      await isar.barberProducts.put(p);
+      await isar.barberInventoryTransactions.put(
+        BarberInventoryTransaction()
+          ..transactionId = 'ITX-${DateTime.now().millisecondsSinceEpoch}'
+          ..type = 'IMPORT'
+          ..productId = productId
+          ..productName = p.name
+          ..quantity = qty
+          ..unitCost = p.purchasePrice
+          ..totalCost = qty * p.purchasePrice
+          ..reason = reason
+          ..createdAt = DateTime.now(),
+      );
+    });
+    await loadInventory();
+  }
+
+  Future<void> exportStock(String productId, int qty, String reason) async {
+    final products = await isar.barberProducts.filter().productIdEqualTo(productId).findAll();
+    if (products.isEmpty) return;
+    final p = products.first;
+    if (p.stock < qty) return;
+    p.stock -= qty;
+    await isar.writeTxn(() async {
+      await isar.barberProducts.put(p);
+      await isar.barberInventoryTransactions.put(
+        BarberInventoryTransaction()
+          ..transactionId = 'ITX-${DateTime.now().millisecondsSinceEpoch}'
+          ..type = 'EXPORT'
+          ..productId = productId
+          ..productName = p.name
+          ..quantity = qty
+          ..unitCost = p.purchasePrice
+          ..totalCost = qty * p.purchasePrice
+          ..reason = reason
+          ..createdAt = DateTime.now(),
+      );
+    });
+    await loadInventory();
+  }
+
+  Future<List<BarberInventoryTransaction>> getTransactions({String? type}) async {
+    var txns = await isar.barberInventoryTransactions.where().anyId().findAll();
+    if (type != null) {
+      txns = txns.where((t) => t.type == type).toList();
+    }
+    return txns;
   }
 }
 
 final inventoryProvider = StateNotifierProvider<InventoryNotifier, AsyncValue<List<InventoryItem>>>((ref) {
-  return InventoryNotifier();
+  final isar = ref.watch(barberIsarProvider).requireValue;
+  return InventoryNotifier(isar);
 });

@@ -10,6 +10,9 @@ import '../models/barber_invoice.dart';
 import '../models/barber_invoice_detail.dart';
 import '../models/barber_hair_style.dart';
 import '../models/barber_product.dart';
+import '../models/barber_expense.dart';
+import '../models/barber_inventory_transaction.dart';
+import '../models/barber_supplier.dart';
 
 import '../services/barber_db_service.dart';
 import '../services/barber_ai_service.dart';
@@ -17,10 +20,11 @@ import '../services/barber_sync_service.dart';
 import '../services/barber_einvoice_settings.dart';
 
 final barberIsarProvider = FutureProvider<Isar>((ref) async {
+  const dbName = 'barber_instance';
+  final existing = Isar.getInstance(dbName);
+  if (existing != null && existing.isOpen) return existing;
+
   final dir = await getApplicationDocumentsDirectory();
-  if (Isar.getInstance('barber_instance') != null) {
-    return Isar.getInstance('barber_instance')!;
-  }
   return await Isar.open(
     [
       BarberCustomerSchema,
@@ -31,9 +35,12 @@ final barberIsarProvider = FutureProvider<Isar>((ref) async {
       BarberInvoiceDetailSchema,
       BarberHairStyleSchema,
       BarberProductSchema,
+      BarberExpenseSchema,
+      BarberInventoryTransactionSchema,
+      BarberSupplierSchema,
     ],
     directory: dir.path,
-    name: 'barber_instance',
+    name: dbName,
   );
 });
 
@@ -50,7 +57,6 @@ final barberSyncServiceProvider = Provider<BarberSyncService>((ref) {
   return BarberSyncService();
 });
 
-// Settings
 final barberEinvoiceSettingsProvider =
     ChangeNotifierProvider<BarberEinvoiceSettingsStore>((ref) {
   final store = BarberEinvoiceSettingsStore();

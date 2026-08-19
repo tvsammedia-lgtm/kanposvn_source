@@ -21,6 +21,8 @@ class BarberProduct {
   
   double purchasePrice = 0.0;
   double sellingPrice = 0.0;
+  int stock = 0;
+  int minimumStock = 5;
   
   double commissionRate = 0.0; 
 

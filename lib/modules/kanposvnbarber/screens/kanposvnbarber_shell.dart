@@ -6,6 +6,7 @@ import '../../../core/auth/employee_role_policy.dart';
 import '../../../core/providers.dart';
 import '../../../core/widgets/account_switcher_button.dart';
 import '../providers/barber_service_provider.dart';
+import '../services/barber_seed_data.dart';
 import 'dashboard_screen.dart';
 import 'pos_screen.dart';
 import 'booking_calendar_screen.dart';
@@ -35,7 +36,8 @@ class _KanPosVnBarberShellState extends ConsumerState<KanPosVnBarberShell> {
   }
 
   Future<void> _initData() async {
-    await ref.read(barberDbServiceProvider.future);
+    final isar = await ref.read(barberIsarProvider.future);
+    await BarberSeedData.seedIfEmpty(isar);
     setState(() {
       _isInit = true;
     });
@@ -48,10 +50,9 @@ class _KanPosVnBarberShellState extends ConsumerState<KanPosVnBarberShell> {
     EmployeeRoles.accountant: const {'dashboard', 'pos', 'booking_calendar', 'appointments', 'customers', 'inventory', 'reports', 'settings'},
   };
 
-  /// Định nghĩa các tab của module (id, icon, label) — thứ tự hiển thị.
   static final Map<String, ({IconData icon, String label})> _tabDefs = {
     'dashboard': (icon: Icons.dashboard, label: 'Dashboard'),
-    'pos': (icon: Icons.point_of_sale, label: 'Bán Hàng (POS)'),
+    'pos': (icon: Icons.point_of_sale, label: 'Bán Hàng'),
     'booking_calendar': (icon: Icons.edit_calendar, label: 'Xếp Lịch'),
     'appointments': (icon: Icons.calendar_today, label: 'Lịch Hẹn'),
     'customers': (icon: Icons.people, label: 'Khách Hàng'),
@@ -102,7 +103,6 @@ class _KanPosVnBarberShellState extends ConsumerState<KanPosVnBarberShell> {
     final customTabs = auth.employeeAllowedTabs;
     final tabs = _allTabs.where((t) {
       if (auth.isManager) return true;
-      // Tùy chỉnh tab riêng cho nhân viên (Owner check/uncheck trong "Quản Lý NV").
       if (customTabs != null) return customTabs.contains(t.id);
       return EmployeeRolePolicy.isAllowed(
         isManager: false,
