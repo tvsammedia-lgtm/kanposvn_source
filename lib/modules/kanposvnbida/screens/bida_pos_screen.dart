@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'dart:async';
 import 'dart:math';
+import 'package:intl/intl.dart';
 import '../providers/bida_providers.dart';
 import '../models/bida_table.dart';
 import '../models/bida_session.dart';
@@ -9,6 +10,7 @@ import '../models/bida_item.dart';
 import '../../../core/printer/printer_actions.dart';
 import '../../../core/printer/receipt_data.dart';
 import '../../../core/printer/receipt_print_mode.dart';
+import '../../../core/auth/auth_service.dart';
 
 class BidaPosScreen extends ConsumerStatefulWidget {
   final BidaTable table;
@@ -144,27 +146,50 @@ class _BidaPosScreenState extends ConsumerState<BidaPosScreen> {
   ) async {
     await ref.read(bidaSessionsProvider.notifier).checkoutSession(session, timeCost);
     final total = timeCost + session.totalItemCost;
+
+    // Load owner info
+    final storeName = await AuthService.loadSavedStoreName();
+    final ownerName = await AuthService.loadSavedOwnerName();
+    final storePhone = await AuthService.loadSavedStorePhone();
+
+    // Format times
+    final fmt = DateFormat('HH:mm dd/MM/yyyy');
+    final checkIn = session.startTime != null ? fmt.format(session.startTime!) : 'N/A';
+    final checkOut = fmt.format(DateTime.now());
+    final duration = session.startTime != null ? DateTime.now().difference(session.startTime!) : Duration.zero;
+    final durStr = '${duration.inHours}h ${duration.inMinutes % 60}phút';
+
+    // Build receipt items with time info
+    final receiptItems = <ReceiptItem>[
+      ReceiptItem(name: '⏱ Giờ vào: $checkIn', quantity: 0, unitPrice: 0, total: 0),
+      ReceiptItem(name: '⏱ Giờ ra: $checkOut', quantity: 0, unitPrice: 0, total: 0),
+      ReceiptItem(name: '⏱ Thời gian: $durStr', quantity: 0, unitPrice: 0, total: 0),
+      ReceiptItem(name: '💰 Tiền giờ (${widget.table.name})', quantity: 1, unitPrice: timeCost, total: timeCost),
+      ...session.orderLines
+          .map((line) => ReceiptItem(
+                name: line.itemName,
+                quantity: line.quantity.toDouble(),
+                unitPrice: line.price,
+                total: line.total,
+              )),
+    ];
+
     try {
       await printReceiptByMode(
         context,
         ref,
         ReceiptData(
-          shopName: 'KANPOSVN BIDA',
-          title: 'HÓA ĐƠN THANH TOÁN',
+          shopName: storeName ?? ownerName ?? 'KANPOSVN BIDA',
+          shopOwnerName: ownerName,
+          shopPhone: storePhone,
+          title: '${ownerName ?? 'KANPOSVN BIDA'} - ${storePhone ?? ''}',
           orderCode: session.sessionId.length > 8
               ? session.sessionId.substring(0, 8)
               : session.sessionId,
           date: DateTime.now(),
           table: widget.table.name,
           qrData: session.sessionId,
-          items: session.orderLines
-              .map((line) => ReceiptItem(
-                    name: line.itemName,
-                    quantity: line.quantity.toDouble(),
-                    unitPrice: line.price,
-                    total: line.total,
-                  ))
-              .toList(),
+          items: receiptItems,
           subtotal: total,
           grandTotal: total,
         ),
