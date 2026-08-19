@@ -20,11 +20,14 @@ class Invoice {
   double? discount;
   double? tax;
   double? totalAmount;
+  double? amountPaid;
+  double? change;
   
   @enumerated
   PaymentMethod paymentMethod = PaymentMethod.cash;
   
   String? note;
+  String? invoiceTypeLabel;
   
   DateTime? createdAt;
   DateTime? updatedAt;

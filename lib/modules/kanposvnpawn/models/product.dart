@@ -16,6 +16,8 @@ class Product {
   String? capacity;
   
   String? condition;
+  String? sku;
+  int? stock;
   
   double? costPrice;
   double? sellingPrice;

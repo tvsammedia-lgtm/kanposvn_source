@@ -13,7 +13,9 @@ import '../providers/product_provider.dart';
 import '../services/pawn_seed_data.dart';
 import 'pawn/pawn_list_screen.dart';
 import 'customer/customer_list_screen.dart';
+import 'pawn_finance_screen.dart';
 import 'pawn_settings_screen.dart';
+import 'pawn_dashboard_screen.dart';
 
 class KanPosVnPawnShell extends ConsumerStatefulWidget {
   const KanPosVnPawnShell({super.key});
@@ -44,24 +46,27 @@ class _KanPosVnPawnShellState extends ConsumerState<KanPosVnPawnShell> {
   }
 
   static final Map<String, Set<String>> _roleTabs = {
-    EmployeeRoles.cashier: const {'pawn', 'customer'},
-    EmployeeRoles.sale: const {'pawn', 'customer'},
+    EmployeeRoles.cashier: const {'dashboard', 'pawn', 'customer', 'finance'},
+    EmployeeRoles.sale: const {'dashboard', 'pawn', 'customer'},
     EmployeeRoles.warehouse: const {'customer'},
-    EmployeeRoles.accountant: const {'pawn', 'customer', 'settings'},
+    EmployeeRoles.accountant: const {'dashboard', 'pawn', 'customer', 'finance', 'settings'},
   };
 
-  /// Định nghĩa các tab của module (id, icon, label) — thứ tự hiển thị.
   static final Map<String, ({IconData icon, String label})> _tabDefs = {
+    'dashboard': (icon: Icons.dashboard, label: 'Dashboard'),
     'pawn': (icon: Icons.monetization_on, label: 'Hợp Đồng'),
     'customer': (icon: Icons.people, label: 'Khách Hàng'),
+    'finance': (icon: Icons.account_balance_wallet, label: 'Thu Chi'),
     'sync': (icon: Icons.sync, label: 'Đồng bộ'),
     'employees': (icon: Icons.badge, label: 'Quản Lý NV'),
     'settings': (icon: Icons.settings, label: 'Cài Đặt'),
   };
 
   static final Map<String, Widget Function()> _tabScreens = {
+    'dashboard': () => const PawnDashboardScreen(),
     'pawn': () => const PawnListScreen(),
     'customer': () => const CustomerListScreen(),
+    'finance': () => const PawnFinanceScreen(),
     'sync': () => const PawnSyncScreen(),
     'employees': () => EmployeeManagementScreen(
       availableTabs: [
@@ -94,7 +99,6 @@ class _KanPosVnPawnShellState extends ConsumerState<KanPosVnPawnShell> {
     final customTabs = auth.employeeAllowedTabs;
     final tabs = _allTabs.where((t) {
       if (auth.isManager) return true;
-      // Tùy chỉnh tab riêng cho nhân viên (Owner check/uncheck trong "Quản Lý NV").
       if (customTabs != null) return customTabs.contains(t.id);
       return EmployeeRolePolicy.isAllowed(
         isManager: false,

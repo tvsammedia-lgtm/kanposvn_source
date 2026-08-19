@@ -9,6 +9,10 @@ import '../models/invoice.dart';
 import '../models/warehouse.dart';
 import '../models/sync_queue.dart';
 import '../models/settings.dart';
+import '../models/supplier.dart';
+import '../models/pawn_cash_transaction.dart';
+import '../models/pawn_invoice_detail.dart';
+import '../models/pawn_repair_order.dart';
 
 class PawnIsarService {
   late Future<Isar> db;
@@ -18,9 +22,10 @@ class PawnIsarService {
   }
 
   Future<Isar> openDB() async {
-    if (Isar.instanceNames.contains('pawn_db')) {
-      return Isar.getInstance('pawn_db')!;
-    }
+    const dbName = 'kanposvnpawn_db';
+    final existing = Isar.getInstance(dbName);
+    if (existing != null && existing.isOpen) return existing;
+
     final dir = await getApplicationDocumentsDirectory();
     return await Isar.open(
       [
@@ -32,9 +37,13 @@ class PawnIsarService {
         WarehouseSchema,
         SyncQueueSchema,
         SettingsSchema,
+        SupplierSchema,
+        PawnCashTransactionSchema,
+        PawnInvoiceDetailSchema,
+        PawnRepairOrderSchema,
       ],
       directory: dir.path,
-      name: 'pawn_db',
+      name: dbName,
     );
   }
 }

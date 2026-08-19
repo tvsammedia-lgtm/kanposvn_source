@@ -17,110 +17,135 @@ const PawnContractSchema = CollectionSchema(
   name: r'PawnContract',
   id: 2102695799487434953,
   properties: {
-    r'assetImage': PropertySchema(
+    r'assetBrand': PropertySchema(
       id: 0,
+      name: r'assetBrand',
+      type: IsarType.string,
+    ),
+    r'assetImage': PropertySchema(
+      id: 1,
       name: r'assetImage',
       type: IsarType.string,
     ),
+    r'assetModel': PropertySchema(
+      id: 2,
+      name: r'assetModel',
+      type: IsarType.string,
+    ),
     r'assetValue': PropertySchema(
-      id: 1,
+      id: 3,
       name: r'assetValue',
       type: IsarType.double,
     ),
     r'cccdImageBack': PropertySchema(
-      id: 2,
+      id: 4,
       name: r'cccdImageBack',
       type: IsarType.string,
     ),
     r'cccdImageFront': PropertySchema(
-      id: 3,
+      id: 5,
       name: r'cccdImageFront',
       type: IsarType.string,
     ),
     r'cccdNumber': PropertySchema(
-      id: 4,
+      id: 6,
       name: r'cccdNumber',
       type: IsarType.string,
     ),
     r'contractNumber': PropertySchema(
-      id: 5,
+      id: 7,
       name: r'contractNumber',
       type: IsarType.string,
     ),
     r'createdAt': PropertySchema(
-      id: 6,
+      id: 8,
       name: r'createdAt',
       type: IsarType.dateTime,
     ),
     r'description': PropertySchema(
-      id: 7,
+      id: 9,
       name: r'description',
       type: IsarType.string,
     ),
     r'dueDate': PropertySchema(
-      id: 8,
+      id: 10,
       name: r'dueDate',
       type: IsarType.dateTime,
     ),
     r'imei': PropertySchema(
-      id: 9,
+      id: 11,
       name: r'imei',
       type: IsarType.string,
     ),
     r'interestRate': PropertySchema(
-      id: 10,
+      id: 12,
       name: r'interestRate',
       type: IsarType.double,
     ),
     r'interestType': PropertySchema(
-      id: 11,
+      id: 13,
       name: r'interestType',
       type: IsarType.byte,
       enumMap: _PawnContractinterestTypeEnumValueMap,
     ),
+    r'lastInterestCollectionDate': PropertySchema(
+      id: 14,
+      name: r'lastInterestCollectionDate',
+      type: IsarType.dateTime,
+    ),
     r'numberOfDays': PropertySchema(
-      id: 12,
+      id: 15,
       name: r'numberOfDays',
       type: IsarType.long,
     ),
     r'paidInterest': PropertySchema(
-      id: 13,
+      id: 16,
       name: r'paidInterest',
       type: IsarType.double,
     ),
     r'pawnAmount': PropertySchema(
-      id: 14,
+      id: 17,
       name: r'pawnAmount',
       type: IsarType.double,
     ),
     r'pawnDate': PropertySchema(
-      id: 15,
+      id: 18,
       name: r'pawnDate',
       type: IsarType.dateTime,
     ),
     r'portraitImage': PropertySchema(
-      id: 16,
+      id: 19,
       name: r'portraitImage',
       type: IsarType.string,
     ),
+    r'renewalCount': PropertySchema(
+      id: 20,
+      name: r'renewalCount',
+      type: IsarType.long,
+    ),
     r'serial': PropertySchema(
-      id: 17,
+      id: 21,
       name: r'serial',
       type: IsarType.string,
     ),
     r'status': PropertySchema(
-      id: 18,
+      id: 22,
       name: r'status',
       type: IsarType.byte,
       enumMap: _PawnContractstatusEnumValueMap,
     ),
     r'totalInterest': PropertySchema(
-      id: 19,
+      id: 23,
       name: r'totalInterest',
       type: IsarType.double,
     ),
+    r'totalInterestCollected': PropertySchema(
+      id: 24,
+      name: r'totalInterestCollected',
+      type: IsarType.double,
+    ),
     r'updatedAt': PropertySchema(
-      id: 20,
+      id: 25,
       name: r'updatedAt',
       type: IsarType.dateTime,
     )
@@ -153,7 +178,19 @@ int _pawnContractEstimateSize(
 ) {
   var bytesCount = offsets.last;
   {
+    final value = object.assetBrand;
+    if (value != null) {
+      bytesCount += 3 + value.length * 3;
+    }
+  }
+  {
     final value = object.assetImage;
+    if (value != null) {
+      bytesCount += 3 + value.length * 3;
+    }
+  }
+  {
+    final value = object.assetModel;
     if (value != null) {
       bytesCount += 3 + value.length * 3;
     }
@@ -215,27 +252,32 @@ void _pawnContractSerialize(
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
-  writer.writeString(offsets[0], object.assetImage);
-  writer.writeDouble(offsets[1], object.assetValue);
-  writer.writeString(offsets[2], object.cccdImageBack);
-  writer.writeString(offsets[3], object.cccdImageFront);
-  writer.writeString(offsets[4], object.cccdNumber);
-  writer.writeString(offsets[5], object.contractNumber);
-  writer.writeDateTime(offsets[6], object.createdAt);
-  writer.writeString(offsets[7], object.description);
-  writer.writeDateTime(offsets[8], object.dueDate);
-  writer.writeString(offsets[9], object.imei);
-  writer.writeDouble(offsets[10], object.interestRate);
-  writer.writeByte(offsets[11], object.interestType.index);
-  writer.writeLong(offsets[12], object.numberOfDays);
-  writer.writeDouble(offsets[13], object.paidInterest);
-  writer.writeDouble(offsets[14], object.pawnAmount);
-  writer.writeDateTime(offsets[15], object.pawnDate);
-  writer.writeString(offsets[16], object.portraitImage);
-  writer.writeString(offsets[17], object.serial);
-  writer.writeByte(offsets[18], object.status.index);
-  writer.writeDouble(offsets[19], object.totalInterest);
-  writer.writeDateTime(offsets[20], object.updatedAt);
+  writer.writeString(offsets[0], object.assetBrand);
+  writer.writeString(offsets[1], object.assetImage);
+  writer.writeString(offsets[2], object.assetModel);
+  writer.writeDouble(offsets[3], object.assetValue);
+  writer.writeString(offsets[4], object.cccdImageBack);
+  writer.writeString(offsets[5], object.cccdImageFront);
+  writer.writeString(offsets[6], object.cccdNumber);
+  writer.writeString(offsets[7], object.contractNumber);
+  writer.writeDateTime(offsets[8], object.createdAt);
+  writer.writeString(offsets[9], object.description);
+  writer.writeDateTime(offsets[10], object.dueDate);
+  writer.writeString(offsets[11], object.imei);
+  writer.writeDouble(offsets[12], object.interestRate);
+  writer.writeByte(offsets[13], object.interestType.index);
+  writer.writeDateTime(offsets[14], object.lastInterestCollectionDate);
+  writer.writeLong(offsets[15], object.numberOfDays);
+  writer.writeDouble(offsets[16], object.paidInterest);
+  writer.writeDouble(offsets[17], object.pawnAmount);
+  writer.writeDateTime(offsets[18], object.pawnDate);
+  writer.writeString(offsets[19], object.portraitImage);
+  writer.writeLong(offsets[20], object.renewalCount);
+  writer.writeString(offsets[21], object.serial);
+  writer.writeByte(offsets[22], object.status.index);
+  writer.writeDouble(offsets[23], object.totalInterest);
+  writer.writeDouble(offsets[24], object.totalInterestCollected);
+  writer.writeDateTime(offsets[25], object.updatedAt);
 }
 
 PawnContract _pawnContractDeserialize(
@@ -245,32 +287,37 @@ PawnContract _pawnContractDeserialize(
   Map<Type, List<int>> allOffsets,
 ) {
   final object = PawnContract();
-  object.assetImage = reader.readStringOrNull(offsets[0]);
-  object.assetValue = reader.readDoubleOrNull(offsets[1]);
-  object.cccdImageBack = reader.readStringOrNull(offsets[2]);
-  object.cccdImageFront = reader.readStringOrNull(offsets[3]);
-  object.cccdNumber = reader.readStringOrNull(offsets[4]);
-  object.contractNumber = reader.readStringOrNull(offsets[5]);
-  object.createdAt = reader.readDateTimeOrNull(offsets[6]);
-  object.description = reader.readStringOrNull(offsets[7]);
-  object.dueDate = reader.readDateTimeOrNull(offsets[8]);
+  object.assetBrand = reader.readStringOrNull(offsets[0]);
+  object.assetImage = reader.readStringOrNull(offsets[1]);
+  object.assetModel = reader.readStringOrNull(offsets[2]);
+  object.assetValue = reader.readDoubleOrNull(offsets[3]);
+  object.cccdImageBack = reader.readStringOrNull(offsets[4]);
+  object.cccdImageFront = reader.readStringOrNull(offsets[5]);
+  object.cccdNumber = reader.readStringOrNull(offsets[6]);
+  object.contractNumber = reader.readStringOrNull(offsets[7]);
+  object.createdAt = reader.readDateTimeOrNull(offsets[8]);
+  object.description = reader.readStringOrNull(offsets[9]);
+  object.dueDate = reader.readDateTimeOrNull(offsets[10]);
   object.id = id;
-  object.imei = reader.readStringOrNull(offsets[9]);
-  object.interestRate = reader.readDoubleOrNull(offsets[10]);
+  object.imei = reader.readStringOrNull(offsets[11]);
+  object.interestRate = reader.readDoubleOrNull(offsets[12]);
   object.interestType = _PawnContractinterestTypeValueEnumMap[
-          reader.readByteOrNull(offsets[11])] ??
+          reader.readByteOrNull(offsets[13])] ??
       InterestType.daily;
-  object.numberOfDays = reader.readLongOrNull(offsets[12]);
-  object.paidInterest = reader.readDoubleOrNull(offsets[13]);
-  object.pawnAmount = reader.readDoubleOrNull(offsets[14]);
-  object.pawnDate = reader.readDateTimeOrNull(offsets[15]);
-  object.portraitImage = reader.readStringOrNull(offsets[16]);
-  object.serial = reader.readStringOrNull(offsets[17]);
+  object.lastInterestCollectionDate = reader.readDateTimeOrNull(offsets[14]);
+  object.numberOfDays = reader.readLongOrNull(offsets[15]);
+  object.paidInterest = reader.readDoubleOrNull(offsets[16]);
+  object.pawnAmount = reader.readDoubleOrNull(offsets[17]);
+  object.pawnDate = reader.readDateTimeOrNull(offsets[18]);
+  object.portraitImage = reader.readStringOrNull(offsets[19]);
+  object.renewalCount = reader.readLongOrNull(offsets[20]);
+  object.serial = reader.readStringOrNull(offsets[21]);
   object.status =
-      _PawnContractstatusValueEnumMap[reader.readByteOrNull(offsets[18])] ??
+      _PawnContractstatusValueEnumMap[reader.readByteOrNull(offsets[22])] ??
           PawnStatus.active;
-  object.totalInterest = reader.readDoubleOrNull(offsets[19]);
-  object.updatedAt = reader.readDateTimeOrNull(offsets[20]);
+  object.totalInterest = reader.readDoubleOrNull(offsets[23]);
+  object.totalInterestCollected = reader.readDoubleOrNull(offsets[24]);
+  object.updatedAt = reader.readDateTimeOrNull(offsets[25]);
   return object;
 }
 
@@ -284,17 +331,17 @@ P _pawnContractDeserializeProp<P>(
     case 0:
       return (reader.readStringOrNull(offset)) as P;
     case 1:
-      return (reader.readDoubleOrNull(offset)) as P;
+      return (reader.readStringOrNull(offset)) as P;
     case 2:
       return (reader.readStringOrNull(offset)) as P;
     case 3:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readDoubleOrNull(offset)) as P;
     case 4:
       return (reader.readStringOrNull(offset)) as P;
     case 5:
       return (reader.readStringOrNull(offset)) as P;
     case 6:
-      return (reader.readDateTimeOrNull(offset)) as P;
+      return (reader.readStringOrNull(offset)) as P;
     case 7:
       return (reader.readStringOrNull(offset)) as P;
     case 8:
@@ -302,29 +349,39 @@ P _pawnContractDeserializeProp<P>(
     case 9:
       return (reader.readStringOrNull(offset)) as P;
     case 10:
-      return (reader.readDoubleOrNull(offset)) as P;
+      return (reader.readDateTimeOrNull(offset)) as P;
     case 11:
+      return (reader.readStringOrNull(offset)) as P;
+    case 12:
+      return (reader.readDoubleOrNull(offset)) as P;
+    case 13:
       return (_PawnContractinterestTypeValueEnumMap[
               reader.readByteOrNull(offset)] ??
           InterestType.daily) as P;
-    case 12:
-      return (reader.readLongOrNull(offset)) as P;
-    case 13:
-      return (reader.readDoubleOrNull(offset)) as P;
     case 14:
-      return (reader.readDoubleOrNull(offset)) as P;
-    case 15:
       return (reader.readDateTimeOrNull(offset)) as P;
+    case 15:
+      return (reader.readLongOrNull(offset)) as P;
     case 16:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readDoubleOrNull(offset)) as P;
     case 17:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readDoubleOrNull(offset)) as P;
     case 18:
+      return (reader.readDateTimeOrNull(offset)) as P;
+    case 19:
+      return (reader.readStringOrNull(offset)) as P;
+    case 20:
+      return (reader.readLongOrNull(offset)) as P;
+    case 21:
+      return (reader.readStringOrNull(offset)) as P;
+    case 22:
       return (_PawnContractstatusValueEnumMap[reader.readByteOrNull(offset)] ??
           PawnStatus.active) as P;
-    case 19:
+    case 23:
       return (reader.readDoubleOrNull(offset)) as P;
-    case 20:
+    case 24:
+      return (reader.readDoubleOrNull(offset)) as P;
+    case 25:
       return (reader.readDateTimeOrNull(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -453,6 +510,160 @@ extension PawnContractQueryWhere
 
 extension PawnContractQueryFilter
     on QueryBuilder<PawnContract, PawnContract, QFilterCondition> {
+  QueryBuilder<PawnContract, PawnContract, QAfterFilterCondition>
+      assetBrandIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'assetBrand',
+      ));
+    });
+  }
+
+  QueryBuilder<PawnContract, PawnContract, QAfterFilterCondition>
+      assetBrandIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'assetBrand',
+      ));
+    });
+  }
+
+  QueryBuilder<PawnContract, PawnContract, QAfterFilterCondition>
+      assetBrandEqualTo(
+    String? value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'assetBrand',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<PawnContract, PawnContract, QAfterFilterCondition>
+      assetBrandGreaterThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'assetBrand',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<PawnContract, PawnContract, QAfterFilterCondition>
+      assetBrandLessThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'assetBrand',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<PawnContract, PawnContract, QAfterFilterCondition>
+      assetBrandBetween(
+    String? lower,
+    String? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'assetBrand',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<PawnContract, PawnContract, QAfterFilterCondition>
+      assetBrandStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'assetBrand',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<PawnContract, PawnContract, QAfterFilterCondition>
+      assetBrandEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'assetBrand',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<PawnContract, PawnContract, QAfterFilterCondition>
+      assetBrandContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'assetBrand',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<PawnContract, PawnContract, QAfterFilterCondition>
+      assetBrandMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'assetBrand',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<PawnContract, PawnContract, QAfterFilterCondition>
+      assetBrandIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'assetBrand',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<PawnContract, PawnContract, QAfterFilterCondition>
+      assetBrandIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'assetBrand',
+        value: '',
+      ));
+    });
+  }
+
   QueryBuilder<PawnContract, PawnContract, QAfterFilterCondition>
       assetImageIsNull() {
     return QueryBuilder.apply(this, (query) {
@@ -602,6 +813,160 @@ extension PawnContractQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         property: r'assetImage',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<PawnContract, PawnContract, QAfterFilterCondition>
+      assetModelIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'assetModel',
+      ));
+    });
+  }
+
+  QueryBuilder<PawnContract, PawnContract, QAfterFilterCondition>
+      assetModelIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'assetModel',
+      ));
+    });
+  }
+
+  QueryBuilder<PawnContract, PawnContract, QAfterFilterCondition>
+      assetModelEqualTo(
+    String? value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'assetModel',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<PawnContract, PawnContract, QAfterFilterCondition>
+      assetModelGreaterThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'assetModel',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<PawnContract, PawnContract, QAfterFilterCondition>
+      assetModelLessThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'assetModel',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<PawnContract, PawnContract, QAfterFilterCondition>
+      assetModelBetween(
+    String? lower,
+    String? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'assetModel',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<PawnContract, PawnContract, QAfterFilterCondition>
+      assetModelStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'assetModel',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<PawnContract, PawnContract, QAfterFilterCondition>
+      assetModelEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'assetModel',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<PawnContract, PawnContract, QAfterFilterCondition>
+      assetModelContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'assetModel',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<PawnContract, PawnContract, QAfterFilterCondition>
+      assetModelMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'assetModel',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<PawnContract, PawnContract, QAfterFilterCondition>
+      assetModelIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'assetModel',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<PawnContract, PawnContract, QAfterFilterCondition>
+      assetModelIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'assetModel',
         value: '',
       ));
     });
@@ -1954,6 +2319,80 @@ extension PawnContractQueryFilter
   }
 
   QueryBuilder<PawnContract, PawnContract, QAfterFilterCondition>
+      lastInterestCollectionDateIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'lastInterestCollectionDate',
+      ));
+    });
+  }
+
+  QueryBuilder<PawnContract, PawnContract, QAfterFilterCondition>
+      lastInterestCollectionDateIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'lastInterestCollectionDate',
+      ));
+    });
+  }
+
+  QueryBuilder<PawnContract, PawnContract, QAfterFilterCondition>
+      lastInterestCollectionDateEqualTo(DateTime? value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'lastInterestCollectionDate',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<PawnContract, PawnContract, QAfterFilterCondition>
+      lastInterestCollectionDateGreaterThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'lastInterestCollectionDate',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<PawnContract, PawnContract, QAfterFilterCondition>
+      lastInterestCollectionDateLessThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'lastInterestCollectionDate',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<PawnContract, PawnContract, QAfterFilterCondition>
+      lastInterestCollectionDateBetween(
+    DateTime? lower,
+    DateTime? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'lastInterestCollectionDate',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<PawnContract, PawnContract, QAfterFilterCondition>
       numberOfDaysIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNull(
@@ -2424,6 +2863,80 @@ extension PawnContractQueryFilter
   }
 
   QueryBuilder<PawnContract, PawnContract, QAfterFilterCondition>
+      renewalCountIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'renewalCount',
+      ));
+    });
+  }
+
+  QueryBuilder<PawnContract, PawnContract, QAfterFilterCondition>
+      renewalCountIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'renewalCount',
+      ));
+    });
+  }
+
+  QueryBuilder<PawnContract, PawnContract, QAfterFilterCondition>
+      renewalCountEqualTo(int? value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'renewalCount',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<PawnContract, PawnContract, QAfterFilterCondition>
+      renewalCountGreaterThan(
+    int? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'renewalCount',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<PawnContract, PawnContract, QAfterFilterCondition>
+      renewalCountLessThan(
+    int? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'renewalCount',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<PawnContract, PawnContract, QAfterFilterCondition>
+      renewalCountBetween(
+    int? lower,
+    int? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'renewalCount',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<PawnContract, PawnContract, QAfterFilterCondition>
       serialIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNull(
@@ -2716,6 +3229,90 @@ extension PawnContractQueryFilter
   }
 
   QueryBuilder<PawnContract, PawnContract, QAfterFilterCondition>
+      totalInterestCollectedIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'totalInterestCollected',
+      ));
+    });
+  }
+
+  QueryBuilder<PawnContract, PawnContract, QAfterFilterCondition>
+      totalInterestCollectedIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'totalInterestCollected',
+      ));
+    });
+  }
+
+  QueryBuilder<PawnContract, PawnContract, QAfterFilterCondition>
+      totalInterestCollectedEqualTo(
+    double? value, {
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'totalInterestCollected',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<PawnContract, PawnContract, QAfterFilterCondition>
+      totalInterestCollectedGreaterThan(
+    double? value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'totalInterestCollected',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<PawnContract, PawnContract, QAfterFilterCondition>
+      totalInterestCollectedLessThan(
+    double? value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'totalInterestCollected',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<PawnContract, PawnContract, QAfterFilterCondition>
+      totalInterestCollectedBetween(
+    double? lower,
+    double? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'totalInterestCollected',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<PawnContract, PawnContract, QAfterFilterCondition>
       updatedAtIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNull(
@@ -2812,6 +3409,19 @@ extension PawnContractQueryLinks
 
 extension PawnContractQuerySortBy
     on QueryBuilder<PawnContract, PawnContract, QSortBy> {
+  QueryBuilder<PawnContract, PawnContract, QAfterSortBy> sortByAssetBrand() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'assetBrand', Sort.asc);
+    });
+  }
+
+  QueryBuilder<PawnContract, PawnContract, QAfterSortBy>
+      sortByAssetBrandDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'assetBrand', Sort.desc);
+    });
+  }
+
   QueryBuilder<PawnContract, PawnContract, QAfterSortBy> sortByAssetImage() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'assetImage', Sort.asc);
@@ -2822,6 +3432,19 @@ extension PawnContractQuerySortBy
       sortByAssetImageDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'assetImage', Sort.desc);
+    });
+  }
+
+  QueryBuilder<PawnContract, PawnContract, QAfterSortBy> sortByAssetModel() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'assetModel', Sort.asc);
+    });
+  }
+
+  QueryBuilder<PawnContract, PawnContract, QAfterSortBy>
+      sortByAssetModelDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'assetModel', Sort.desc);
     });
   }
 
@@ -2967,6 +3590,20 @@ extension PawnContractQuerySortBy
     });
   }
 
+  QueryBuilder<PawnContract, PawnContract, QAfterSortBy>
+      sortByLastInterestCollectionDate() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'lastInterestCollectionDate', Sort.asc);
+    });
+  }
+
+  QueryBuilder<PawnContract, PawnContract, QAfterSortBy>
+      sortByLastInterestCollectionDateDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'lastInterestCollectionDate', Sort.desc);
+    });
+  }
+
   QueryBuilder<PawnContract, PawnContract, QAfterSortBy> sortByNumberOfDays() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'numberOfDays', Sort.asc);
@@ -3031,6 +3668,19 @@ extension PawnContractQuerySortBy
     });
   }
 
+  QueryBuilder<PawnContract, PawnContract, QAfterSortBy> sortByRenewalCount() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'renewalCount', Sort.asc);
+    });
+  }
+
+  QueryBuilder<PawnContract, PawnContract, QAfterSortBy>
+      sortByRenewalCountDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'renewalCount', Sort.desc);
+    });
+  }
+
   QueryBuilder<PawnContract, PawnContract, QAfterSortBy> sortBySerial() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'serial', Sort.asc);
@@ -3068,6 +3718,20 @@ extension PawnContractQuerySortBy
     });
   }
 
+  QueryBuilder<PawnContract, PawnContract, QAfterSortBy>
+      sortByTotalInterestCollected() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'totalInterestCollected', Sort.asc);
+    });
+  }
+
+  QueryBuilder<PawnContract, PawnContract, QAfterSortBy>
+      sortByTotalInterestCollectedDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'totalInterestCollected', Sort.desc);
+    });
+  }
+
   QueryBuilder<PawnContract, PawnContract, QAfterSortBy> sortByUpdatedAt() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'updatedAt', Sort.asc);
@@ -3083,6 +3747,19 @@ extension PawnContractQuerySortBy
 
 extension PawnContractQuerySortThenBy
     on QueryBuilder<PawnContract, PawnContract, QSortThenBy> {
+  QueryBuilder<PawnContract, PawnContract, QAfterSortBy> thenByAssetBrand() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'assetBrand', Sort.asc);
+    });
+  }
+
+  QueryBuilder<PawnContract, PawnContract, QAfterSortBy>
+      thenByAssetBrandDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'assetBrand', Sort.desc);
+    });
+  }
+
   QueryBuilder<PawnContract, PawnContract, QAfterSortBy> thenByAssetImage() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'assetImage', Sort.asc);
@@ -3093,6 +3770,19 @@ extension PawnContractQuerySortThenBy
       thenByAssetImageDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'assetImage', Sort.desc);
+    });
+  }
+
+  QueryBuilder<PawnContract, PawnContract, QAfterSortBy> thenByAssetModel() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'assetModel', Sort.asc);
+    });
+  }
+
+  QueryBuilder<PawnContract, PawnContract, QAfterSortBy>
+      thenByAssetModelDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'assetModel', Sort.desc);
     });
   }
 
@@ -3250,6 +3940,20 @@ extension PawnContractQuerySortThenBy
     });
   }
 
+  QueryBuilder<PawnContract, PawnContract, QAfterSortBy>
+      thenByLastInterestCollectionDate() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'lastInterestCollectionDate', Sort.asc);
+    });
+  }
+
+  QueryBuilder<PawnContract, PawnContract, QAfterSortBy>
+      thenByLastInterestCollectionDateDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'lastInterestCollectionDate', Sort.desc);
+    });
+  }
+
   QueryBuilder<PawnContract, PawnContract, QAfterSortBy> thenByNumberOfDays() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'numberOfDays', Sort.asc);
@@ -3314,6 +4018,19 @@ extension PawnContractQuerySortThenBy
     });
   }
 
+  QueryBuilder<PawnContract, PawnContract, QAfterSortBy> thenByRenewalCount() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'renewalCount', Sort.asc);
+    });
+  }
+
+  QueryBuilder<PawnContract, PawnContract, QAfterSortBy>
+      thenByRenewalCountDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'renewalCount', Sort.desc);
+    });
+  }
+
   QueryBuilder<PawnContract, PawnContract, QAfterSortBy> thenBySerial() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'serial', Sort.asc);
@@ -3351,6 +4068,20 @@ extension PawnContractQuerySortThenBy
     });
   }
 
+  QueryBuilder<PawnContract, PawnContract, QAfterSortBy>
+      thenByTotalInterestCollected() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'totalInterestCollected', Sort.asc);
+    });
+  }
+
+  QueryBuilder<PawnContract, PawnContract, QAfterSortBy>
+      thenByTotalInterestCollectedDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'totalInterestCollected', Sort.desc);
+    });
+  }
+
   QueryBuilder<PawnContract, PawnContract, QAfterSortBy> thenByUpdatedAt() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'updatedAt', Sort.asc);
@@ -3366,10 +4097,24 @@ extension PawnContractQuerySortThenBy
 
 extension PawnContractQueryWhereDistinct
     on QueryBuilder<PawnContract, PawnContract, QDistinct> {
+  QueryBuilder<PawnContract, PawnContract, QDistinct> distinctByAssetBrand(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'assetBrand', caseSensitive: caseSensitive);
+    });
+  }
+
   QueryBuilder<PawnContract, PawnContract, QDistinct> distinctByAssetImage(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'assetImage', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<PawnContract, PawnContract, QDistinct> distinctByAssetModel(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'assetModel', caseSensitive: caseSensitive);
     });
   }
 
@@ -3448,6 +4193,13 @@ extension PawnContractQueryWhereDistinct
     });
   }
 
+  QueryBuilder<PawnContract, PawnContract, QDistinct>
+      distinctByLastInterestCollectionDate() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'lastInterestCollectionDate');
+    });
+  }
+
   QueryBuilder<PawnContract, PawnContract, QDistinct> distinctByNumberOfDays() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'numberOfDays');
@@ -3480,6 +4232,12 @@ extension PawnContractQueryWhereDistinct
     });
   }
 
+  QueryBuilder<PawnContract, PawnContract, QDistinct> distinctByRenewalCount() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'renewalCount');
+    });
+  }
+
   QueryBuilder<PawnContract, PawnContract, QDistinct> distinctBySerial(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
@@ -3500,6 +4258,13 @@ extension PawnContractQueryWhereDistinct
     });
   }
 
+  QueryBuilder<PawnContract, PawnContract, QDistinct>
+      distinctByTotalInterestCollected() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'totalInterestCollected');
+    });
+  }
+
   QueryBuilder<PawnContract, PawnContract, QDistinct> distinctByUpdatedAt() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'updatedAt');
@@ -3515,9 +4280,21 @@ extension PawnContractQueryProperty
     });
   }
 
+  QueryBuilder<PawnContract, String?, QQueryOperations> assetBrandProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'assetBrand');
+    });
+  }
+
   QueryBuilder<PawnContract, String?, QQueryOperations> assetImageProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'assetImage');
+    });
+  }
+
+  QueryBuilder<PawnContract, String?, QQueryOperations> assetModelProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'assetModel');
     });
   }
 
@@ -3591,6 +4368,13 @@ extension PawnContractQueryProperty
     });
   }
 
+  QueryBuilder<PawnContract, DateTime?, QQueryOperations>
+      lastInterestCollectionDateProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'lastInterestCollectionDate');
+    });
+  }
+
   QueryBuilder<PawnContract, int?, QQueryOperations> numberOfDaysProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'numberOfDays');
@@ -3622,6 +4406,12 @@ extension PawnContractQueryProperty
     });
   }
 
+  QueryBuilder<PawnContract, int?, QQueryOperations> renewalCountProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'renewalCount');
+    });
+  }
+
   QueryBuilder<PawnContract, String?, QQueryOperations> serialProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'serial');
@@ -3638,6 +4428,13 @@ extension PawnContractQueryProperty
       totalInterestProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'totalInterest');
+    });
+  }
+
+  QueryBuilder<PawnContract, double?, QQueryOperations>
+      totalInterestCollectedProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'totalInterestCollected');
     });
   }
 

@@ -17,12 +17,10 @@ class CustomerNotifier extends StateNotifier<AsyncValue<List<Customer>>> {
     loadCustomers();
   }
 
-  Future<Isar> get _db => _isarService.db;
-
   Future<void> loadCustomers() async {
     try {
       state = const AsyncValue.loading();
-      final isar = await _db;
+      final isar = await _isarService.db;
       final customers = await isar.customers.where().findAll();
       state = AsyncValue.data(customers);
     } catch (e, st) {
@@ -32,9 +30,26 @@ class CustomerNotifier extends StateNotifier<AsyncValue<List<Customer>>> {
 
   Future<void> addCustomer(Customer customer) async {
     try {
-      final isar = await _db;
+      final isar = await _isarService.db;
       await isar.writeTxn(() async {
         await isar.customers.put(customer);
+      });
+      await loadCustomers();
+    } catch (e, st) {
+      state = AsyncValue.error(e, st);
+    }
+  }
+
+  Future<void> updateCustomerDebt(Id customerId, double amount) async {
+    try {
+      final isar = await _isarService.db;
+      await isar.writeTxn(() async {
+        final customer = await isar.customers.get(customerId);
+        if (customer != null) {
+          customer.debtAmount = (customer.debtAmount ?? 0) + amount;
+          customer.updatedAt = DateTime.now();
+          await isar.customers.put(customer);
+        }
       });
       await loadCustomers();
     } catch (e, st) {

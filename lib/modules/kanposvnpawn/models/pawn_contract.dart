@@ -38,6 +38,13 @@ class PawnContract {
   double? totalInterest;
   double? paidInterest;
   
+  int? renewalCount;
+  DateTime? lastInterestCollectionDate;
+  double? totalInterestCollected;
+  
+  String? assetModel;
+  String? assetBrand;
+  
   @enumerated
   PawnStatus status = PawnStatus.active;
   
