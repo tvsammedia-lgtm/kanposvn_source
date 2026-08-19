@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/ride_providers.dart';
+import '../../../core/widgets/owner_info_bar.dart';
 import '../models/ride_booking.dart';
 import 'ride_booking_screen.dart';
 import 'ride_map_screen.dart';
@@ -60,6 +61,8 @@ class RideDashboardScreen extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              const OwnerInfoBar(),
+              const SizedBox(height: 12),
               _buildStatsRow(pendingBookings.length),
               const SizedBox(height: 24),
               const Text('Chuyến đang chờ', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),

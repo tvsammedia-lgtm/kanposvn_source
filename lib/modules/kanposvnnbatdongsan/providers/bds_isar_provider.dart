@@ -12,6 +12,9 @@ final bdsIsarProvider = Provider<Isar>((ref) {
 
 class BdsDatabaseSetup {
   static Future<Isar> init() async {
+    const name = 'kanposvnnbatdongsan_db';
+    final existing = Isar.getInstance(name);
+    if (existing != null && existing.isOpen) return existing;
     final dir = await getApplicationDocumentsDirectory();
     return await Isar.open(
       [
@@ -20,7 +23,7 @@ class BdsDatabaseSetup {
         RealEstateBookingSchema,
       ],
       directory: dir.path,
-      name: 'kanposvnnbatdongsan_db',
+      name: name,
     );
   }
 }

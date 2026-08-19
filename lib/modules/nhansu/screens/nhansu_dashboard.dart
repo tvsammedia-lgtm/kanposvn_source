@@ -8,6 +8,7 @@ import '../../../core/providers.dart';
 import '../../../core/l10n/translations.dart';
 import '../../../core/widgets/app_shell.dart';
 import '../services/nhansu_seed_data.dart';
+import '../../../core/widgets/owner_info_bar.dart';
 
 class NhanSuDashboard extends ConsumerStatefulWidget {
   const NhanSuDashboard({super.key});
@@ -52,6 +53,8 @@ class _NhanSuDashboardState extends ConsumerState<NhanSuDashboard> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                const OwnerInfoBar(),
+                const SizedBox(height: 12),
                 Text(
                   'hr_overview'.tr,
                   style: Theme.of(context).textTheme.headlineSmall?.copyWith(

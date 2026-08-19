@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../core/widgets/owner_info_bar.dart';
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
@@ -11,15 +12,23 @@ class DashboardScreen extends StatelessWidget {
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: GridView.count(
-          crossAxisCount: 2,
-          crossAxisSpacing: 16.0,
-          mainAxisSpacing: 16.0,
+        child: Column(
           children: [
-            _buildStatCard('Doanh thu hôm nay', '2,500,000 đ', Colors.blue),
-            _buildStatCard('Lịch hẹn', '12', Colors.orange),
-            _buildStatCard('Khách đang chờ', '3', Colors.red),
-            _buildStatCard('Ghế đang sử dụng', '4/6', Colors.green),
+            const OwnerInfoBar(),
+            const SizedBox(height: 12),
+            Expanded(
+              child: GridView.count(
+                crossAxisCount: 2,
+                crossAxisSpacing: 16.0,
+                mainAxisSpacing: 16.0,
+                children: [
+                  _buildStatCard('Doanh thu hôm nay', '2,500,000 đ', Colors.blue),
+                  _buildStatCard('Lịch hẹn', '12', Colors.orange),
+                  _buildStatCard('Khách đang chờ', '3', Colors.red),
+                  _buildStatCard('Ghế đang sử dụng', '4/6', Colors.green),
+                ],
+              ),
+            ),
           ],
         ),
       ),

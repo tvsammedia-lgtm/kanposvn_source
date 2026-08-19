@@ -2,9 +2,32 @@ import 'package:intl/intl.dart';
 
 import '../../../core/auth/auth_service.dart';
 import '../../../core/printer/receipt_data.dart';
+import '../models/hotel_checkin_checkout.dart';
 import '../models/hotel_service.dart';
 
 final _fmt = DateFormat('dd/MM/yyyy HH:mm');
+
+/// Tính thời gian lưu trú dạng读人类-readable.
+/// Trả về chuỗi như "2 giờ 30 phút", "1 ngày 3 giờ", "Qua đêm (11h45p)".
+String _formatDuration(Duration diff, RentalType rentalType) {
+  final hours = diff.inHours;
+  final minutes = diff.inMinutes % 60;
+  final days = diff.inDays;
+
+  switch (rentalType) {
+    case RentalType.HOURLY:
+      if (hours > 0) return '$hours giờ $minutes phút';
+      return '$minutes phút';
+    case RentalType.OVERNIGHT:
+      return 'Qua đêm (${hours}h${minutes.toString().padLeft(2, '0')}p)';
+    case RentalType.DAILY:
+      if (days > 0) {
+        if (hours % 24 > 0) return '$days ngày ${hours % 24} giờ';
+        return '$days ngày';
+      }
+      return '$hours giờ $minutes phút';
+  }
+}
 
 /// Xây dựng [ReceiptData] hóa đơn thanh toán khách sạn từ các thành phần đã
 /// biết. Dùng ở cả THỜI ĐIỂM checkout (in lúc thu tiền — có số tiền khách
@@ -22,6 +45,7 @@ Future<ReceiptData> buildHotelReceiptData({
   required String roomName,
   required DateTime checkInTime,
   required DateTime checkoutTime,
+  required RentalType rentalType,
   double? cashReceived,
   String? paymentMethod,
   String? shopName,
@@ -43,6 +67,9 @@ Future<ReceiptData> buildHotelReceiptData({
     prePaidNote = ' | Đã cọc: ${prePaid.toStringAsFixed(0)}đ | Còn lại: ${amountDue.toStringAsFixed(0)}đ';
   }
 
+  final elapsed = checkoutTime.difference(checkInTime);
+  final durationStr = _formatDuration(elapsed, rentalType);
+
   return ReceiptData(
     shopName: resolvedShopName ?? 'KANPOSVN KHÁCH SẠN',
     shopPhone: resolvedShopPhone,
@@ -59,7 +86,7 @@ Future<ReceiptData> buildHotelReceiptData({
     cashReceived: cashReceived,
     change: change,
     qrData: checkInId,
-    note: 'Giờ vào: ${_fmt.format(checkInTime)} | Giờ ra: ${_fmt.format(checkoutTime)}$prePaidNote',
+    note: 'Thuê: ${rentalType.label} | Thời gian: $durationStr\nGiờ vào: ${_fmt.format(checkInTime)} | Giờ ra: ${_fmt.format(checkoutTime)}$prePaidNote',
   );
 }
 

@@ -4,6 +4,7 @@ import '../models/eshop_product.dart';
 import '../providers/eshop_providers.dart';
 import 'eshop_product_detail_screen.dart';
 import 'eshop_cart_screen.dart';
+import '../../../core/widgets/owner_info_bar.dart';
 
 class EshopDashboardScreen extends ConsumerWidget {
   const EshopDashboardScreen({super.key});
@@ -51,65 +52,73 @@ class EshopDashboardScreen extends ConsumerWidget {
           ],
         ),
       ),
-      body: products.isEmpty
-          ? const Center(child: Text('Chưa có sản phẩm nào.'))
-          : GridView.builder(
-              padding: const EdgeInsets.all(8.0),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                childAspectRatio: 0.75,
-                crossAxisSpacing: 8,
-                mainAxisSpacing: 8,
-              ),
-              itemCount: products.length,
-              itemBuilder: (context, index) {
-                final p = products[index];
-                return GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => EshopProductDetailScreen(product: p),
-                      ),
-                    );
-                  },
-                  child: Card(
-                    elevation: 2,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          child: Container(
-                            color: Colors.grey[200],
-                            width: double.infinity,
-                            child: const Icon(Icons.image, size: 50, color: Colors.grey),
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
+      body: Column(
+        children: [
+          const OwnerInfoBar(),
+          const SizedBox(height: 12),
+          Expanded(
+            child: products.isEmpty
+                ? const Center(child: Text('Chưa có sản phẩm nào.'))
+                : GridView.builder(
+                    padding: const EdgeInsets.all(8.0),
+                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      childAspectRatio: 0.75,
+                      crossAxisSpacing: 8,
+                      mainAxisSpacing: 8,
+                    ),
+                    itemCount: products.length,
+                    itemBuilder: (context, index) {
+                      final p = products[index];
+                      return GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => EshopProductDetailScreen(product: p),
+                            ),
+                          );
+                        },
+                        child: Card(
+                          elevation: 2,
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                p.name,
-                                style: const TextStyle(fontWeight: FontWeight.bold),
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
+                              Expanded(
+                                child: Container(
+                                  color: Colors.grey[200],
+                                  width: double.infinity,
+                                  child: const Icon(Icons.image, size: 50, color: Colors.grey),
+                                ),
                               ),
-                              const SizedBox(height: 4),
-                              Text(
-                                '${p.salePrice}đ',
-                                style: const TextStyle(color: Color(0xFFF97316), fontWeight: FontWeight.bold),
+                              Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      p.name,
+                                      style: const TextStyle(fontWeight: FontWeight.bold),
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      '${p.salePrice}đ',
+                                      style: const TextStyle(color: Color(0xFFF97316), fontWeight: FontWeight.bold),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ],
                           ),
                         ),
-                      ],
-                    ),
+                      );
+                    },
                   ),
-                );
-              },
-            ),
+          ),
+        ],
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           // Add a dummy product for testing

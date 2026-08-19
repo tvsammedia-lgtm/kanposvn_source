@@ -287,12 +287,23 @@ class AuthService extends ChangeNotifier {
     _storeAppCode = storeAppCode;
     _isStoreTrial = false;
     _licenseExpiresAt = null;
-    // Nhân viên không có owner info riêng — giữ store name/phone từ phiên
-    // Owner trước đó (cùng cửa hàng) và xóa owner name/phone cũ để tránh
-    // hiển thị nhầm tên chủ cửa hàng khác trên hóa đơn.
+    // Nhân viên không có owner info riêng — cập nhật store name/phone từ
+    // dữ liệu employee (backend trả về) để bill in đúng tên SĐT cửa hàng.
     final prefs = await SharedPreferences.getInstance();
-    _storeName ??= prefs.getString(_kStoreNameKey);
-    _storePhone ??= prefs.getString(_kStorePhoneKey);
+    final empStoreName = employee['storeName']?.toString();
+    final empStorePhone = employee['storePhone']?.toString();
+    if (empStoreName != null && empStoreName.isNotEmpty) {
+      _storeName = empStoreName;
+      await prefs.setString(_kStoreNameKey, empStoreName);
+    } else {
+      _storeName ??= prefs.getString(_kStoreNameKey);
+    }
+    if (empStorePhone != null && empStorePhone.isNotEmpty) {
+      _storePhone = empStorePhone;
+      await prefs.setString(_kStorePhoneKey, empStorePhone);
+    } else {
+      _storePhone ??= prefs.getString(_kStorePhoneKey);
+    }
     await prefs.remove(_kOwnerNameKey);
     await prefs.remove(_kOwnerPhoneKey);
     // Nhân viên chỉ được vào các module mà Owner đã tạo user local cho họ trong

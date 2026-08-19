@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../providers/statistics_provider.dart';
+import '../../../core/widgets/owner_info_bar.dart';
 import 'revenue_report_screen.dart';
 
 class DashboardScreen extends ConsumerWidget {
@@ -22,6 +23,8 @@ class DashboardScreen extends ConsumerWidget {
             child: ListView(
               padding: const EdgeInsets.all(16),
               children: [
+                const OwnerInfoBar(),
+                const SizedBox(height: 12),
                 const Text('THỐNG KÊ HÔM NAY', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.blue)),
                 const SizedBox(height: 16),
                 

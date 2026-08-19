@@ -5,6 +5,7 @@ import 'package:fl_chart/fl_chart.dart';
 import '../../core/providers.dart';
 import '../../core/app_theme.dart';
 import '../../core/widgets.dart';
+import '../../../../core/widgets/owner_info_bar.dart';
 
 class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
@@ -18,6 +19,13 @@ class DashboardScreen extends ConsumerWidget {
       backgroundColor: AppTheme.bg900,
       body: CustomScrollView(
         slivers: [
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(24, 12, 24, 0),
+              child: const OwnerInfoBar(),
+            ),
+          ),
+          const SliverToBoxAdapter(child: SizedBox(height: 12)),
           // App Bar
           SliverToBoxAdapter(
             child: Padding(

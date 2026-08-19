@@ -4,6 +4,7 @@ import '../../../core/providers.dart';
 import '../../../core/router/module_selector_screen.dart';
 import '../providers/nhathuoc_providers.dart';
 import '../models/nhathuoc_order.dart';
+import '../../../core/widgets/owner_info_bar.dart';
 
 class NhathuocDashboardScreen extends ConsumerWidget {
   const NhathuocDashboardScreen({super.key});
@@ -84,6 +85,8 @@ class NhathuocDashboardScreen extends ConsumerWidget {
           return ListView(
             padding: const EdgeInsets.all(16),
             children: [
+              const OwnerInfoBar(),
+              const SizedBox(height: 12),
               // Revenue cards
               const Text('Doanh Thu', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.blue)),
               const SizedBox(height: 8),

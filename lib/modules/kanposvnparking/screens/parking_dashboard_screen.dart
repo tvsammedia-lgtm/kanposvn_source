@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/parking_providers.dart';
+import '../../../core/widgets/owner_info_bar.dart';
 import 'parking_gate_screen.dart';
 import 'parking_monthly_screen.dart';
 import 'parking_rental_screen.dart';
@@ -58,6 +59,8 @@ class ParkingDashboardScreen extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              const OwnerInfoBar(),
+              const SizedBox(height: 12),
               _buildStatsRow(activeTickets.length),
               const SizedBox(height: 24),
               const Text('Xe đang gửi trong bãi', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),

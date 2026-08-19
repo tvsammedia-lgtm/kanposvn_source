@@ -11,6 +11,9 @@ final busIsarProvider = Provider<Isar>((ref) {
 
 class BusDatabaseSetup {
   static Future<Isar> init() async {
+    const name = 'kanposvnbanvevantai_db';
+    final existing = Isar.getInstance(name);
+    if (existing != null && existing.isOpen) return existing;
     final dir = await getApplicationDocumentsDirectory();
     return await Isar.open(
       [
@@ -18,7 +21,7 @@ class BusDatabaseSetup {
         BusTicketLocalSchema,
       ],
       directory: dir.path,
-      name: 'kanposvnbanvevantai_db',
+      name: name,
     );
   }
 }

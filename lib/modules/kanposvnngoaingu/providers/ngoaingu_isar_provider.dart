@@ -16,6 +16,9 @@ final ngoaiNguIsarProvider = Provider<Isar>((ref) {
 
 class NgoaiNguDatabaseSetup {
   static Future<Isar> init() async {
+    const name = 'kanposvnngoaingu_db';
+    final existing = Isar.getInstance(name);
+    if (existing != null && existing.isOpen) return existing;
     final dir = await getApplicationDocumentsDirectory();
     return await Isar.open(
       [
@@ -32,7 +35,7 @@ class NgoaiNguDatabaseSetup {
         NgoaiNguAIAssessmentSchema,
       ],
       directory: dir.path,
-      name: 'kanposvnngoaingu_db',
+      name: name,
     );
   }
 }

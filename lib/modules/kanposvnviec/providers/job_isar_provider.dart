@@ -12,6 +12,9 @@ final jobIsarProvider = Provider<Isar>((ref) {
 
 class JobDatabaseSetup {
   static Future<Isar> init() async {
+    const name = 'kanposvnviec_db';
+    final existing = Isar.getInstance(name);
+    if (existing != null && existing.isOpen) return existing;
     final dir = await getApplicationDocumentsDirectory();
     return await Isar.open(
       [
@@ -20,7 +23,7 @@ class JobDatabaseSetup {
         JobChatSchema,
       ],
       directory: dir.path,
-      name: 'kanposvnviec_db',
+      name: name,
     );
   }
 }

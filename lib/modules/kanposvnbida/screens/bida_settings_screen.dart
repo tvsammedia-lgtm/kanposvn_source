@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../core/printer/printer_models.dart';
-import '../../../core/printer/printer_service.dart';
-import '../../../core/printer/printer_settings_screen.dart';
 import '../providers/bida_providers.dart';
 import '../services/bida_einvoice_settings.dart';
+import '../../../core/auth/employee_management_screen.dart';
+import '../../../core/widgets/generic_backup_restore_screen.dart';
 
 /// Tab "Cài Đặt" của KanPosVN Bida.
 ///
@@ -27,7 +26,6 @@ class _BidaSettingsScreenState extends ConsumerState<BidaSettingsScreen> {
   late final TextEditingController _invoicePattern;
   late final TextEditingController _invoiceSymbol;
   late final TextEditingController _invoiceNumber;
-  bool _testing = false;
   bool _saving = false;
 
   @override
@@ -80,26 +78,8 @@ class _BidaSettingsScreenState extends ConsumerState<BidaSettingsScreen> {
     );
   }
 
-  Future<void> _testPrint() async {
-    setState(() => _testing = true);
-    final result = await ref.read(printerServiceProvider).testPrint();
-    if (!mounted) return;
-    setState(() => _testing = false);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(result.success
-            ? (result.message ?? 'In thử thành công')
-            : 'In thử thất bại: ${result.error}'),
-        backgroundColor:
-            result.success ? Colors.green.shade700 : Colors.red.shade700,
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
-    final printerStore = ref.watch(printerSettingsProvider);
-    final printer = printerStore.settings;
     final einvoiceStore = ref.watch(bidaEinvoiceSettingsProvider);
     final einvoice = einvoiceStore.settings;
 
@@ -108,103 +88,6 @@ class _BidaSettingsScreenState extends ConsumerState<BidaSettingsScreen> {
       body: ListView(
         padding: const EdgeInsets.all(20),
         children: [
-          // -----------------------------------------------------------------
-          // Máy in & khổ giấy
-          // -----------------------------------------------------------------
-          Text('MÁY IN & KHỔ GIẤY',
-              style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.grey[700])),
-          const SizedBox(height: 8),
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  ListTile(
-                    contentPadding: EdgeInsets.zero,
-                    leading: Icon(
-                      printer.isConfigured
-                          ? Icons.check_circle
-                          : Icons.print_disabled,
-                      color: printer.isConfigured
-                          ? Colors.green
-                          : Colors.orange,
-                    ),
-                    title: Text(
-                      printer.isConfigured
-                          ? (printer.name.isNotEmpty
-                              ? printer.name
-                              : printer.address)
-                          : 'Chưa cấu hình máy in',
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    subtitle: Text(
-                      '${printer.type.name.toUpperCase()} · ${printer.paper.label}'
-                      '${printer.isConfigured ? ' · ${printer.address}' : ''}',
-                    ),
-                  ),
-                  const Divider(),
-                  const Text('Khổ giấy in hóa đơn:',
-                      style: TextStyle(fontWeight: FontWeight.w600)),
-                  for (final paper in PaperSizeOption.values)
-                    RadioListTile<String>(
-                      dense: true,
-                      contentPadding: EdgeInsets.zero,
-                      activeColor: const Color(0xFF059669),
-                      title: Text(paper.label),
-                      subtitle: Text(
-                          paper.value == '58' ? 'Hóa đơn hẹp' : 'Hóa đơn tiêu chuẩn'),
-                      value: paper.value,
-                      groupValue: printer.paper.value,
-                      onChanged: (v) => printerStore.update(printer.copyWith(
-                          paper: PaperSizeOption.fromValue(v))),
-                    ),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: OutlinedButton.icon(
-                          onPressed: () async {
-                            await Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (_) =>
-                                    const PrinterSettingsScreen(),
-                              ),
-                            );
-                          },
-                          icon: const Icon(Icons.print_outlined),
-                          label: const Text('Mở Cài đặt Máy In'),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: FilledButton.icon(
-                          onPressed: _testing ? null : _testPrint,
-                          style: FilledButton.styleFrom(
-                            backgroundColor: const Color(0xFF059669),
-                          ),
-                          icon: _testing
-                              ? const SizedBox(
-                                  width: 16,
-                                  height: 16,
-                                  child: CircularProgressIndicator(
-                                      strokeWidth: 2),
-                                )
-                              : const Icon(Icons.print_outlined),
-                          label: Text(_testing ? 'Đang in...' : 'In thử'),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(height: 20),
-
           // -----------------------------------------------------------------
           // Hóa đơn điện tử
           // -----------------------------------------------------------------
@@ -284,6 +167,59 @@ class _BidaSettingsScreenState extends ConsumerState<BidaSettingsScreen> {
                   ),
                 ],
               ),
+            ),
+          ),
+          const SizedBox(height: 20),
+
+          // -----------------------------------------------------------------
+          // Quản lý nhân viên
+          // -----------------------------------------------------------------
+          Text('QUẢN LÝ NHÂN VIÊN',
+              style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.grey[700])),
+          const SizedBox(height: 8),
+          Card(
+            child: ListTile(
+              leading: const Icon(Icons.people, color: Colors.blue),
+              title: const Text('Quản lý tài khoản nhân viên'),
+              subtitle: const Text('Thêm, sửa, xóa tài khoản nhân viên & phân quyền'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => const EmployeeManagementScreen(),
+                  ),
+                );
+              },
+            ),
+          ),
+
+          const SizedBox(height: 20),
+
+          // -----------------------------------------------------------------
+          // Sao lưu / Phục hồi dữ liệu
+          // -----------------------------------------------------------------
+          Text('SAO LƯU / PHỤC HỒI DỮ LIỆU',
+              style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.grey[700])),
+          const SizedBox(height: 8),
+          Card(
+            child: ListTile(
+              leading: const Icon(Icons.backup, color: Colors.orange),
+              title: const Text('Sao lưu & Phục hồi dữ liệu'),
+              subtitle: const Text('Xuất file JSON để sao lưu, nhập file để phục hồi'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => const GenericBackupRestoreScreen(),
+                  ),
+                );
+              },
             ),
           ),
         ],

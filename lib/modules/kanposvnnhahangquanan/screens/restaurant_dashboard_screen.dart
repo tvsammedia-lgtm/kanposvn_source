@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/restaurant_providers.dart';
+import '../../../core/widgets/owner_info_bar.dart';
 
 class RestaurantDashboardScreen extends ConsumerWidget {
   const RestaurantDashboardScreen({super.key});
@@ -38,6 +39,8 @@ class RestaurantDashboardScreen extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                const OwnerInfoBar(),
+                const SizedBox(height: 12),
                 const Text('TỔNG QUAN HÔM NAY', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.orange)),
                 const SizedBox(height: 24),
                 Row(

@@ -5,6 +5,7 @@ import 'package:fl_chart/fl_chart.dart';
 import '../../../core/providers.dart';
 import '../../../core/auth/auth_service.dart';
 import '../../../core/widgets/account_switcher_button.dart';
+import '../../../core/widgets/owner_info_bar.dart';
 import '../models/cafe_table.dart';
 import '../models/cafe_order.dart';
 import '../providers/cafe_providers.dart';
@@ -56,6 +57,8 @@ class DashboardReportsScreen extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            const OwnerInfoBar(),
+            const SizedBox(height: 12),
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [

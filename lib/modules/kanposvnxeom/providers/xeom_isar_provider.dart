@@ -14,6 +14,9 @@ final xeOmIsarProvider = Provider<Isar>((ref) {
 
 class XeOmDatabaseSetup {
   static Future<Isar> init() async {
+    const name = 'kanposvnxeom_db';
+    final existing = Isar.getInstance(name);
+    if (existing != null && existing.isOpen) return existing;
     final dir = await getApplicationDocumentsDirectory();
     return await Isar.open(
       [
@@ -24,7 +27,7 @@ class XeOmDatabaseSetup {
         XeOmPaymentSchema,
       ],
       directory: dir.path,
-      name: 'kanposvnxeom_db',
+      name: name,
     );
   }
 }

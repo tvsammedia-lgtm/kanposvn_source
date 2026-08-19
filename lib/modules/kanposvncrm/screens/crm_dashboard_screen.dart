@@ -4,6 +4,7 @@ import '../../../core/providers.dart';
 import '../../../core/router/module_selector_screen.dart';
 import '../providers/crm_providers.dart';
 import '../models/customer.dart';
+import '../../../core/widgets/owner_info_bar.dart';
 
 import 'crm_customer_list_screen.dart';
 import 'crm_store_screen.dart';
@@ -102,6 +103,8 @@ class CrmDashboardScreen extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              const OwnerInfoBar(),
+              const SizedBox(height: 12),
               _buildStatsRow(customers.length, tickets.where((t) => t.status != 'closed').length),
               const SizedBox(height: 24),
               const Text('Khách hàng mới nhất', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),

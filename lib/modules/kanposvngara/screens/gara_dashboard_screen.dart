@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/providers.dart';
 import '../../../core/router/module_selector_screen.dart';
 import '../providers/gara_providers.dart';
+import '../../../core/widgets/owner_info_bar.dart';
 
 String _fmtVnd(double value) {
   final isNegative = value < 0;
@@ -83,6 +84,8 @@ class GaraDashboardScreen extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                const OwnerInfoBar(),
+                const SizedBox(height: 12),
                 _buildSectionTitle('TỔNG QUAN DOANH THU', Colors.blue),
                 const SizedBox(height: 16),
                 Row(

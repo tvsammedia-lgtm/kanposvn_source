@@ -9,8 +9,13 @@ class KanBatDongSanIsarDB {
   static Isar? _isar;
 
   static Future<Isar> getInstance() async {
-    if (_isar != null) return _isar!;
-
+    if (_isar != null && _isar!.isOpen) return _isar!;
+    const name = 'kanbatdongsan';
+    final existing = Isar.getInstance(name);
+    if (existing != null && existing.isOpen) {
+      _isar = existing;
+      return _isar!;
+    }
     final dir = await getApplicationDocumentsDirectory();
     _isar = await Isar.open(
       [
@@ -20,7 +25,7 @@ class KanBatDongSanIsarDB {
         BrokerSchema
       ],
       directory: dir.path,
-      name: 'kanbatdongsan',
+      name: name,
     );
     return _isar!;
   }

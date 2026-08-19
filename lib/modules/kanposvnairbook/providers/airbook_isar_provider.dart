@@ -12,6 +12,9 @@ final airbookIsarProvider = Provider<Isar>((ref) {
 
 class AirbookDatabaseSetup {
   static Future<Isar> init() async {
+    const name = 'kanposvnairbook_db';
+    final existing = Isar.getInstance(name);
+    if (existing != null && existing.isOpen) return existing;
     final dir = await getApplicationDocumentsDirectory();
     return await Isar.open(
       [
@@ -20,7 +23,7 @@ class AirbookDatabaseSetup {
         SyncQueueLocalSchema,
       ],
       directory: dir.path,
-      name: 'kanposvnairbook_db',
+      name: name,
     );
   }
 }

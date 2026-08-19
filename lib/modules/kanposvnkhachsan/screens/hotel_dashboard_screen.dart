@@ -7,6 +7,7 @@ import '../models/hotel_checkin_checkout.dart';
 import '../models/hotel_finance_accounting.dart';
 import '../providers/hotel_providers.dart';
 import '../services/hotel_billing_service.dart';
+import '../../../core/widgets/owner_info_bar.dart';
 
 class HotelDashboardScreen extends ConsumerWidget {
   const HotelDashboardScreen({super.key});
@@ -36,7 +37,8 @@ class HotelDashboardScreen extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // ── Row 1: Phòng ──
+            const OwnerInfoBar(),
+            const SizedBox(height: 12),
             roomsAsync.when(
               data: (rooms) => _buildRoomStats(rooms),
               loading: () => const CircularProgressIndicator(),

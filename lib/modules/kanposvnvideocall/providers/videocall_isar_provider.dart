@@ -14,6 +14,9 @@ final videoCallIsarProvider = Provider<Isar>((ref) {
 
 class VideoCallDatabaseSetup {
   static Future<Isar> init() async {
+    const name = 'kanposvnvideocall_db';
+    final existing = Isar.getInstance(name);
+    if (existing != null && existing.isOpen) return existing;
     final dir = await getApplicationDocumentsDirectory();
     return await Isar.open(
       [
@@ -24,7 +27,7 @@ class VideoCallDatabaseSetup {
         VideoCallHistorySchema,
       ],
       directory: dir.path,
-      name: 'kanposvnvideocall_db',
+      name: name,
     );
   }
 }

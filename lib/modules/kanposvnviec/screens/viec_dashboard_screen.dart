@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/viec_providers.dart';
+import '../../../core/widgets/owner_info_bar.dart';
 import 'viec_candidates_screen.dart';
 import 'viec_jobs_screen.dart';
 import 'viec_matching_screen.dart';
@@ -58,6 +59,8 @@ class ViecDashboardScreen extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              const OwnerInfoBar(),
+              const SizedBox(height: 12),
               _buildStatsRow(candidates.length),
               const SizedBox(height: 24),
               const Text('Ứng viên mới đăng ký', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),

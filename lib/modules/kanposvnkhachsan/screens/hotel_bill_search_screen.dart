@@ -70,6 +70,7 @@ class _HotelBillSearchScreenState extends ConsumerState<HotelBillSearchScreen> {
       roomName: checkIn.room.value?.roomName ?? '---',
       checkInTime: checkIn.actualCheckIn ?? checkIn.createdAt,
       checkoutTime: checkIn.actualCheckOut ?? checkIn.expectedCheckOut ?? DateTime.now(),
+      rentalType: checkIn.rentalType,
     );
     await printReceiptByMode(context, ref, receipt, ReceiptPrintMode.auto);
   }
@@ -84,41 +85,39 @@ class _HotelBillSearchScreenState extends ConsumerState<HotelBillSearchScreen> {
         foregroundColor: Colors.white,
         title: const Text('Tìm hóa đơn'),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  TextField(
-                    controller: _searchCtrl,
-                    decoration: InputDecoration(
-                      hintText: 'Tìm theo mã bill, tên khách, phòng...',
-                      prefixIcon: const Icon(Icons.search),
-                      border: const OutlineInputBorder(),
-                      suffixIcon: _searchCtrl.text.isEmpty
-                          ? null
-                          : IconButton(
-                              icon: const Icon(Icons.clear),
-                              onPressed: () => setState(() {
-                                _searchCtrl.clear();
-                              }),
-                            ),
-                    ),
-                    onChanged: (v) => setState(() {}),
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                TextField(
+                  controller: _searchCtrl,
+                  decoration: InputDecoration(
+                    hintText: 'Tìm theo mã bill, tên khách, phòng...',
+                    prefixIcon: const Icon(Icons.search),
+                    border: const OutlineInputBorder(),
+                    suffixIcon: _searchCtrl.text.isEmpty
+                        ? null
+                        : IconButton(
+                            icon: const Icon(Icons.clear),
+                            onPressed: () => setState(() {
+                              _searchCtrl.clear();
+                            }),
+                          ),
                   ),
-                  const SizedBox(height: 8),
-                  Wrap(
-                    spacing: 8,
-                    children: [
-                      InputChip(
-                        avatar: const Icon(Icons.calendar_today, size: 16),
-                        label: Text(_fromDate == null
-                            ? 'Từ ngày'
-                            : 'Từ: ${_dateFmt.format(_fromDate!)}'),
+                  onChanged: (v) => setState(() {}),
+                ),
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 8,
+                  children: [
+                    InputChip(
+                      avatar: const Icon(Icons.calendar_today, size: 16),
+                      label: Text(_fromDate == null
+                          ? 'Từ ngày'
+                          : 'Từ: ${_dateFmt.format(_fromDate!)}'),
                       onPressed: _pickFrom,
                       visualDensity: VisualDensity.compact,
                     ),
@@ -143,76 +142,76 @@ class _HotelBillSearchScreenState extends ConsumerState<HotelBillSearchScreen> {
                 ),
               ],
             ),
-            ),
-            Expanded(
-              child: checkInsAsync.when(
-                data: (list) {
-                  final items = _filter(list);
-                  if (items.isEmpty) {
-                    return const Center(
-                      child: Text('Chưa có hóa đơn nào'),
-                    );
-                  }
-                  return ListView.separated(
-                    itemCount: items.length,
-                    separatorBuilder: (_, __) => const SizedBox(height: 8),
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                    itemBuilder: (context, i) {
-                      final c = items[i];
-                      final code = c.checkInId.length > 8
-                          ? c.checkInId.substring(0, 8)
-                          : c.checkInId;
-                      final checkoutAt = c.actualCheckOut ?? c.expectedCheckOut;
-                      return Card(
-                        elevation: 0,
-                        child: ListTile(
-                          leading: const CircleAvatar(
-                            backgroundColor: AppColors.primary,
-                            foregroundColor: Colors.white,
-                            child: Icon(Icons.receipt_long, size: 20),
-                          ),
-                          title: Text(c.customerName.isEmpty
+          ),
+          Expanded(
+            child: checkInsAsync.when(
+              data: (list) {
+                final items = _filter(list);
+                if (items.isEmpty) {
+                  return const Center(child: Text('Chưa có hóa đơn nào'));
+                }
+                return ListView.separated(
+                  itemCount: items.length,
+                  separatorBuilder: (_, __) => const SizedBox(height: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  itemBuilder: (context, i) {
+                    final c = items[i];
+                    final code = c.checkInId.length > 8
+                        ? c.checkInId.substring(0, 8)
+                        : c.checkInId;
+                    final checkoutAt =
+                        c.actualCheckOut ?? c.expectedCheckOut;
+                    return Card(
+                      elevation: 0,
+                      child: ListTile(
+                        leading: const CircleAvatar(
+                          backgroundColor: AppColors.primary,
+                          foregroundColor: Colors.white,
+                          child: Icon(Icons.receipt_long, size: 20),
+                        ),
+                        title: Text(
+                          c.customerName.isEmpty
                               ? 'Khách vãng lai'
                               : c.customerName,
-                          style: const TextStyle(fontWeight: FontWeight.w600)),
-                          subtitle: Text(
-                            'Mã bill: $code\n${_dateFmt.format(checkoutAt ?? DateTime.now())} · Phòng ${c.room.value?.roomName ?? "---"}',
-                            style: const TextStyle(fontSize: 12),
-                          ),
-                          isThreeLine: true,
-                          trailing: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              Text(
-                                _currency.format(
-                                  (c.roomTotalCharge +
-                                          c.serviceTotalCharge -
-                                          c.discount -
-                                          (c.prePaid).clamp(0.0, double.infinity)).clamp(0.0, double.infinity),
-                                ),
-                                style: const TextStyle(fontWeight: FontWeight.bold),
+                          style: const TextStyle(fontWeight: FontWeight.w600),
+                        ),
+                        subtitle: Text(
+                          'Mã bill: $code\n${_dateFmt.format(checkoutAt ?? DateTime.now())} · Phòng ${c.room.value?.roomName ?? "---"}',
+                          style: const TextStyle(fontSize: 12),
+                        ),
+                        isThreeLine: true,
+                        trailing: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Text(
+                              _currency.format(
+                                (c.roomTotalCharge +
+                                        c.serviceTotalCharge -
+                                        c.discount -
+                                        (c.prePaid).clamp(0.0, double.infinity))
+                                    .clamp(0.0, double.infinity),
                               ),
-                              const SizedBox(height: 4),
-                              IconButton(
-                                icon: const Icon(Icons.print,
-                                    color: AppColors.primary),
-                                tooltip: 'In lại',
-                                onPressed: () => _reprint(c),
-                              ),
-                            ],
+                              style: const TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                            const SizedBox(height: 2),
+                            InkWell(
+                              onTap: () => _reprint(c),
+                              child: const Icon(Icons.print,
+                                  color: AppColors.primary, size: 20),
+                            ),
+                          ],
                         ),
                       ),
                     );
                   },
                 );
-                },
-                loading: () => const Center(child: CircularProgressIndicator()),
-                error: (e, _) => Center(child: Text('Lỗi tải hóa đơn: $e')),
-              ),
+              },
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (e, _) => Center(child: Text('Lỗi tải hóa đơn: $e')),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

@@ -21,7 +21,13 @@ class DatabaseService {
   }
 
   Future<void> initialize() async {
-    if (_isar != null) return;
+    if (_isar != null && _isar!.isOpen) return;
+    const name = 'hrpayroll_db';
+    final existing = Isar.getInstance(name);
+    if (existing != null && existing.isOpen) {
+      _isar = existing;
+      return;
+    }
     final dir = await getApplicationDocumentsDirectory();
     _isar = await Isar.open(
       [
@@ -36,7 +42,7 @@ class DatabaseService {
         BonusRecordSchema,
       ],
       directory: dir.path,
-      name: 'hrpayroll_db',
+      name: name,
     );
   }
 

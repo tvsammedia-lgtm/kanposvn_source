@@ -33,6 +33,9 @@ final pawnEinvoiceSettingsProvider =
 
 class PawnDatabaseSetup {
   static Future<Isar> init() async {
+    const name = 'kanposvnpawn_db';
+    final existing = Isar.getInstance(name);
+    if (existing != null && existing.isOpen) return existing;
     final dir = await getApplicationDocumentsDirectory();
     return await Isar.open(
       [
@@ -46,7 +49,7 @@ class PawnDatabaseSetup {
         SettingsSchema,
       ],
       directory: dir.path,
-      name: 'kanposvnpawn_db',
+      name: name,
     );
   }
 }

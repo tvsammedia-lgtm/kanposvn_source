@@ -7,6 +7,7 @@ import 'gym_pos_screen.dart';
 import 'gym_trainer_screen.dart';
 import 'gym_settings_screen.dart';
 import '../../../core/auth/employee_management_screen.dart';
+import '../../../core/widgets/owner_info_bar.dart';
 
 class GymDashboardScreen extends ConsumerWidget {
   const GymDashboardScreen({super.key});
@@ -89,6 +90,8 @@ class GymDashboardScreen extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              const OwnerInfoBar(),
+              const SizedBox(height: 12),
               _buildStatsRow(members.length, checkInsAsync.valueOrNull?.length ?? 0),
               const SizedBox(height: 24),
               const Text('Hội viên đăng ký gần đây', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),

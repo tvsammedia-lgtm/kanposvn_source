@@ -18,6 +18,7 @@ import 'finance_screen.dart';
 import 'debt_screen.dart';
 import 'report_screen.dart';
 import 'taphoa_settings_screen.dart';
+import '../../../core/widgets/owner_info_bar.dart';
 
 class TapHoaDashboardScreen extends ConsumerStatefulWidget {
   const TapHoaDashboardScreen({super.key});
@@ -213,6 +214,8 @@ class _TapHoaDashboardScreenState extends ConsumerState<TapHoaDashboardScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  const OwnerInfoBar(),
+                  const SizedBox(height: 12),
                   _buildStatsRow(context, todayRevenue, todayOrders, products.length, inventoryValue),
                   const SizedBox(height: 16),
                   if (lowStock.isNotEmpty || expiringSoon.isNotEmpty) ...[

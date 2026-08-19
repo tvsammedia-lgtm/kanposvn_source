@@ -342,9 +342,7 @@ class _RoomPosScreenState extends ConsumerState<RoomPosScreen> {
     ReceiptPrintMode mode = ReceiptPrintMode.auto,
   }) async {
     final checkInTime = widget.checkIn.actualCheckIn ?? widget.checkIn.createdAt;
-    final now = widget.checkIn.actualCheckOut ??
-        widget.checkIn.expectedCheckOut ??
-        DateTime.now();
+    final now = DateTime.now();
 
     // Tính toán thanh toán: amountDue = (phòng + dịch vụ) − giảm giá − đã cọc.
     final gross = roomCharge + serviceTotal;
@@ -376,6 +374,7 @@ class _RoomPosScreenState extends ConsumerState<RoomPosScreen> {
         roomName: widget.room.roomName,
         checkInTime: checkInTime,
         checkoutTime: now,
+        rentalType: widget.checkIn.rentalType,
         cashReceived: received,
         paymentMethod: paymentMethod,
       );

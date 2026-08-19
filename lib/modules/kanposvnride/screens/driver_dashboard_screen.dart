@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../providers/ride_report_provider.dart';
+import '../../../core/widgets/owner_info_bar.dart';
 
 class DriverDashboardScreen extends ConsumerStatefulWidget {
   const DriverDashboardScreen({super.key});
@@ -36,6 +37,8 @@ class _DriverDashboardScreenState extends ConsumerState<DriverDashboardScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                const OwnerInfoBar(),
+                const SizedBox(height: 12),
                 const Text('Tổng quan doanh thu', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 16),
                 

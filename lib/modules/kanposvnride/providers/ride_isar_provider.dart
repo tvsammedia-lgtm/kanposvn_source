@@ -12,6 +12,9 @@ final rideIsarProvider = Provider<Isar>((ref) {
 
 class RideDatabaseSetup {
   static Future<Isar> init() async {
+    const name = 'kanposvnride_db';
+    final existing = Isar.getInstance(name);
+    if (existing != null && existing.isOpen) return existing;
     final dir = await getApplicationDocumentsDirectory();
     return await Isar.open(
       [
@@ -20,7 +23,7 @@ class RideDatabaseSetup {
         RideBookingSchema,
       ],
       directory: dir.path,
-      name: 'kanposvnride_db',
+      name: name,
     );
   }
 }

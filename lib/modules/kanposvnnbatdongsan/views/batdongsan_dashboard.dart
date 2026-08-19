@@ -5,6 +5,7 @@ import '../../../core/auth/employee_auth.dart';
 import '../../../core/auth/employee_management_screen.dart';
 import '../../../core/auth/employee_role_policy.dart';
 import '../../../core/widgets/account_switcher_button.dart';
+import '../../../core/widgets/owner_info_bar.dart';
 
 import '../../../core/providers.dart';
 import '../providers/batdongsan_providers.dart';
@@ -118,9 +119,14 @@ class _BatDongSanDashboardState extends ConsumerState<BatDongSanDashboard> {
           AccountSwitcherButton(),
         ],
       ),
-      body: Row(
+      body: Column(
         children: [
-          NavigationRail(
+          const OwnerInfoBar(),
+          const SizedBox(height: 12),
+          Expanded(
+            child: Row(
+              children: [
+                NavigationRail(
             selectedIndex: safeIndex,
             onDestinationSelected: (index) => setState(() => _selectedIndex = index),
             labelType: NavigationRailLabelType.all,
@@ -137,6 +143,9 @@ class _BatDongSanDashboardState extends ConsumerState<BatDongSanDashboard> {
           ),
           const VerticalDivider(thickness: 1, width: 1),
           Expanded(child: tabs[safeIndex].screen),
+        ],
+      ),
+          ),
         ],
       ),
     );

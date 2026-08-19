@@ -54,11 +54,14 @@ class DatabaseService extends ChangeNotifier {
 
   /// Mở database riêng của cửa hàng: `isar_store_<storeId>`.
   static Future<Isar> openStoreIsar(String storeId) async {
+    final name = 'isar_store_$storeId';
+    final existing = Isar.getInstance(name);
+    if (existing != null && existing.isOpen) return existing;
     final dir = await getApplicationDocumentsDirectory();
     return Isar.open(
       [DataEntitySchema],
       directory: dir.path,
-      name: 'isar_store_$storeId',
+      name: name,
     );
   }
 

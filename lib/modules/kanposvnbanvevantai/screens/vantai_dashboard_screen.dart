@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/vantai_providers.dart';
+import '../../../core/widgets/owner_info_bar.dart';
 
 class VantaiDashboardScreen extends ConsumerWidget {
   const VantaiDashboardScreen({super.key});
@@ -24,6 +25,8 @@ class VantaiDashboardScreen extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                const OwnerInfoBar(),
+                const SizedBox(height: 12),
                 const Text('BÁO CÁO KẾT QUẢ KINH DOANH (P&L)', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.blue)),
                 const SizedBox(height: 24),
                 Row(
