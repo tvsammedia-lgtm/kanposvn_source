@@ -55,7 +55,7 @@ class BidaTablesScreen extends ConsumerWidget {
           return GridView.builder(
             padding: const EdgeInsets.all(16),
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 5,
+              crossAxisCount: 6,
               crossAxisSpacing: 16,
               mainAxisSpacing: 16,
               childAspectRatio: 1.2,
@@ -83,7 +83,7 @@ class BidaTablesScreen extends ConsumerWidget {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.sports_baseball, size: 40, color: Colors.white),
+                      Icon(Icons.sports, size: 40, color: Colors.white),
                       const SizedBox(height: 8),
                       Text(table.name, style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 18)),
                       const SizedBox(height: 4),

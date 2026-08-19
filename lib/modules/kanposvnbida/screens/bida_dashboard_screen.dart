@@ -31,9 +31,14 @@ class BidaDashboardScreen extends ConsumerWidget {
       appBar: AppBar(title: const Text('Báo Cáo Doanh Thu Bida')),
       body: dashboardAsync.when(
         data: (metrics) {
-          final timeRev = metrics['timeRevenue'] ?? 0.0;
-          final itemRev = metrics['itemRevenue'] ?? 0.0;
-          final totalRev = metrics['totalRevenue'] ?? 0.0;
+          final timeRev = (metrics['timeRevenue'] ?? 0.0) as double;
+          final itemRev = (metrics['itemRevenue'] ?? 0.0) as double;
+          final totalRev = (metrics['totalRevenue'] ?? 0.0) as double;
+          final todayRev = (metrics['todayRevenue'] ?? 0.0) as double;
+          final todayCount = (metrics['todaySessionCount'] ?? 0) as int;
+          final openCount = (metrics['openSessionCount'] ?? 0) as int;
+          final activeTables = (metrics['activeTables'] ?? 0) as int;
+          final totalTables = (metrics['totalTables'] ?? 0) as int;
 
           return Padding(
             padding: const EdgeInsets.all(32.0),
@@ -51,6 +56,18 @@ class BidaDashboardScreen extends ConsumerWidget {
                     Expanded(child: _buildMetricCard('Doanh Thu Giờ Chơi', '${timeRev.toStringAsFixed(0)} đ', Colors.orange)),
                     const SizedBox(width: 16),
                     Expanded(child: _buildMetricCard('Doanh Thu Nước/Đồ Ăn', '${itemRev.toStringAsFixed(0)} đ', Colors.purple)),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  children: [
+                    Expanded(child: _buildMetricCard('Doanh Thu Hôm Nay', '${todayRev.toStringAsFixed(0)} đ', Colors.teal)),
+                    const SizedBox(width: 16),
+                    Expanded(child: _buildMetricCard('Phiên Hôm Nay', '$todayCount', Colors.blue)),
+                    const SizedBox(width: 16),
+                    Expanded(child: _buildMetricCard('Bàn Đang Chơi', '$activeTables / $totalTables', openCount > 0 ? Colors.red : Colors.grey)),
+                    const SizedBox(width: 16),
+                    Expanded(child: _buildMetricCard('Phiên Đang Mở', '$openCount', openCount > 0 ? Colors.amber : Colors.grey)),
                   ],
                 ),
               ],

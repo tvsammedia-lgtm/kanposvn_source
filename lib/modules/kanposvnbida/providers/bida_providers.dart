@@ -78,6 +78,9 @@ class BidaSessionsNotifier extends StateNotifier<AsyncValue<List<BidaSession>>> 
       state = const AsyncValue.loading();
       final db = await _isarService.db;
       final data = await db.bidaSessions.where().findAll();
+      for (final s in data) {
+        await s.table.load();
+      }
       state = AsyncValue.data(data);
     } catch (e, st) {
       state = AsyncValue.error(e, st);
@@ -110,6 +113,7 @@ class BidaSessionsNotifier extends StateNotifier<AsyncValue<List<BidaSession>>> 
   
   Future<void> addItemToSession(BidaSession session, BidaItem item) async {
     try {
+      if (item.stock <= 0) return;
       final db = await _isarService.db;
       await db.writeTxn(() async {
         bool found = false;
@@ -145,14 +149,15 @@ class BidaSessionsNotifier extends StateNotifier<AsyncValue<List<BidaSession>>> 
   Future<void> checkoutSession(BidaSession session, double totalTimeCost) async {
     try {
       final db = await _isarService.db;
+      await session.table.load();
       await db.writeTxn(() async {
         session.status = BidaSessionStatus.PAID;
         session.endTime = DateTime.now();
         session.totalTimeCost = totalTimeCost;
         await db.bidaSessions.put(session);
 
-        if (session.table.value != null) {
-          final table = session.table.value!;
+        final table = session.table.value;
+        if (table != null) {
           table.status = BidaTableStatus.EMPTY;
           await db.bidaTables.put(table);
         }
@@ -168,6 +173,7 @@ class BidaSessionsNotifier extends StateNotifier<AsyncValue<List<BidaSession>>> 
   Future<void> transferTable(BidaSession session, BidaTable newTable) async {
     try {
       final db = await _isarService.db;
+      await session.table.load();
       await db.writeTxn(() async {
         final oldTable = session.table.value;
         if (oldTable != null) {
@@ -191,6 +197,8 @@ class BidaSessionsNotifier extends StateNotifier<AsyncValue<List<BidaSession>>> 
   Future<void> mergeTables(BidaSession sourceSession, BidaSession targetSession, double sourceTimeCost) async {
     try {
       final db = await _isarService.db;
+      await sourceSession.table.load();
+      await targetSession.table.load();
       await db.writeTxn(() async {
         // 1. Add time cost as a special item in target
         final updatedLines = List<BidaOrderLine>.from(targetSession.orderLines);
@@ -240,6 +248,29 @@ class BidaSessionsNotifier extends StateNotifier<AsyncValue<List<BidaSession>>> 
     }
   }
 
+  Future<void> cancelSession(BidaSession session) async {
+    try {
+      final db = await _isarService.db;
+      await session.table.load();
+      await db.writeTxn(() async {
+        session.status = BidaSessionStatus.CANCELLED;
+        session.endTime = DateTime.now();
+        await db.bidaSessions.put(session);
+
+        final table = session.table.value;
+        if (table != null) {
+          table.status = BidaTableStatus.EMPTY;
+          await db.bidaTables.put(table);
+        }
+      });
+      await loadSessions();
+      ref.read(bidaTablesProvider.notifier).loadTables();
+      ref.read(bidaDashboardProvider.notifier).loadDashboard();
+    } catch (e, st) {
+      state = AsyncValue.error(e, st);
+    }
+  }
+
   late Ref ref;
   void setRef(Ref r) => ref = r;
 }
@@ -261,21 +292,44 @@ class BidaDashboardNotifier extends StateNotifier<AsyncValue<Map<String, dynamic
       state = const AsyncValue.loading();
       final db = await _isarService.db;
       final sessions = await db.bidaSessions.where().findAll();
+      for (final s in sessions) {
+        await s.table.load();
+      }
+      final tables = await db.bidaTables.where().findAll();
+      
+      final now = DateTime.now();
+      final todayStart = DateTime(now.year, now.month, now.day);
       
       double timeRevenue = 0;
       double itemRevenue = 0;
+      double todayRevenue = 0;
+      int todaySessionCount = 0;
+      int openSessionCount = 0;
+      int activeTables = 0;
       
       for (var s in sessions) {
         if (s.status == BidaSessionStatus.PAID) {
           timeRevenue += s.totalTimeCost;
           itemRevenue += s.totalItemCost;
+          if (s.startTime != null && !s.startTime!.isBefore(todayStart)) {
+            todayRevenue += s.grandTotal;
+            todaySessionCount++;
+          }
+        } else if (s.status == BidaSessionStatus.OPEN) {
+          openSessionCount++;
         }
       }
+      activeTables = tables.where((t) => t.status == BidaTableStatus.PLAYING).length;
       
       state = AsyncValue.data({
         'timeRevenue': timeRevenue,
         'itemRevenue': itemRevenue,
         'totalRevenue': timeRevenue + itemRevenue,
+        'todayRevenue': todayRevenue,
+        'todaySessionCount': todaySessionCount,
+        'openSessionCount': openSessionCount,
+        'activeTables': activeTables,
+        'totalTables': tables.length,
       });
     } catch (e, st) {
       state = AsyncValue.error(e, st);

@@ -105,7 +105,10 @@ class _BidaInventoryScreenState extends ConsumerState<BidaInventoryScreen> {
                             color: isLowStock ? Colors.red[50] : Colors.white,
                             child: ListTile(
                               leading: Icon(
-                                item.category == BidaItemCategory.DRINK ? Icons.local_drink : Icons.fastfood,
+                                item.category == BidaItemCategory.DRINK ? Icons.local_drink
+                                  : item.category == BidaItemCategory.FOOD ? Icons.fastfood
+                                  : item.category == BidaItemCategory.TOBACCO ? Icons.smoking_rooms
+                                  : Icons.category,
                                 color: isLowStock ? Colors.red : Colors.blue,
                               ),
                               title: Text(item.name, style: TextStyle(fontWeight: FontWeight.bold, color: isLowStock ? Colors.red : Colors.black)),

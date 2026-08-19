@@ -115,7 +115,11 @@ class _BidaPosScreenState extends ConsumerState<BidaPosScreen> {
               itemCount: playingTables.length,
               itemBuilder: (c, i) {
                 final targetTable = playingTables[i];
-                final targetSession = allSessions.firstWhere((s) => s.table.value?.id == targetTable.id && s.status == BidaSessionStatus.OPEN);
+                final targetSession = allSessions.cast<BidaSession?>().firstWhere(
+                  (s) => s != null && s.table.value?.id == targetTable.id && s.status == BidaSessionStatus.OPEN,
+                  orElse: () => null,
+                );
+                if (targetSession == null) return const SizedBox.shrink();
                 return ListTile(
                   title: Text(targetTable.name),
                   onTap: () {
@@ -138,7 +142,7 @@ class _BidaPosScreenState extends ConsumerState<BidaPosScreen> {
     double timeCost,
     ReceiptPrintMode mode,
   ) async {
-    ref.read(bidaSessionsProvider.notifier).checkoutSession(session, timeCost);
+    await ref.read(bidaSessionsProvider.notifier).checkoutSession(session, timeCost);
     final total = timeCost + session.totalItemCost;
     try {
       await printReceiptByMode(
@@ -196,7 +200,7 @@ class _BidaPosScreenState extends ConsumerState<BidaPosScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.sports_baseball, size: 100, color: Colors.grey),
+                  const Icon(Icons.sports, size: 100, color: Colors.grey),
                   const SizedBox(height: 16),
                   Text('Bàn đang trống', style: TextStyle(fontSize: 24, color: Colors.grey[700])),
                   const SizedBox(height: 24),
@@ -252,6 +256,28 @@ class _BidaPosScreenState extends ConsumerState<BidaPosScreen> {
                               _showMergeDialog(context, activeSession, allTables, allSessions, timeCost);
                             },
                           ),
+                          ElevatedButton.icon(
+                            style: ElevatedButton.styleFrom(backgroundColor: Colors.red[700], foregroundColor: Colors.white),
+                            icon: const Icon(Icons.cancel),
+                            label: const Text('HỦY PHIÊN'),
+                            onPressed: () async {
+                              final confirm = await showDialog<bool>(
+                                context: context,
+                                builder: (ctx) => AlertDialog(
+                                  title: const Text('Xác nhận hủy'),
+                                  content: const Text('Phiên chơi sẽ bị hủy và bàn trở về trạng thái trống?'),
+                                  actions: [
+                                    TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('KHÔNG')),
+                                    ElevatedButton(style: ElevatedButton.styleFrom(backgroundColor: Colors.red), onPressed: () => Navigator.pop(ctx, true), child: const Text('HỦY PHIÊN', style: TextStyle(color: Colors.white))),
+                                  ],
+                                ),
+                              );
+                              if (confirm == true) {
+                                await ref.read(bidaSessionsProvider.notifier).cancelSession(activeSession);
+                                if (context.mounted) Navigator.pop(context);
+                              }
+                            },
+                          ),
                         ],
                       ),
                     ),
@@ -279,7 +305,13 @@ class _BidaPosScreenState extends ConsumerState<BidaPosScreen> {
                                   child: Column(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      Icon(item.category == BidaItemCategory.DRINK ? Icons.local_drink : Icons.fastfood, size: 32, color: Colors.blue),
+                                      Icon(
+                                        item.category == BidaItemCategory.DRINK ? Icons.local_drink
+                                          : item.category == BidaItemCategory.FOOD ? Icons.fastfood
+                                          : item.category == BidaItemCategory.TOBACCO ? Icons.smoking_rooms
+                                          : Icons.category,
+                                        size: 32, color: Colors.blue,
+                                      ),
                                       const SizedBox(height: 8),
                                       Text(item.name, textAlign: TextAlign.center, style: const TextStyle(fontWeight: FontWeight.bold)),
                                       Text('${item.price} đ', style: const TextStyle(color: Colors.red)),

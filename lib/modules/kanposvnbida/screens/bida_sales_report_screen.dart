@@ -79,7 +79,7 @@ class _BidaSalesReportScreenState extends ConsumerState<BidaSalesReportScreen> {
     return sessions.where((session) {
       if (session.startTime == null) return false;
       final sessionDate = session.startTime!;
-      return sessionDate.isAfter(_startDate!) && sessionDate.isBefore(_endDate!);
+      return !sessionDate.isBefore(_startDate!) && !sessionDate.isAfter(_endDate!);
     }).toList();
   }
 
