@@ -24,15 +24,40 @@ class _GaraReceptionScreenState extends ConsumerState<GaraReceptionScreen> {
   final _kmCtrl = TextEditingController();
   final _notesCtrl = TextEditingController();
 
+  GaraCustomer? _existingCustomer;
+
+  void _onPhoneChanged(String phone) {
+    if (phone.length >= 10) {
+      final customers = ref.read(garaCustomersProvider).valueOrNull ?? [];
+      final match = customers.where((c) => c.phone == phone).toList();
+      if (match.isNotEmpty) {
+        setState(() {
+          _existingCustomer = match.first;
+          _customerNameCtrl.text = match.first.name;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Đã tìm thấy KH: ${match.first.name}'), backgroundColor: Colors.green),
+        );
+      } else {
+        setState(() => _existingCustomer = null);
+      }
+    }
+  }
+
   void _submit() async {
     if (!_formKey.currentState!.validate()) return;
     
-    // 1. Create/Find Customer
-    final customer = GaraCustomer()
-      ..customerId = const Uuid().v4()
-      ..name = _customerNameCtrl.text
-      ..phone = _customerPhoneCtrl.text;
-    await ref.read(garaCustomersProvider.notifier).addCustomer(customer);
+    // 1. Use existing customer or create new
+    GaraCustomer customer;
+    if (_existingCustomer != null) {
+      customer = _existingCustomer!;
+    } else {
+      customer = GaraCustomer()
+        ..customerId = const Uuid().v4()
+        ..name = _customerNameCtrl.text
+        ..phone = _customerPhoneCtrl.text;
+      await ref.read(garaCustomersProvider.notifier).addCustomer(customer);
+    }
     
     // 2. Create/Find Vehicle
     final vehicle = GaraVehicle()
@@ -60,6 +85,7 @@ class _GaraReceptionScreenState extends ConsumerState<GaraReceptionScreen> {
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Tiếp nhận xe thành công!')));
       _formKey.currentState!.reset();
+      setState(() => _existingCustomer = null);
       _plateCtrl.clear();
       _brandCtrl.clear();
       _modelCtrl.clear();
@@ -101,7 +127,7 @@ class _GaraReceptionScreenState extends ConsumerState<GaraReceptionScreen> {
                 children: [
                   Expanded(child: TextFormField(controller: _customerNameCtrl, decoration: const InputDecoration(labelText: 'Tên Khách hàng (*)', border: OutlineInputBorder()), validator: (v) => v!.isEmpty ? 'Nhập tên khách hàng' : null)),
                   const SizedBox(width: 16),
-                  Expanded(child: TextFormField(controller: _customerPhoneCtrl, decoration: const InputDecoration(labelText: 'Số điện thoại', border: OutlineInputBorder()))),
+                  Expanded(child: TextFormField(controller: _customerPhoneCtrl, onChanged: _onPhoneChanged, decoration: const InputDecoration(labelText: 'Số điện thoại', border: OutlineInputBorder()))),
                 ],
               ),
               const SizedBox(height: 32),

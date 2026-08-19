@@ -78,6 +78,7 @@ class GaraDashboardScreen extends ConsumerWidget {
           final payable = m['payable'] ?? 0.0;
           final cashBalance = m['cashBalance'] ?? 0.0;
           final partsValue = m['partsValue'] ?? 0.0;
+          final profit = m['profit'] ?? 0.0;
 
           return SingleChildScrollView(
             padding: const EdgeInsets.all(24.0),
@@ -94,6 +95,8 @@ class GaraDashboardScreen extends ConsumerWidget {
                     const SizedBox(width: 16),
                     Expanded(child: _buildMetricCard('Tổng Doanh Thu', _fmtVnd(totalRevenue), Colors.green)),
                     const SizedBox(width: 16),
+                    Expanded(child: _buildMetricCard('Lợi Nhuận', _fmtVnd(profit), profit >= 0 ? Colors.teal : Colors.red)),
+                    const SizedBox(width: 16),
                     Expanded(child: _buildMetricCard('Lệnh Sửa Chữa', '${m['orderCount'] ?? 0}', Colors.teal)),
                   ],
                 ),
@@ -105,6 +108,8 @@ class GaraDashboardScreen extends ConsumerWidget {
                     Expanded(child: _buildMetricCard('Chờ Sửa Chữa', '${m['waiting'] ?? 0} xe', Colors.orange)),
                     const SizedBox(width: 16),
                     Expanded(child: _buildMetricCard('Đang Sửa Chữa', '${m['inProgress'] ?? 0} xe', Colors.deepOrange)),
+                    const SizedBox(width: 16),
+                    Expanded(child: _buildMetricCard('Đã Giao Xe', '${m['delivered'] ?? 0} xe', Colors.green)),
                     const SizedBox(width: 16),
                     Expanded(child: _buildMetricCard('Xe Đã Lưu', '${m['vehicleCount'] ?? 0}', Colors.brown)),
                   ],

@@ -87,20 +87,27 @@ class _GaraInventoryScreenState extends ConsumerState<GaraInventoryScreen> {
                       itemCount: parts.length,
                       itemBuilder: (context, index) {
                         final p = parts[index];
-                        return ListTile(
-                          leading: const Icon(Icons.settings),
-                          title: Text(p.name, style: const TextStyle(fontWeight: FontWeight.bold)),
-                          subtitle: Text('Giá nhập: ${p.purchasePrice} | Giá bán: ${p.retailPrice}'),
-                          trailing: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text('Tồn: ${p.currentStock}', style: const TextStyle(fontSize: 16, color: Colors.blue, fontWeight: FontWeight.bold)),
-                              const SizedBox(width: 16),
-                              ElevatedButton(
-                                onPressed: () => _showImportDialog(context, p),
-                                child: const Text('Nhập Hàng'),
-                              )
-                            ],
+                        final isLow = p.currentStock <= 5;
+                        return Card(
+                          color: isLow ? Colors.red[50] : null,
+                          margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          child: ListTile(
+                            leading: Icon(Icons.settings, color: isLow ? Colors.red : Colors.blue),
+                            title: Text(p.name, style: TextStyle(fontWeight: FontWeight.bold, color: isLow ? Colors.red : Colors.black)),
+                            subtitle: Text('SKU: ${p.sku} | Nhập: ${p.purchasePrice} đ | Bán: ${p.retailPrice} đ'),
+                            trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text('Tồn: ${p.currentStock.toInt()}', style: TextStyle(fontSize: 16, color: isLow ? Colors.red : Colors.green, fontWeight: FontWeight.bold)),
+                                const SizedBox(width: 8),
+                                if (isLow) const Icon(Icons.warning, color: Colors.red, size: 20),
+                                const SizedBox(width: 8),
+                                ElevatedButton(
+                                  onPressed: () => _showImportDialog(context, p),
+                                  child: const Text('Nhập Hàng'),
+                                )
+                              ],
+                            ),
                           ),
                         );
                       },
@@ -123,14 +130,17 @@ class _GaraInventoryScreenState extends ConsumerState<GaraInventoryScreen> {
                       itemCount: txs.length,
                       itemBuilder: (context, index) {
                         final tx = txs[index];
+                        final isImport = tx.type == GaraInventoryTransactionType.IMPORT;
+                        final dateStr = tx.transactionDate != null
+                            ? '${tx.transactionDate!.day.toString().padLeft(2, '0')}/${tx.transactionDate!.month.toString().padLeft(2, '0')}/${tx.transactionDate!.year}'
+                            : '';
                         return ListTile(
                           leading: Icon(
-                            tx.type == GaraInventoryTransactionType.IMPORT ? Icons.arrow_downward : Icons.arrow_upward,
-                            color: tx.type == GaraInventoryTransactionType.IMPORT ? Colors.green : Colors.red,
+                            isImport ? Icons.arrow_downward : Icons.arrow_upward,
+                            color: isImport ? Colors.green : Colors.red,
                           ),
-                          title: Text(tx.documentCode),
-                          subtitle: Text(tx.transactionDate.toString()),
-                          trailing: Text(tx.type.label, style: const TextStyle(fontWeight: FontWeight.bold)),
+                          title: Text(tx.documentCode, style: const TextStyle(fontWeight: FontWeight.bold)),
+                          subtitle: Text('$dateStr — ${tx.type.label}'),
                         );
                       },
                     );

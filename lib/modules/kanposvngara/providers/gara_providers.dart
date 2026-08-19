@@ -136,6 +136,10 @@ class GaraOrdersNotifier extends StateNotifier<AsyncValue<List<GaraRepairOrder>>
       state = const AsyncValue.loading();
       final db = await _isarService.db;
       final orders = await db.garaRepairOrders.where().findAll();
+      for (final o in orders) {
+        await o.customer.load();
+        await o.vehicle.load();
+      }
       state = AsyncValue.data(orders);
     } catch (e, st) {
       state = AsyncValue.error(e, st);
@@ -243,8 +247,9 @@ final garaSuppliersProvider = StateNotifierProvider<GaraSuppliersNotifier, Async
 // Inventory
 class GaraInventoryNotifier extends StateNotifier<AsyncValue<List<GaraInventoryTransaction>>> {
   final GaraIsarService _isarService;
+  final Ref _ref;
 
-  GaraInventoryNotifier(this._isarService) : super(const AsyncValue.loading()) {
+  GaraInventoryNotifier(this._isarService, this._ref) : super(const AsyncValue.loading()) {
     loadTransactions();
   }
 
@@ -282,7 +287,7 @@ class GaraInventoryNotifier extends StateNotifier<AsyncValue<List<GaraInventoryT
         }
       });
       await loadTransactions();
-      // Need to refresh products provider
+      _ref.read(garaProductsProvider.notifier).loadProducts();
     } catch (e, st) {
       state = AsyncValue.error(e, st);
     }
@@ -290,8 +295,7 @@ class GaraInventoryNotifier extends StateNotifier<AsyncValue<List<GaraInventoryT
 }
 
 final garaInventoryProvider = StateNotifierProvider<GaraInventoryNotifier, AsyncValue<List<GaraInventoryTransaction>>>((ref) {
-  final isarService = ref.watch(garaIsarServiceProvider);
-  return GaraInventoryNotifier(isarService);
+  return GaraInventoryNotifier(ref.watch(garaIsarServiceProvider), ref);
 });
 
 // Finance
@@ -377,12 +381,14 @@ final garaDashboardProvider = FutureProvider<Map<String, dynamic>>((ref) async {
   int orderCount = 0;
   int inProgress = 0;
   int waiting = 0;
+  int delivered = 0;
 
   for (final o in orders) {
     orderCount++;
     totalRevenue += o.totalAmount;
     if (o.status == GaraOrderStatus.RECEPTION) waiting++;
     if (o.status == GaraOrderStatus.IN_PROGRESS) inProgress++;
+    if (o.status == GaraOrderStatus.DELIVERED) delivered++;
     final od = o.orderDate;
     if (od != null &&
         od.year == today.year && od.month == today.month && od.day == today.day) {
@@ -430,6 +436,19 @@ final garaDashboardProvider = FutureProvider<Map<String, dynamic>>((ref) async {
 
   final vehicles = await db.garaVehicles.where().findAll();
 
+  // Calculate profit: total revenue - inventory export costs (COGS)
+  double inventoryCosts = 0;
+  final invTxs = await db.garaInventoryTransactions.where().findAll();
+  for (final tx in invTxs) {
+    if (tx.type == GaraInventoryTransactionType.EXPORT) {
+      await tx.details.load();
+      for (final d in tx.details) {
+        inventoryCosts += d.totalAmount;
+      }
+    }
+  }
+  final profit = totalRevenue - inventoryCosts;
+
   return {
     'todayRevenue': todayRevenue,
     'totalRevenue': totalRevenue,
@@ -444,5 +463,8 @@ final garaDashboardProvider = FutureProvider<Map<String, dynamic>>((ref) async {
     'lowStock': lowStock,
     'partsValue': partsValue,
     'vehicleCount': vehicles.length,
+    'delivered': delivered,
+    'profit': profit,
+    'inventoryCosts': inventoryCosts,
   };
 });

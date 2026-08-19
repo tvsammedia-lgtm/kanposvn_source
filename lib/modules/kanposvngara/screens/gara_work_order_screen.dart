@@ -22,17 +22,29 @@ class _GaraWorkOrderScreenState extends ConsumerState<GaraWorkOrderScreen> {
   GaraRepairOrder? _selectedOrder;
   final List<GaraRepairDetail> _currentDetails = [];
 
-  void _selectOrder(GaraRepairOrder order) {
+  void _selectOrder(GaraRepairOrder order) async {
     setState(() {
       _selectedOrder = order;
       _currentDetails.clear();
-      // Load details from DB if needed, here we just start fresh for simplicity in this demo.
-      // In a real app we would load: _currentDetails.addAll(order.details.toList());
     });
+    // Load existing details from DB
+    final details = await ref.read(garaOrderDetailsProvider(order.id).future);
+    if (mounted) {
+      setState(() {
+        _currentDetails.addAll(details);
+      });
+    }
   }
 
   void _addService(GaraProduct product) {
     if (_selectedOrder == null) return;
+    // Stock guard: prevent adding PART when stock is 0
+    if (product.type == GaraProductType.PART && product.currentStock <= 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('${product.name} đã hết tồn kho!')),
+      );
+      return;
+    }
     setState(() {
       final existingIndex = _currentDetails.indexWhere((d) => d.product.value?.id == product.id);
       if (existingIndex >= 0) {
@@ -55,10 +67,51 @@ class _GaraWorkOrderScreenState extends ConsumerState<GaraWorkOrderScreen> {
   void _completeOrder() async {
     if (_selectedOrder == null) return;
 
-    _selectedOrder!.status = GaraOrderStatus.COMPLETED;
+    // Show payment dialog
+    final remainingAmount = _totalAmount - _selectedOrder!.paidAmount;
+    final paidAmountCtrl = TextEditingController(text: remainingAmount > 0 ? remainingAmount.toStringAsFixed(0) : '0');
+    
+    final paymentResult = await showDialog<double>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Thanh Toán'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text('Tổng phí: ${_totalAmount.toStringAsFixed(0)} đ', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+            if (_selectedOrder!.paidAmount > 0)
+              Text('Đã tạm ứng: ${_selectedOrder!.paidAmount.toStringAsFixed(0)} đ', style: const TextStyle(color: Colors.green)),
+            if (_selectedOrder!.paidAmount > 0)
+              Text('Còn lại: ${remainingAmount.toStringAsFixed(0)} đ', style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 16),
+            TextField(
+              controller: paidAmountCtrl,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(labelText: 'Số tiền thanh toán (VNĐ)', border: OutlineInputBorder()),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Hủy')),
+          ElevatedButton(
+            onPressed: () {
+              final amt = double.tryParse(paidAmountCtrl.text) ?? 0;
+              Navigator.pop(ctx, amt);
+            },
+            child: const Text('Xác Nhận'),
+          ),
+        ],
+      ),
+    );
+    if (paymentResult == null) return;
+
+    final totalPaid = _selectedOrder!.paidAmount + paymentResult;
+    final isFullyPaid = totalPaid >= _totalAmount;
+
+    _selectedOrder!.status = isFullyPaid ? GaraOrderStatus.DELIVERED : GaraOrderStatus.COMPLETED;
     _selectedOrder!.totalAmount = _totalAmount;
     _selectedOrder!.subTotal = _totalAmount;
-    _selectedOrder!.paidAmount = _totalAmount;
+    _selectedOrder!.paidAmount = totalPaid;
 
     await ref.read(garaOrdersProvider.notifier).updateOrderWithDetails(_selectedOrder!, _currentDetails);
 
@@ -93,12 +146,12 @@ class _GaraWorkOrderScreenState extends ConsumerState<GaraWorkOrderScreen> {
     }
 
     // Phiếu thu tiền khách -> ghi sổ quỹ & giảm công nợ
-    if (_selectedOrder!.paidAmount > 0) {
+    if (paymentResult > 0) {
       final finTx = GaraFinanceTransaction()
         ..transactionId = const Uuid().v4()
         ..documentCode = 'PT-${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}'
         ..type = GaraFinanceTransactionType.RECEIPT
-        ..amount = _selectedOrder!.paidAmount
+        ..amount = paymentResult
         ..description = 'Thu tiền sửa xe ${customer?.name ?? ''} - ${_selectedOrder!.orderCode}'
         ..transactionDate = DateTime.now();
       finTx.customer.value = customer;
@@ -132,7 +185,8 @@ class _GaraWorkOrderScreenState extends ConsumerState<GaraWorkOrderScreen> {
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('In phiếu thất bại: $e')));
         }
       }
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Thanh toán và Giao xe thành công!')));
+      final msg = isFullyPaid ? 'Thanh toán đầy đủ & Giao xe thành công!' : 'Đã ghi nhận thanh toán ${paymentResult.toStringAsFixed(0)} đ. Đơn hàng chuyển sang hoàn thành.';
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
       setState(() {
         _selectedOrder = null;
         _currentDetails.clear();
@@ -223,8 +277,10 @@ class _GaraWorkOrderScreenState extends ConsumerState<GaraWorkOrderScreen> {
                                         mainAxisAlignment: MainAxisAlignment.center,
                                         children: [
                                           Icon(product.type == GaraProductType.PART ? Icons.settings : Icons.engineering, size: 30),
-                                          const SizedBox(height: 8),
+                                          const SizedBox(height: 4),
                                           Text(product.name, textAlign: TextAlign.center, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                                          if (product.type == GaraProductType.PART)
+                                            Text('Tồn: ${product.currentStock}', style: TextStyle(fontSize: 11, color: product.currentStock <= 5 ? Colors.red : Colors.green, fontWeight: FontWeight.bold)),
                                         ],
                                       ),
                                     ),

@@ -79,7 +79,7 @@ class _GaraSalesReportScreenState extends ConsumerState<GaraSalesReportScreen> {
     return orders.where((order) {
       if (order.orderDate == null) return false;
       final orderDate = order.orderDate!;
-      return orderDate.isAfter(_startDate!) && orderDate.isBefore(_endDate!);
+      return !orderDate.isBefore(_startDate!) && !orderDate.isAfter(_endDate!);
     }).toList();
   }
 
