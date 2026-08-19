@@ -4,6 +4,13 @@ import '../models/hostel.dart';
 import '../models/room.dart';
 import '../models/tenant.dart';
 import '../models/contract.dart';
+import '../models/payment.dart';
+import '../models/expense.dart';
+import '../models/electric_reading.dart';
+import '../models/water_reading.dart';
+import '../models/hostel_service.dart';
+import '../models/maintenance.dart';
+import '../models/asset.dart';
 
 class NhaTroIsarDB {
   static Isar? _isar;
@@ -22,7 +29,14 @@ class NhaTroIsarDB {
         HostelSchema,
         RoomSchema,
         TenantSchema,
-        ContractSchema
+        ContractSchema,
+        PaymentSchema,
+        HostelExpenseSchema,
+        ElectricReadingSchema,
+        WaterReadingSchema,
+        HostelServiceSchema,
+        MaintenanceSchema,
+        AssetSchema,
       ],
       directory: dir.path,
       name: name,

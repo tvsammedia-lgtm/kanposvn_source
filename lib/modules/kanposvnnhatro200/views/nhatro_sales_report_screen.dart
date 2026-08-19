@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../providers/nhatro_providers.dart';
 import '../models/contract.dart';
+import '../models/room.dart';
+import '../models/tenant.dart';
 
 class NhaTroSalesReportScreen extends ConsumerStatefulWidget {
   const NhaTroSalesReportScreen({super.key});
@@ -257,6 +259,10 @@ class _NhaTroSalesReportScreenState extends ConsumerState<NhaTroSalesReportScree
 
   Widget _buildDetailsSection(List<Contract> contracts) {
     final currencyFormat = NumberFormat.currency(locale: 'vi_VN', symbol: '');
+    final roomsAsync = ref.watch(roomsProvider);
+    final tenantsAsync = ref.watch(tenantsProvider);
+    final roomMap = roomsAsync.maybeWhen(data: (r) => {for (final x in r) x.uuid: x}, orElse: () => <String?, Room>{});
+    final tenantMap = tenantsAsync.maybeWhen(data: (t) => {for (final x in t) x.uuid: x}, orElse: () => <String?, Tenant>{});
 
     if (contracts.isEmpty) {
       return const Center(child: Text('Không có hợp đồng nào trong khoảng thời gian này'));
@@ -267,6 +273,8 @@ class _NhaTroSalesReportScreenState extends ConsumerState<NhaTroSalesReportScree
       itemCount: contracts.length,
       itemBuilder: (context, index) {
         final contract = contracts[index];
+        final room = roomMap[contract.roomUuid];
+        final tenant = tenantMap[contract.tenantUuid];
         return Card(
           margin: const EdgeInsets.only(bottom: 8),
           child: ListTile(
@@ -274,8 +282,8 @@ class _NhaTroSalesReportScreenState extends ConsumerState<NhaTroSalesReportScree
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Phòng: ${contract.roomUuid ?? "N/A"}'),
-                Text('Khách thuê: ${contract.tenantUuid ?? "N/A"}'),
+                Text('Phòng: ${room?.roomCode ?? contract.roomUuid ?? "N/A"}'),
+                Text('Khách: ${tenant?.fullName ?? contract.tenantUuid ?? "N/A"}'),
                 if (contract.startDate != null)
                   Text('Ngày bắt đầu: ${DateFormat('dd/MM/yyyy').format(contract.startDate!)}'),
                 if (contract.endDate != null)
