@@ -111,6 +111,9 @@ class VlxdOrdersNotifier extends StateNotifier<AsyncValue<List<VlxdOrder>>> {
       final db = await _isarService.db;
       await db.writeTxn(() async {
         await db.vlxdOrders.put(order);
+        if (order.customer.value != null) {
+          await order.customer.save();
+        }
         for (var d in details) {
           await db.vlxdOrderDetails.put(d);
           await d.order.save();
@@ -320,6 +323,7 @@ final vlxdDashboardProvider = FutureProvider<Map<String, dynamic>>((ref) async {
   final today = DateTime(now.year, now.month, now.day);
 
   double todayRevenue = 0;
+  double monthRevenue = 0;
   double totalRevenue = 0;
   int orderCount = 0;
   int pendingOrders = 0;
@@ -337,6 +341,9 @@ final vlxdDashboardProvider = FutureProvider<Map<String, dynamic>>((ref) async {
     if (od.year == today.year && od.month == today.month && od.day == today.day) {
       todayRevenue += o.totalAmount;
     }
+    if (od.year == today.year && od.month == today.month) {
+      monthRevenue += o.totalAmount;
+    }
   }
 
   double receivable = 0;
@@ -353,12 +360,23 @@ final vlxdDashboardProvider = FutureProvider<Map<String, dynamic>>((ref) async {
 
   double receipts = 0;
   double payments = 0;
+  double todayExpenses = 0;
+  double monthExpenses = 0;
   final financeTxs = await db.vlxdFinanceTransactions.where().findAll();
   for (final t in financeTxs) {
     if (t.type == FinanceTransactionType.RECEIPT) {
       receipts += t.amount;
     } else {
       payments += t.amount;
+    }
+    if (t.type == FinanceTransactionType.PAYMENT) {
+      final td = t.transactionDate;
+      if (td.year == today.year && td.month == today.month && td.day == today.day) {
+        todayExpenses += t.amount;
+      }
+      if (td.year == today.year && td.month == today.month) {
+        monthExpenses += t.amount;
+      }
     }
   }
 
@@ -374,7 +392,12 @@ final vlxdDashboardProvider = FutureProvider<Map<String, dynamic>>((ref) async {
 
   return {
     'todayRevenue': todayRevenue,
+    'monthRevenue': monthRevenue,
     'totalRevenue': totalRevenue,
+    'todayExpenses': todayExpenses,
+    'monthExpenses': monthExpenses,
+    'profit': todayRevenue - todayExpenses,
+    'monthProfit': monthRevenue - monthExpenses,
     'orderCount': orderCount,
     'pendingOrders': pendingOrders,
     'activeContracts': activeContracts,

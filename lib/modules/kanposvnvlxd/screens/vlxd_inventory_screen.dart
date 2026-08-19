@@ -649,7 +649,7 @@ class _TransactionHistoryTab extends ConsumerWidget {
                   ),
                 ),
                 title: Text('${tx.documentCode} - ${tx.type.label}'),
-                subtitle: Text('Ngày: _formatDate(tx.transactionDate)'), // Date placeholder
+                subtitle: Text('Ngày: ${tx.transactionDate.day.toString().padLeft(2, '0')}/${tx.transactionDate.month.toString().padLeft(2, '0')}/${tx.transactionDate.year}'),
               ),
             );
           },

@@ -4,6 +4,7 @@ import 'package:uuid/uuid.dart';
 import '../providers/vlxd_providers.dart';
 import '../models/vlxd_product.dart';
 import '../models/vlxd_order.dart';
+import '../models/vlxd_partner.dart';
 import '../services/vlxd_receipt_printer.dart';
 import '../../../core/printer/printer_actions.dart';
 import '../../../core/printer/receipt_print_mode.dart';
@@ -18,6 +19,9 @@ class VlxdPosScreen extends ConsumerStatefulWidget {
 class _VlxdPosScreenState extends ConsumerState<VlxdPosScreen> {
   final List<VlxdOrderDetail> _cart = [];
   String _searchQuery = '';
+  VlxdCustomer? _selectedCustomer;
+  double _discountPercent = 0;
+  PaymentMethod _selectedPaymentMethod = PaymentMethod.CASH;
 
   void _addToCart(VlxdProduct product) {
     setState(() {
@@ -51,6 +55,21 @@ class _VlxdPosScreenState extends ConsumerState<VlxdPosScreen> {
 
   double get _cartTotal => _cart.fold(0.0, (sum, item) => sum + item.total);
 
+  double get _vatTotal {
+    double vat = 0;
+    for (final item in _cart) {
+      final product = item.product.value;
+      if (product != null && product.vatRate > 0) {
+        vat += item.total * product.vatRate / 100;
+      }
+    }
+    return vat;
+  }
+
+  double get _discountAmount => _cartTotal * _discountPercent / 100;
+
+  double get _grandTotal => _cartTotal - _discountAmount + _vatTotal;
+
   void _processPayment(ReceiptPrintMode mode) async {
     if (_cart.isEmpty) return;
 
@@ -58,11 +77,17 @@ class _VlxdPosScreenState extends ConsumerState<VlxdPosScreen> {
       ..orderId = const Uuid().v4()
       ..orderCode = 'POS-${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}'
       ..subTotal = _cartTotal
-      ..totalAmount = _cartTotal
-      ..paidAmount = _cartTotal
-      ..paymentMethod = PaymentMethod.CASH
+      ..discount = _discountAmount
+      ..vatAmount = _vatTotal
+      ..totalAmount = _grandTotal
+      ..paidAmount = _grandTotal
+      ..paymentMethod = _selectedPaymentMethod
       ..status = OrderStatus.COMPLETED
       ..orderDate = DateTime.now();
+
+    if (_selectedCustomer != null) {
+      order.customer.value = _selectedCustomer;
+    }
 
     await ref.read(vlxdOrdersProvider.notifier).createOrder(order, _cart);
 
@@ -175,7 +200,83 @@ class _VlxdPosScreenState extends ConsumerState<VlxdPosScreen> {
                   padding: const EdgeInsets.all(16),
                   color: Colors.grey[200],
                   width: double.infinity,
-                  child: const Text('Giỏ hàng', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('Giỏ hàng', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                      const SizedBox(height: 8),
+                      Consumer(
+                        builder: (context, ref, _) {
+                          final customersAsync = ref.watch(vlxdCustomersProvider);
+                          return customersAsync.when(
+                            data: (customers) => DropdownButtonFormField<VlxdCustomer>(
+                              value: _selectedCustomer,
+                              hint: const Text('Khách hàng (tùy chọn)'),
+                              isExpanded: true,
+                              decoration: const InputDecoration(
+                                isDense: true,
+                                contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                                border: OutlineInputBorder(),
+                              ),
+                              items: [
+                                const DropdownMenuItem<VlxdCustomer>(
+                                  value: null,
+                                  child: Text('Khách vãng lai'),
+                                ),
+                                ...customers.map((c) => DropdownMenuItem<VlxdCustomer>(
+                                  value: c,
+                                  child: Text('${c.name}${c.phone.isNotEmpty ? ' (${c.phone})' : ''}', overflow: TextOverflow.ellipsis),
+                                )),
+                              ],
+                              onChanged: (val) => setState(() => _selectedCustomer = val),
+                            ),
+                            loading: () => const SizedBox.shrink(),
+                            error: (_, __) => const SizedBox.shrink(),
+                          );
+                        },
+                      ),
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: TextField(
+                              keyboardType: TextInputType.number,
+                              decoration: const InputDecoration(
+                                isDense: true,
+                                contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                                hintText: 'Giảm giá %',
+                                border: OutlineInputBorder(),
+                                suffixText: '%',
+                              ),
+                              onChanged: (val) {
+                                final v = double.tryParse(val) ?? 0;
+                                setState(() => _discountPercent = v.clamp(0, 100));
+                              },
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: DropdownButtonFormField<PaymentMethod>(
+                              value: _selectedPaymentMethod,
+                              isExpanded: true,
+                              decoration: const InputDecoration(
+                                isDense: true,
+                                contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                                border: OutlineInputBorder(),
+                              ),
+                              items: PaymentMethod.values.map((pm) => DropdownMenuItem<PaymentMethod>(
+                                value: pm,
+                                child: Text(pm.label),
+                              )).toList(),
+                              onChanged: (val) {
+                                if (val != null) setState(() => _selectedPaymentMethod = val);
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
                 Expanded(
                   child: _cart.isEmpty
@@ -223,8 +324,36 @@ class _VlxdPosScreenState extends ConsumerState<VlxdPosScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
+                          const Text('Tạm tính:', style: TextStyle(fontSize: 14, color: Colors.grey)),
+                          Text('$_cartTotal đ', style: const TextStyle(fontSize: 14)),
+                        ],
+                      ),
+                      if (_discountPercent > 0) ...[
+                        const SizedBox(height: 4),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text('Giảm giá ($_discountPercent%):', style: const TextStyle(fontSize: 14, color: Colors.orange)),
+                            Text('-${_discountAmount.toStringAsFixed(0)} đ', style: const TextStyle(fontSize: 14, color: Colors.orange)),
+                          ],
+                        ),
+                      ],
+                      if (_vatTotal > 0) ...[
+                        const SizedBox(height: 4),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text('VAT:', style: TextStyle(fontSize: 14, color: Colors.blue)),
+                            Text('${_vatTotal.toStringAsFixed(0)} đ', style: const TextStyle(fontSize: 14, color: Colors.blue)),
+                          ],
+                        ),
+                      ],
+                      const Divider(),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
                           const Text('Tổng cộng:', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                          Text('$_cartTotal đ', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.red)),
+                          Text('${_grandTotal.toStringAsFixed(0)} đ', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.red)),
                         ],
                       ),
                       const SizedBox(height: 16),

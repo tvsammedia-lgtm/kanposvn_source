@@ -1523,19 +1523,26 @@ class VlxdSeedData {
     // 3. Khách hàng, nhà cung cấp, kho
     // ----------------------------------------------------------------
     final customers = [
-      VlxdCustomer()..customerId = uuid.v4()..name = 'Khách lẻ'..phone = '0901234001'..type = CustomerType.RETAIL,
-      VlxdCustomer()..customerId = uuid.v4()..name = 'Đại lý Hoàng Anh'..phone = '0901234002'..type = CustomerType.AGENCY..currentDebt = 15000000..discountRate = 5,
-      VlxdCustomer()..customerId = uuid.v4()..name = 'Công trình Minh Phát'..phone = '0901234003'..type = CustomerType.PROJECT..currentDebt = 85000000,
-      VlxdCustomer()..customerId = uuid.v4()..name = 'Nhà thầu Xây dựng Sông Đà'..phone = '0901234004'..type = CustomerType.CONTRACTOR..currentDebt = 120000000,
+      VlxdCustomer()..customerId = uuid.v4()..name = 'Khách lẻ'..phone = '0901234001'..email = 'kle@kanposvn.vn'..taxCode = ''..type = CustomerType.RETAIL..debtLimit = 0,
+      VlxdCustomer()..customerId = uuid.v4()..name = 'Đại lý Hoàng Anh'..phone = '0901234002'..email = 'hoanganh@gmail.com'..taxCode = '0123456789'..type = CustomerType.AGENCY..currentDebt = 15000000..discountRate = 5..debtLimit = 50000000..deliveryAddress = '123 Nguyễn Văn Linh, Q.7, TP.HCM',
+      VlxdCustomer()..customerId = uuid.v4()..name = 'Công trình Minh Phát'..phone = '0901234003'..email = 'minhphat@congtrinh.vn'..taxCode = '0987654321'..type = CustomerType.PROJECT..currentDebt = 85000000..debtLimit = 200000000..deliveryAddress = 'Khu đô thị mới, Long An',
+      VlxdCustomer()..customerId = uuid.v4()..name = 'Nhà thầu Xây dựng Sông Đà'..phone = '0901234004'..email = 'songda@nhathau.vn'..taxCode = '0567891234'..type = CustomerType.CONTRACTOR..currentDebt = 120000000..discountRate = 8..debtLimit = 300000000..deliveryAddress = 'P.501, Tòa nhà ABC, Q.3, TP.HCM',
+      VlxdCustomer()..customerId = uuid.v4()..name = 'Doanh nghiệp ABC'..phone = '0901234005'..email = 'abc@dnhn.vn'..taxCode = '0345678901'..type = CustomerType.ENTERPRISE..currentDebt = 35000000..debtLimit = 100000000..deliveryAddress = 'KCN Bình Dương',
+      VlxdCustomer()..customerId = uuid.v4()..name = 'Đại lý Vật tư Sài Gòn'..phone = '0901234006'..email = 'dailysg@gmail.com'..taxCode = '0678901234'..type = CustomerType.AGENCY..currentDebt = 28000000..discountRate = 6..debtLimit = 80000000..deliveryAddress = '456 Lê Văn Sỹ, Q. Tân Bình',
+      VlxdCustomer()..customerId = uuid.v4()..name = 'Nhà thầu Delta'..phone = '0901234007'..email = 'delta@nhathau.vn'..taxCode = '0456789012'..type = CustomerType.CONTRACTOR..currentDebt = 67000000..discountRate = 7..debtLimit = 150000000..deliveryAddress = '789 Cách Mạng Tháng 8, Q.10',
+      VlxdCustomer()..customerId = uuid.v4()..name = 'Công trình Trường học XYZ'..phone = '0901234008'..email = 'truonghoc@congtrinh.vn'..taxCode = '0789012345'..type = CustomerType.PROJECT..currentDebt = 0..debtLimit = 250000000..deliveryAddress = 'Ấp 5, H. Bình Chánh',
     ];
     await db.writeTxn(() async {
       await db.vlxdCustomers.putAll(customers);
     });
 
     final suppliers = [
-      VlxdSupplier()..supplierId = uuid.v4()..name = 'Công ty Thép Việt'..phone = '0281234001'..address = 'Bình Dương'..contactPerson = 'Mr. Lực',
-      VlxdSupplier()..supplierId = uuid.v4()..name = 'Xi măng Hoàng Thạch'..phone = '0281234002'..address = 'Hải Phòng'..contactPerson = 'Mr. Thạch',
-      VlxdSupplier()..supplierId = uuid.v4()..name = 'Gạch men Tân Thanh'..phone = '0281234003'..address = 'Đồng Nai'..contactPerson = 'Mr. Thanh',
+      VlxdSupplier()..supplierId = uuid.v4()..name = 'Công ty Thép Việt'..phone = '0281234001'..email = 'info@thepviet.vn'..taxCode = '1000000001'..address = 'Bình Dương'..contactPerson = 'Mr. Lực'..currentDebt = 55000000,
+      VlxdSupplier()..supplierId = uuid.v4()..name = 'Xi măng Hoàng Thạch'..phone = '0281234002'..email = 'sales@hoangthach.vn'..taxCode = '1000000002'..address = 'Hải Phòng'..contactPerson = 'Mr. Thạch'..currentDebt = 0,
+      VlxdSupplier()..supplierId = uuid.v4()..name = 'Gạch men Tân Thanh'..phone = '0281234003'..email = 'tanthanh@gach.vn'..taxCode = '1000000003'..address = 'Đồng Nai'..contactPerson = 'Mr. Thanh'..currentDebt = 25000000,
+      VlxdSupplier()..supplierId = uuid.v4()..name = 'Tôn Hoa Sen'..phone = '0281234004'..email = 'contact@hoasen.vn'..taxCode = '1000000004'..address = 'Bình Định'..contactPerson = 'Ms. Lan'..currentDebt = 0,
+      VlxdSupplier()..supplierId = uuid.v4()..name = 'Ống nhựa Hoa Việt'..phone = '0281234005'..email = 'hoaviet@ongnhua.vn'..taxCode = '1000000005'..address = 'Bắc Ninh'..contactPerson = 'Mr. Dũng'..currentDebt = 12000000,
+      VlxdSupplier()..supplierId = uuid.v4()..name = 'Sơn Nippon'..phone = '0281234006'..email = 'info@nippon.vn'..taxCode = '1000000006'..address = 'TP.HCM'..contactPerson = 'Mr. Tuấn'..currentDebt = 0,
     ];
     await db.writeTxn(() async {
       await db.vlxdSuppliers.putAll(suppliers);
@@ -1545,6 +1552,7 @@ class VlxdSeedData {
       VlxdWarehouse()..warehouseId = uuid.v4()..name = 'Kho Trung Tâm'..address = 'Số 1, đường số 2, Q. Bình Tân',
       VlxdWarehouse()..warehouseId = uuid.v4()..name = 'Kho Sắt Thép'..address = 'Bình Dương',
       VlxdWarehouse()..warehouseId = uuid.v4()..name = 'Kho Vật Tư'..address = 'Đồng Nai',
+      VlxdWarehouse()..warehouseId = uuid.v4()..name = 'Kho Gạch Men'..address = 'KCN Long Hậu, Long An',
     ];
     await db.writeTxn(() async {
       await db.vlxdWarehouses.putAll(warehouses);
@@ -1557,76 +1565,28 @@ class VlxdSeedData {
     final cusDaiLy = savedCustomers[1];
     final cusCongTrinh = savedCustomers[2];
     final cusNhaThau = savedCustomers[3];
+    final cusDN = savedCustomers[4];
+    final cusDaiLySG = savedCustomers[5];
     final supThep = savedSuppliers[0];
     final supXiMang = savedSuppliers[1];
     final supGach = savedSuppliers[2];
     final khoTT = savedWarehouses[0];
+    final khoSat = savedWarehouses[1];
     final khoVatTu = savedWarehouses[2];
+    final khoGach = savedWarehouses[3];
 
     // ----------------------------------------------------------------
     // 4. Đơn hàng mẫu (bán lẻ + hợp đồng sỉ)
     // ----------------------------------------------------------------
     final orders = <VlxdOrder>[
-      VlxdOrder()
-        ..orderId = uuid.v4()
-        ..orderCode = 'HD000001'
-        ..customer.value = cusLe
-        ..isWholesaleContract = false
-        ..subTotal = 2560000
-        ..discount = 0
-        ..vatAmount = 256000
-        ..shippingFee = 50000
-        ..totalAmount = 2866000
-        ..paidAmount = 2866000
-        ..paymentMethod = PaymentMethod.CASH
-        ..status = OrderStatus.COMPLETED
-        ..orderDate = DateTime.now().subtract(const Duration(days: 2))
-        ..notes = 'Bán lẻ tại quầy',
-      VlxdOrder()
-        ..orderId = uuid.v4()
-        ..orderCode = 'HD000002'
-        ..customer.value = cusDaiLy
-        ..isWholesaleContract = true
-        ..subTotal = 42000000
-        ..discount = 2100000
-        ..vatAmount = 3990000
-        ..shippingFee = 0
-        ..totalAmount = 43890000
-        ..paidAmount = 20000000
-        ..paymentMethod = PaymentMethod.DEBT
-        ..status = OrderStatus.DELIVERING
-        ..orderDate = DateTime.now().subtract(const Duration(days: 6))
-        ..notes = 'Giao bán sỉ cho đại lý',
-      VlxdOrder()
-        ..orderId = uuid.v4()
-        ..orderCode = 'HD000003'
-        ..customer.value = cusCongTrinh
-        ..isWholesaleContract = true
-        ..subTotal = 96000000
-        ..discount = 4800000
-        ..vatAmount = 9120000
-        ..shippingFee = 0
-        ..totalAmount = 100320000
-        ..paidAmount = 40000000
-        ..paymentMethod = PaymentMethod.DEBT
-        ..status = OrderStatus.COMPLETED
-        ..orderDate = DateTime.now().subtract(const Duration(days: 20))
-        ..notes = 'Hợp đồng công trình',
-      VlxdOrder()
-        ..orderId = uuid.v4()
-        ..orderCode = 'HD000004'
-        ..customer.value = cusNhaThau
-        ..isWholesaleContract = true
-        ..subTotal = 150000000
-        ..discount = 7500000
-        ..vatAmount = 14250000
-        ..shippingFee = 0
-        ..totalAmount = 157500000
-        ..paidAmount = 50000000
-        ..paymentMethod = PaymentMethod.DEBT
-        ..status = OrderStatus.PENDING
-        ..orderDate = DateTime.now().subtract(const Duration(days: 35))
-        ..notes = 'Chờ giao cho nhà thầu',
+      VlxdOrder()..orderId = uuid.v4()..orderCode = 'HD000001'..customer.value = cusLe..isWholesaleContract = false..subTotal = 2560000..discount = 0..vatAmount = 256000..shippingFee = 50000..totalAmount = 2866000..paidAmount = 2866000..paymentMethod = PaymentMethod.CASH..status = OrderStatus.COMPLETED..orderDate = DateTime.now().subtract(const Duration(days: 2))..notes = 'Bán lẻ tại quầy',
+      VlxdOrder()..orderId = uuid.v4()..orderCode = 'HD000002'..customer.value = cusDaiLy..isWholesaleContract = true..subTotal = 42000000..discount = 2100000..vatAmount = 3990000..shippingFee = 0..totalAmount = 43890000..paidAmount = 20000000..paymentMethod = PaymentMethod.DEBT..status = OrderStatus.DELIVERING..orderDate = DateTime.now().subtract(const Duration(days: 6))..notes = 'Giao bán sỉ cho đại lý',
+      VlxdOrder()..orderId = uuid.v4()..orderCode = 'HD000003'..customer.value = cusCongTrinh..isWholesaleContract = true..subTotal = 96000000..discount = 4800000..vatAmount = 9120000..shippingFee = 0..totalAmount = 100320000..paidAmount = 40000000..paymentMethod = PaymentMethod.DEBT..status = OrderStatus.COMPLETED..orderDate = DateTime.now().subtract(const Duration(days: 20))..notes = 'Hợp đồng công trình',
+      VlxdOrder()..orderId = uuid.v4()..orderCode = 'HD000004'..customer.value = cusNhaThau..isWholesaleContract = true..subTotal = 150000000..discount = 7500000..vatAmount = 14250000..shippingFee = 0..totalAmount = 157500000..paidAmount = 50000000..paymentMethod = PaymentMethod.DEBT..status = OrderStatus.PENDING..orderDate = DateTime.now().subtract(const Duration(days: 35))..notes = 'Chờ giao cho nhà thầu',
+      VlxdOrder()..orderId = uuid.v4()..orderCode = 'HD000005'..customer.value = cusLe..isWholesaleContract = false..subTotal = 3800000..discount = 0..vatAmount = 380000..shippingFee = 0..totalAmount = 4180000..paidAmount = 4180000..paymentMethod = PaymentMethod.CASH..status = OrderStatus.COMPLETED..orderDate = DateTime.now()..notes = 'POS bán lẻ hôm nay',
+      VlxdOrder()..orderId = uuid.v4()..orderCode = 'HD000006'..customer.value = cusDaiLySG..isWholesaleContract = false..subTotal = 12500000..discount = 625000..vatAmount = 1187500..shippingFee = 200000..totalAmount = 13262500..paidAmount = 13262500..paymentMethod = PaymentMethod.TRANSFER..status = OrderStatus.COMPLETED..orderDate = DateTime.now().subtract(const Duration(days: 1))..notes = 'Chuyển khoản hôm qua',
+      VlxdOrder()..orderId = uuid.v4()..orderCode = 'HD000007'..customer.value = cusDN..isWholesaleContract = true..subTotal = 78000000..discount = 3900000..vatAmount = 7410000..shippingFee = 0..totalAmount = 81510000..paidAmount = 0..paymentMethod = PaymentMethod.DEBT..status = OrderStatus.PENDING..orderDate = DateTime.now().subtract(const Duration(days: 3))..notes = 'Hợp đồng DN ABC',
+      VlxdOrder()..orderId = uuid.v4()..orderCode = 'HD000008'..customer.value = cusLe..isWholesaleContract = false..subTotal = 1950000..discount = 0..vatAmount = 195000..shippingFee = 0..totalAmount = 2145000..paidAmount = 2145000..paymentMethod = PaymentMethod.QR..status = OrderStatus.COMPLETED..orderDate = DateTime.now().subtract(const Duration(days: 2))..notes = 'QR thanh toán',
     ];
     await db.writeTxn(() async {
       await db.vlxdOrders.putAll(orders);
@@ -1638,6 +1598,8 @@ class VlxdSeedData {
     final p2 = savedProducts[1];
     final p3 = savedProducts[2];
     final p4 = savedProducts[3];
+    final p5 = savedProducts[4];
+    final p6 = savedProducts[5];
 
     final orderDetails = <VlxdOrderDetail>[
       VlxdOrderDetail()..order.value = savedOrders[0]..product.value = p1..quantity = 20..unitPrice = p1.retailPrice..total = p1.retailPrice * 20,
@@ -1646,46 +1608,45 @@ class VlxdSeedData {
       VlxdOrderDetail()..order.value = savedOrders[2]..product.value = p4..quantity = 200..unitPrice = p4.wholesalePrice..total = p4.wholesalePrice * 200,
       VlxdOrderDetail()..order.value = savedOrders[3]..product.value = p1..quantity = 500..unitPrice = p1.wholesalePrice..total = p1.wholesalePrice * 500,
       VlxdOrderDetail()..order.value = savedOrders[3]..product.value = p3..quantity = 80..unitPrice = p3.wholesalePrice..total = p3.wholesalePrice * 80,
+      VlxdOrderDetail()..order.value = savedOrders[4]..product.value = p1..quantity = 10..unitPrice = p1.retailPrice..total = p1.retailPrice * 10,
+      VlxdOrderDetail()..order.value = savedOrders[4]..product.value = p5..quantity = 5..unitPrice = p5.retailPrice..total = p5.retailPrice * 5,
+      VlxdOrderDetail()..order.value = savedOrders[5]..product.value = p2..quantity = 30..unitPrice = p2.retailPrice..total = p2.retailPrice * 30,
+      VlxdOrderDetail()..order.value = savedOrders[5]..product.value = p6..quantity = 20..unitPrice = p6.retailPrice..total = p6.retailPrice * 20,
+      VlxdOrderDetail()..order.value = savedOrders[6]..product.value = p3..quantity = 100..unitPrice = p3.wholesalePrice..total = p3.wholesalePrice * 100,
+      VlxdOrderDetail()..order.value = savedOrders[7]..product.value = p1..quantity = 8..unitPrice = p1.retailPrice..total = p1.retailPrice * 8,
     ];
     await db.writeTxn(() async {
       await db.vlxdOrderDetails.putAll(orderDetails);
     });
 
     // ----------------------------------------------------------------
+    // 4b. Phiếu giao hàng mẫu
+    // ----------------------------------------------------------------
+    final deliveryTickets = <VlxdDeliveryTicket>[
+      VlxdDeliveryTicket()..ticketId = uuid.v4()..order.value = savedOrders[1]..vehicleInfo = '51C-12345'..driverName = 'Nguyễn Văn A'..deliveryDate = DateTime.now().subtract(const Duration(days: 5))..status = OrderStatus.COMPLETED,
+      VlxdDeliveryTicket()..ticketId = uuid.v4()..order.value = savedOrders[2]..vehicleInfo = '51C-67890'..driverName = 'Trần Văn B'..deliveryDate = DateTime.now().subtract(const Duration(days: 18))..status = OrderStatus.PENDING,
+      VlxdDeliveryTicket()..ticketId = uuid.v4()..order.value = savedOrders[0]..vehicleInfo = '29C-11111'..driverName = 'Lê Văn C'..deliveryDate = DateTime.now().subtract(const Duration(days: 1))..status = OrderStatus.COMPLETED,
+    ];
+    await db.writeTxn(() async {
+      await db.vlxdDeliveryTickets.putAll(deliveryTickets);
+    });
+
+    // ----------------------------------------------------------------
     // 5. Nhập / xuất kho mẫu (để báo cáo tồn kho có số liệu)
     // ----------------------------------------------------------------
     final invTx = <VlxdInventoryTransaction>[
-      VlxdInventoryTransaction()
-        ..transactionId = uuid.v4()
-        ..documentCode = 'PN000001'
-        ..type = VlxdInventoryTransactionType.IMPORT
-        ..supplier.value = supThep
-        ..warehouse.value = khoTT
-        ..transactionDate = DateTime.now().subtract(const Duration(days: 10))
-        ..note = 'Nhập thép',
-      VlxdInventoryTransaction()
-        ..transactionId = uuid.v4()
-        ..documentCode = 'PN000002'
-        ..type = VlxdInventoryTransactionType.IMPORT
-        ..supplier.value = supXiMang
-        ..warehouse.value = khoTT
-        ..transactionDate = DateTime.now().subtract(const Duration(days: 8))
-        ..note = 'Nhập xi măng',
-      VlxdInventoryTransaction()
-        ..transactionId = uuid.v4()
-        ..documentCode = 'PN000003'
-        ..type = VlxdInventoryTransactionType.IMPORT
-        ..supplier.value = supGach
-        ..warehouse.value = khoVatTu
-        ..transactionDate = DateTime.now().subtract(const Duration(days: 5))
-        ..note = 'Nhập gạch men',
-      VlxdInventoryTransaction()
-        ..transactionId = uuid.v4()
-        ..documentCode = 'PX000001'
-        ..type = VlxdInventoryTransactionType.EXPORT
-        ..warehouse.value = khoTT
-        ..transactionDate = DateTime.now().subtract(const Duration(days: 3))
-        ..note = 'Xuất bán lẻ',
+      VlxdInventoryTransaction()..transactionId = uuid.v4()..documentCode = 'PN000001'..type = VlxdInventoryTransactionType.IMPORT..supplier.value = supThep..warehouse.value = khoTT..transactionDate = DateTime.now().subtract(const Duration(days: 10))..note = 'Nhập thép',
+      VlxdInventoryTransaction()..transactionId = uuid.v4()..documentCode = 'PN000002'..type = VlxdInventoryTransactionType.IMPORT..supplier.value = supXiMang..warehouse.value = khoTT..transactionDate = DateTime.now().subtract(const Duration(days: 8))..note = 'Nhập xi măng',
+      VlxdInventoryTransaction()..transactionId = uuid.v4()..documentCode = 'PN000003'..type = VlxdInventoryTransactionType.IMPORT..supplier.value = supGach..warehouse.value = khoVatTu..transactionDate = DateTime.now().subtract(const Duration(days: 5))..note = 'Nhập gạch men',
+      VlxdInventoryTransaction()..transactionId = uuid.v4()..documentCode = 'PX000001'..type = VlxdInventoryTransactionType.EXPORT..warehouse.value = khoTT..transactionDate = DateTime.now().subtract(const Duration(days: 3))..note = 'Xuất bán lẻ',
+      VlxdInventoryTransaction()..transactionId = uuid.v4()..documentCode = 'PN000004'..type = VlxdInventoryTransactionType.IMPORT..supplier.value = supThep..warehouse.value = khoSat..transactionDate = DateTime.now().subtract(const Duration(days: 2))..note = 'Nhập thép',
+      VlxdInventoryTransaction()..transactionId = uuid.v4()..documentCode = 'PX000002'..type = VlxdInventoryTransactionType.EXPORT..warehouse.value = khoTT..transactionDate = DateTime.now().subtract(const Duration(days: 1))..note = 'Xuất bán sỉ',
+      VlxdInventoryTransaction()..transactionId = uuid.v4()..documentCode = 'PD000001'..type = VlxdInventoryTransactionType.ADJUSTMENT..warehouse.value = khoTT..transactionDate = DateTime.now().subtract(const Duration(days: 4))..note = 'Kiểm kê điều chỉnh +50',
+      VlxdInventoryTransaction()..transactionId = uuid.v4()..documentCode = 'CK000001'..type = VlxdInventoryTransactionType.TRANSFER..warehouse.value = khoTT..transactionDate = DateTime.now().subtract(const Duration(days: 1))..note = 'Chuyển từ Trung Tâm sang Kho Sắt Thép',
+      VlxdInventoryTransaction()..transactionId = uuid.v4()..documentCode = 'PH000001'..type = VlxdInventoryTransactionType.DESTROY..warehouse.value = khoVatTu..transactionDate = DateTime.now()..note = 'Phá hủy gạch hư hỏng 20 viên',
+      VlxdInventoryTransaction()..transactionId = uuid.v4()..documentCode = 'PN000005'..type = VlxdInventoryTransactionType.IMPORT..supplier.value = supXiMang..warehouse.value = khoTT..transactionDate = DateTime.now()..note = 'Nhập xi măng bổ sung',
+      VlxdInventoryTransaction()..transactionId = uuid.v4()..documentCode = 'PX000003'..type = VlxdInventoryTransactionType.EXPORT..warehouse.value = khoSat..transactionDate = DateTime.now()..note = 'Xuất thép công trình',
+      VlxdInventoryTransaction()..transactionId = uuid.v4()..documentCode = 'PN000006'..type = VlxdInventoryTransactionType.IMPORT..supplier.value = supGach..warehouse.value = khoGach..transactionDate = DateTime.now().subtract(const Duration(days: 6))..note = 'Nhập gạch men kho mới',
     ];
     await db.writeTxn(() async {
       await db.vlxdInventoryTransactions.putAll(invTx);
@@ -1697,65 +1658,52 @@ class VlxdSeedData {
       VlxdInventoryTransactionDetail()..transaction.value = savedInvTx[1]..product.value = p3..quantity = 500..unitPrice = p3.purchasePrice..totalAmount = p3.purchasePrice * 500,
       VlxdInventoryTransactionDetail()..transaction.value = savedInvTx[2]..product.value = p2..quantity = 300..unitPrice = p2.purchasePrice..totalAmount = p2.purchasePrice * 300,
       VlxdInventoryTransactionDetail()..transaction.value = savedInvTx[3]..product.value = p1..quantity = 20..unitPrice = p1.purchasePrice..totalAmount = p1.purchasePrice * 20,
+      VlxdInventoryTransactionDetail()..transaction.value = savedInvTx[4]..product.value = p1..quantity = 500..unitPrice = p1.purchasePrice..totalAmount = p1.purchasePrice * 500,
+      VlxdInventoryTransactionDetail()..transaction.value = savedInvTx[5]..product.value = p2..quantity = 10..unitPrice = p2.retailPrice..totalAmount = p2.retailPrice * 10,
+      VlxdInventoryTransactionDetail()..transaction.value = savedInvTx[6]..product.value = p3..quantity = 50..unitPrice = p3.purchasePrice..totalAmount = p3.purchasePrice * 50,
+      VlxdInventoryTransactionDetail()..transaction.value = savedInvTx[7]..product.value = p1..quantity = 20..unitPrice = p1.purchasePrice..totalAmount = p1.purchasePrice * 20,
+      VlxdInventoryTransactionDetail()..transaction.value = savedInvTx[8]..product.value = p2..quantity = 20..unitPrice = p2.purchasePrice..totalAmount = p2.purchasePrice * 20,
+      VlxdInventoryTransactionDetail()..transaction.value = savedInvTx[9]..product.value = p3..quantity = 200..unitPrice = p3.purchasePrice..totalAmount = p3.purchasePrice * 200,
+      VlxdInventoryTransactionDetail()..transaction.value = savedInvTx[10]..product.value = p1..quantity = 100..unitPrice = p1.purchasePrice..totalAmount = p1.purchasePrice * 100,
+      VlxdInventoryTransactionDetail()..transaction.value = savedInvTx[11]..product.value = p2..quantity = 50..unitPrice = p2.purchasePrice..totalAmount = p2.purchasePrice * 50,
     ];
     await db.writeTxn(() async {
       await db.vlxdInventoryTransactionDetails.putAll(invDetails);
     });
 
     // ----------------------------------------------------------------
+    // 5b. Tồn kho kho (để dashboard lowStock / inventoryValue hoạt động)
+    // ----------------------------------------------------------------
+    final stocks = <VlxdInventoryStock>[
+      VlxdInventoryStock()..stockId = uuid.v4()..product.value = p1..warehouse.value = khoTT..currentQuantity = 80..minQuantity = 50..maxQuantity = 500,
+      VlxdInventoryStock()..stockId = uuid.v4()..product.value = p2..warehouse.value = khoTT..currentQuantity = 20..minQuantity = 30..maxQuantity = 200,
+      VlxdInventoryStock()..stockId = uuid.v4()..product.value = p3..warehouse.value = khoSat..currentQuantity = 150..minQuantity = 100..maxQuantity = 1000,
+      VlxdInventoryStock()..stockId = uuid.v4()..product.value = p4..warehouse.value = khoTT..currentQuantity = 40..minQuantity = 20..maxQuantity = 300,
+      VlxdInventoryStock()..stockId = uuid.v4()..product.value = p5..warehouse.value = khoVatTu..currentQuantity = 5..minQuantity = 10..maxQuantity = 100,
+      VlxdInventoryStock()..stockId = uuid.v4()..product.value = p6..warehouse.value = khoTT..currentQuantity = 100..minQuantity = 50..maxQuantity = 500,
+    ];
+    await db.writeTxn(() async {
+      await db.vlxdInventoryStocks.putAll(stocks);
+    });
+
+    // ----------------------------------------------------------------
     // 6. Thu chi mẫu (để báo cáo quỹ tiền mặt / phiếu thu chi có số liệu)
     // ----------------------------------------------------------------
     final finance = <VlxdFinanceTransaction>[
-      VlxdFinanceTransaction()
-        ..transactionId = uuid.v4()
-        ..documentCode = 'PT000001'
-        ..type = FinanceTransactionType.RECEIPT
-        ..amount = 2866000
-        ..category = 'Thu tiền hàng'
-        ..customer.value = cusLe
-        ..paymentMethod = 'Tiền mặt'
-        ..description = 'Thu tiền HĐ000001'
-        ..transactionDate = DateTime.now().subtract(const Duration(days: 2)),
-      VlxdFinanceTransaction()
-        ..transactionId = uuid.v4()
-        ..documentCode = 'PT000002'
-        ..type = FinanceTransactionType.RECEIPT
-        ..amount = 20000000
-        ..category = 'Thu tiền hàng'
-        ..customer.value = cusDaiLy
-        ..paymentMethod = 'Chuyển khoản'
-        ..description = 'Thu tiền HĐ000002'
-        ..transactionDate = DateTime.now().subtract(const Duration(days: 5)),
-      VlxdFinanceTransaction()
-        ..transactionId = uuid.v4()
-        ..documentCode = 'PT000003'
-        ..type = FinanceTransactionType.RECEIPT
-        ..amount = 40000000
-        ..category = 'Thu tiền hàng'
-        ..customer.value = cusCongTrinh
-        ..paymentMethod = 'Chuyển khoản'
-        ..description = 'Thu tiền HĐ000003'
-        ..transactionDate = DateTime.now().subtract(const Duration(days: 18)),
-      VlxdFinanceTransaction()
-        ..transactionId = uuid.v4()
-        ..documentCode = 'PC000001'
-        ..type = FinanceTransactionType.PAYMENT
-        ..amount = 55000000
-        ..category = 'Thanh toán NCC'
-        ..supplier.value = supThep
-        ..paymentMethod = 'Chuyển khoản'
-        ..description = 'Trả tiền mua thép'
-        ..transactionDate = DateTime.now().subtract(const Duration(days: 9)),
-      VlxdFinanceTransaction()
-        ..transactionId = uuid.v4()
-        ..documentCode = 'PC000002'
-        ..type = FinanceTransactionType.PAYMENT
-        ..amount = 25000000
-        ..category = 'Thanh toán NCC'
-        ..supplier.value = supGach
-        ..paymentMethod = 'Tiền mặt'
-        ..description = 'Trả tiền mua gạch'
-        ..transactionDate = DateTime.now().subtract(const Duration(days: 4)),
+      VlxdFinanceTransaction()..transactionId = uuid.v4()..documentCode = 'PT000001'..type = FinanceTransactionType.RECEIPT..amount = 2866000..category = 'Thu tiền hàng'..customer.value = cusLe..paymentMethod = 'Tiền mặt'..description = 'Thu tiền HĐ000001'..transactionDate = DateTime.now().subtract(const Duration(days: 2)),
+      VlxdFinanceTransaction()..transactionId = uuid.v4()..documentCode = 'PT000002'..type = FinanceTransactionType.RECEIPT..amount = 20000000..category = 'Thu tiền hàng'..customer.value = cusDaiLy..paymentMethod = 'Chuyển khoản'..description = 'Thu tiền HĐ000002'..transactionDate = DateTime.now().subtract(const Duration(days: 5)),
+      VlxdFinanceTransaction()..transactionId = uuid.v4()..documentCode = 'PT000003'..type = FinanceTransactionType.RECEIPT..amount = 40000000..category = 'Thu tiền hàng'..customer.value = cusCongTrinh..paymentMethod = 'Chuyển khoản'..description = 'Thu tiền HĐ000003'..transactionDate = DateTime.now().subtract(const Duration(days: 18)),
+      VlxdFinanceTransaction()..transactionId = uuid.v4()..documentCode = 'PC000001'..type = FinanceTransactionType.PAYMENT..amount = 55000000..category = 'Thanh toán NCC'..supplier.value = supThep..paymentMethod = 'Chuyển khoản'..description = 'Trả tiền mua thép'..transactionDate = DateTime.now().subtract(const Duration(days: 9)),
+      VlxdFinanceTransaction()..transactionId = uuid.v4()..documentCode = 'PC000002'..type = FinanceTransactionType.PAYMENT..amount = 25000000..category = 'Thanh toán NCC'..supplier.value = supGach..paymentMethod = 'Tiền mặt'..description = 'Trả tiền mua gạch'..transactionDate = DateTime.now().subtract(const Duration(days: 4)),
+      VlxdFinanceTransaction()..transactionId = uuid.v4()..documentCode = 'PT000004'..type = FinanceTransactionType.RECEIPT..amount = 4180000..category = 'Thu tiền hàng'..customer.value = cusLe..paymentMethod = 'Tiền mặt'..description = 'Thu tiền HĐ000005'..transactionDate = DateTime.now(),
+      VlxdFinanceTransaction()..transactionId = uuid.v4()..documentCode = 'PT000005'..type = FinanceTransactionType.RECEIPT..amount = 13262500..category = 'Thu tiền hàng'..customer.value = cusDaiLySG..paymentMethod = 'Chuyển khoản'..description = 'Thu tiền HĐ000006'..transactionDate = DateTime.now().subtract(const Duration(days: 1)),
+      VlxdFinanceTransaction()..transactionId = uuid.v4()..documentCode = 'PT000006'..type = FinanceTransactionType.RECEIPT..amount = 35000000..category = 'Thu tiền hàng'..customer.value = cusDN..paymentMethod = 'Chuyển khoản'..description = 'Thu tiền HĐ000007 (đợt 1)'..transactionDate = DateTime.now().subtract(const Duration(days: 2)),
+      VlxdFinanceTransaction()..transactionId = uuid.v4()..documentCode = 'PC000003'..type = FinanceTransactionType.PAYMENT..amount = 15000000..category = 'Lương nhân viên'..paymentMethod = 'Tiền mặt'..description = 'Lương tháng này'..transactionDate = DateTime.now().subtract(const Duration(days: 1)),
+      VlxdFinanceTransaction()..transactionId = uuid.v4()..documentCode = 'PC000004'..type = FinanceTransactionType.PAYMENT..amount = 2500000..category = 'Tiền điện kho'..paymentMethod = 'Chuyển khoản'..description = 'Tiền điện kho tháng trước'..transactionDate = DateTime.now().subtract(const Duration(days: 7)),
+      VlxdFinanceTransaction()..transactionId = uuid.v4()..documentCode = 'PC000005'..type = FinanceTransactionType.PAYMENT..amount = 3500000..category = 'Vận chuyển hàng'..paymentMethod = 'Tiền mặt'..description = 'Phí vận chuyển đơn HD000002'..transactionDate = DateTime.now().subtract(const Duration(days: 6)),
+      VlxdFinanceTransaction()..transactionId = uuid.v4()..documentCode = 'PC000006'..type = FinanceTransactionType.PAYMENT..amount = 20000000..category = 'Thuê mặt bằng'..paymentMethod = 'Chuyển khoản'..description = 'Thuê mặt bằng tháng này'..transactionDate = DateTime.now().subtract(const Duration(days: 10)),
+      VlxdFinanceTransaction()..transactionId = uuid.v4()..documentCode = 'PC000007'..type = FinanceTransactionType.PAYMENT..amount = 5000000..category = 'Marketing online'..paymentMethod = 'Chuyển khoản'..description = 'Quảng cáo Google Ads'..transactionDate = DateTime.now().subtract(const Duration(days: 3)),
+      VlxdFinanceTransaction()..transactionId = uuid.v4()..documentCode = 'PC000008'..type = FinanceTransactionType.PAYMENT..amount = 1200000..category = 'Chi phí khác'..paymentMethod = 'Tiền mặt'..description = 'Văn phòng phẩm'..transactionDate = DateTime.now().subtract(const Duration(days: 8)),
     ];
     await db.writeTxn(() async {
       await db.vlxdFinanceTransactions.putAll(finance);

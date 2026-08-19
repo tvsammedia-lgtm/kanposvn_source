@@ -72,11 +72,16 @@ class VlxdDashboardScreen extends ConsumerWidget {
       body: dashboardAsync.when(
         data: (m) {
           final todayRevenue = m['todayRevenue'] ?? 0.0;
+          final monthRevenue = m['monthRevenue'] ?? 0.0;
           final totalRevenue = m['totalRevenue'] ?? 0.0;
+          final todayExpenses = m['todayExpenses'] ?? 0.0;
+          final profit = m['profit'] ?? 0.0;
+          final monthProfit = m['monthProfit'] ?? 0.0;
           final receivable = m['receivable'] ?? 0.0;
           final payable = m['payable'] ?? 0.0;
           final cashBalance = m['cashBalance'] ?? 0.0;
-          final inventoryValue = m['inventoryValue'] ?? 0.0;
+          final pendingOrders = m['pendingOrders'] ?? 0;
+          final activeContracts = m['activeContracts'] ?? 0;
 
           return SingleChildScrollView(
             padding: const EdgeInsets.all(24.0),
@@ -89,9 +94,21 @@ class VlxdDashboardScreen extends ConsumerWidget {
                   children: [
                     Expanded(child: _buildMetricCard('Doanh Thu Hôm Nay', _fmtVnd(todayRevenue), Colors.blue)),
                     const SizedBox(width: 16),
-                    Expanded(child: _buildMetricCard('Tổng Doanh Thu', _fmtVnd(totalRevenue), Colors.green)),
+                    Expanded(child: _buildMetricCard('Doanh Thu Tháng', _fmtVnd(monthRevenue), Colors.blue)),
                     const SizedBox(width: 16),
-                    Expanded(child: _buildMetricCard('Đơn Hàng / Hợp Đồng', '${m['orderCount'] ?? 0}', Colors.teal)),
+                    Expanded(child: _buildMetricCard('Tổng Doanh Thu', _fmtVnd(totalRevenue), Colors.green)),
+                  ],
+                ),
+                const SizedBox(height: 28),
+                _buildSectionTitle('CHI PHÍ & LỢI NHUẬN', Colors.teal),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    Expanded(child: _buildMetricCard('Chi Phí Hôm Nay', _fmtVnd(todayExpenses), Colors.orange)),
+                    const SizedBox(width: 16),
+                    Expanded(child: _buildMetricCard('Lợi Nhuận Hôm Nay', _fmtVnd(profit), profit >= 0 ? Colors.green : Colors.red)),
+                    const SizedBox(width: 16),
+                    Expanded(child: _buildMetricCard('Lợi Nhuận Tháng', _fmtVnd(monthProfit), monthProfit >= 0 ? Colors.green : Colors.red)),
                   ],
                 ),
                 const SizedBox(height: 28),
@@ -101,7 +118,7 @@ class VlxdDashboardScreen extends ConsumerWidget {
                   children: [
                     Expanded(child: _buildMetricCard('Phải Thu (Khách Hàng)', _fmtVnd(receivable), Colors.red)),
                     const SizedBox(width: 16),
-                    Expanded(child: _buildMetricCard('Phải Trả (Nhà Cung Cấp)', _fmtVnd(payable), Colors.deepOrange)),
+                    Expanded(child: _buildMetricCard('Phải Trả (NCC)', _fmtVnd(payable), Colors.deepOrange)),
                     const SizedBox(width: 16),
                     Expanded(
                       child: _buildMetricCard(
@@ -113,15 +130,15 @@ class VlxdDashboardScreen extends ConsumerWidget {
                   ],
                 ),
                 const SizedBox(height: 28),
-                _buildSectionTitle('KHO HÀNG', Colors.indigo),
+                _buildSectionTitle('KHO HÀNG & ĐƠN HÀNG', Colors.indigo),
                 const SizedBox(height: 16),
                 Row(
                   children: [
-                    Expanded(child: _buildMetricCard('Mặt Hàng', '${m['productCount'] ?? 0}', Colors.indigo)),
+                    Expanded(child: _buildMetricCard('Hàng Tồn Kho', '${m['productCount'] ?? 0}', Colors.indigo)),
                     const SizedBox(width: 16),
-                    Expanded(child: _buildMetricCard('Tồn Dưới Mức Tối Thiểu', '${m['lowStock'] ?? 0}', Colors.red)),
+                    Expanded(child: _buildMetricCard('Đơn Đang Giao', '$pendingOrders', Colors.orange)),
                     const SizedBox(width: 16),
-                    Expanded(child: _buildMetricCard('Giá Trị Tồn Kho', _fmtVnd(inventoryValue), Colors.purple)),
+                    Expanded(child: _buildMetricCard('HĐ Đang Thực Hiện', '$activeContracts', Colors.teal)),
                   ],
                 ),
               ],
