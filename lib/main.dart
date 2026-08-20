@@ -27,7 +27,7 @@ import 'modules/kanposvnspa/screens/kanposvnspa_shell.dart';
 import 'modules/kanposvnnhahangquanan/screens/kanposvnnhahang_shell.dart';
 import 'modules/kanposvnqlcd/kanposvnqlcd_shell.dart';
 import 'modules/kanposvnnbatdongsan/views/batdongsan_dashboard.dart';
-import 'modules/kanposvnnhatro200/views/nhatro_dashboard.dart';
+import 'modules/kanposvnnhatro200/views/kanposvnnhatro200_shell.dart';
 import 'modules/kanposvntaphoasmmini/screens/taphoa_dashboard_screen.dart';
 import 'modules/kanposvncrm/screens/crm_dashboard_screen.dart';
 import 'modules/kanposvngym/screens/gym_dashboard_screen.dart';
@@ -36,6 +36,9 @@ import 'modules/kanposvnviec/screens/viec_dashboard_screen.dart';
 import 'modules/kanposvnride/screens/ride_dashboard_screen.dart';
 import 'modules/kanposvneshop/screens/eshop_dashboard_screen.dart';
 import 'modules/kanposvnhrpayroll/screens/kanposvnhrpayroll_shell.dart';
+import 'modules/kanposvnkanji/kanposvnkanji_shell.dart';
+import 'modules/kanposvnengpic/kanposvnengpic_shell.dart';
+import 'modules/kanposvnnemda/kanposvnnemda_shell.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -158,6 +161,9 @@ class _KanPosVNAppState extends ConsumerState<KanPosVNApp> {
         GlobalCupertinoLocalizations.delegate,
       ],
       home: home,
+      routes: {
+        '/login': (context) => const LoginScreen(),
+      },
     );
   }
 }
@@ -255,7 +261,7 @@ class _MainShell extends ConsumerWidget {
       case AppModuleType.kanposvnnbatdongsan:
         return const BatDongSanDashboard();
       case AppModuleType.kanposvnnhatro200:
-        return const NhaTroDashboard();
+        return const KanPosVnNhaTro200Shell();
       case AppModuleType.kanposvntaphoasmmini:
         return const TapHoaDashboardScreen();
       case AppModuleType.kanposvncrm:
@@ -272,6 +278,12 @@ class _MainShell extends ConsumerWidget {
         return const EshopDashboardScreen();
       case AppModuleType.kanposvnhrpayroll:
         return const KanPosVnHrPayrollShell();
+      case AppModuleType.kanposvnkanji:
+        return const KanPosVNKanjiShell();
+      case AppModuleType.kanposvnengpic:
+        return const KanPosVNEngpicShell();
+      case AppModuleType.kanposvnnemda:
+        return const KanPosVNNemdaShell();
     }
   }
 

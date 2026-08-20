@@ -23,7 +23,10 @@ enum AppModule {
   kanposvnviec('KanViec', Icons.work, Color(0xFF6366F1)),
   kanposvnride('KanRide', Icons.hail, Color(0xFFFACC15)),
   kanposvneshop('KanShop', Icons.shopping_bag, Color(0xFFF97316)),
-  kanposvnhrpayroll('KanPosVN HR Payroll (Vận Tải)', Icons.badge, Color(0xFF0EA5E9));
+  kanposvnhrpayroll('KanPosVN HR Payroll (Vận Tải)', Icons.badge, Color(0xFF0EA5E9)),
+  kanposvnengpic('KanPosVN EngPic', Icons.image, Color(0xFF10B981)),
+  kanposvnkanji('KanPosVN Kanji', Icons.language, Color(0xFF3B82F6)),
+  kanposvnnemda('Chơi Nhau (Ném Đá)', Icons.sports_esports, Color(0xFF7C3AED));
 
   final String label;
   final IconData icon;
@@ -55,6 +58,9 @@ enum AppModule {
       case AppModule.kanposvnride: return 'kanposvnride';
       case AppModule.kanposvneshop: return 'kanposvneshop';
       case AppModule.kanposvnhrpayroll: return 'kanposvnhrpayroll';
+      case AppModule.kanposvnengpic: return 'kanposvnengpic';
+      case AppModule.kanposvnkanji: return 'kanposvnkanji';
+      case AppModule.kanposvnnemda: return 'kanposvnnemda';
     }
   }
 
@@ -83,6 +89,9 @@ enum AppModule {
       case AppModule.kanposvnride: return AppModuleType.kanposvnride;
       case AppModule.kanposvneshop: return AppModuleType.kanposvneshop;
       case AppModule.kanposvnhrpayroll: return AppModuleType.kanposvnhrpayroll;
+      case AppModule.kanposvnengpic: return AppModuleType.kanposvnengpic;
+      case AppModule.kanposvnkanji: return AppModuleType.kanposvnkanji;
+      case AppModule.kanposvnnemda: return AppModuleType.kanposvnnemda;
     }
   }
 
@@ -114,7 +123,10 @@ enum AppModuleType {
   kanposvnviec('KanViec', Icons.work),
   kanposvnride('KanRide', Icons.hail),
   kanposvneshop('KanShop', Icons.shopping_bag),
-  kanposvnhrpayroll('KanPosVN HR Payroll (Vận Tải)', Icons.badge);
+  kanposvnhrpayroll('KanPosVN HR Payroll (Vận Tải)', Icons.badge),
+  kanposvnengpic('KanPosVN EngPic', Icons.image),
+  kanposvnkanji('KanPosVN Kanji', Icons.language),
+  kanposvnnemda('Chơi Nhau (Ném Đá)', Icons.sports_esports);
 
   final String label;
   final IconData icon;
