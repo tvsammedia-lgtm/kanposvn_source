@@ -1,6 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/error_log.dart';
-import '../services/crm_isar_service.dart';
 import '../services/crm_error_log_service.dart';
 import 'crm_providers.dart';
 

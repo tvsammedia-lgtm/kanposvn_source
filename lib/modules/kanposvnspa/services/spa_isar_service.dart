@@ -7,6 +7,9 @@ import '../models/spa_session.dart';
 import '../models/spa_sync_model.dart';
 import '../models/spa_customer.dart';
 import '../models/spa_inventory_models.dart';
+import '../models/spa_appointment.dart';
+import '../models/spa_combo.dart';
+import '../models/spa_expense.dart';
 
 class SpaIsarService {
   late Future<Isar> db;
@@ -30,6 +33,9 @@ class SpaIsarService {
         SpaCustomerSchema,
         SpaProductSchema,
         SpaInventoryTxSchema,
+        SpaAppointmentSchema,
+        SpaComboSchema,
+        SpaExpenseSchema,
       ],
       directory: dir.path,
       name: 'spa_db',

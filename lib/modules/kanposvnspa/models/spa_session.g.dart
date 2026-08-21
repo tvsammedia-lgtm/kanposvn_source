@@ -37,34 +37,44 @@ const SpaSessionSchema = CollectionSchema(
       name: r'isSynced',
       type: IsarType.bool,
     ),
-    r'sessionId': PropertySchema(
+    r'paymentInfo': PropertySchema(
       id: 4,
+      name: r'paymentInfo',
+      type: IsarType.string,
+    ),
+    r'sessionId': PropertySchema(
+      id: 5,
       name: r'sessionId',
       type: IsarType.string,
     ),
     r'startTime': PropertySchema(
-      id: 5,
+      id: 6,
       name: r'startTime',
       type: IsarType.dateTime,
     ),
     r'status': PropertySchema(
-      id: 6,
+      id: 7,
       name: r'status',
       type: IsarType.byte,
       enumMap: _SpaSessionstatusEnumValueMap,
     ),
+    r'tipAmount': PropertySchema(
+      id: 8,
+      name: r'tipAmount',
+      type: IsarType.double,
+    ),
     r'totalAmount': PropertySchema(
-      id: 7,
+      id: 9,
       name: r'totalAmount',
       type: IsarType.double,
     ),
     r'updatedAt': PropertySchema(
-      id: 8,
+      id: 10,
       name: r'updatedAt',
       type: IsarType.dateTime,
     ),
     r'version': PropertySchema(
-      id: 9,
+      id: 11,
       name: r'version',
       type: IsarType.long,
     )
@@ -129,6 +139,7 @@ int _spaSessionEstimateSize(
 ) {
   var bytesCount = offsets.last;
   bytesCount += 3 + object.deviceId.length * 3;
+  bytesCount += 3 + object.paymentInfo.length * 3;
   bytesCount += 3 + object.sessionId.length * 3;
   return bytesCount;
 }
@@ -143,12 +154,14 @@ void _spaSessionSerialize(
   writer.writeString(offsets[1], object.deviceId);
   writer.writeDateTime(offsets[2], object.endTime);
   writer.writeBool(offsets[3], object.isSynced);
-  writer.writeString(offsets[4], object.sessionId);
-  writer.writeDateTime(offsets[5], object.startTime);
-  writer.writeByte(offsets[6], object.status.index);
-  writer.writeDouble(offsets[7], object.totalAmount);
-  writer.writeDateTime(offsets[8], object.updatedAt);
-  writer.writeLong(offsets[9], object.version);
+  writer.writeString(offsets[4], object.paymentInfo);
+  writer.writeString(offsets[5], object.sessionId);
+  writer.writeDateTime(offsets[6], object.startTime);
+  writer.writeByte(offsets[7], object.status.index);
+  writer.writeDouble(offsets[8], object.tipAmount);
+  writer.writeDouble(offsets[9], object.totalAmount);
+  writer.writeDateTime(offsets[10], object.updatedAt);
+  writer.writeLong(offsets[11], object.version);
 }
 
 SpaSession _spaSessionDeserialize(
@@ -163,14 +176,16 @@ SpaSession _spaSessionDeserialize(
   object.endTime = reader.readDateTimeOrNull(offsets[2]);
   object.id = id;
   object.isSynced = reader.readBool(offsets[3]);
-  object.sessionId = reader.readString(offsets[4]);
-  object.startTime = reader.readDateTimeOrNull(offsets[5]);
+  object.paymentInfo = reader.readString(offsets[4]);
+  object.sessionId = reader.readString(offsets[5]);
+  object.startTime = reader.readDateTimeOrNull(offsets[6]);
   object.status =
-      _SpaSessionstatusValueEnumMap[reader.readByteOrNull(offsets[6])] ??
+      _SpaSessionstatusValueEnumMap[reader.readByteOrNull(offsets[7])] ??
           SpaSessionStatus.IN_PROGRESS;
-  object.totalAmount = reader.readDouble(offsets[7]);
-  object.updatedAt = reader.readDateTime(offsets[8]);
-  object.version = reader.readLong(offsets[9]);
+  object.tipAmount = reader.readDouble(offsets[8]);
+  object.totalAmount = reader.readDouble(offsets[9]);
+  object.updatedAt = reader.readDateTime(offsets[10]);
+  object.version = reader.readLong(offsets[11]);
   return object;
 }
 
@@ -192,15 +207,19 @@ P _spaSessionDeserializeProp<P>(
     case 4:
       return (reader.readString(offset)) as P;
     case 5:
-      return (reader.readDateTimeOrNull(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 6:
+      return (reader.readDateTimeOrNull(offset)) as P;
+    case 7:
       return (_SpaSessionstatusValueEnumMap[reader.readByteOrNull(offset)] ??
           SpaSessionStatus.IN_PROGRESS) as P;
-    case 7:
-      return (reader.readDouble(offset)) as P;
     case 8:
-      return (reader.readDateTime(offset)) as P;
+      return (reader.readDouble(offset)) as P;
     case 9:
+      return (reader.readDouble(offset)) as P;
+    case 10:
+      return (reader.readDateTime(offset)) as P;
+    case 11:
       return (reader.readLong(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -754,6 +773,142 @@ extension SpaSessionQueryFilter
     });
   }
 
+  QueryBuilder<SpaSession, SpaSession, QAfterFilterCondition>
+      paymentInfoEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'paymentInfo',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaSession, SpaSession, QAfterFilterCondition>
+      paymentInfoGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'paymentInfo',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaSession, SpaSession, QAfterFilterCondition>
+      paymentInfoLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'paymentInfo',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaSession, SpaSession, QAfterFilterCondition>
+      paymentInfoBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'paymentInfo',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaSession, SpaSession, QAfterFilterCondition>
+      paymentInfoStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'paymentInfo',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaSession, SpaSession, QAfterFilterCondition>
+      paymentInfoEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'paymentInfo',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaSession, SpaSession, QAfterFilterCondition>
+      paymentInfoContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'paymentInfo',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaSession, SpaSession, QAfterFilterCondition>
+      paymentInfoMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'paymentInfo',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaSession, SpaSession, QAfterFilterCondition>
+      paymentInfoIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'paymentInfo',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<SpaSession, SpaSession, QAfterFilterCondition>
+      paymentInfoIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'paymentInfo',
+        value: '',
+      ));
+    });
+  }
+
   QueryBuilder<SpaSession, SpaSession, QAfterFilterCondition> sessionIdEqualTo(
     String value, {
     bool caseSensitive = true,
@@ -1009,6 +1164,69 @@ extension SpaSessionQueryFilter
         includeLower: includeLower,
         upper: upper,
         includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaSession, SpaSession, QAfterFilterCondition> tipAmountEqualTo(
+    double value, {
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'tipAmount',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaSession, SpaSession, QAfterFilterCondition>
+      tipAmountGreaterThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'tipAmount',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaSession, SpaSession, QAfterFilterCondition> tipAmountLessThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'tipAmount',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaSession, SpaSession, QAfterFilterCondition> tipAmountBetween(
+    double lower,
+    double upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'tipAmount',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        epsilon: epsilon,
       ));
     });
   }
@@ -1297,6 +1515,18 @@ extension SpaSessionQuerySortBy
     });
   }
 
+  QueryBuilder<SpaSession, SpaSession, QAfterSortBy> sortByPaymentInfo() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'paymentInfo', Sort.asc);
+    });
+  }
+
+  QueryBuilder<SpaSession, SpaSession, QAfterSortBy> sortByPaymentInfoDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'paymentInfo', Sort.desc);
+    });
+  }
+
   QueryBuilder<SpaSession, SpaSession, QAfterSortBy> sortBySessionId() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'sessionId', Sort.asc);
@@ -1330,6 +1560,18 @@ extension SpaSessionQuerySortBy
   QueryBuilder<SpaSession, SpaSession, QAfterSortBy> sortByStatusDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'status', Sort.desc);
+    });
+  }
+
+  QueryBuilder<SpaSession, SpaSession, QAfterSortBy> sortByTipAmount() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'tipAmount', Sort.asc);
+    });
+  }
+
+  QueryBuilder<SpaSession, SpaSession, QAfterSortBy> sortByTipAmountDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'tipAmount', Sort.desc);
     });
   }
 
@@ -1432,6 +1674,18 @@ extension SpaSessionQuerySortThenBy
     });
   }
 
+  QueryBuilder<SpaSession, SpaSession, QAfterSortBy> thenByPaymentInfo() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'paymentInfo', Sort.asc);
+    });
+  }
+
+  QueryBuilder<SpaSession, SpaSession, QAfterSortBy> thenByPaymentInfoDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'paymentInfo', Sort.desc);
+    });
+  }
+
   QueryBuilder<SpaSession, SpaSession, QAfterSortBy> thenBySessionId() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'sessionId', Sort.asc);
@@ -1465,6 +1719,18 @@ extension SpaSessionQuerySortThenBy
   QueryBuilder<SpaSession, SpaSession, QAfterSortBy> thenByStatusDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'status', Sort.desc);
+    });
+  }
+
+  QueryBuilder<SpaSession, SpaSession, QAfterSortBy> thenByTipAmount() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'tipAmount', Sort.asc);
+    });
+  }
+
+  QueryBuilder<SpaSession, SpaSession, QAfterSortBy> thenByTipAmountDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'tipAmount', Sort.desc);
     });
   }
 
@@ -1532,6 +1798,13 @@ extension SpaSessionQueryWhereDistinct
     });
   }
 
+  QueryBuilder<SpaSession, SpaSession, QDistinct> distinctByPaymentInfo(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'paymentInfo', caseSensitive: caseSensitive);
+    });
+  }
+
   QueryBuilder<SpaSession, SpaSession, QDistinct> distinctBySessionId(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
@@ -1548,6 +1821,12 @@ extension SpaSessionQueryWhereDistinct
   QueryBuilder<SpaSession, SpaSession, QDistinct> distinctByStatus() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'status');
+    });
+  }
+
+  QueryBuilder<SpaSession, SpaSession, QDistinct> distinctByTipAmount() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'tipAmount');
     });
   }
 
@@ -1602,6 +1881,12 @@ extension SpaSessionQueryProperty
     });
   }
 
+  QueryBuilder<SpaSession, String, QQueryOperations> paymentInfoProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'paymentInfo');
+    });
+  }
+
   QueryBuilder<SpaSession, String, QQueryOperations> sessionIdProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'sessionId');
@@ -1618,6 +1903,12 @@ extension SpaSessionQueryProperty
       statusProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'status');
+    });
+  }
+
+  QueryBuilder<SpaSession, double, QQueryOperations> tipAmountProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'tipAmount');
     });
   }
 

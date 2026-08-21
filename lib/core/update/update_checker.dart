@@ -58,12 +58,6 @@ class _UpdateAndLicenseCheckerState
       appCode: auth.licenseAppCode,
       branchId: auth.branchId,
     );
-    if (!mounted) return;
-
-    final status = license.status;
-    if (status != null && !status.valid) {
-      await showLicenseDialog(context, status);
-    }
   }
 
   @override

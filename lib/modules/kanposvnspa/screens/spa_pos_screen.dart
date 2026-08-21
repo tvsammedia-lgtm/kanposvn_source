@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'dart:async';
+import 'package:intl/intl.dart';
 import '../providers/spa_providers.dart';
 import '../providers/spa_crm_inventory_providers.dart';
 import '../models/spa_bed.dart';
@@ -22,10 +23,19 @@ class SpaPosScreen extends ConsumerStatefulWidget {
 
 class _SpaPosScreenState extends ConsumerState<SpaPosScreen> {
   Timer? _timer;
+  final Set<int> _doneSteps = {}; // SOP checklist (§10)
 
   SpaCustomer? _selectedCustomer;
   SpaServiceModel? _selectedService;
   SpaTechnician? _selectedTech;
+
+  static const _paymentMethods = [
+    'Tiền mặt',
+    'Chuyển khoản',
+    'QR Code',
+    'Ví điện tử',
+    'Thẻ',
+  ];
 
   @override
   void initState() {
@@ -44,12 +54,16 @@ class _SpaPosScreenState extends ConsumerState<SpaPosScreen> {
   Future<void> _completePayment(
     BuildContext context,
     SpaSession session,
-    ReceiptPrintMode mode,
-  ) async {
-    ref.read(spaSessionsProvider.notifier).checkoutSession(session);
+    ReceiptPrintMode mode, {
+    List<Map<String, dynamic>>? payments,
+    double tip = 0,
+  }) async {
+    ref
+        .read(spaSessionsProvider.notifier)
+        .checkoutSession(session, payments: payments, tip: tip);
     final svc = session.service.value;
     final cus = session.customer.value;
-    final total = session.totalAmount;
+    final total = session.totalAmount + tip;
     try {
       await printReceiptByMode(
         context,
@@ -71,6 +85,13 @@ class _SpaPosScreenState extends ConsumerState<SpaPosScreen> {
                 unitPrice: svc.price,
                 total: svc.price,
               ),
+            if (tip > 0)
+              ReceiptItem(
+                name: 'Tiền tip KTV',
+                quantity: 1,
+                unitPrice: tip,
+                total: tip,
+              ),
           ],
           subtotal: total,
           grandTotal: total,
@@ -85,6 +106,144 @@ class _SpaPosScreenState extends ConsumerState<SpaPosScreen> {
       );
     }
     if (mounted) Navigator.pop(context);
+  }
+
+  /// Dialog thanh toán đa phương thức (§14) + tiền tip (§7).
+  void _showPaymentDialog(
+      BuildContext context, SpaSession session, ReceiptPrintMode mode) {
+    final currency = NumberFormat.currency(
+        locale: 'vi_VN', symbol: '₫', decimalDigits: 0);
+    final base = session.totalAmount;
+    final splits = <String, double>{_paymentMethods.first: base};
+    double tip = 0;
+
+    showDialog(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setDState) {
+          final sumPaid = splits.values.fold<double>(0, (s, v) => s + v);
+          return AlertDialog(
+            title: const Text('Thanh toán'),
+            content: SizedBox(
+              width: 420,
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text('Tổng dịch vụ: ${currency.format(base)}',
+                        style: const TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 12),
+                    ...splits.entries.map((e) => Padding(
+                          padding: const EdgeInsets.only(bottom: 8),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                flex: 2,
+                                child: DropdownButtonFormField<String>(
+                                  initialValue: e.key,
+                                  decoration:
+                                      const InputDecoration(isDense: true),
+                                  items: _paymentMethods
+                                      .where((m) =>
+                                          !splits.containsKey(m) || m == e.key)
+                                      .map((m) => DropdownMenuItem(
+                                          value: m, child: Text(m)))
+                                      .toList(),
+                                  onChanged: (v) => setDState(() {
+                                    if (v != null && v != e.key) {
+                                      final old = Map.of(splits);
+                                      splits.clear();
+                                      old.forEach((k, val) {
+                                        splits[k == e.key ? v : k] = val;
+                                      });
+                                    }
+                                  }),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                flex: 3,
+                                child: TextFormField(
+                                  initialValue: e.value.toStringAsFixed(0),
+                                  keyboardType: TextInputType.number,
+                                  decoration: const InputDecoration(
+                                      isDense: true, suffixText: '₫'),
+                                  onChanged: (v) => splits[e.key] =
+                                      double.tryParse(
+                                              v.replaceAll(',', '')) ??
+                                          0,
+                                ),
+                              ),
+                            ],
+                          ),
+                        )),
+                    TextButton.icon(
+                      icon: const Icon(Icons.add, size: 18),
+                      label: const Text('Thêm phương thức'),
+                      onPressed: splits.length >= _paymentMethods.length
+                          ? null
+                          : () => setDState(() {
+                                final next = _paymentMethods.firstWhere(
+                                    (m) => !splits.containsKey(m));
+                                splits[next] = 0;
+                              }),
+                    ),
+                    TextField(
+                      decoration: const InputDecoration(
+                          labelText: 'Tiền tip KTV (tùy chọn)',
+                          suffixText: '₫'),
+                      keyboardType: TextInputType.number,
+                      onChanged: (v) =>
+                          tip = double.tryParse(v.replaceAll(',', '')) ?? 0,
+                    ),
+                    const Divider(),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text('Cần trả: ${currency.format(base + tip)}'),
+                        Text(
+                          'Đã trả: ${currency.format(sumPaid)}'
+                          '${sumPaid < base ? ' (Chưa đủ phần dịch vụ)' : ''}',
+                          style: TextStyle(
+                              color:
+                                  sumPaid >= base ? Colors.green : Colors.red,
+                              fontWeight: FontWeight.bold),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            actions: [
+              TextButton(
+                  onPressed: () => Navigator.pop(ctx),
+                  child: const Text('Huỷ')),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.pink,
+                    foregroundColor: Colors.white),
+                onPressed: sumPaid >= base && base > 0
+                    ? () {
+                        Navigator.pop(ctx);
+                        _completePayment(context, session, mode,
+                            payments: splits.entries
+                                .map((e) => {
+                                      'method': e.key,
+                                      'amount': e.value,
+                                    })
+                                .toList(),
+                            tip: tip);
+                      }
+                    : null,
+                child: const Text('Xác nhận & In bill'),
+              ),
+            ],
+          );
+        },
+      ),
+    );
   }
 
   @override
@@ -244,7 +403,35 @@ class _SpaPosScreenState extends ConsumerState<SpaPosScreen> {
                       Text(timeStr, style: const TextStyle(fontSize: 48, fontWeight: FontWeight.bold)),
                       const SizedBox(height: 8),
                       Text('Thời gian liệu trình: ${svc?.durationMinutes} phút', style: const TextStyle(color: Colors.grey)),
-                      const SizedBox(height: 32),
+                      if (svc != null && svc.sopSteps.isNotEmpty) ...[
+                        const SizedBox(height: 16),
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text('Quy trình SOP (${_doneSteps.length}/${svc.sopSteps.length}):',
+                              style: const TextStyle(fontWeight: FontWeight.bold)),
+                        ),
+                        ...svc.sopSteps.asMap().entries.map((e) => CheckboxListTile(
+                              dense: true,
+                              value: _doneSteps.contains(e.key),
+                              title: Text(
+                                e.value,
+                                style: TextStyle(
+                                  decoration: _doneSteps.contains(e.key)
+                                      ? TextDecoration.lineThrough
+                                      : null,
+                                  color: _doneSteps.contains(e.key)
+                                      ? Colors.grey
+                                      : Colors.black,
+                                ),
+                              ),
+                              onChanged: (v) => setState(() {
+                                v == true
+                                    ? _doneSteps.add(e.key)
+                                    : _doneSteps.remove(e.key);
+                              }),
+                            )),
+                      ],
+                      const SizedBox(height: 16),
                       Text('Tổng tiền: ${activeSession.totalAmount.toStringAsFixed(0)} đ', style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.red)),
                       const SizedBox(height: 32),
                       Row(
@@ -255,11 +442,8 @@ class _SpaPosScreenState extends ConsumerState<SpaPosScreen> {
                                 backgroundColor: Colors.orange,
                                 padding: const EdgeInsets.all(12),
                               ),
-                              onPressed: () => _completePayment(
-                                context,
-                                activeSession,
-                                ReceiptPrintMode.thermal80,
-                              ),
+                              onPressed: () => _showPaymentDialog(
+                                  context, activeSession, ReceiptPrintMode.thermal80),
                               icon: const Icon(Icons.print,
                                   color: Colors.white, size: 16),
                               label: const Text('IN BILL 80mm',
@@ -276,11 +460,8 @@ class _SpaPosScreenState extends ConsumerState<SpaPosScreen> {
                                 backgroundColor: Colors.red,
                                 padding: const EdgeInsets.all(12),
                               ),
-                              onPressed: () => _completePayment(
-                                context,
-                                activeSession,
-                                ReceiptPrintMode.pdf,
-                              ),
+                              onPressed: () => _showPaymentDialog(
+                                  context, activeSession, ReceiptPrintMode.pdf),
                               icon: const Icon(Icons.picture_as_pdf,
                                   color: Colors.white, size: 16),
                               label: const Text('IN PDF',
@@ -299,11 +480,8 @@ class _SpaPosScreenState extends ConsumerState<SpaPosScreen> {
                           style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.green,
                               padding: const EdgeInsets.all(16)),
-                          onPressed: () => _completePayment(
-                            context,
-                            activeSession,
-                            ReceiptPrintMode.auto,
-                          ),
+                          onPressed: () => _showPaymentDialog(
+                              context, activeSession, ReceiptPrintMode.auto),
                           child: const Text('HOÀN THÀNH & THANH TOÁN',
                               style: TextStyle(
                                   color: Colors.white,

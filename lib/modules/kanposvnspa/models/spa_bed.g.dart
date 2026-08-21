@@ -179,11 +179,13 @@ const _SpaBedstatusEnumValueMap = {
   'EMPTY': 0,
   'PLAYING': 1,
   'CLEANING': 2,
+  'MAINTENANCE': 3,
 };
 const _SpaBedstatusValueEnumMap = {
   0: SpaBedStatus.EMPTY,
   1: SpaBedStatus.PLAYING,
   2: SpaBedStatus.CLEANING,
+  3: SpaBedStatus.MAINTENANCE,
 };
 
 Id _spaBedGetId(SpaBed object) {

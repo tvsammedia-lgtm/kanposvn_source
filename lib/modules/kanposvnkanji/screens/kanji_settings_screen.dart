@@ -1,16 +1,16 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverprof.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../core/providers.dart';
+import '../providers/kanji_providers.dart';
 
-class KanjiSettingsScreen extends ConsumerStatefulWidget {
+class KanjiSettingsScreen extends ConsumerWidget {
   const KanjiSettingsScreen({super.key});
-  @override ConsumerState<KanjiSettingsScreen> createState() => _KanjiSettingsScreenState();
-}
 
-class _KanjiSettingsScreenState extends ConsumerState<KanjiSettingsScreen> {
   @override
-  Widget build(BuildContext context) {
-    final auth = ref.watch(authServiceprovider);
+  Widget build(BuildContext context, WidgetRef ref) {
+    final kanjiAsync = ref.watch(kanjiListProvider);
+    final progress = ref.watch(kanjiProgressProvider);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('CÀI ĐẶT KANJI'),
@@ -24,7 +24,7 @@ class _KanjiSettingsScreenState extends ConsumerState<KanjiSettingsScreen> {
           IconButton(
             icon: const Icon(Icons.switch_account),
             tooltip: 'Chuyển tài khoản',
-            onPressed: () => ref.read(authServiceprovider).signOut(),
+            onPressed: () => ref.read(authServiceProvider).signOut(),
           ),
         ],
       ),
@@ -32,27 +32,57 @@ class _KanjiSettingsScreenState extends ConsumerState<KanjiSettingsScreen> {
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Text(
-                'CÀI ĐẶT KANJI',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              Card(
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('Dữ liệu',
+                          style: TextStyle(fontWeight: FontWeight.bold)),
+                      const SizedBox(height: 8),
+                      kanjiAsync.when(
+                        loading: () => const Text('Đang tải...'),
+                        error: (e, _) => Text('Lỗi: $e'),
+                        data: (kanji) {
+                          final needReview =
+                              kanji.where((k) => k.needsReview).length;
+                          return Text(
+                              '${kanji.length} chữ từ Kanji.docx'
+                              '${needReview > 0 ? ' • $needReview chữ cần kiểm tra dữ liệu' : ''}',
+                              style: TextStyle(color: Colors.grey.shade700));
+                        },
+                      ),
+                    ],
+                  ),
+                ),
               ),
-              const SizedBox(height: 16),
-              const Text(
-                'Chọn level muốn học:',
-                style: TextStyle(fontSize: 18),
-              ),
-              const SizedBox(height: 24),
-              _buildLevelOption('Level 1 - Cơ bản'),
               const SizedBox(height: 12),
-              _buildLevelOption('Level 2 - Trung cấp'),
-              const SizedBox(height: 12),
-              _buildLevelOption('Level 3 - Nâng cao'),
-              const SizedBox(height: 32),
-              const Text(
-                'Tổng cộng 997 Kanji được phân theo 3 cấp độ',
-                style: TextStyle(fontSize: 16, color: Colors.grey),
+              Card(
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('Tiến độ',
+                          style: TextStyle(fontWeight: FontWeight.bold)),
+                      const SizedBox(height: 8),
+                      Text('Đã học: ${progress.learnedCount} • XP: ${progress.xp}',
+                          style: TextStyle(color: Colors.grey.shade700)),
+                      const SizedBox(height: 12),
+                      OutlinedButton.icon(
+                        style: OutlinedButton.styleFrom(foregroundColor: Colors.red),
+                        icon: const Icon(Icons.delete_outline),
+                        label: const Text('Xoá toàn bộ tiến độ'),
+                        onPressed: () => _confirmReset(context, ref),
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ],
           ),
@@ -61,15 +91,23 @@ class _KanjiSettingsScreenState extends ConsumerState<KanjiSettingsScreen> {
     );
   }
 
-  Widget _buildLevelOption(String label) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: ListTile(
-        title: Text(label),
-        trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-        onTap: () {
-          // Xử lý chọn level
-        },
+  void _confirmReset(BuildContext context, WidgetRef ref) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Xoá tiến độ?'),
+        content: const Text(
+            'Toàn bộ SRS, XP và thống kê Kanji sẽ bị xoá. Thao tác không thể hoàn tác.'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Huỷ')),
+          TextButton(
+            onPressed: () {
+              ref.read(kanjiProgressProvider.notifier).resetAll();
+              Navigator.pop(ctx);
+            },
+            child: const Text('Xoá', style: TextStyle(color: Colors.red)),
+          ),
+        ],
       ),
     );
   }

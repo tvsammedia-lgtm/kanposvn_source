@@ -39,4 +39,8 @@ class SpaSession {
   SpaSessionStatus status = SpaSessionStatus.IN_PROGRESS;
 
   double totalAmount = 0.0;
+  double tipAmount = 0; // Tiền tip cho KTV (spec §7)
+
+  /// Thanh toán đa phương thức (spec §14), JSON: [{"method":"Tiền mặt","amount":x}]
+  String paymentInfo = '[]';
 }

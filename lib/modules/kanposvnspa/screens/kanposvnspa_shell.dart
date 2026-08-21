@@ -8,6 +8,7 @@ import '../../../core/providers.dart';
 import '../../../core/widgets/account_switcher_button.dart';
 import '../providers/spa_providers.dart';
 import '../providers/spa_crm_inventory_providers.dart';
+import '../providers/spa_operations_providers.dart';
 import '../services/spa_seed_data.dart';
 import 'spa_dashboard_screen.dart';
 import 'spa_beds_screen.dart';
@@ -16,6 +17,11 @@ import 'spa_inventory_screen.dart';
 import 'spa_sales_report_screen.dart';
 import 'spa_sync_screen.dart';
 import 'spa_settings_screen.dart';
+import 'spa_appointments_screen.dart';
+import 'spa_technicians_screen.dart';
+import 'spa_combos_screen.dart';
+import 'spa_finance_screen.dart';
+import 'spa_product_pos_screen.dart';
 
 class KanPosVNSpaShell extends ConsumerStatefulWidget {
   const KanPosVNSpaShell({super.key});
@@ -46,6 +52,10 @@ class _KanPosVNSpaShellState extends ConsumerState<KanPosVNSpaShell> {
     ref.read(spaCustomersProvider.notifier).loadCustomers();
     ref.read(spaProductsProvider.notifier).loadProducts();
     ref.read(spaInventoryProvider.notifier).loadTransactions();
+    // Load Phase 3 providers
+    ref.read(spaAppointmentsProvider.notifier).load();
+    ref.read(spaCombosProvider.notifier).load();
+    ref.read(spaExpensesProvider.notifier).load();
 
     setState(() {
       _isInit = true;
@@ -53,28 +63,38 @@ class _KanPosVNSpaShellState extends ConsumerState<KanPosVNSpaShell> {
   }
 
   static final Map<String, Set<String>> _roleTabs = {
-    EmployeeRoles.cashier: const {'beds', 'customers'},
-    EmployeeRoles.sale: const {'beds', 'customers'},
+    EmployeeRoles.cashier: const {'beds', 'customers', 'appointments', 'product_pos'},
+    EmployeeRoles.sale: const {'beds', 'customers', 'appointments', 'product_pos', 'combos'},
     EmployeeRoles.warehouse: const {'inventory'},
-    EmployeeRoles.accountant: const {'dashboard', 'report', 'settings', 'employees'},
+    EmployeeRoles.accountant: const {'dashboard', 'report', 'finance', 'settings', 'employees'},
   };
 
   static final Map<String, ({IconData icon, String label})> _tabDefs = {
-    'beds': (icon: Icons.grid_view, label: 'Sơ đồ Giường'),
     'dashboard': (icon: Icons.dashboard, label: 'Dashboard'),
+    'beds': (icon: Icons.grid_view, label: 'Sơ đồ Giường'),
+    'appointments': (icon: Icons.event_note, label: 'Lịch Hẹn'),
     'customers': (icon: Icons.people, label: 'Khách Hàng'),
+    'technicians': (icon: Icons.badge_outlined, label: 'KTV'),
+    'combos': (icon: Icons.card_giftcard, label: 'Combo'),
+    'product_pos': (icon: Icons.shopping_cart, label: 'Bán SP'),
     'inventory': (icon: Icons.local_pharmacy, label: 'Kho Dược Liệu'),
+    'finance': (icon: Icons.account_balance_wallet, label: 'Thu Chi'),
     'sync': (icon: Icons.sync, label: 'Đồng Bộ'),
     'report': (icon: Icons.bar_chart, label: 'Báo Cáo'),
-    'employees': (icon: Icons.badge, label: 'Quản Lý NV'),
+    'employees': (icon: Icons.manage_accounts, label: 'Quản Lý NV'),
     'settings': (icon: Icons.settings, label: 'Cài Đặt'),
   };
 
   static final Map<String, Widget Function()> _tabScreens = {
     'beds': () => const SpaBedsScreen(),
     'dashboard': () => const SpaDashboardScreen(),
+    'appointments': () => const SpaAppointmentsScreen(),
     'customers': () => const SpaCustomersScreen(),
+    'technicians': () => const SpaTechniciansScreen(),
+    'combos': () => const SpaCombosScreen(),
+    'product_pos': () => const SpaProductPosScreen(),
     'inventory': () => const SpaInventoryScreen(),
+    'finance': () => const SpaFinanceScreen(),
     'sync': () => const SpaSyncScreen(),
     'report': () => const SpaSalesReportScreen(),
     'employees': () => const EmployeeManagementScreen(),

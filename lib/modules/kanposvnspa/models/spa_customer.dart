@@ -15,14 +15,29 @@ class SpaCustomer {
   @Index(unique: true, replace: true)
   String customerId = '';
 
+  // Thông tin chung (spec §3)
   String name = '';
   String phone = '';
-  
-  // Health Records (Hồ sơ sức khỏe)
-  String skinType = ''; // e.g., Da Dầu, Da Khô, Da Nhạy Cảm
-  String allergies = ''; // e.g., Dị ứng mỹ phẩm, Dị ứng cồn
-  String medicalCondition = ''; // e.g., Mụn, Nám, Tàn nhang
+  String gender = 'Nữ';
+  DateTime? birthDate;
+  String zalo = '';
+  String facebook = '';
+  String email = '';
+  String address = '';
+  String referrer = ''; // Người giới thiệu
+  String customerGroup = 'Vãng lai'; // Nhóm khách hàng
   String notes = '';
+
+  // Hồ sơ sức khỏe (spec §3)
+  String skinType = ''; // Da Dầu, Da Khô, Da Nhạy Cảm
+  String allergies = ''; // Dị ứng mỹ phẩm / thuốc
+  String medicalCondition = ''; // Mụn, Nám, Tàn nhang...
+  bool isPregnant = false;
+  String agingLevel = ''; // Mức độ lão hóa
+
+  // Tài chính (spec §3 Lịch sử)
+  double debtAmount = 0; // Công nợ
+  int loyaltyPoints = 0; // Điểm tích lũy
 
   @Index()
   DateTime createdAt = DateTime.now();

@@ -17,48 +17,74 @@ const SpaServiceModelSchema = CollectionSchema(
   name: r'SpaServiceModel',
   id: -7699290007974076160,
   properties: {
-    r'deletedAt': PropertySchema(
+    r'category': PropertySchema(
       id: 0,
+      name: r'category',
+      type: IsarType.byte,
+      enumMap: _SpaServiceModelcategoryEnumValueMap,
+    ),
+    r'code': PropertySchema(
+      id: 1,
+      name: r'code',
+      type: IsarType.string,
+    ),
+    r'consumptions': PropertySchema(
+      id: 2,
+      name: r'consumptions',
+      type: IsarType.stringList,
+    ),
+    r'deletedAt': PropertySchema(
+      id: 3,
       name: r'deletedAt',
       type: IsarType.dateTime,
     ),
     r'deviceId': PropertySchema(
-      id: 1,
+      id: 4,
       name: r'deviceId',
       type: IsarType.string,
     ),
     r'durationMinutes': PropertySchema(
-      id: 2,
+      id: 5,
       name: r'durationMinutes',
       type: IsarType.long,
     ),
     r'isSynced': PropertySchema(
-      id: 3,
+      id: 6,
       name: r'isSynced',
       type: IsarType.bool,
     ),
     r'name': PropertySchema(
-      id: 4,
+      id: 7,
       name: r'name',
       type: IsarType.string,
     ),
     r'price': PropertySchema(
-      id: 5,
+      id: 8,
       name: r'price',
       type: IsarType.double,
     ),
+    r'roomType': PropertySchema(
+      id: 9,
+      name: r'roomType',
+      type: IsarType.string,
+    ),
     r'serviceId': PropertySchema(
-      id: 6,
+      id: 10,
       name: r'serviceId',
       type: IsarType.string,
     ),
+    r'sopSteps': PropertySchema(
+      id: 11,
+      name: r'sopSteps',
+      type: IsarType.stringList,
+    ),
     r'updatedAt': PropertySchema(
-      id: 7,
+      id: 12,
       name: r'updatedAt',
       type: IsarType.dateTime,
     ),
     r'version': PropertySchema(
-      id: 8,
+      id: 13,
       name: r'version',
       type: IsarType.long,
     )
@@ -97,9 +123,25 @@ int _spaServiceModelEstimateSize(
   Map<Type, List<int>> allOffsets,
 ) {
   var bytesCount = offsets.last;
+  bytesCount += 3 + object.code.length * 3;
+  bytesCount += 3 + object.consumptions.length * 3;
+  {
+    for (var i = 0; i < object.consumptions.length; i++) {
+      final value = object.consumptions[i];
+      bytesCount += value.length * 3;
+    }
+  }
   bytesCount += 3 + object.deviceId.length * 3;
   bytesCount += 3 + object.name.length * 3;
+  bytesCount += 3 + object.roomType.length * 3;
   bytesCount += 3 + object.serviceId.length * 3;
+  bytesCount += 3 + object.sopSteps.length * 3;
+  {
+    for (var i = 0; i < object.sopSteps.length; i++) {
+      final value = object.sopSteps[i];
+      bytesCount += value.length * 3;
+    }
+  }
   return bytesCount;
 }
 
@@ -109,15 +151,20 @@ void _spaServiceModelSerialize(
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
-  writer.writeDateTime(offsets[0], object.deletedAt);
-  writer.writeString(offsets[1], object.deviceId);
-  writer.writeLong(offsets[2], object.durationMinutes);
-  writer.writeBool(offsets[3], object.isSynced);
-  writer.writeString(offsets[4], object.name);
-  writer.writeDouble(offsets[5], object.price);
-  writer.writeString(offsets[6], object.serviceId);
-  writer.writeDateTime(offsets[7], object.updatedAt);
-  writer.writeLong(offsets[8], object.version);
+  writer.writeByte(offsets[0], object.category.index);
+  writer.writeString(offsets[1], object.code);
+  writer.writeStringList(offsets[2], object.consumptions);
+  writer.writeDateTime(offsets[3], object.deletedAt);
+  writer.writeString(offsets[4], object.deviceId);
+  writer.writeLong(offsets[5], object.durationMinutes);
+  writer.writeBool(offsets[6], object.isSynced);
+  writer.writeString(offsets[7], object.name);
+  writer.writeDouble(offsets[8], object.price);
+  writer.writeString(offsets[9], object.roomType);
+  writer.writeString(offsets[10], object.serviceId);
+  writer.writeStringList(offsets[11], object.sopSteps);
+  writer.writeDateTime(offsets[12], object.updatedAt);
+  writer.writeLong(offsets[13], object.version);
 }
 
 SpaServiceModel _spaServiceModelDeserialize(
@@ -127,16 +174,23 @@ SpaServiceModel _spaServiceModelDeserialize(
   Map<Type, List<int>> allOffsets,
 ) {
   final object = SpaServiceModel();
-  object.deletedAt = reader.readDateTimeOrNull(offsets[0]);
-  object.deviceId = reader.readString(offsets[1]);
-  object.durationMinutes = reader.readLong(offsets[2]);
+  object.category =
+      _SpaServiceModelcategoryValueEnumMap[reader.readByteOrNull(offsets[0])] ??
+          SpaServiceCategory.SKINCARE;
+  object.code = reader.readString(offsets[1]);
+  object.consumptions = reader.readStringList(offsets[2]) ?? [];
+  object.deletedAt = reader.readDateTimeOrNull(offsets[3]);
+  object.deviceId = reader.readString(offsets[4]);
+  object.durationMinutes = reader.readLong(offsets[5]);
   object.id = id;
-  object.isSynced = reader.readBool(offsets[3]);
-  object.name = reader.readString(offsets[4]);
-  object.price = reader.readDouble(offsets[5]);
-  object.serviceId = reader.readString(offsets[6]);
-  object.updatedAt = reader.readDateTime(offsets[7]);
-  object.version = reader.readLong(offsets[8]);
+  object.isSynced = reader.readBool(offsets[6]);
+  object.name = reader.readString(offsets[7]);
+  object.price = reader.readDouble(offsets[8]);
+  object.roomType = reader.readString(offsets[9]);
+  object.serviceId = reader.readString(offsets[10]);
+  object.sopSteps = reader.readStringList(offsets[11]) ?? [];
+  object.updatedAt = reader.readDateTime(offsets[12]);
+  object.version = reader.readLong(offsets[13]);
   return object;
 }
 
@@ -148,27 +202,56 @@ P _spaServiceModelDeserializeProp<P>(
 ) {
   switch (propertyId) {
     case 0:
-      return (reader.readDateTimeOrNull(offset)) as P;
+      return (_SpaServiceModelcategoryValueEnumMap[
+              reader.readByteOrNull(offset)] ??
+          SpaServiceCategory.SKINCARE) as P;
     case 1:
       return (reader.readString(offset)) as P;
     case 2:
-      return (reader.readLong(offset)) as P;
+      return (reader.readStringList(offset) ?? []) as P;
     case 3:
-      return (reader.readBool(offset)) as P;
+      return (reader.readDateTimeOrNull(offset)) as P;
     case 4:
       return (reader.readString(offset)) as P;
     case 5:
-      return (reader.readDouble(offset)) as P;
+      return (reader.readLong(offset)) as P;
     case 6:
-      return (reader.readString(offset)) as P;
+      return (reader.readBool(offset)) as P;
     case 7:
-      return (reader.readDateTime(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 8:
+      return (reader.readDouble(offset)) as P;
+    case 9:
+      return (reader.readString(offset)) as P;
+    case 10:
+      return (reader.readString(offset)) as P;
+    case 11:
+      return (reader.readStringList(offset) ?? []) as P;
+    case 12:
+      return (reader.readDateTime(offset)) as P;
+    case 13:
       return (reader.readLong(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
   }
 }
+
+const _SpaServiceModelcategoryEnumValueMap = {
+  'SKINCARE': 0,
+  'WELLNESS': 1,
+  'TREATMENT': 2,
+  'NAIL': 3,
+  'TATTOO': 4,
+  'OTHER': 5,
+};
+const _SpaServiceModelcategoryValueEnumMap = {
+  0: SpaServiceCategory.SKINCARE,
+  1: SpaServiceCategory.WELLNESS,
+  2: SpaServiceCategory.TREATMENT,
+  3: SpaServiceCategory.NAIL,
+  4: SpaServiceCategory.TATTOO,
+  5: SpaServiceCategory.OTHER,
+};
 
 Id _spaServiceModelGetId(SpaServiceModel object) {
   return object.id;
@@ -366,6 +449,423 @@ extension SpaServiceModelQueryWhere
 
 extension SpaServiceModelQueryFilter
     on QueryBuilder<SpaServiceModel, SpaServiceModel, QFilterCondition> {
+  QueryBuilder<SpaServiceModel, SpaServiceModel, QAfterFilterCondition>
+      categoryEqualTo(SpaServiceCategory value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'category',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaServiceModel, SpaServiceModel, QAfterFilterCondition>
+      categoryGreaterThan(
+    SpaServiceCategory value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'category',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaServiceModel, SpaServiceModel, QAfterFilterCondition>
+      categoryLessThan(
+    SpaServiceCategory value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'category',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaServiceModel, SpaServiceModel, QAfterFilterCondition>
+      categoryBetween(
+    SpaServiceCategory lower,
+    SpaServiceCategory upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'category',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaServiceModel, SpaServiceModel, QAfterFilterCondition>
+      codeEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'code',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaServiceModel, SpaServiceModel, QAfterFilterCondition>
+      codeGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'code',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaServiceModel, SpaServiceModel, QAfterFilterCondition>
+      codeLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'code',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaServiceModel, SpaServiceModel, QAfterFilterCondition>
+      codeBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'code',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaServiceModel, SpaServiceModel, QAfterFilterCondition>
+      codeStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'code',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaServiceModel, SpaServiceModel, QAfterFilterCondition>
+      codeEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'code',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaServiceModel, SpaServiceModel, QAfterFilterCondition>
+      codeContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'code',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaServiceModel, SpaServiceModel, QAfterFilterCondition>
+      codeMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'code',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaServiceModel, SpaServiceModel, QAfterFilterCondition>
+      codeIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'code',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<SpaServiceModel, SpaServiceModel, QAfterFilterCondition>
+      codeIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'code',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<SpaServiceModel, SpaServiceModel, QAfterFilterCondition>
+      consumptionsElementEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'consumptions',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaServiceModel, SpaServiceModel, QAfterFilterCondition>
+      consumptionsElementGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'consumptions',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaServiceModel, SpaServiceModel, QAfterFilterCondition>
+      consumptionsElementLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'consumptions',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaServiceModel, SpaServiceModel, QAfterFilterCondition>
+      consumptionsElementBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'consumptions',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaServiceModel, SpaServiceModel, QAfterFilterCondition>
+      consumptionsElementStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'consumptions',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaServiceModel, SpaServiceModel, QAfterFilterCondition>
+      consumptionsElementEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'consumptions',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaServiceModel, SpaServiceModel, QAfterFilterCondition>
+      consumptionsElementContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'consumptions',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaServiceModel, SpaServiceModel, QAfterFilterCondition>
+      consumptionsElementMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'consumptions',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaServiceModel, SpaServiceModel, QAfterFilterCondition>
+      consumptionsElementIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'consumptions',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<SpaServiceModel, SpaServiceModel, QAfterFilterCondition>
+      consumptionsElementIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'consumptions',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<SpaServiceModel, SpaServiceModel, QAfterFilterCondition>
+      consumptionsLengthEqualTo(int length) {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'consumptions',
+        length,
+        true,
+        length,
+        true,
+      );
+    });
+  }
+
+  QueryBuilder<SpaServiceModel, SpaServiceModel, QAfterFilterCondition>
+      consumptionsIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'consumptions',
+        0,
+        true,
+        0,
+        true,
+      );
+    });
+  }
+
+  QueryBuilder<SpaServiceModel, SpaServiceModel, QAfterFilterCondition>
+      consumptionsIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'consumptions',
+        0,
+        false,
+        999999,
+        true,
+      );
+    });
+  }
+
+  QueryBuilder<SpaServiceModel, SpaServiceModel, QAfterFilterCondition>
+      consumptionsLengthLessThan(
+    int length, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'consumptions',
+        0,
+        true,
+        length,
+        include,
+      );
+    });
+  }
+
+  QueryBuilder<SpaServiceModel, SpaServiceModel, QAfterFilterCondition>
+      consumptionsLengthGreaterThan(
+    int length, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'consumptions',
+        length,
+        include,
+        999999,
+        true,
+      );
+    });
+  }
+
+  QueryBuilder<SpaServiceModel, SpaServiceModel, QAfterFilterCondition>
+      consumptionsLengthBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'consumptions',
+        lower,
+        includeLower,
+        upper,
+        includeUpper,
+      );
+    });
+  }
+
   QueryBuilder<SpaServiceModel, SpaServiceModel, QAfterFilterCondition>
       deletedAtIsNull() {
     return QueryBuilder.apply(this, (query) {
@@ -901,6 +1401,142 @@ extension SpaServiceModelQueryFilter
   }
 
   QueryBuilder<SpaServiceModel, SpaServiceModel, QAfterFilterCondition>
+      roomTypeEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'roomType',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaServiceModel, SpaServiceModel, QAfterFilterCondition>
+      roomTypeGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'roomType',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaServiceModel, SpaServiceModel, QAfterFilterCondition>
+      roomTypeLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'roomType',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaServiceModel, SpaServiceModel, QAfterFilterCondition>
+      roomTypeBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'roomType',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaServiceModel, SpaServiceModel, QAfterFilterCondition>
+      roomTypeStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'roomType',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaServiceModel, SpaServiceModel, QAfterFilterCondition>
+      roomTypeEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'roomType',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaServiceModel, SpaServiceModel, QAfterFilterCondition>
+      roomTypeContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'roomType',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaServiceModel, SpaServiceModel, QAfterFilterCondition>
+      roomTypeMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'roomType',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaServiceModel, SpaServiceModel, QAfterFilterCondition>
+      roomTypeIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'roomType',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<SpaServiceModel, SpaServiceModel, QAfterFilterCondition>
+      roomTypeIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'roomType',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<SpaServiceModel, SpaServiceModel, QAfterFilterCondition>
       serviceIdEqualTo(
     String value, {
     bool caseSensitive = true,
@@ -1037,6 +1673,231 @@ extension SpaServiceModelQueryFilter
   }
 
   QueryBuilder<SpaServiceModel, SpaServiceModel, QAfterFilterCondition>
+      sopStepsElementEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'sopSteps',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaServiceModel, SpaServiceModel, QAfterFilterCondition>
+      sopStepsElementGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'sopSteps',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaServiceModel, SpaServiceModel, QAfterFilterCondition>
+      sopStepsElementLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'sopSteps',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaServiceModel, SpaServiceModel, QAfterFilterCondition>
+      sopStepsElementBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'sopSteps',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaServiceModel, SpaServiceModel, QAfterFilterCondition>
+      sopStepsElementStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'sopSteps',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaServiceModel, SpaServiceModel, QAfterFilterCondition>
+      sopStepsElementEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'sopSteps',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaServiceModel, SpaServiceModel, QAfterFilterCondition>
+      sopStepsElementContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'sopSteps',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaServiceModel, SpaServiceModel, QAfterFilterCondition>
+      sopStepsElementMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'sopSteps',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaServiceModel, SpaServiceModel, QAfterFilterCondition>
+      sopStepsElementIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'sopSteps',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<SpaServiceModel, SpaServiceModel, QAfterFilterCondition>
+      sopStepsElementIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'sopSteps',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<SpaServiceModel, SpaServiceModel, QAfterFilterCondition>
+      sopStepsLengthEqualTo(int length) {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'sopSteps',
+        length,
+        true,
+        length,
+        true,
+      );
+    });
+  }
+
+  QueryBuilder<SpaServiceModel, SpaServiceModel, QAfterFilterCondition>
+      sopStepsIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'sopSteps',
+        0,
+        true,
+        0,
+        true,
+      );
+    });
+  }
+
+  QueryBuilder<SpaServiceModel, SpaServiceModel, QAfterFilterCondition>
+      sopStepsIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'sopSteps',
+        0,
+        false,
+        999999,
+        true,
+      );
+    });
+  }
+
+  QueryBuilder<SpaServiceModel, SpaServiceModel, QAfterFilterCondition>
+      sopStepsLengthLessThan(
+    int length, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'sopSteps',
+        0,
+        true,
+        length,
+        include,
+      );
+    });
+  }
+
+  QueryBuilder<SpaServiceModel, SpaServiceModel, QAfterFilterCondition>
+      sopStepsLengthGreaterThan(
+    int length, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'sopSteps',
+        length,
+        include,
+        999999,
+        true,
+      );
+    });
+  }
+
+  QueryBuilder<SpaServiceModel, SpaServiceModel, QAfterFilterCondition>
+      sopStepsLengthBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'sopSteps',
+        lower,
+        includeLower,
+        upper,
+        includeUpper,
+      );
+    });
+  }
+
+  QueryBuilder<SpaServiceModel, SpaServiceModel, QAfterFilterCondition>
       updatedAtEqualTo(DateTime value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
@@ -1158,6 +2019,33 @@ extension SpaServiceModelQueryLinks
 extension SpaServiceModelQuerySortBy
     on QueryBuilder<SpaServiceModel, SpaServiceModel, QSortBy> {
   QueryBuilder<SpaServiceModel, SpaServiceModel, QAfterSortBy>
+      sortByCategory() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'category', Sort.asc);
+    });
+  }
+
+  QueryBuilder<SpaServiceModel, SpaServiceModel, QAfterSortBy>
+      sortByCategoryDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'category', Sort.desc);
+    });
+  }
+
+  QueryBuilder<SpaServiceModel, SpaServiceModel, QAfterSortBy> sortByCode() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'code', Sort.asc);
+    });
+  }
+
+  QueryBuilder<SpaServiceModel, SpaServiceModel, QAfterSortBy>
+      sortByCodeDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'code', Sort.desc);
+    });
+  }
+
+  QueryBuilder<SpaServiceModel, SpaServiceModel, QAfterSortBy>
       sortByDeletedAt() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'deletedAt', Sort.asc);
@@ -1240,6 +2128,20 @@ extension SpaServiceModelQuerySortBy
   }
 
   QueryBuilder<SpaServiceModel, SpaServiceModel, QAfterSortBy>
+      sortByRoomType() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'roomType', Sort.asc);
+    });
+  }
+
+  QueryBuilder<SpaServiceModel, SpaServiceModel, QAfterSortBy>
+      sortByRoomTypeDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'roomType', Sort.desc);
+    });
+  }
+
+  QueryBuilder<SpaServiceModel, SpaServiceModel, QAfterSortBy>
       sortByServiceId() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'serviceId', Sort.asc);
@@ -1283,6 +2185,33 @@ extension SpaServiceModelQuerySortBy
 
 extension SpaServiceModelQuerySortThenBy
     on QueryBuilder<SpaServiceModel, SpaServiceModel, QSortThenBy> {
+  QueryBuilder<SpaServiceModel, SpaServiceModel, QAfterSortBy>
+      thenByCategory() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'category', Sort.asc);
+    });
+  }
+
+  QueryBuilder<SpaServiceModel, SpaServiceModel, QAfterSortBy>
+      thenByCategoryDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'category', Sort.desc);
+    });
+  }
+
+  QueryBuilder<SpaServiceModel, SpaServiceModel, QAfterSortBy> thenByCode() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'code', Sort.asc);
+    });
+  }
+
+  QueryBuilder<SpaServiceModel, SpaServiceModel, QAfterSortBy>
+      thenByCodeDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'code', Sort.desc);
+    });
+  }
+
   QueryBuilder<SpaServiceModel, SpaServiceModel, QAfterSortBy>
       thenByDeletedAt() {
     return QueryBuilder.apply(this, (query) {
@@ -1378,6 +2307,20 @@ extension SpaServiceModelQuerySortThenBy
   }
 
   QueryBuilder<SpaServiceModel, SpaServiceModel, QAfterSortBy>
+      thenByRoomType() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'roomType', Sort.asc);
+    });
+  }
+
+  QueryBuilder<SpaServiceModel, SpaServiceModel, QAfterSortBy>
+      thenByRoomTypeDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'roomType', Sort.desc);
+    });
+  }
+
+  QueryBuilder<SpaServiceModel, SpaServiceModel, QAfterSortBy>
       thenByServiceId() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'serviceId', Sort.asc);
@@ -1422,6 +2365,27 @@ extension SpaServiceModelQuerySortThenBy
 extension SpaServiceModelQueryWhereDistinct
     on QueryBuilder<SpaServiceModel, SpaServiceModel, QDistinct> {
   QueryBuilder<SpaServiceModel, SpaServiceModel, QDistinct>
+      distinctByCategory() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'category');
+    });
+  }
+
+  QueryBuilder<SpaServiceModel, SpaServiceModel, QDistinct> distinctByCode(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'code', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<SpaServiceModel, SpaServiceModel, QDistinct>
+      distinctByConsumptions() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'consumptions');
+    });
+  }
+
+  QueryBuilder<SpaServiceModel, SpaServiceModel, QDistinct>
       distinctByDeletedAt() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'deletedAt');
@@ -1462,10 +2426,24 @@ extension SpaServiceModelQueryWhereDistinct
     });
   }
 
+  QueryBuilder<SpaServiceModel, SpaServiceModel, QDistinct> distinctByRoomType(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'roomType', caseSensitive: caseSensitive);
+    });
+  }
+
   QueryBuilder<SpaServiceModel, SpaServiceModel, QDistinct> distinctByServiceId(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'serviceId', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<SpaServiceModel, SpaServiceModel, QDistinct>
+      distinctBySopSteps() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'sopSteps');
     });
   }
 
@@ -1489,6 +2467,26 @@ extension SpaServiceModelQueryProperty
   QueryBuilder<SpaServiceModel, int, QQueryOperations> idProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'id');
+    });
+  }
+
+  QueryBuilder<SpaServiceModel, SpaServiceCategory, QQueryOperations>
+      categoryProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'category');
+    });
+  }
+
+  QueryBuilder<SpaServiceModel, String, QQueryOperations> codeProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'code');
+    });
+  }
+
+  QueryBuilder<SpaServiceModel, List<String>, QQueryOperations>
+      consumptionsProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'consumptions');
     });
   }
 
@@ -1530,9 +2528,22 @@ extension SpaServiceModelQueryProperty
     });
   }
 
+  QueryBuilder<SpaServiceModel, String, QQueryOperations> roomTypeProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'roomType');
+    });
+  }
+
   QueryBuilder<SpaServiceModel, String, QQueryOperations> serviceIdProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'serviceId');
+    });
+  }
+
+  QueryBuilder<SpaServiceModel, List<String>, QQueryOperations>
+      sopStepsProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'sopSteps');
     });
   }
 

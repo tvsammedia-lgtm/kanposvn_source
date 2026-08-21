@@ -57,33 +57,43 @@ const BarberProductSchema = CollectionSchema(
       name: r'isSynced',
       type: IsarType.bool,
     ),
-    r'name': PropertySchema(
+    r'minimumStock': PropertySchema(
       id: 8,
+      name: r'minimumStock',
+      type: IsarType.long,
+    ),
+    r'name': PropertySchema(
+      id: 9,
       name: r'name',
       type: IsarType.string,
     ),
     r'productId': PropertySchema(
-      id: 9,
+      id: 10,
       name: r'productId',
       type: IsarType.string,
     ),
     r'purchasePrice': PropertySchema(
-      id: 10,
+      id: 11,
       name: r'purchasePrice',
       type: IsarType.double,
     ),
     r'sellingPrice': PropertySchema(
-      id: 11,
+      id: 12,
       name: r'sellingPrice',
       type: IsarType.double,
     ),
+    r'stock': PropertySchema(
+      id: 13,
+      name: r'stock',
+      type: IsarType.long,
+    ),
     r'updatedAt': PropertySchema(
-      id: 12,
+      id: 14,
       name: r'updatedAt',
       type: IsarType.dateTime,
     ),
     r'version': PropertySchema(
-      id: 13,
+      id: 15,
       name: r'version',
       type: IsarType.long,
     )
@@ -162,12 +172,14 @@ void _barberProductSerialize(
   writer.writeString(offsets[5], object.deviceId);
   writer.writeBool(offsets[6], object.isActive);
   writer.writeBool(offsets[7], object.isSynced);
-  writer.writeString(offsets[8], object.name);
-  writer.writeString(offsets[9], object.productId);
-  writer.writeDouble(offsets[10], object.purchasePrice);
-  writer.writeDouble(offsets[11], object.sellingPrice);
-  writer.writeDateTime(offsets[12], object.updatedAt);
-  writer.writeLong(offsets[13], object.version);
+  writer.writeLong(offsets[8], object.minimumStock);
+  writer.writeString(offsets[9], object.name);
+  writer.writeString(offsets[10], object.productId);
+  writer.writeDouble(offsets[11], object.purchasePrice);
+  writer.writeDouble(offsets[12], object.sellingPrice);
+  writer.writeLong(offsets[13], object.stock);
+  writer.writeDateTime(offsets[14], object.updatedAt);
+  writer.writeLong(offsets[15], object.version);
 }
 
 BarberProduct _barberProductDeserialize(
@@ -186,12 +198,14 @@ BarberProduct _barberProductDeserialize(
   object.id = id;
   object.isActive = reader.readBool(offsets[6]);
   object.isSynced = reader.readBool(offsets[7]);
-  object.name = reader.readString(offsets[8]);
-  object.productId = reader.readString(offsets[9]);
-  object.purchasePrice = reader.readDouble(offsets[10]);
-  object.sellingPrice = reader.readDouble(offsets[11]);
-  object.updatedAt = reader.readDateTime(offsets[12]);
-  object.version = reader.readLong(offsets[13]);
+  object.minimumStock = reader.readLong(offsets[8]);
+  object.name = reader.readString(offsets[9]);
+  object.productId = reader.readString(offsets[10]);
+  object.purchasePrice = reader.readDouble(offsets[11]);
+  object.sellingPrice = reader.readDouble(offsets[12]);
+  object.stock = reader.readLong(offsets[13]);
+  object.updatedAt = reader.readDateTime(offsets[14]);
+  object.version = reader.readLong(offsets[15]);
   return object;
 }
 
@@ -219,16 +233,20 @@ P _barberProductDeserializeProp<P>(
     case 7:
       return (reader.readBool(offset)) as P;
     case 8:
-      return (reader.readString(offset)) as P;
+      return (reader.readLong(offset)) as P;
     case 9:
       return (reader.readString(offset)) as P;
     case 10:
-      return (reader.readDouble(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 11:
       return (reader.readDouble(offset)) as P;
     case 12:
-      return (reader.readDateTime(offset)) as P;
+      return (reader.readDouble(offset)) as P;
     case 13:
+      return (reader.readLong(offset)) as P;
+    case 14:
+      return (reader.readDateTime(offset)) as P;
+    case 15:
       return (reader.readLong(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -1228,6 +1246,62 @@ extension BarberProductQueryFilter
     });
   }
 
+  QueryBuilder<BarberProduct, BarberProduct, QAfterFilterCondition>
+      minimumStockEqualTo(int value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'minimumStock',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<BarberProduct, BarberProduct, QAfterFilterCondition>
+      minimumStockGreaterThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'minimumStock',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<BarberProduct, BarberProduct, QAfterFilterCondition>
+      minimumStockLessThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'minimumStock',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<BarberProduct, BarberProduct, QAfterFilterCondition>
+      minimumStockBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'minimumStock',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
   QueryBuilder<BarberProduct, BarberProduct, QAfterFilterCondition> nameEqualTo(
     String value, {
     bool caseSensitive = true,
@@ -1632,6 +1706,62 @@ extension BarberProductQueryFilter
   }
 
   QueryBuilder<BarberProduct, BarberProduct, QAfterFilterCondition>
+      stockEqualTo(int value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'stock',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<BarberProduct, BarberProduct, QAfterFilterCondition>
+      stockGreaterThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'stock',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<BarberProduct, BarberProduct, QAfterFilterCondition>
+      stockLessThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'stock',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<BarberProduct, BarberProduct, QAfterFilterCondition>
+      stockBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'stock',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<BarberProduct, BarberProduct, QAfterFilterCondition>
       updatedAtEqualTo(DateTime value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
@@ -1857,6 +1987,20 @@ extension BarberProductQuerySortBy
     });
   }
 
+  QueryBuilder<BarberProduct, BarberProduct, QAfterSortBy>
+      sortByMinimumStock() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'minimumStock', Sort.asc);
+    });
+  }
+
+  QueryBuilder<BarberProduct, BarberProduct, QAfterSortBy>
+      sortByMinimumStockDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'minimumStock', Sort.desc);
+    });
+  }
+
   QueryBuilder<BarberProduct, BarberProduct, QAfterSortBy> sortByName() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'name', Sort.asc);
@@ -1907,6 +2051,18 @@ extension BarberProductQuerySortBy
       sortBySellingPriceDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'sellingPrice', Sort.desc);
+    });
+  }
+
+  QueryBuilder<BarberProduct, BarberProduct, QAfterSortBy> sortByStock() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'stock', Sort.asc);
+    });
+  }
+
+  QueryBuilder<BarberProduct, BarberProduct, QAfterSortBy> sortByStockDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'stock', Sort.desc);
     });
   }
 
@@ -2055,6 +2211,20 @@ extension BarberProductQuerySortThenBy
     });
   }
 
+  QueryBuilder<BarberProduct, BarberProduct, QAfterSortBy>
+      thenByMinimumStock() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'minimumStock', Sort.asc);
+    });
+  }
+
+  QueryBuilder<BarberProduct, BarberProduct, QAfterSortBy>
+      thenByMinimumStockDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'minimumStock', Sort.desc);
+    });
+  }
+
   QueryBuilder<BarberProduct, BarberProduct, QAfterSortBy> thenByName() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'name', Sort.asc);
@@ -2105,6 +2275,18 @@ extension BarberProductQuerySortThenBy
       thenBySellingPriceDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'sellingPrice', Sort.desc);
+    });
+  }
+
+  QueryBuilder<BarberProduct, BarberProduct, QAfterSortBy> thenByStock() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'stock', Sort.asc);
+    });
+  }
+
+  QueryBuilder<BarberProduct, BarberProduct, QAfterSortBy> thenByStockDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'stock', Sort.desc);
     });
   }
 
@@ -2188,6 +2370,13 @@ extension BarberProductQueryWhereDistinct
     });
   }
 
+  QueryBuilder<BarberProduct, BarberProduct, QDistinct>
+      distinctByMinimumStock() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'minimumStock');
+    });
+  }
+
   QueryBuilder<BarberProduct, BarberProduct, QDistinct> distinctByName(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
@@ -2213,6 +2402,12 @@ extension BarberProductQueryWhereDistinct
       distinctBySellingPrice() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'sellingPrice');
+    });
+  }
+
+  QueryBuilder<BarberProduct, BarberProduct, QDistinct> distinctByStock() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'stock');
     });
   }
 
@@ -2286,6 +2481,12 @@ extension BarberProductQueryProperty
     });
   }
 
+  QueryBuilder<BarberProduct, int, QQueryOperations> minimumStockProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'minimumStock');
+    });
+  }
+
   QueryBuilder<BarberProduct, String, QQueryOperations> nameProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'name');
@@ -2308,6 +2509,12 @@ extension BarberProductQueryProperty
   QueryBuilder<BarberProduct, double, QQueryOperations> sellingPriceProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'sellingPrice');
+    });
+  }
+
+  QueryBuilder<BarberProduct, int, QQueryOperations> stockProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'stock');
     });
   }
 

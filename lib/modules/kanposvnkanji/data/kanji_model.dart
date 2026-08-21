@@ -1,35 +1,27 @@
-class KanjiModel {
-  final int id;
-  final String kanji;
-  final String reading;
-  final String? hanviet;
-  final int level;
+class KanjiEntry {
+  final String character;
+  final String hanViet;
+  final String meaning;
+  final List<String> readings;
+  final bool needsReview;
 
-  KanjiModel({
-    required this.id,
-    required this.kanji,
-    required this.reading,
-    this.hanviet,
-    required this.level,
+  const KanjiEntry({
+    required this.character,
+    required this.hanViet,
+    required this.meaning,
+    required this.readings,
+    required this.needsReview,
   });
 
-  factory KanjiModel.fromJson(Map<String, dynamic> json) {
-    return KanjiModel(
-      id: json['id'] as int,
-      kanji: json['kanji'] as String,
-      reading: json['reading'] as String,
-      hanviet: json['hanviet'] as String?,
-      level: json['level'] as int,
-    );
-  }
+  factory KanjiEntry.fromJson(Map<String, dynamic> json) => KanjiEntry(
+        character: json['character'] as String? ?? '',
+        hanViet: json['hanViet'] as String? ?? '',
+        meaning: json['meaning'] as String? ?? '',
+        readings: (json['readings'] as List<dynamic>? ?? [])
+            .map((e) => e.toString())
+            .toList(),
+        needsReview: json['needsReview'] as bool? ?? false,
+      );
 
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'kanji': kanji,
-      'reading': reading,
-      'hanviet': hanviet,
-      'level': level,
-    };
-  }
+  String get readingsText => readings.join(', ');
 }

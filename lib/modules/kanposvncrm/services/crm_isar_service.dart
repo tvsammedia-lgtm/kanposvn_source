@@ -5,6 +5,7 @@ import '../models/customer.dart';
 import '../models/license.dart';
 import '../models/ticket.dart';
 import '../models/crm_sync.dart';
+import '../models/error_log.dart';
 
 class CrmIsarService {
   late Future<Isar> db;
@@ -28,6 +29,7 @@ class CrmIsarService {
         CrmTicketMessageSchema,
         CrmSyncQueueSchema,
         CrmSyncConfigSchema,
+        CrmErrorLogSchema,
       ],
       inspector: true,
       directory: dir.path,

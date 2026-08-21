@@ -17,70 +17,130 @@ const SpaCustomerSchema = CollectionSchema(
   name: r'SpaCustomer',
   id: 4162337862377627702,
   properties: {
-    r'allergies': PropertySchema(
+    r'address': PropertySchema(
       id: 0,
+      name: r'address',
+      type: IsarType.string,
+    ),
+    r'agingLevel': PropertySchema(
+      id: 1,
+      name: r'agingLevel',
+      type: IsarType.string,
+    ),
+    r'allergies': PropertySchema(
+      id: 2,
       name: r'allergies',
       type: IsarType.string,
     ),
+    r'birthDate': PropertySchema(
+      id: 3,
+      name: r'birthDate',
+      type: IsarType.dateTime,
+    ),
     r'createdAt': PropertySchema(
-      id: 1,
+      id: 4,
       name: r'createdAt',
       type: IsarType.dateTime,
     ),
+    r'customerGroup': PropertySchema(
+      id: 5,
+      name: r'customerGroup',
+      type: IsarType.string,
+    ),
     r'customerId': PropertySchema(
-      id: 2,
+      id: 6,
       name: r'customerId',
       type: IsarType.string,
     ),
+    r'debtAmount': PropertySchema(
+      id: 7,
+      name: r'debtAmount',
+      type: IsarType.double,
+    ),
     r'deletedAt': PropertySchema(
-      id: 3,
+      id: 8,
       name: r'deletedAt',
       type: IsarType.dateTime,
     ),
     r'deviceId': PropertySchema(
-      id: 4,
+      id: 9,
       name: r'deviceId',
       type: IsarType.string,
     ),
+    r'email': PropertySchema(
+      id: 10,
+      name: r'email',
+      type: IsarType.string,
+    ),
+    r'facebook': PropertySchema(
+      id: 11,
+      name: r'facebook',
+      type: IsarType.string,
+    ),
+    r'gender': PropertySchema(
+      id: 12,
+      name: r'gender',
+      type: IsarType.string,
+    ),
+    r'isPregnant': PropertySchema(
+      id: 13,
+      name: r'isPregnant',
+      type: IsarType.bool,
+    ),
     r'isSynced': PropertySchema(
-      id: 5,
+      id: 14,
       name: r'isSynced',
       type: IsarType.bool,
     ),
+    r'loyaltyPoints': PropertySchema(
+      id: 15,
+      name: r'loyaltyPoints',
+      type: IsarType.long,
+    ),
     r'medicalCondition': PropertySchema(
-      id: 6,
+      id: 16,
       name: r'medicalCondition',
       type: IsarType.string,
     ),
     r'name': PropertySchema(
-      id: 7,
+      id: 17,
       name: r'name',
       type: IsarType.string,
     ),
     r'notes': PropertySchema(
-      id: 8,
+      id: 18,
       name: r'notes',
       type: IsarType.string,
     ),
     r'phone': PropertySchema(
-      id: 9,
+      id: 19,
       name: r'phone',
       type: IsarType.string,
     ),
+    r'referrer': PropertySchema(
+      id: 20,
+      name: r'referrer',
+      type: IsarType.string,
+    ),
     r'skinType': PropertySchema(
-      id: 10,
+      id: 21,
       name: r'skinType',
       type: IsarType.string,
     ),
     r'updatedAt': PropertySchema(
-      id: 11,
+      id: 22,
       name: r'updatedAt',
       type: IsarType.dateTime,
     ),
     r'version': PropertySchema(
-      id: 12,
+      id: 23,
       name: r'version',
       type: IsarType.long,
+    ),
+    r'zalo': PropertySchema(
+      id: 24,
+      name: r'zalo',
+      type: IsarType.string,
     )
   },
   estimateSize: _spaCustomerEstimateSize,
@@ -130,14 +190,22 @@ int _spaCustomerEstimateSize(
   Map<Type, List<int>> allOffsets,
 ) {
   var bytesCount = offsets.last;
+  bytesCount += 3 + object.address.length * 3;
+  bytesCount += 3 + object.agingLevel.length * 3;
   bytesCount += 3 + object.allergies.length * 3;
+  bytesCount += 3 + object.customerGroup.length * 3;
   bytesCount += 3 + object.customerId.length * 3;
   bytesCount += 3 + object.deviceId.length * 3;
+  bytesCount += 3 + object.email.length * 3;
+  bytesCount += 3 + object.facebook.length * 3;
+  bytesCount += 3 + object.gender.length * 3;
   bytesCount += 3 + object.medicalCondition.length * 3;
   bytesCount += 3 + object.name.length * 3;
   bytesCount += 3 + object.notes.length * 3;
   bytesCount += 3 + object.phone.length * 3;
+  bytesCount += 3 + object.referrer.length * 3;
   bytesCount += 3 + object.skinType.length * 3;
+  bytesCount += 3 + object.zalo.length * 3;
   return bytesCount;
 }
 
@@ -147,19 +215,31 @@ void _spaCustomerSerialize(
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
-  writer.writeString(offsets[0], object.allergies);
-  writer.writeDateTime(offsets[1], object.createdAt);
-  writer.writeString(offsets[2], object.customerId);
-  writer.writeDateTime(offsets[3], object.deletedAt);
-  writer.writeString(offsets[4], object.deviceId);
-  writer.writeBool(offsets[5], object.isSynced);
-  writer.writeString(offsets[6], object.medicalCondition);
-  writer.writeString(offsets[7], object.name);
-  writer.writeString(offsets[8], object.notes);
-  writer.writeString(offsets[9], object.phone);
-  writer.writeString(offsets[10], object.skinType);
-  writer.writeDateTime(offsets[11], object.updatedAt);
-  writer.writeLong(offsets[12], object.version);
+  writer.writeString(offsets[0], object.address);
+  writer.writeString(offsets[1], object.agingLevel);
+  writer.writeString(offsets[2], object.allergies);
+  writer.writeDateTime(offsets[3], object.birthDate);
+  writer.writeDateTime(offsets[4], object.createdAt);
+  writer.writeString(offsets[5], object.customerGroup);
+  writer.writeString(offsets[6], object.customerId);
+  writer.writeDouble(offsets[7], object.debtAmount);
+  writer.writeDateTime(offsets[8], object.deletedAt);
+  writer.writeString(offsets[9], object.deviceId);
+  writer.writeString(offsets[10], object.email);
+  writer.writeString(offsets[11], object.facebook);
+  writer.writeString(offsets[12], object.gender);
+  writer.writeBool(offsets[13], object.isPregnant);
+  writer.writeBool(offsets[14], object.isSynced);
+  writer.writeLong(offsets[15], object.loyaltyPoints);
+  writer.writeString(offsets[16], object.medicalCondition);
+  writer.writeString(offsets[17], object.name);
+  writer.writeString(offsets[18], object.notes);
+  writer.writeString(offsets[19], object.phone);
+  writer.writeString(offsets[20], object.referrer);
+  writer.writeString(offsets[21], object.skinType);
+  writer.writeDateTime(offsets[22], object.updatedAt);
+  writer.writeLong(offsets[23], object.version);
+  writer.writeString(offsets[24], object.zalo);
 }
 
 SpaCustomer _spaCustomerDeserialize(
@@ -169,20 +249,32 @@ SpaCustomer _spaCustomerDeserialize(
   Map<Type, List<int>> allOffsets,
 ) {
   final object = SpaCustomer();
-  object.allergies = reader.readString(offsets[0]);
-  object.createdAt = reader.readDateTime(offsets[1]);
-  object.customerId = reader.readString(offsets[2]);
-  object.deletedAt = reader.readDateTimeOrNull(offsets[3]);
-  object.deviceId = reader.readString(offsets[4]);
+  object.address = reader.readString(offsets[0]);
+  object.agingLevel = reader.readString(offsets[1]);
+  object.allergies = reader.readString(offsets[2]);
+  object.birthDate = reader.readDateTimeOrNull(offsets[3]);
+  object.createdAt = reader.readDateTime(offsets[4]);
+  object.customerGroup = reader.readString(offsets[5]);
+  object.customerId = reader.readString(offsets[6]);
+  object.debtAmount = reader.readDouble(offsets[7]);
+  object.deletedAt = reader.readDateTimeOrNull(offsets[8]);
+  object.deviceId = reader.readString(offsets[9]);
+  object.email = reader.readString(offsets[10]);
+  object.facebook = reader.readString(offsets[11]);
+  object.gender = reader.readString(offsets[12]);
   object.id = id;
-  object.isSynced = reader.readBool(offsets[5]);
-  object.medicalCondition = reader.readString(offsets[6]);
-  object.name = reader.readString(offsets[7]);
-  object.notes = reader.readString(offsets[8]);
-  object.phone = reader.readString(offsets[9]);
-  object.skinType = reader.readString(offsets[10]);
-  object.updatedAt = reader.readDateTime(offsets[11]);
-  object.version = reader.readLong(offsets[12]);
+  object.isPregnant = reader.readBool(offsets[13]);
+  object.isSynced = reader.readBool(offsets[14]);
+  object.loyaltyPoints = reader.readLong(offsets[15]);
+  object.medicalCondition = reader.readString(offsets[16]);
+  object.name = reader.readString(offsets[17]);
+  object.notes = reader.readString(offsets[18]);
+  object.phone = reader.readString(offsets[19]);
+  object.referrer = reader.readString(offsets[20]);
+  object.skinType = reader.readString(offsets[21]);
+  object.updatedAt = reader.readDateTime(offsets[22]);
+  object.version = reader.readLong(offsets[23]);
+  object.zalo = reader.readString(offsets[24]);
   return object;
 }
 
@@ -196,29 +288,53 @@ P _spaCustomerDeserializeProp<P>(
     case 0:
       return (reader.readString(offset)) as P;
     case 1:
-      return (reader.readDateTime(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 2:
       return (reader.readString(offset)) as P;
     case 3:
       return (reader.readDateTimeOrNull(offset)) as P;
     case 4:
-      return (reader.readString(offset)) as P;
+      return (reader.readDateTime(offset)) as P;
     case 5:
-      return (reader.readBool(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 6:
       return (reader.readString(offset)) as P;
     case 7:
-      return (reader.readString(offset)) as P;
+      return (reader.readDouble(offset)) as P;
     case 8:
-      return (reader.readString(offset)) as P;
+      return (reader.readDateTimeOrNull(offset)) as P;
     case 9:
       return (reader.readString(offset)) as P;
     case 10:
       return (reader.readString(offset)) as P;
     case 11:
-      return (reader.readDateTime(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 12:
+      return (reader.readString(offset)) as P;
+    case 13:
+      return (reader.readBool(offset)) as P;
+    case 14:
+      return (reader.readBool(offset)) as P;
+    case 15:
       return (reader.readLong(offset)) as P;
+    case 16:
+      return (reader.readString(offset)) as P;
+    case 17:
+      return (reader.readString(offset)) as P;
+    case 18:
+      return (reader.readString(offset)) as P;
+    case 19:
+      return (reader.readString(offset)) as P;
+    case 20:
+      return (reader.readString(offset)) as P;
+    case 21:
+      return (reader.readString(offset)) as P;
+    case 22:
+      return (reader.readDateTime(offset)) as P;
+    case 23:
+      return (reader.readLong(offset)) as P;
+    case 24:
+      return (reader.readString(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
   }
@@ -516,6 +632,276 @@ extension SpaCustomerQueryWhere
 
 extension SpaCustomerQueryFilter
     on QueryBuilder<SpaCustomer, SpaCustomer, QFilterCondition> {
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterFilterCondition> addressEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'address',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterFilterCondition>
+      addressGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'address',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterFilterCondition> addressLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'address',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterFilterCondition> addressBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'address',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterFilterCondition>
+      addressStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'address',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterFilterCondition> addressEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'address',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterFilterCondition> addressContains(
+      String value,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'address',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterFilterCondition> addressMatches(
+      String pattern,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'address',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterFilterCondition>
+      addressIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'address',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterFilterCondition>
+      addressIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'address',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterFilterCondition>
+      agingLevelEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'agingLevel',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterFilterCondition>
+      agingLevelGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'agingLevel',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterFilterCondition>
+      agingLevelLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'agingLevel',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterFilterCondition>
+      agingLevelBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'agingLevel',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterFilterCondition>
+      agingLevelStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'agingLevel',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterFilterCondition>
+      agingLevelEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'agingLevel',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterFilterCondition>
+      agingLevelContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'agingLevel',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterFilterCondition>
+      agingLevelMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'agingLevel',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterFilterCondition>
+      agingLevelIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'agingLevel',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterFilterCondition>
+      agingLevelIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'agingLevel',
+        value: '',
+      ));
+    });
+  }
+
   QueryBuilder<SpaCustomer, SpaCustomer, QAfterFilterCondition>
       allergiesEqualTo(
     String value, {
@@ -653,6 +1039,80 @@ extension SpaCustomerQueryFilter
   }
 
   QueryBuilder<SpaCustomer, SpaCustomer, QAfterFilterCondition>
+      birthDateIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'birthDate',
+      ));
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterFilterCondition>
+      birthDateIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'birthDate',
+      ));
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterFilterCondition>
+      birthDateEqualTo(DateTime? value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'birthDate',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterFilterCondition>
+      birthDateGreaterThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'birthDate',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterFilterCondition>
+      birthDateLessThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'birthDate',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterFilterCondition>
+      birthDateBetween(
+    DateTime? lower,
+    DateTime? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'birthDate',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterFilterCondition>
       createdAtEqualTo(DateTime value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
@@ -704,6 +1164,142 @@ extension SpaCustomerQueryFilter
         includeLower: includeLower,
         upper: upper,
         includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterFilterCondition>
+      customerGroupEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'customerGroup',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterFilterCondition>
+      customerGroupGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'customerGroup',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterFilterCondition>
+      customerGroupLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'customerGroup',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterFilterCondition>
+      customerGroupBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'customerGroup',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterFilterCondition>
+      customerGroupStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'customerGroup',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterFilterCondition>
+      customerGroupEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'customerGroup',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterFilterCondition>
+      customerGroupContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'customerGroup',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterFilterCondition>
+      customerGroupMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'customerGroup',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterFilterCondition>
+      customerGroupIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'customerGroup',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterFilterCondition>
+      customerGroupIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'customerGroup',
+        value: '',
       ));
     });
   }
@@ -840,6 +1436,72 @@ extension SpaCustomerQueryFilter
       return query.addFilterCondition(FilterCondition.greaterThan(
         property: r'customerId',
         value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterFilterCondition>
+      debtAmountEqualTo(
+    double value, {
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'debtAmount',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterFilterCondition>
+      debtAmountGreaterThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'debtAmount',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterFilterCondition>
+      debtAmountLessThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'debtAmount',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterFilterCondition>
+      debtAmountBetween(
+    double lower,
+    double upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'debtAmount',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        epsilon: epsilon,
       ));
     });
   }
@@ -1053,6 +1715,407 @@ extension SpaCustomerQueryFilter
     });
   }
 
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterFilterCondition> emailEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'email',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterFilterCondition>
+      emailGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'email',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterFilterCondition> emailLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'email',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterFilterCondition> emailBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'email',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterFilterCondition> emailStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'email',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterFilterCondition> emailEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'email',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterFilterCondition> emailContains(
+      String value,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'email',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterFilterCondition> emailMatches(
+      String pattern,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'email',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterFilterCondition> emailIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'email',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterFilterCondition>
+      emailIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'email',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterFilterCondition> facebookEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'facebook',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterFilterCondition>
+      facebookGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'facebook',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterFilterCondition>
+      facebookLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'facebook',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterFilterCondition> facebookBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'facebook',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterFilterCondition>
+      facebookStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'facebook',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterFilterCondition>
+      facebookEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'facebook',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterFilterCondition>
+      facebookContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'facebook',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterFilterCondition> facebookMatches(
+      String pattern,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'facebook',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterFilterCondition>
+      facebookIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'facebook',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterFilterCondition>
+      facebookIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'facebook',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterFilterCondition> genderEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'gender',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterFilterCondition>
+      genderGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'gender',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterFilterCondition> genderLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'gender',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterFilterCondition> genderBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'gender',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterFilterCondition>
+      genderStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'gender',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterFilterCondition> genderEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'gender',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterFilterCondition> genderContains(
+      String value,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'gender',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterFilterCondition> genderMatches(
+      String pattern,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'gender',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterFilterCondition>
+      genderIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'gender',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterFilterCondition>
+      genderIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'gender',
+        value: '',
+      ));
+    });
+  }
+
   QueryBuilder<SpaCustomer, SpaCustomer, QAfterFilterCondition> idEqualTo(
       Id value) {
     return QueryBuilder.apply(this, (query) {
@@ -1106,12 +2169,78 @@ extension SpaCustomerQueryFilter
     });
   }
 
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterFilterCondition>
+      isPregnantEqualTo(bool value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'isPregnant',
+        value: value,
+      ));
+    });
+  }
+
   QueryBuilder<SpaCustomer, SpaCustomer, QAfterFilterCondition> isSyncedEqualTo(
       bool value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'isSynced',
         value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterFilterCondition>
+      loyaltyPointsEqualTo(int value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'loyaltyPoints',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterFilterCondition>
+      loyaltyPointsGreaterThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'loyaltyPoints',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterFilterCondition>
+      loyaltyPointsLessThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'loyaltyPoints',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterFilterCondition>
+      loyaltyPointsBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'loyaltyPoints',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
       ));
     });
   }
@@ -1647,6 +2776,141 @@ extension SpaCustomerQueryFilter
     });
   }
 
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterFilterCondition> referrerEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'referrer',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterFilterCondition>
+      referrerGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'referrer',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterFilterCondition>
+      referrerLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'referrer',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterFilterCondition> referrerBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'referrer',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterFilterCondition>
+      referrerStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'referrer',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterFilterCondition>
+      referrerEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'referrer',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterFilterCondition>
+      referrerContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'referrer',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterFilterCondition> referrerMatches(
+      String pattern,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'referrer',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterFilterCondition>
+      referrerIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'referrer',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterFilterCondition>
+      referrerIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'referrer',
+        value: '',
+      ));
+    });
+  }
+
   QueryBuilder<SpaCustomer, SpaCustomer, QAfterFilterCondition> skinTypeEqualTo(
     String value, {
     bool caseSensitive = true,
@@ -1891,6 +3155,137 @@ extension SpaCustomerQueryFilter
       ));
     });
   }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterFilterCondition> zaloEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'zalo',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterFilterCondition> zaloGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'zalo',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterFilterCondition> zaloLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'zalo',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterFilterCondition> zaloBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'zalo',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterFilterCondition> zaloStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'zalo',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterFilterCondition> zaloEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'zalo',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterFilterCondition> zaloContains(
+      String value,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'zalo',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterFilterCondition> zaloMatches(
+      String pattern,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'zalo',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterFilterCondition> zaloIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'zalo',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterFilterCondition>
+      zaloIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'zalo',
+        value: '',
+      ));
+    });
+  }
 }
 
 extension SpaCustomerQueryObject
@@ -1901,6 +3296,30 @@ extension SpaCustomerQueryLinks
 
 extension SpaCustomerQuerySortBy
     on QueryBuilder<SpaCustomer, SpaCustomer, QSortBy> {
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterSortBy> sortByAddress() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'address', Sort.asc);
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterSortBy> sortByAddressDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'address', Sort.desc);
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterSortBy> sortByAgingLevel() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'agingLevel', Sort.asc);
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterSortBy> sortByAgingLevelDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'agingLevel', Sort.desc);
+    });
+  }
+
   QueryBuilder<SpaCustomer, SpaCustomer, QAfterSortBy> sortByAllergies() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'allergies', Sort.asc);
@@ -1910,6 +3329,18 @@ extension SpaCustomerQuerySortBy
   QueryBuilder<SpaCustomer, SpaCustomer, QAfterSortBy> sortByAllergiesDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'allergies', Sort.desc);
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterSortBy> sortByBirthDate() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'birthDate', Sort.asc);
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterSortBy> sortByBirthDateDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'birthDate', Sort.desc);
     });
   }
 
@@ -1925,6 +3356,19 @@ extension SpaCustomerQuerySortBy
     });
   }
 
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterSortBy> sortByCustomerGroup() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'customerGroup', Sort.asc);
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterSortBy>
+      sortByCustomerGroupDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'customerGroup', Sort.desc);
+    });
+  }
+
   QueryBuilder<SpaCustomer, SpaCustomer, QAfterSortBy> sortByCustomerId() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'customerId', Sort.asc);
@@ -1934,6 +3378,18 @@ extension SpaCustomerQuerySortBy
   QueryBuilder<SpaCustomer, SpaCustomer, QAfterSortBy> sortByCustomerIdDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'customerId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterSortBy> sortByDebtAmount() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'debtAmount', Sort.asc);
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterSortBy> sortByDebtAmountDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'debtAmount', Sort.desc);
     });
   }
 
@@ -1961,6 +3417,54 @@ extension SpaCustomerQuerySortBy
     });
   }
 
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterSortBy> sortByEmail() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'email', Sort.asc);
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterSortBy> sortByEmailDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'email', Sort.desc);
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterSortBy> sortByFacebook() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'facebook', Sort.asc);
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterSortBy> sortByFacebookDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'facebook', Sort.desc);
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterSortBy> sortByGender() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'gender', Sort.asc);
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterSortBy> sortByGenderDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'gender', Sort.desc);
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterSortBy> sortByIsPregnant() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isPregnant', Sort.asc);
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterSortBy> sortByIsPregnantDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isPregnant', Sort.desc);
+    });
+  }
+
   QueryBuilder<SpaCustomer, SpaCustomer, QAfterSortBy> sortByIsSynced() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'isSynced', Sort.asc);
@@ -1970,6 +3474,19 @@ extension SpaCustomerQuerySortBy
   QueryBuilder<SpaCustomer, SpaCustomer, QAfterSortBy> sortByIsSyncedDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'isSynced', Sort.desc);
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterSortBy> sortByLoyaltyPoints() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'loyaltyPoints', Sort.asc);
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterSortBy>
+      sortByLoyaltyPointsDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'loyaltyPoints', Sort.desc);
     });
   }
 
@@ -2023,6 +3540,18 @@ extension SpaCustomerQuerySortBy
     });
   }
 
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterSortBy> sortByReferrer() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'referrer', Sort.asc);
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterSortBy> sortByReferrerDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'referrer', Sort.desc);
+    });
+  }
+
   QueryBuilder<SpaCustomer, SpaCustomer, QAfterSortBy> sortBySkinType() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'skinType', Sort.asc);
@@ -2058,10 +3587,46 @@ extension SpaCustomerQuerySortBy
       return query.addSortBy(r'version', Sort.desc);
     });
   }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterSortBy> sortByZalo() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'zalo', Sort.asc);
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterSortBy> sortByZaloDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'zalo', Sort.desc);
+    });
+  }
 }
 
 extension SpaCustomerQuerySortThenBy
     on QueryBuilder<SpaCustomer, SpaCustomer, QSortThenBy> {
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterSortBy> thenByAddress() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'address', Sort.asc);
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterSortBy> thenByAddressDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'address', Sort.desc);
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterSortBy> thenByAgingLevel() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'agingLevel', Sort.asc);
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterSortBy> thenByAgingLevelDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'agingLevel', Sort.desc);
+    });
+  }
+
   QueryBuilder<SpaCustomer, SpaCustomer, QAfterSortBy> thenByAllergies() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'allergies', Sort.asc);
@@ -2071,6 +3636,18 @@ extension SpaCustomerQuerySortThenBy
   QueryBuilder<SpaCustomer, SpaCustomer, QAfterSortBy> thenByAllergiesDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'allergies', Sort.desc);
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterSortBy> thenByBirthDate() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'birthDate', Sort.asc);
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterSortBy> thenByBirthDateDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'birthDate', Sort.desc);
     });
   }
 
@@ -2086,6 +3663,19 @@ extension SpaCustomerQuerySortThenBy
     });
   }
 
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterSortBy> thenByCustomerGroup() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'customerGroup', Sort.asc);
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterSortBy>
+      thenByCustomerGroupDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'customerGroup', Sort.desc);
+    });
+  }
+
   QueryBuilder<SpaCustomer, SpaCustomer, QAfterSortBy> thenByCustomerId() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'customerId', Sort.asc);
@@ -2095,6 +3685,18 @@ extension SpaCustomerQuerySortThenBy
   QueryBuilder<SpaCustomer, SpaCustomer, QAfterSortBy> thenByCustomerIdDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'customerId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterSortBy> thenByDebtAmount() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'debtAmount', Sort.asc);
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterSortBy> thenByDebtAmountDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'debtAmount', Sort.desc);
     });
   }
 
@@ -2122,6 +3724,42 @@ extension SpaCustomerQuerySortThenBy
     });
   }
 
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterSortBy> thenByEmail() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'email', Sort.asc);
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterSortBy> thenByEmailDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'email', Sort.desc);
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterSortBy> thenByFacebook() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'facebook', Sort.asc);
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterSortBy> thenByFacebookDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'facebook', Sort.desc);
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterSortBy> thenByGender() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'gender', Sort.asc);
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterSortBy> thenByGenderDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'gender', Sort.desc);
+    });
+  }
+
   QueryBuilder<SpaCustomer, SpaCustomer, QAfterSortBy> thenById() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'id', Sort.asc);
@@ -2134,6 +3772,18 @@ extension SpaCustomerQuerySortThenBy
     });
   }
 
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterSortBy> thenByIsPregnant() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isPregnant', Sort.asc);
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterSortBy> thenByIsPregnantDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isPregnant', Sort.desc);
+    });
+  }
+
   QueryBuilder<SpaCustomer, SpaCustomer, QAfterSortBy> thenByIsSynced() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'isSynced', Sort.asc);
@@ -2143,6 +3793,19 @@ extension SpaCustomerQuerySortThenBy
   QueryBuilder<SpaCustomer, SpaCustomer, QAfterSortBy> thenByIsSyncedDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'isSynced', Sort.desc);
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterSortBy> thenByLoyaltyPoints() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'loyaltyPoints', Sort.asc);
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterSortBy>
+      thenByLoyaltyPointsDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'loyaltyPoints', Sort.desc);
     });
   }
 
@@ -2196,6 +3859,18 @@ extension SpaCustomerQuerySortThenBy
     });
   }
 
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterSortBy> thenByReferrer() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'referrer', Sort.asc);
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterSortBy> thenByReferrerDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'referrer', Sort.desc);
+    });
+  }
+
   QueryBuilder<SpaCustomer, SpaCustomer, QAfterSortBy> thenBySkinType() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'skinType', Sort.asc);
@@ -2231,14 +3906,46 @@ extension SpaCustomerQuerySortThenBy
       return query.addSortBy(r'version', Sort.desc);
     });
   }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterSortBy> thenByZalo() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'zalo', Sort.asc);
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QAfterSortBy> thenByZaloDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'zalo', Sort.desc);
+    });
+  }
 }
 
 extension SpaCustomerQueryWhereDistinct
     on QueryBuilder<SpaCustomer, SpaCustomer, QDistinct> {
+  QueryBuilder<SpaCustomer, SpaCustomer, QDistinct> distinctByAddress(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'address', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QDistinct> distinctByAgingLevel(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'agingLevel', caseSensitive: caseSensitive);
+    });
+  }
+
   QueryBuilder<SpaCustomer, SpaCustomer, QDistinct> distinctByAllergies(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'allergies', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QDistinct> distinctByBirthDate() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'birthDate');
     });
   }
 
@@ -2248,10 +3955,24 @@ extension SpaCustomerQueryWhereDistinct
     });
   }
 
+  QueryBuilder<SpaCustomer, SpaCustomer, QDistinct> distinctByCustomerGroup(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'customerGroup',
+          caseSensitive: caseSensitive);
+    });
+  }
+
   QueryBuilder<SpaCustomer, SpaCustomer, QDistinct> distinctByCustomerId(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'customerId', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QDistinct> distinctByDebtAmount() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'debtAmount');
     });
   }
 
@@ -2268,9 +3989,42 @@ extension SpaCustomerQueryWhereDistinct
     });
   }
 
+  QueryBuilder<SpaCustomer, SpaCustomer, QDistinct> distinctByEmail(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'email', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QDistinct> distinctByFacebook(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'facebook', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QDistinct> distinctByGender(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'gender', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QDistinct> distinctByIsPregnant() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'isPregnant');
+    });
+  }
+
   QueryBuilder<SpaCustomer, SpaCustomer, QDistinct> distinctByIsSynced() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'isSynced');
+    });
+  }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QDistinct> distinctByLoyaltyPoints() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'loyaltyPoints');
     });
   }
 
@@ -2303,6 +4057,13 @@ extension SpaCustomerQueryWhereDistinct
     });
   }
 
+  QueryBuilder<SpaCustomer, SpaCustomer, QDistinct> distinctByReferrer(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'referrer', caseSensitive: caseSensitive);
+    });
+  }
+
   QueryBuilder<SpaCustomer, SpaCustomer, QDistinct> distinctBySkinType(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
@@ -2321,6 +4082,13 @@ extension SpaCustomerQueryWhereDistinct
       return query.addDistinctBy(r'version');
     });
   }
+
+  QueryBuilder<SpaCustomer, SpaCustomer, QDistinct> distinctByZalo(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'zalo', caseSensitive: caseSensitive);
+    });
+  }
 }
 
 extension SpaCustomerQueryProperty
@@ -2331,9 +4099,27 @@ extension SpaCustomerQueryProperty
     });
   }
 
+  QueryBuilder<SpaCustomer, String, QQueryOperations> addressProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'address');
+    });
+  }
+
+  QueryBuilder<SpaCustomer, String, QQueryOperations> agingLevelProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'agingLevel');
+    });
+  }
+
   QueryBuilder<SpaCustomer, String, QQueryOperations> allergiesProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'allergies');
+    });
+  }
+
+  QueryBuilder<SpaCustomer, DateTime?, QQueryOperations> birthDateProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'birthDate');
     });
   }
 
@@ -2343,9 +4129,21 @@ extension SpaCustomerQueryProperty
     });
   }
 
+  QueryBuilder<SpaCustomer, String, QQueryOperations> customerGroupProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'customerGroup');
+    });
+  }
+
   QueryBuilder<SpaCustomer, String, QQueryOperations> customerIdProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'customerId');
+    });
+  }
+
+  QueryBuilder<SpaCustomer, double, QQueryOperations> debtAmountProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'debtAmount');
     });
   }
 
@@ -2361,9 +4159,39 @@ extension SpaCustomerQueryProperty
     });
   }
 
+  QueryBuilder<SpaCustomer, String, QQueryOperations> emailProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'email');
+    });
+  }
+
+  QueryBuilder<SpaCustomer, String, QQueryOperations> facebookProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'facebook');
+    });
+  }
+
+  QueryBuilder<SpaCustomer, String, QQueryOperations> genderProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'gender');
+    });
+  }
+
+  QueryBuilder<SpaCustomer, bool, QQueryOperations> isPregnantProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'isPregnant');
+    });
+  }
+
   QueryBuilder<SpaCustomer, bool, QQueryOperations> isSyncedProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'isSynced');
+    });
+  }
+
+  QueryBuilder<SpaCustomer, int, QQueryOperations> loyaltyPointsProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'loyaltyPoints');
     });
   }
 
@@ -2392,6 +4220,12 @@ extension SpaCustomerQueryProperty
     });
   }
 
+  QueryBuilder<SpaCustomer, String, QQueryOperations> referrerProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'referrer');
+    });
+  }
+
   QueryBuilder<SpaCustomer, String, QQueryOperations> skinTypeProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'skinType');
@@ -2407,6 +4241,12 @@ extension SpaCustomerQueryProperty
   QueryBuilder<SpaCustomer, int, QQueryOperations> versionProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'version');
+    });
+  }
+
+  QueryBuilder<SpaCustomer, String, QQueryOperations> zaloProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'zalo');
     });
   }
 }

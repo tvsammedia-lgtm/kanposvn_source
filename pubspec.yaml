@@ -48,6 +48,9 @@ flutter:
   uses-material-design: true
   assets:
     - assets/images/
+    - assets/kanji_data.json
+    - assets/engpic/engpic_words.json
+    - assets/engpic/images/
   fonts:
     - family: Roboto
       fonts:

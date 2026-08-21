@@ -4,8 +4,9 @@ part 'spa_bed.g.dart';
 
 enum SpaBedStatus {
   EMPTY('Trống'),
-  PLAYING('Đang phục vụ'),
-  CLEANING('Chờ vệ sinh');
+  PLAYING('Đang sử dụng'),
+  CLEANING('Chờ vệ sinh'),
+  MAINTENANCE('Bảo trì');
 
   final String label;
   const SpaBedStatus(this.label);
