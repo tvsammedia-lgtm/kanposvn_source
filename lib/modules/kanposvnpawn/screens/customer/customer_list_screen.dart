@@ -96,6 +96,6 @@ class CustomerListScreen extends ConsumerWidget {
       if (i > 0 && (s.length - i) % 3 == 0) buf.write('.');
       buf.write(s[i]);
     }
-    return '${buf}đ';
+    return '$bufđ';
   }
 }

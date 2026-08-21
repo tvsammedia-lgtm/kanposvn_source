@@ -249,7 +249,7 @@ class _PawnFinanceScreenState extends ConsumerState<PawnFinanceScreen> {
       if (i > 0 && (s.length - i) % 3 == 0) buf.write('.');
       buf.write(s[i]);
     }
-    return '${buf}đ';
+    return '$bufđ';
   }
 
   String _formatDate(DateTime d) => '${d.day.toString().padLeft(2, '0')}/${d.month.toString().padLeft(2, '0')}/${d.year}';

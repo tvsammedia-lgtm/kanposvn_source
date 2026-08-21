@@ -113,7 +113,7 @@ class PawnInterestCalculator {
       }
       buffer.write(formatted[i]);
     }
-    return '${buffer}đ';
+    return '$bufferđ';
   }
 
   /// Format ngày dd/MM/yyyy.
