@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/auth/employee_auth.dart';
-import '../../../core/auth/employee_management_screen.dart';
 import '../../../core/auth/employee_role_policy.dart';
 import '../../../core/providers.dart';
 import '../../../core/widgets/account_switcher_button.dart';
@@ -12,6 +11,7 @@ import 'vantai_ticketing_screen.dart';
 import 'vantai_dispatch_screen.dart';
 import 'vantai_shipment_screen.dart';
 import 'vantai_accounting_screen.dart';
+import 'vantai_settings_screen.dart';
 
 class KanPosVNBanvevantaiShell extends ConsumerStatefulWidget {
   const KanPosVNBanvevantaiShell({super.key});
@@ -49,7 +49,7 @@ class _KanPosVNBanvevantaiShellState extends ConsumerState<KanPosVNBanvevantaiSh
     EmployeeRoles.cashier: const {'ticketing', 'dispatch'},
     EmployeeRoles.sale: const {'ticketing', 'dispatch'},
     EmployeeRoles.warehouse: const {'shipment'},
-    EmployeeRoles.accountant: const {'dashboard', 'accounting'},
+    EmployeeRoles.accountant: const {'dashboard', 'accounting', 'settings'},
   };
 
   static final List<({String id, Widget screen, IconData icon, String label})>
@@ -59,7 +59,7 @@ class _KanPosVNBanvevantaiShellState extends ConsumerState<KanPosVNBanvevantaiSh
     (id: 'dispatch', screen: const VantaiDispatchScreen(), icon: Icons.departure_board, label: 'Điều Xe'),
     (id: 'shipment', screen: const VantaiShipmentScreen(), icon: Icons.inventory_2, label: 'Nhận Hàng'),
     (id: 'accounting', screen: const VantaiAccountingScreen(), icon: Icons.account_balance_wallet, label: 'Kế Toán'),
-    (id: 'employees', screen: const EmployeeManagementScreen(), icon: Icons.badge, label: 'Quản Lý NV'),
+    (id: 'settings', screen: const VantaiSettingsScreen(), icon: Icons.settings, label: 'Cài Đặt'),
   ];
 
   @override
