@@ -1,11 +1,41 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/auth/employee_auth.dart';
 import '../../../core/auth/employee_management_screen.dart';
 import '../../../core/widgets/generic_backup_restore_screen.dart';
 import '../providers/hotel_providers.dart';
 import '../services/hotel_einvoice_settings.dart';
 import '../services/hotel_report_service.dart';
+import 'hotel_room_pricing_screen.dart';
+import 'hotel_services_screen.dart';
+
+/// Bản sao phân quyền tab mặc định của module Khách sạn
+/// (đồng bộ với `_roleTabs` trong `kanposvnkhachsan_shell.dart`).
+final Map<String, Set<String>> _hotelRoleTabs = {
+  EmployeeRoles.cashier: const {'dashboard', 'booking', 'checkin', 'bills', 'settings'},
+  EmployeeRoles.sale: const {'dashboard', 'booking', 'checkin', 'customers', 'settings'},
+  EmployeeRoles.warehouse: const {'settings'},
+  EmployeeRoles.accountant:
+      const {'dashboard', 'rooms', 'finance', 'reports', 'settings', 'bills'},
+};
+
+/// Danh sách tab hiển thị khi cấu hình quyền nhân viên
+/// (đồng bộ với `_tabDefs` trong `kanposvnkhachsan_shell.dart`).
+const List<(String, String)> _hotelTabOptions = [
+  ('dashboard', 'Dashboard'),
+  ('rooms', 'Sơ đồ phòng'),
+  ('booking', 'Lễ tân / Đặt phòng'),
+  ('checkin', 'Check-in/Out'),
+  ('services', 'Dịch vụ'),
+  ('customers', 'Khách hàng'),
+  ('finance', 'Thu Chi'),
+  ('reports', 'Báo cáo chung'),
+  ('bills', 'Tìm hóa đơn'),
+  ('employees', 'Quản Lý NV'),
+  ('settings', 'Cài Đặt'),
+  ('room_pricing', 'Thiết lập Giá'),
+];
 
 /// Tab "Cài Đặt" của KanPosVN Khách sạn.
 ///
@@ -180,6 +210,62 @@ class _HotelSettingsScreenState extends ConsumerState<HotelSettingsScreen> {
           const SizedBox(height: 20),
 
           // -----------------------------------------------------------------
+          // Dịch vụ
+          // -----------------------------------------------------------------
+          Text('DỊCH VỤ',
+              style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.grey[700])),
+          const SizedBox(height: 8),
+          Card(
+            child: ListTile(
+              leading: const Icon(Icons.room_service, color: Colors.teal),
+              title: const Text('Quản lý dịch vụ'),
+              subtitle:
+                  const Text('Danh mục dịch vụ/phụ thu áp dụng cho phòng'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => const HotelServicesScreen(),
+                  ),
+                );
+              },
+            ),
+          ),
+
+          const SizedBox(height: 20),
+
+          // -----------------------------------------------------------------
+          // Thiết lập Giá
+          // -----------------------------------------------------------------
+          Text('THIẾT LẬP GIÁ',
+              style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.grey[700])),
+          const SizedBox(height: 8),
+          Card(
+            child: ListTile(
+              leading:
+                  const Icon(Icons.price_change, color: Colors.deepPurple),
+              title: const Text('Thiết lập giá phòng'),
+              subtitle: const Text('Cấu hình giá theo loại phòng & thời điểm'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => const HotelRoomPricingScreen(),
+                  ),
+                );
+              },
+            ),
+          ),
+
+          const SizedBox(height: 20),
+
+          // -----------------------------------------------------------------
           // Quản lý nhân viên
           // -----------------------------------------------------------------
           Text('QUẢN LÝ NHÂN VIÊN',
@@ -197,7 +283,13 @@ class _HotelSettingsScreenState extends ConsumerState<HotelSettingsScreen> {
               onTap: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(
-                    builder: (_) => const EmployeeManagementScreen(),
+                    builder: (_) => EmployeeManagementScreen(
+                      availableTabs: [
+                        for (final (id, label) in _hotelTabOptions)
+                          EmployeeTabOption(id: id, label: label),
+                      ],
+                      roleTabs: _hotelRoleTabs,
+                    ),
                   ),
                 );
               },

@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/auth/employee_auth.dart';
-import '../../../core/auth/employee_management_screen.dart';
 import '../../../core/auth/employee_role_policy.dart';
 import '../../../core/providers.dart';
-import '../../../core/sync/api_config.dart';
 import '../../../core/widgets/account_switcher_button.dart';
 import '../providers/gara_providers.dart';
 import '../services/gara_seed_data.dart';
@@ -50,16 +48,15 @@ class _KanPosVNGaraShellState extends ConsumerState<KanPosVNGaraShell> {
   };
 
   /// Định nghĩa các tab của module (id, icon, label) — thứ tự hiển thị.
+  /// Đồng bộ / Quản Lý NV đã chuyển vào trong tab Cài Đặt.
   static final Map<String, ({IconData icon, String label})> _tabDefs = {
     'dashboard': (icon: Icons.dashboard, label: 'Dashboard'),
     'reception': (icon: Icons.car_rental, label: 'Tiếp Nhận'),
     'workorder': (icon: Icons.build, label: 'Lệnh Sửa Chữa'),
     'inventory': (icon: Icons.inventory, label: 'Kho / Phụ Tùng'),
     'finance': (icon: Icons.account_balance_wallet, label: 'Thu Chi'),
-    'sync': (icon: Icons.sync, label: 'Đồng bộ'),
     'search': (icon: Icons.receipt_long, label: 'Tra Cứu Phiếu'),
     'report': (icon: Icons.bar_chart, label: 'Báo Cáo'),
-    'employees': (icon: Icons.badge, label: 'Quản Lý NV'),
     'settings': (icon: Icons.settings, label: 'Cài Đặt'),
   };
 
@@ -69,16 +66,8 @@ class _KanPosVNGaraShellState extends ConsumerState<KanPosVNGaraShell> {
     'workorder': () => const GaraWorkOrderScreen(),
     'inventory': () => const GaraInventoryScreen(),
     'finance': () => const GaraFinanceScreen(),
-    'sync': () => const GaraSyncScreen(),
     'search': () => const GaraTicketSearchScreen(),
     'report': () => const GaraSalesReportScreen(),
-    'employees': () => EmployeeManagementScreen(
-      availableTabs: [
-        for (final e in _tabDefs.entries)
-          EmployeeTabOption(id: e.key, label: e.value.label),
-      ],
-      roleTabs: _roleTabs,
-    ),
     'settings': () => const GaraSettingsScreen(),
   };
 
@@ -147,28 +136,6 @@ class _KanPosVNGaraShellState extends ConsumerState<KanPosVNGaraShell> {
             child: tabs[safeIndex].screen,
           ),
         ],
-      ),
-    );
-  }
-}
-
-class GaraSyncScreen extends ConsumerWidget {
-  const GaraSyncScreen({super.key});
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Đồng bộ Vercel Neon DB')),
-      body: Center(
-        child: ElevatedButton.icon(
-          icon: const Icon(Icons.cloud_sync),
-          label: const Text('Đồng bộ Dữ liệu'),
-          onPressed: () async {
-            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Đang đồng bộ...')));
-            final syncService = ref.read(garaNeonSyncServiceProvider);
-            await syncService.triggerSync(ApiConfig.baseUrl, ApiConfig.syncApiKey);
-            if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Đồng bộ hoàn tất!')));
-          },
-        ),
       ),
     );
   }

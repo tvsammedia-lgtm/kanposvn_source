@@ -1,10 +1,37 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../providers/gara_providers.dart';
-import '../services/gara_einvoice_settings.dart';
+import '../../../core/auth/employee_auth.dart';
 import '../../../core/auth/employee_management_screen.dart';
 import '../../../core/widgets/generic_backup_restore_screen.dart';
+import '../providers/gara_providers.dart';
+import '../services/gara_einvoice_settings.dart';
+import 'gara_sync_screen.dart';
+
+/// Bản sao phân quyền tab mặc định của module Gara
+/// (đồng bộ với `_roleTabs` trong `kanposvngara_shell.dart`).
+final Map<String, Set<String>> _garaRoleTabs = {
+  EmployeeRoles.cashier: const {'reception', 'finance', 'search'},
+  EmployeeRoles.sale: const {'reception', 'workorder', 'search'},
+  EmployeeRoles.warehouse: const {'inventory', 'workorder'},
+  EmployeeRoles.accountant:
+      const {'dashboard', 'finance', 'report', 'settings'},
+};
+
+/// Danh sách tab hiển thị khi cấu hình quyền nhân viên
+/// (đồng bộ với `_tabDefs` trong `kanposvngara_shell.dart`).
+const List<(String, String)> _garaTabOptions = [
+  ('dashboard', 'Dashboard'),
+  ('reception', 'Tiếp Nhận'),
+  ('workorder', 'Lệnh Sửa Chữa'),
+  ('inventory', 'Kho / Phụ Tùng'),
+  ('finance', 'Thu Chi'),
+  ('sync', 'Đồng bộ'),
+  ('search', 'Tra Cứu Phiếu'),
+  ('report', 'Báo Cáo'),
+  ('employees', 'Quản Lý NV'),
+  ('settings', 'Cài Đặt'),
+];
 
 /// Tab "Cài Đặt" của KanPosVN Gara Ô Tô.
 ///
@@ -172,6 +199,35 @@ class _GaraSettingsScreenState extends ConsumerState<GaraSettingsScreen> {
           const SizedBox(height: 20),
 
           // -----------------------------------------------------------------
+          // Đồng bộ
+          // -----------------------------------------------------------------
+          Text('ĐỒNG BỘ DỮ LIỆU',
+              style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.grey[700])),
+          const SizedBox(height: 8),
+          Card(
+            child: ListTile(
+              leading:
+                  const Icon(Icons.cloud_sync, color: Colors.deepOrange),
+              title: const Text('Đồng bộ Vercel Neon DB'),
+              subtitle: const Text(
+                  'Đẩy dữ liệu Isar lên server qua Vercel API'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => const GaraSyncScreen(),
+                  ),
+                );
+              },
+            ),
+          ),
+
+          const SizedBox(height: 20),
+
+          // -----------------------------------------------------------------
           // Quản lý nhân viên
           // -----------------------------------------------------------------
           Text('QUẢN LÝ NHÂN VIÊN',
@@ -189,7 +245,13 @@ class _GaraSettingsScreenState extends ConsumerState<GaraSettingsScreen> {
               onTap: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(
-                    builder: (_) => const EmployeeManagementScreen(),
+                    builder: (_) => EmployeeManagementScreen(
+                      availableTabs: [
+                        for (final (id, label) in _garaTabOptions)
+                          EmployeeTabOption(id: id, label: label),
+                      ],
+                      roleTabs: _garaRoleTabs,
+                    ),
                   ),
                 );
               },

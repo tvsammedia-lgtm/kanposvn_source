@@ -2,10 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/auth/employee_management_screen.dart';
-import '../../../core/widgets/generic_backup_restore_screen.dart';
+import '../cafe_tab_defs.dart';
 import '../providers/cafe_providers.dart';
 import '../services/cafe_einvoice_settings.dart';
+import '../services/cafe_permission_service.dart';
 import '../services/cafe_report_service.dart';
+import 'backup_restore_screen.dart';
+import 'cafe_einvoice_screen.dart';
 
 /// Tab "Cài Đặt" của KanPosVN Cafe.
 ///
@@ -177,6 +180,22 @@ class _CafeSettingsScreenState extends ConsumerState<CafeSettingsScreen> {
             ),
           ),
 
+          Card(
+            child: ListTile(
+              leading: const Icon(Icons.receipt_long, color: Colors.teal),
+              title: const Text('Hóa đơn điện tử'),
+              subtitle: const Text('Trạng thái kết nối nhà cung cấp HĐĐT'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => const CafeEinvoiceScreen(),
+                  ),
+                );
+              },
+            ),
+          ),
+
           const SizedBox(height: 20),
 
           // -----------------------------------------------------------------
@@ -197,7 +216,13 @@ class _CafeSettingsScreenState extends ConsumerState<CafeSettingsScreen> {
               onTap: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(
-                    builder: (_) => const EmployeeManagementScreen(),
+                    builder: (_) => EmployeeManagementScreen(
+                      availableTabs: [
+                        for (final t in cafeTabDefs)
+                          EmployeeTabOption(id: t.id, label: t.label),
+                      ],
+                      roleTabs: CafePermissionService.defaultPermissions(),
+                    ),
                   ),
                 );
               },
@@ -219,12 +244,12 @@ class _CafeSettingsScreenState extends ConsumerState<CafeSettingsScreen> {
             child: ListTile(
               leading: const Icon(Icons.backup, color: Colors.orange),
               title: const Text('Sao lưu & Phục hồi dữ liệu'),
-              subtitle: const Text('Xuất file JSON để sao lưu, nhập file để phục hồi'),
+              subtitle: const Text('Backup/Restore cục bộ & Cloud, nhật ký thao tác'),
               trailing: const Icon(Icons.chevron_right),
               onTap: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(
-                    builder: (_) => const GenericBackupRestoreScreen(),
+                    builder: (_) => const BackupRestoreScreen(),
                   ),
                 );
               },

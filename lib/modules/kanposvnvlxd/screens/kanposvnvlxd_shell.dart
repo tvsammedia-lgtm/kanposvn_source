@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/auth/employee_auth.dart';
-import '../../../core/auth/employee_management_screen.dart';
 import '../../../core/auth/employee_role_policy.dart';
 import '../../../core/providers.dart';
 import '../../../core/widgets/account_switcher_button.dart';
@@ -52,6 +51,7 @@ class _KanPosVNVlxdShellState extends ConsumerState<KanPosVNVlxdShell> {
   };
 
   /// Định nghĩa các tab của module (id, icon, label) — thứ tự hiển thị.
+  /// Quản Lý NV đã chuyển vào trong tab Cài Đặt.
   static final Map<String, ({IconData icon, String label})> _tabDefs = {
     'dashboard': (icon: Icons.dashboard, label: 'Dashboard'),
     'pos': (icon: Icons.point_of_sale, label: 'Bán Lẻ'),
@@ -62,7 +62,6 @@ class _KanPosVNVlxdShellState extends ConsumerState<KanPosVNVlxdShell> {
     'finance': (icon: Icons.account_balance_wallet, label: 'Thu Chi & Nợ'),
     'report': (icon: Icons.bar_chart, label: 'Báo Cáo'),
     'reports': (icon: Icons.folder_shared, label: 'Báo Cáo Chung'),
-    'employees': (icon: Icons.badge, label: 'Quản Lý NV'),
     'settings': (icon: Icons.settings, label: 'Cài Đặt'),
   };
 
@@ -76,13 +75,6 @@ class _KanPosVNVlxdShellState extends ConsumerState<KanPosVNVlxdShell> {
     'finance': () => const VlxdFinanceScreen(),
     'report': () => const VlxdSalesReportScreen(),
     'reports': () => const VlxdReportsScreen(),
-    'employees': () => EmployeeManagementScreen(
-      availableTabs: [
-        for (final e in _tabDefs.entries)
-          EmployeeTabOption(id: e.key, label: e.value.label),
-      ],
-      roleTabs: _roleTabs,
-    ),
     'settings': () => const VlxdSettingsScreen(),
   };
 

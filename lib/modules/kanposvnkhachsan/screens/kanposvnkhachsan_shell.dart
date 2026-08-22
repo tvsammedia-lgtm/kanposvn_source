@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/auth/employee_auth.dart';
-import '../../../core/auth/employee_management_screen.dart';
 import '../../../core/auth/employee_role_policy.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/providers.dart';
@@ -13,11 +12,9 @@ import '../services/hotel_seed_data.dart';
 import 'rooms_screen.dart';
 import 'booking_screen.dart';
 import 'checkin_checkout_screen.dart';
-import 'hotel_services_screen.dart';
 import 'hotel_finance_screen.dart';
 import 'hotel_reports_screen.dart';
 import 'hotel_settings_screen.dart';
-import 'hotel_room_pricing_screen.dart';
 import 'hotel_bill_search_screen.dart';
 import 'hotel_customer_screen.dart';
 import 'hotel_dashboard_screen.dart';
@@ -60,27 +57,25 @@ class _KanPosVNKhachSanShellState extends ConsumerState<KanPosVNKhachSanShell> {
   }
 
   static final Map<String, Set<String>> _roleTabs = {
-    EmployeeRoles.cashier: const {'dashboard', 'booking', 'checkin', 'services', 'bills'},
-    EmployeeRoles.sale: const {'dashboard', 'booking', 'checkin', 'customers'},
-    EmployeeRoles.warehouse: const {'services'},
+    EmployeeRoles.cashier: const {'dashboard', 'booking', 'checkin', 'bills', 'settings'},
+    EmployeeRoles.sale: const {'dashboard', 'booking', 'checkin', 'customers', 'settings'},
+    EmployeeRoles.warehouse: const {'settings'},
     EmployeeRoles.accountant:
-        const {'dashboard', 'rooms', 'finance', 'reports', 'settings', 'room_pricing', 'bills'},
+        const {'dashboard', 'rooms', 'finance', 'reports', 'settings', 'bills'},
   };
 
   /// Định nghĩa các tab của module (id, icon, label) — thứ tự hiển thị.
+  /// Dịch vụ / Thiết lập Giá / Quản Lý NV đã chuyển vào trong tab Cài Đặt.
   static final Map<String, ({IconData icon, String label})> _tabDefs = {
     'dashboard': (icon: Icons.dashboard, label: 'Dashboard'),
     'rooms': (icon: Icons.grid_view, label: 'Sơ đồ phòng'),
     'booking': (icon: Icons.book_online, label: 'Lễ tân / Đặt phòng'),
     'checkin': (icon: Icons.login, label: 'Check-in/Out'),
-    'services': (icon: Icons.room_service, label: 'Dịch vụ'),
     'customers': (icon: Icons.people, label: 'Khách hàng'),
     'finance': (icon: Icons.account_balance, label: 'Thu Chi'),
     'reports': (icon: Icons.description, label: 'Báo cáo chung'),
     'bills': (icon: Icons.receipt_long, label: 'Tìm hóa đơn'),
-    'employees': (icon: Icons.badge, label: 'Quản Lý NV'),
     'settings': (icon: Icons.settings, label: 'Cài Đặt'),
-    'room_pricing': (icon: Icons.price_change, label: 'Thiết lập Giá'),
   };
 
   static final Map<String, Widget Function()> _tabScreens = {
@@ -88,20 +83,11 @@ class _KanPosVNKhachSanShellState extends ConsumerState<KanPosVNKhachSanShell> {
     'rooms': () => const RoomsScreen(),
     'booking': () => const BookingScreen(),
     'checkin': () => const CheckinCheckoutScreen(),
-    'services': () => const HotelServicesScreen(),
     'customers': () => const HotelCustomerScreen(),
     'finance': () => const HotelFinanceScreen(),
     'reports': () => const HotelReportsScreen(),
     'bills': () => const HotelBillSearchScreen(),
-    'employees': () => EmployeeManagementScreen(
-      availableTabs: [
-        for (final e in _tabDefs.entries)
-          EmployeeTabOption(id: e.key, label: e.value.label),
-      ],
-      roleTabs: _roleTabs,
-    ),
     'settings': () => const HotelSettingsScreen(),
-    'room_pricing': () => const HotelRoomPricingScreen(),
   };
 
   static final List<({String id, Widget screen, IconData icon, String label})>

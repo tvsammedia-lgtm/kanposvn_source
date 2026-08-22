@@ -1,10 +1,39 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/auth/employee_auth.dart';
 import '../../../core/auth/employee_management_screen.dart';
 import '../../../core/widgets/generic_backup_restore_screen.dart';
 import '../providers/nhathuoc_providers.dart';
 import '../services/nhathuoc_einvoice_settings.dart';
+import 'nhathuoc_sync_screen.dart';
+
+/// Bản sao phân quyền tab mặc định của module Nhà Thuốc
+/// (đồng bộ với `_roleTabs` trong `kanposvnnhathuoc_shell.dart`).
+final Map<String, Set<String>> _nhathuocRoleTabs = {
+  EmployeeRoles.cashier: const {'pos', 'patient', 'prescription'},
+  EmployeeRoles.sale: const {'pos', 'patient'},
+  EmployeeRoles.warehouse: const {'inventory', 'pos'},
+  EmployeeRoles.accountant:
+      const {'dashboard', 'pos', 'settings', 'expenses'},
+};
+
+/// Danh sách tab hiển thị khi cấu hình quyền nhân viên
+/// (đồng bộ với `_tabDefs` trong `kanposvnnhathuoc_shell.dart`).
+const List<(String, String)> _nhathuocTabOptions = [
+  ('dashboard', 'Dashboard'),
+  ('pos', 'Bán Hàng'),
+  ('medicines', 'Thuốc'),
+  ('inventory', 'Kho Thuốc'),
+  ('patient', 'Bệnh Nhân'),
+  ('customers', 'Khách Hàng'),
+  ('suppliers', 'NCC'),
+  ('prescription', 'Toa Mẫu'),
+  ('expenses', 'Thu Chi'),
+  ('sync', 'Đồng bộ'),
+  ('employees', 'Quản Lý NV'),
+  ('settings', 'Cài Đặt'),
+];
 
 /// Tab "Cài Đặt" của KanPosVN Nhà Thuốc.
 ///
@@ -175,6 +204,35 @@ class _NhathuocSettingsScreenState
           const SizedBox(height: 20),
 
           // -----------------------------------------------------------------
+          // Đồng bộ
+          // -----------------------------------------------------------------
+          Text('ĐỒNG BỘ DỮ LIỆU',
+              style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.grey[700])),
+          const SizedBox(height: 8),
+          Card(
+            child: ListTile(
+              leading:
+                  const Icon(Icons.cloud_sync, color: Colors.deepOrange),
+              title: const Text('Đồng bộ Vercel Neon DB'),
+              subtitle: const Text(
+                  'Đẩy dữ liệu Isar lên server qua Vercel API'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => const NhathuocSyncScreen(),
+                  ),
+                );
+              },
+            ),
+          ),
+
+          const SizedBox(height: 20),
+
+          // -----------------------------------------------------------------
           // Quản lý nhân viên
           // -----------------------------------------------------------------
           Text('QUẢN LÝ NHÂN VIÊN',
@@ -192,7 +250,13 @@ class _NhathuocSettingsScreenState
               onTap: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(
-                    builder: (_) => const EmployeeManagementScreen(),
+                    builder: (_) => EmployeeManagementScreen(
+                      availableTabs: [
+                        for (final (id, label) in _nhathuocTabOptions)
+                          EmployeeTabOption(id: id, label: label),
+                      ],
+                      roleTabs: _nhathuocRoleTabs,
+                    ),
                   ),
                 );
               },

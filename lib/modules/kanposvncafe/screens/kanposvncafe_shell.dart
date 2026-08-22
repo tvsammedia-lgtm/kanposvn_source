@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../core/auth/employee_management_screen.dart';
 import '../../../core/db/database_service.dart';
 import '../../../core/providers.dart';
 import '../../../core/warehouse/warehouse_screen.dart';
 import '../../../core/widgets/account_switcher_button.dart';
-import '../cafe_tab_defs.dart';
 import '../providers/cafe_providers.dart';
 import '../services/cafe_seed_data.dart';
 import '../services/cafe_permission_service.dart';
@@ -20,10 +18,8 @@ import 'customer_supplier_screen.dart';
 import 'purchase_import_screen.dart';
 import 'voucher_screen.dart';
 import 'order_history_screen.dart';
-import 'backup_restore_screen.dart';
 import 'cafe_sales_report_screen.dart';
 import 'cafe_reports_screen.dart';
-import 'cafe_einvoice_screen.dart';
 import 'cafe_settings_screen.dart';
 
 class KanPosVNCafeShell extends ConsumerStatefulWidget {
@@ -138,12 +134,6 @@ class _KanPosVNCafeShellState extends ConsumerState<KanPosVNCafeShell> {
       icon: Icons.search,
     ),
     const _CafeTab(
-      id: 'backup_restore',
-      screen: BackupRestoreScreen(),
-      label: 'Backup/Restore',
-      icon: Icons.backup,
-    ),
-    const _CafeTab(
       id: 'sales_report',
       screen: CafeSalesReportScreen(),
       label: 'Báo Cáo Bán Hàng',
@@ -156,26 +146,6 @@ class _KanPosVNCafeShellState extends ConsumerState<KanPosVNCafeShell> {
       label: 'Báo Cáo Chung',
       shortLabel: 'Báo cáo',
       icon: Icons.description,
-    ),
-    _CafeTab(
-      id: 'employees',
-      screen: EmployeeManagementScreen(
-        availableTabs: [
-          for (final t in cafeTabDefs)
-            EmployeeTabOption(id: t.id, label: t.label),
-        ],
-        roleTabs: CafePermissionService.defaultPermissions(),
-      ),
-      label: 'Quản lý nhân viên',
-      shortLabel: 'NV',
-      icon: Icons.badge,
-    ),
-    const _CafeTab(
-      id: 'einvoice',
-      screen: CafeEinvoiceScreen(),
-      label: 'Hóa đơn điện tử',
-      shortLabel: 'HĐĐT',
-      icon: Icons.receipt_long,
     ),
     const _CafeTab(
       id: 'settings',

@@ -1,11 +1,48 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/auth/employee_auth.dart';
 import '../../../core/auth/employee_management_screen.dart';
 import '../../../core/widgets/generic_backup_restore_screen.dart';
 import '../providers/vlxd_providers.dart';
 import '../services/vlxd_einvoice_settings.dart';
 import '../services/vlxd_report_service.dart';
+
+/// Bản sao phân quyền tab mặc định của module VLXD
+/// (đồng bộ với `_roleTabs` trong `kanposvnvlxd_shell.dart`).
+final Map<String, Set<String>> _vlxdRoleTabs = {
+  EmployeeRoles.cashier: const {'pos', 'finance', 'report', 'reports'},
+  EmployeeRoles.sale:
+      const {'pos', 'contracts', 'finance', 'report', 'reports', 'materials'},
+  EmployeeRoles.warehouse:
+      const {'inventory', 'materials', 'material_categories', 'pos'},
+  EmployeeRoles.accountant: const {
+    'dashboard',
+    'finance',
+    'contracts',
+    'report',
+    'reports',
+    'materials',
+    'material_categories',
+    'settings'
+  },
+};
+
+/// Danh sách tab hiển thị khi cấu hình quyền nhân viên
+/// (đồng bộ với `_tabDefs` trong `kanposvnvlxd_shell.dart`).
+const List<(String, String)> _vlxdTabOptions = [
+  ('dashboard', 'Dashboard'),
+  ('pos', 'Bán Lẻ'),
+  ('contracts', 'Hợp Đồng Sỉ'),
+  ('material_categories', 'Nhóm VT'),
+  ('materials', 'Vật tư'),
+  ('inventory', 'Kho Hàng'),
+  ('finance', 'Thu Chi & Nợ'),
+  ('report', 'Báo Cáo'),
+  ('reports', 'Báo Cáo Chung'),
+  ('employees', 'Quản Lý NV'),
+  ('settings', 'Cài Đặt'),
+];
 
 /// Tab "Cài Đặt" của KanPosVN VLXD.
 ///
@@ -197,7 +234,13 @@ class _VlxdSettingsScreenState extends ConsumerState<VlxdSettingsScreen> {
               onTap: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(
-                    builder: (_) => const EmployeeManagementScreen(),
+                    builder: (_) => EmployeeManagementScreen(
+                      availableTabs: [
+                        for (final (id, label) in _vlxdTabOptions)
+                          EmployeeTabOption(id: id, label: label),
+                      ],
+                      roleTabs: _vlxdRoleTabs,
+                    ),
                   ),
                 );
               },

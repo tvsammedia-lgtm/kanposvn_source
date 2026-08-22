@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/auth/employee_auth.dart';
-import '../../../core/auth/employee_management_screen.dart';
 import '../../../core/auth/employee_role_policy.dart';
 import '../../../core/providers.dart';
-import '../../../core/sync/api_config.dart';
 import '../../../core/widgets/account_switcher_button.dart';
 import '../providers/nhathuoc_providers.dart';
 import '../services/nhathuoc_seed_data.dart';
@@ -58,6 +56,8 @@ class _KanPosVNNhathuocShellState extends ConsumerState<KanPosVNNhathuocShell> {
     EmployeeRoles.accountant: const {'dashboard', 'pos', 'settings', 'expenses'},
   };
 
+  /// Định nghĩa các tab của module (id, icon, label) — thứ tự hiển thị.
+  /// Đồng bộ / Quản Lý NV đã chuyển vào trong tab Cài Đặt.
   static final Map<String, ({IconData icon, String label})> _tabDefs = {
     'dashboard': (icon: Icons.dashboard, label: 'Dashboard'),
     'pos': (icon: Icons.point_of_sale, label: 'Bán Hàng'),
@@ -68,8 +68,6 @@ class _KanPosVNNhathuocShellState extends ConsumerState<KanPosVNNhathuocShell> {
     'suppliers': (icon: Icons.business, label: 'NCC'),
     'prescription': (icon: Icons.receipt_long, label: 'Toa Mẫu'),
     'expenses': (icon: Icons.account_balance_wallet, label: 'Thu Chi'),
-    'sync': (icon: Icons.sync, label: 'Đồng bộ'),
-    'employees': (icon: Icons.badge, label: 'Quản Lý NV'),
     'settings': (icon: Icons.settings, label: 'Cài Đặt'),
   };
 
@@ -83,14 +81,6 @@ class _KanPosVNNhathuocShellState extends ConsumerState<KanPosVNNhathuocShell> {
     'suppliers': () => const NhathuocSupplierScreen(),
     'prescription': () => const NhathuocPrescriptionScreen(),
     'expenses': () => const NhathuocExpenseScreen(),
-    'sync': () => const NhathuocSyncScreen(),
-    'employees': () => EmployeeManagementScreen(
-      availableTabs: [
-        for (final e in _tabDefs.entries)
-          EmployeeTabOption(id: e.key, label: e.value.label),
-      ],
-      roleTabs: _roleTabs,
-    ),
     'settings': () => const NhathuocSettingsScreen(),
   };
 
@@ -159,28 +149,6 @@ class _KanPosVNNhathuocShellState extends ConsumerState<KanPosVNNhathuocShell> {
             child: tabs[safeIndex].screen,
           ),
         ],
-      ),
-    );
-  }
-}
-
-class NhathuocSyncScreen extends ConsumerWidget {
-  const NhathuocSyncScreen({super.key});
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Đồng bộ Vercel Neon DB')),
-      body: Center(
-        child: ElevatedButton.icon(
-          icon: const Icon(Icons.cloud_sync),
-          label: const Text('Đồng bộ Dữ liệu'),
-          onPressed: () async {
-            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Đang đồng bộ...')));
-            final syncService = ref.read(nhathuocNeonSyncServiceProvider);
-            await syncService.triggerSync(ApiConfig.baseUrl, ApiConfig.syncApiKey);
-            if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Đồng bộ hoàn tất!')));
-          },
-        ),
       ),
     );
   }
