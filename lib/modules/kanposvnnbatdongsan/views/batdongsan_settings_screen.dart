@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/auth/employee_management_screen.dart';
 import '../../../../core/providers.dart';
 
 class BatDongSanSettingsScreen extends ConsumerWidget {
@@ -25,6 +26,29 @@ class BatDongSanSettingsScreen extends ConsumerWidget {
               leading: const Icon(Icons.person),
               title: Text('Tên đăng nhập'),
               subtitle: Text(auth.user?.toString() ?? ''),
+            ),
+            const SizedBox(height: 16),
+            Text('QUẢN LÝ NHÂN VIÊN',
+                style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.grey[700])),
+            const SizedBox(height: 8),
+            Card(
+              child: ListTile(
+                leading: const Icon(Icons.people, color: Colors.blue),
+                title: const Text('Quản lý tài khoản nhân viên'),
+                subtitle:
+                    const Text('Thêm, sửa, xóa tài khoản nhân viên & phân quyền'),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => const EmployeeManagementScreen(),
+                    ),
+                  );
+                },
+              ),
             ),
             const Spacer(),
             ListTile(

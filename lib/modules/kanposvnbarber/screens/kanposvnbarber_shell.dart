@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/auth/employee_auth.dart';
-import '../../../core/auth/employee_management_screen.dart';
 import '../../../core/auth/employee_role_policy.dart';
 import '../../../core/providers.dart';
 import '../../../core/widgets/account_switcher_button.dart';
@@ -59,7 +58,6 @@ class _KanPosVnBarberShellState extends ConsumerState<KanPosVnBarberShell> {
     'ai_advisor': (icon: Icons.face, label: 'AI Tư Vấn'),
     'inventory': (icon: Icons.inventory, label: 'Kho Hàng'),
     'reports': (icon: Icons.bar_chart, label: 'Báo Cáo'),
-    'employees': (icon: Icons.badge, label: 'Quản Lý NV'),
     'settings': (icon: Icons.settings, label: 'Cài Đặt'),
   };
 
@@ -72,13 +70,6 @@ class _KanPosVnBarberShellState extends ConsumerState<KanPosVnBarberShell> {
     'ai_advisor': () => const AiAdvisorScreen(),
     'inventory': () => const InventoryScreen(),
     'reports': () => const ReportScreen(),
-    'employees': () => EmployeeManagementScreen(
-      availableTabs: [
-        for (final e in _tabDefs.entries)
-          EmployeeTabOption(id: e.key, label: e.value.label),
-      ],
-      roleTabs: _roleTabs,
-    ),
     'settings': () => const BarberSettingsScreen(),
   };
 

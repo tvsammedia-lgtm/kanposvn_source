@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/auth/employee_auth.dart';
-import '../../../core/auth/employee_management_screen.dart';
 import '../../../core/auth/employee_role_policy.dart';
 import '../../../core/providers.dart';
-import '../../../core/sync/api_config.dart';
 import '../../../core/widgets/account_switcher_button.dart';
 import '../providers/isar_provider.dart';
 import '../providers/pawn_provider.dart';
@@ -57,8 +55,6 @@ class _KanPosVnPawnShellState extends ConsumerState<KanPosVnPawnShell> {
     'pawn': (icon: Icons.monetization_on, label: 'Hợp Đồng'),
     'customer': (icon: Icons.people, label: 'Khách Hàng'),
     'finance': (icon: Icons.account_balance_wallet, label: 'Thu Chi'),
-    'sync': (icon: Icons.sync, label: 'Đồng bộ'),
-    'employees': (icon: Icons.badge, label: 'Quản Lý NV'),
     'settings': (icon: Icons.settings, label: 'Cài Đặt'),
   };
 
@@ -67,14 +63,6 @@ class _KanPosVnPawnShellState extends ConsumerState<KanPosVnPawnShell> {
     'pawn': () => const PawnListScreen(),
     'customer': () => const CustomerListScreen(),
     'finance': () => const PawnFinanceScreen(),
-    'sync': () => const PawnSyncScreen(),
-    'employees': () => EmployeeManagementScreen(
-      availableTabs: [
-        for (final e in _tabDefs.entries)
-          EmployeeTabOption(id: e.key, label: e.value.label),
-      ],
-      roleTabs: _roleTabs,
-    ),
     'settings': () => const PawnSettingsScreen(),
   };
 
@@ -143,28 +131,6 @@ class _KanPosVnPawnShellState extends ConsumerState<KanPosVnPawnShell> {
             child: tabs[safeIndex].screen,
           ),
         ],
-      ),
-    );
-  }
-}
-
-class PawnSyncScreen extends ConsumerWidget {
-  const PawnSyncScreen({super.key});
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Đồng bộ Vercel Neon DB')),
-      body: Center(
-        child: ElevatedButton.icon(
-          icon: const Icon(Icons.cloud_sync),
-          label: const Text('Đồng bộ Dữ liệu'),
-          onPressed: () async {
-            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Đang đồng bộ...')));
-            final syncService = ref.read(pawnNeonSyncServiceProvider);
-            await syncService.triggerSync(ApiConfig.baseUrl, ApiConfig.syncApiKey);
-            if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Đồng bộ hoàn tất!')));
-          },
-        ),
       ),
     );
   }

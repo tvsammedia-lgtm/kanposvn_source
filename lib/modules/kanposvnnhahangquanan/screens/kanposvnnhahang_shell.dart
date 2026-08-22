@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/auth/employee_auth.dart';
-import '../../../core/auth/employee_management_screen.dart';
 import '../../../core/auth/employee_role_policy.dart';
 import '../../../core/providers.dart';
 import '../../../core/widgets/account_switcher_button.dart';
@@ -59,6 +58,7 @@ class _KanPosVNRestaurantShellState extends ConsumerState<KanPosVNRestaurantShel
   };
 
   /// Định nghĩa các tab của module (id, icon, label) — thứ tự hiển thị.
+  /// Quản Lý NV đã chuyển vào trong tab Cài Đặt.
   static final Map<String, ({IconData icon, String label})> _tabDefs = {
     'tables': (icon: Icons.grid_view, label: 'Sơ đồ Bàn'),
     'kitchen': (icon: Icons.kitchen, label: 'Bếp'),
@@ -67,7 +67,6 @@ class _KanPosVNRestaurantShellState extends ConsumerState<KanPosVNRestaurantShel
     'search': (icon: Icons.receipt_long, label: 'Tìm Bill'),
     'report': (icon: Icons.bar_chart, label: 'Báo Cáo'),
     'report_common': (icon: Icons.description, label: 'Báo Cáo Chung'),
-    'employees': (icon: Icons.badge, label: 'Quản Lý NV'),
     'settings': (icon: Icons.settings, label: 'Cài Đặt'),
   };
 
@@ -79,13 +78,6 @@ class _KanPosVNRestaurantShellState extends ConsumerState<KanPosVNRestaurantShel
     'search': () => const BillSearchScreen(),
     'report': () => const SalesReportScreen(),
     'report_common': () => const RestaurantReportsScreen(),
-    'employees': () => EmployeeManagementScreen(
-      availableTabs: [
-        for (final e in _tabDefs.entries)
-          EmployeeTabOption(id: e.key, label: e.value.label),
-      ],
-      roleTabs: _roleTabs,
-    ),
     'settings': () => const RestaurantSettingsScreen(),
   };
 

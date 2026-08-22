@@ -6,7 +6,6 @@ import 'gym_members_screen.dart';
 import 'gym_pos_screen.dart';
 import 'gym_trainer_screen.dart';
 import 'gym_settings_screen.dart';
-import '../../../core/auth/employee_management_screen.dart';
 import '../../../core/widgets/owner_info_bar.dart';
 
 class GymDashboardScreen extends ConsumerWidget {
@@ -71,14 +70,6 @@ class GymDashboardScreen extends ConsumerWidget {
               onTap: () {
                 Navigator.pop(context);
                 Navigator.push(context, MaterialPageRoute(builder: (_) => const GymSettingsScreen()));
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.badge, color: Colors.amber),
-              title: const Text('Quản Lý NV'),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.push(context, MaterialPageRoute(builder: (_) => const EmployeeManagementScreen()));
               },
             ),
           ],

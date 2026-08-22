@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/auth/employee_auth.dart';
-import '../../../core/auth/employee_management_screen.dart';
 import '../../../core/auth/employee_role_policy.dart';
 import '../../../core/providers.dart';
 import '../../../core/widgets/account_switcher_button.dart';
@@ -50,11 +49,11 @@ class _KanPosVNBidaShellState extends ConsumerState<KanPosVNBidaShell> {
   };
 
   /// Định nghĩa các tab của module (id, icon, label) — thứ tự hiển thị.
+  /// Quản Lý NV đã chuyển vào trong tab Cài Đặt.
   static final Map<String, ({IconData icon, String label})> _tabDefs = {
     'tables': (icon: Icons.grid_view, label: 'Sơ đồ Bàn'),
     'dashboard': (icon: Icons.dashboard, label: 'Dashboard'),
     'inventory': (icon: Icons.inventory, label: 'Kho Hàng'),
-    'employees': (icon: Icons.badge, label: 'Quản Lý NV'),
     'settings': (icon: Icons.settings, label: 'Cài Đặt'),
   };
 
@@ -62,13 +61,6 @@ class _KanPosVNBidaShellState extends ConsumerState<KanPosVNBidaShell> {
     'tables': () => const BidaTablesScreen(),
     'dashboard': () => const BidaDashboardScreen(),
     'inventory': () => const BidaInventoryScreen(),
-    'employees': () => EmployeeManagementScreen(
-      availableTabs: [
-        for (final e in _tabDefs.entries)
-          EmployeeTabOption(id: e.key, label: e.value.label),
-      ],
-      roleTabs: _roleTabs,
-    ),
     'settings': () => const BidaSettingsScreen(),
   };
 

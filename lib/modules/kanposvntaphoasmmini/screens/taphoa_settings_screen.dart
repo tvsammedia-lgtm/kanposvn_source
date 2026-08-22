@@ -4,8 +4,33 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/taphoa_providers.dart';
 import '../services/taphoa_einvoice_settings.dart';
 import '../services/taphoa_report_service.dart';
+import '../../../core/auth/employee_auth.dart';
 import '../../../core/auth/employee_management_screen.dart';
 import '../../../core/widgets/generic_backup_restore_screen.dart';
+
+/// Bản sao phân quyền tab mặc định của module Tạp Hóa Mini
+/// (đồng bộ với `_roleTabs` trong `taphoa_dashboard_screen.dart`).
+final Map<String, Set<String>> _taphoaRoleTabs = {
+  EmployeeRoles.cashier: const {'pos', 'finance', 'debt', 'report'},
+  EmployeeRoles.sale: const {'pos'},
+  EmployeeRoles.warehouse: const {'products', 'import', 'inventory'},
+  EmployeeRoles.accountant: const {'finance', 'debt', 'report', 'settings'},
+};
+
+/// Danh sách tab hiển thị khi cấu hình quyền nhân viên
+/// (đồng bộ với `_actionDefs` trong `taphoa_dashboard_screen.dart`).
+const List<(String, String)> _taphoaTabOptions = [
+  ('pos', 'Bán hàng (POS)'),
+  ('products', 'Quản lý hàng hóa'),
+  ('import', 'Nhập hàng'),
+  ('inventory', 'Tồn kho & Kiểm kê'),
+  ('partners', 'Khách hàng & NCC'),
+  ('employees', 'Quản lý nhân viên'),
+  ('finance', 'Thu chi & Tài chính'),
+  ('debt', 'Công nợ'),
+  ('report', 'Báo cáo'),
+  ('settings', 'Cài Đặt'),
+];
 
 /// Tab "Cài Đặt" của KanPosVN Tạp Hóa Mini.
 ///
@@ -201,7 +226,13 @@ class _TapHoaSettingsScreenState extends ConsumerState<TapHoaSettingsScreen> {
               onTap: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(
-                    builder: (_) => const EmployeeManagementScreen(),
+                    builder: (_) => EmployeeManagementScreen(
+                      availableTabs: [
+                        for (final (id, label) in _taphoaTabOptions)
+                          EmployeeTabOption(id: id, label: label),
+                      ],
+                      roleTabs: _taphoaRoleTabs,
+                    ),
                   ),
                 );
               },

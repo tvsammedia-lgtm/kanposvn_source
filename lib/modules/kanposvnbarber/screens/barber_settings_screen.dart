@@ -3,8 +3,40 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../providers/barber_service_provider.dart';
 import '../services/barber_einvoice_settings.dart';
+import '../../../core/auth/employee_auth.dart';
 import '../../../core/auth/employee_management_screen.dart';
 import '../../../core/widgets/generic_backup_restore_screen.dart';
+
+/// Bản sao phân quyền tab mặc định của module Barber
+/// (đồng bộ với `_roleTabs` trong `kanposvnbarber_shell.dart`).
+final Map<String, Set<String>> _barberRoleTabs = {
+  EmployeeRoles.cashier:
+      const {'pos', 'appointments', 'booking_calendar', 'customers', 'reports'},
+  EmployeeRoles.sale: const {
+    'dashboard', 'pos', 'booking_calendar', 'appointments', 'customers',
+    'ai_advisor', 'reports'
+  },
+  EmployeeRoles.warehouse: const {'inventory', 'pos'},
+  EmployeeRoles.accountant: const {
+    'dashboard', 'pos', 'booking_calendar', 'appointments', 'customers',
+    'inventory', 'reports', 'settings'
+  },
+};
+
+/// Danh sách tab hiển thị khi cấu hình quyền nhân viên
+/// (đồng bộ với `_tabDefs` trong `kanposvnbarber_shell.dart`).
+const List<(String, String)> _barberTabOptions = [
+  ('dashboard', 'Dashboard'),
+  ('pos', 'Bán Hàng'),
+  ('booking_calendar', 'Xếp Lịch'),
+  ('appointments', 'Lịch Hẹn'),
+  ('customers', 'Khách Hàng'),
+  ('ai_advisor', 'AI Tư Vấn'),
+  ('inventory', 'Kho Hàng'),
+  ('reports', 'Báo Cáo'),
+  ('employees', 'Quản Lý NV'),
+  ('settings', 'Cài Đặt'),
+];
 
 /// Tab "Cài Đặt" của KanPosVN Barber Shop.
 ///
@@ -190,7 +222,13 @@ class _BarberSettingsScreenState extends ConsumerState<BarberSettingsScreen> {
               onTap: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(
-                    builder: (_) => const EmployeeManagementScreen(),
+                    builder: (_) => EmployeeManagementScreen(
+                      availableTabs: [
+                        for (final (id, label) in _barberTabOptions)
+                          EmployeeTabOption(id: id, label: label),
+                      ],
+                      roleTabs: _barberRoleTabs,
+                    ),
                   ),
                 );
               },

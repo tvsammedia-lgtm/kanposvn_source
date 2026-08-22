@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/auth/employee_auth.dart';
-import '../../../core/auth/employee_management_screen.dart';
 import '../../../core/auth/employee_role_policy.dart';
 import '../../../core/widgets/account_switcher_button.dart';
 import '../../../core/widgets/owner_info_bar.dart';
@@ -63,7 +62,6 @@ class _BatDongSanDashboardState extends ConsumerState<BatDongSanDashboard> {
     'finance': (icon: Icons.account_balance_wallet, label: 'Thu Chi'),
     'report': (icon: Icons.bar_chart, label: 'Báo Cáo'),
     'reports': (icon: Icons.folder_shared, label: 'Báo Cáo Chung'),
-    'employees': (icon: Icons.badge, label: 'Quản Lý NV'),
     'settings': (icon: Icons.settings, label: 'Cài Đặt'),
   };
 
@@ -77,7 +75,6 @@ class _BatDongSanDashboardState extends ConsumerState<BatDongSanDashboard> {
     'finance': () => const PropertyListScreen(),
     'report': () => const BatDongSanSalesReportScreen(),
     'reports': () => const BatDongSanSalesReportScreen(),
-    'employees': () => const EmployeeManagementScreen(),
     'settings': () => const BatDongSanSettingsScreen(),
   };
 

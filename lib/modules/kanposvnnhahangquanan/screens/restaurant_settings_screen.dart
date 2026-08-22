@@ -1,11 +1,36 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/auth/employee_auth.dart';
 import '../../../core/auth/employee_management_screen.dart';
 import '../../../core/widgets/generic_backup_restore_screen.dart';
 import '../providers/restaurant_providers.dart';
 import '../services/restaurant_einvoice_settings.dart';
 import '../services/restaurant_report_service.dart';
+
+/// Bản sao phân quyền tab mặc định của module Nhà hàng
+/// (đồng bộ với `_roleTabs` trong `kanposvnnhahang_shell.dart`).
+final Map<String, Set<String>> _restaurantRoleTabs = {
+  EmployeeRoles.cashier: const {'tables', 'kitchen', 'search'},
+  EmployeeRoles.sale: const {'tables', 'kitchen'},
+  EmployeeRoles.warehouse: const {'inventory'},
+  EmployeeRoles.accountant:
+      const {'dashboard', 'search', 'report', 'report_common', 'settings'},
+};
+
+/// Danh sách tab hiển thị khi cấu hình quyền nhân viên
+/// (đồng bộ với `_tabDefs` trong `kanposvnnhahang_shell.dart`).
+const List<(String, String)> _restaurantTabOptions = [
+  ('tables', 'Sơ đồ Bàn'),
+  ('kitchen', 'Bếp'),
+  ('inventory', 'Kho Hàng'),
+  ('dashboard', 'Dashboard'),
+  ('search', 'Tìm Bill'),
+  ('report', 'Báo Cáo'),
+  ('report_common', 'Báo Cáo Chung'),
+  ('employees', 'Quản Lý NV'),
+  ('settings', 'Cài Đặt'),
+];
 
 /// Tab "Cài Đặt" của KanPosVN Nhà hàng - Quán ăn.
 ///
@@ -199,7 +224,13 @@ class _RestaurantSettingsScreenState
               onTap: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(
-                    builder: (_) => const EmployeeManagementScreen(),
+                    builder: (_) => EmployeeManagementScreen(
+                      availableTabs: [
+                        for (final (id, label) in _restaurantTabOptions)
+                          EmployeeTabOption(id: id, label: label),
+                      ],
+                      roleTabs: _restaurantRoleTabs,
+                    ),
                   ),
                 );
               },

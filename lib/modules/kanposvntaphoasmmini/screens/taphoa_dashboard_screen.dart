@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/auth/employee_auth.dart';
-import '../../../core/auth/employee_management_screen.dart';
 import '../../../core/auth/employee_role_policy.dart';
 import '../../../core/providers.dart';
 import '../../../core/router/module_selector_screen.dart';
@@ -37,8 +36,9 @@ class _TapHoaDashboardScreenState extends ConsumerState<TapHoaDashboardScreen> {
     EmployeeRoles.accountant: const {'finance', 'debt', 'report', 'settings'},
   };
 
-  /// Các chức năng (action card) của module — dùng chung cho dashboard,
-  /// màn hình "Quản lý nhân viên" (check/uncheck) và lọc theo role.
+  /// Các chức năng (action card) của module — dùng cho dashboard và
+  /// lọc theo role/tùy chỉnh của nhân viên.
+  /// Quản lý nhân viên đã chuyển vào trong Cài Đặt.
   static final Map<String, ({String label, IconData icon, Color color, Widget Function() screen})>
       _actionDefs = {
     'pos': (
@@ -70,18 +70,6 @@ class _TapHoaDashboardScreenState extends ConsumerState<TapHoaDashboardScreen> {
       icon: Icons.people,
       color: Colors.teal,
       screen: () => const TapHoaPartnerScreen(),
-    ),
-    'employees': (
-      label: 'Quản lý nhân viên',
-      icon: Icons.badge,
-      color: Colors.brown,
-      screen: () => EmployeeManagementScreen(
-        availableTabs: [
-          for (final e in _actionDefs.entries)
-            EmployeeTabOption(id: e.key, label: e.value.label),
-        ],
-        roleTabs: _roleTabs,
-      ),
     ),
     'finance': (
       label: 'Thu chi & Tài chính',

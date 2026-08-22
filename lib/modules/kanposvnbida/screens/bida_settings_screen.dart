@@ -3,8 +3,28 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../providers/bida_providers.dart';
 import '../services/bida_einvoice_settings.dart';
+import '../../../core/auth/employee_auth.dart';
 import '../../../core/auth/employee_management_screen.dart';
 import '../../../core/widgets/generic_backup_restore_screen.dart';
+
+/// Bản sao phân quyền tab mặc định của module Bida
+/// (đồng bộ với `_roleTabs` trong `kanposvnbida_shell.dart`).
+final Map<String, Set<String>> _bidaRoleTabs = {
+  EmployeeRoles.cashier: const {'tables'},
+  EmployeeRoles.sale: const {'tables'},
+  EmployeeRoles.warehouse: const {'inventory'},
+  EmployeeRoles.accountant: const {'dashboard', 'settings'},
+};
+
+/// Danh sách tab hiển thị khi cấu hình quyền nhân viên
+/// (đồng bộ với `_tabDefs` trong `kanposvnbida_shell.dart`).
+const List<(String, String)> _bidaTabOptions = [
+  ('tables', 'Sơ đồ Bàn'),
+  ('dashboard', 'Dashboard'),
+  ('inventory', 'Kho Hàng'),
+  ('employees', 'Quản Lý NV'),
+  ('settings', 'Cài Đặt'),
+];
 
 /// Tab "Cài Đặt" của KanPosVN Bida.
 ///
@@ -189,7 +209,13 @@ class _BidaSettingsScreenState extends ConsumerState<BidaSettingsScreen> {
               onTap: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(
-                    builder: (_) => const EmployeeManagementScreen(),
+                    builder: (_) => EmployeeManagementScreen(
+                      availableTabs: [
+                        for (final (id, label) in _bidaTabOptions)
+                          EmployeeTabOption(id: id, label: label),
+                      ],
+                      roleTabs: _bidaRoleTabs,
+                    ),
                   ),
                 );
               },

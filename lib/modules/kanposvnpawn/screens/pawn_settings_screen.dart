@@ -3,8 +3,32 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../providers/isar_provider.dart';
 import '../services/pawn_einvoice_settings.dart';
+import '../../../core/auth/employee_auth.dart';
 import '../../../core/auth/employee_management_screen.dart';
 import '../../../core/widgets/generic_backup_restore_screen.dart';
+import 'pawn_sync_screen.dart';
+
+/// Bản sao phân quyền tab mặc định của module Cầm Đồ
+/// (đồng bộ với `_roleTabs` trong `kanposvnpawn_shell.dart`).
+final Map<String, Set<String>> _pawnRoleTabs = {
+  EmployeeRoles.cashier: const {'dashboard', 'pawn', 'customer', 'finance'},
+  EmployeeRoles.sale: const {'dashboard', 'pawn', 'customer'},
+  EmployeeRoles.warehouse: const {'customer'},
+  EmployeeRoles.accountant:
+      const {'dashboard', 'pawn', 'customer', 'finance', 'settings'},
+};
+
+/// Danh sách tab hiển thị khi cấu hình quyền nhân viên
+/// (đồng bộ với `_tabDefs` trong `kanposvnpawn_shell.dart`).
+const List<(String, String)> _pawnTabOptions = [
+  ('dashboard', 'Dashboard'),
+  ('pawn', 'Hợp Đồng'),
+  ('customer', 'Khách Hàng'),
+  ('finance', 'Thu Chi'),
+  ('sync', 'Đồng bộ'),
+  ('employees', 'Quản Lý NV'),
+  ('settings', 'Cài Đặt'),
+];
 
 /// Tab "Cài Đặt" của KanPosVN Cầm Đồ.
 ///
@@ -172,6 +196,34 @@ class _PawnSettingsScreenState extends ConsumerState<PawnSettingsScreen> {
           const SizedBox(height: 20),
 
           // -----------------------------------------------------------------
+          // Đồng bộ dữ liệu
+          // -----------------------------------------------------------------
+          Text('ĐỒNG BỘ DỮ LIỆU',
+              style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.grey[700])),
+          const SizedBox(height: 8),
+          Card(
+            child: ListTile(
+              leading: const Icon(Icons.sync, color: Colors.teal),
+              title: const Text('Đồng bộ Vercel Neon DB'),
+              subtitle:
+                  const Text('Đẩy dữ liệu cầm đồ lên cloud để đối soát'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => const PawnSyncScreen(),
+                  ),
+                );
+              },
+            ),
+          ),
+
+          const SizedBox(height: 20),
+
+          // -----------------------------------------------------------------
           // Quản lý nhân viên
           // -----------------------------------------------------------------
           Text('QUẢN LÝ NHÂN VIÊN',
@@ -189,7 +241,13 @@ class _PawnSettingsScreenState extends ConsumerState<PawnSettingsScreen> {
               onTap: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(
-                    builder: (_) => const EmployeeManagementScreen(),
+                    builder: (_) => EmployeeManagementScreen(
+                      availableTabs: [
+                        for (final (id, label) in _pawnTabOptions)
+                          EmployeeTabOption(id: id, label: label),
+                      ],
+                      roleTabs: _pawnRoleTabs,
+                    ),
                   ),
                 );
               },
