@@ -1,7 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { STORE_MODULES } from '@/lib/pricing';
 
 type Package = {
   key: string;
@@ -56,6 +55,7 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<RegisterResult | null>(null);
   const [modules, setModules] = useState<{ app_code: string; app_name: string; price: number | null }[]>([]);
+  const [modulesLoaded, setModulesLoaded] = useState(false);
   const [packages, setPackages] = useState<Package[]>([]);
   const [banks, setBanks] = useState<BankAccount[]>([]);
   const [otpSent, setOtpSent] = useState(false);
@@ -78,8 +78,10 @@ export default function RegisterPage() {
         if (Array.isArray(appData) && appData.length > 0) {
           setModules(appData.map((m: { app_code: string; app_name: string; price?: number | null }) => ({ app_code: m.app_code, app_name: m.app_name, price: m.price ?? null })));
         } else {
-          setModules(STORE_MODULES.map((m) => ({ app_code: m.app_code, app_name: m.name, price: null })));
+          // API trả rỗng = tất cả module đang bị ẩn -> KHÔNG fallback danh sách tĩnh
+          setModules([]);
         }
+        setModulesLoaded(true);
         if (pkgRes.ok) setPackages((await pkgRes.json()).filter((p: { forever?: boolean }) => !p.forever));
         if (bankRes.ok) {
           const data = await bankRes.json();
@@ -87,7 +89,9 @@ export default function RegisterPage() {
           if (Array.isArray(data) && data.length > 0) setBankAccountId(data[0].id);
         }
       } catch {
-        setModules(STORE_MODULES.map((m) => ({ app_code: m.app_code, app_name: m.name, price: null })));
+        // Lỗi kết nối -> giữ danh sách rỗng, không fallback danh sách tĩnh
+        setModules([]);
+        setModulesLoaded(true);
       }
       // Fallback gói nếu API chưa trả về (server mới hoặc lỗi mạng)
       setPackages((prev) =>
@@ -442,8 +446,10 @@ export default function RegisterPage() {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Ngành nghề / Module</label>
-                {modules.length === 0 ? (
+                {!modulesLoaded ? (
                   <div className="text-sm text-gray-400">Đang tải danh sách module...</div>
+                ) : modules.length === 0 ? (
+                  <div className="text-sm text-gray-400">Không có module khả dụng</div>
                 ) : (
                   <div className="grid grid-cols-2 gap-2">
                     {modules.map((m) => (
