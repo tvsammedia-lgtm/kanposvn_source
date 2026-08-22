@@ -399,6 +399,10 @@ class AuthService extends ChangeNotifier {
     'kanvlxd_one': AppModule.kanposvnvlxd,
     'touch_emp': AppModule.nhanSu,
     'touch_admin': AppModule.kanposvncafe,
+    // IAM server đăng ký HR Payroll với app_code cũ kannhansuhrpayroll
+    // (migration 003/005/006) trong khi Flutter dùng kanposvnhrpayroll —
+    // không có alias này thì module bị ẩn ở màn hình chọn module.
+    'kannhansuhrpayroll': AppModule.kanposvnhrpayroll,
   };
 
   bool _matchesAppCode(AppModule module, String? appCode) {
