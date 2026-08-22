@@ -106,21 +106,27 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   const SizedBox(height: 32),
 
-                  // Email
+                  // Email / SĐT
                   TextFormField(
                     controller: _emailCtrl,
-                    keyboardType: TextInputType.emailAddress,
+                    keyboardType: TextInputType.text,
                     style: Theme.of(context).textTheme.bodyLarge,
                     decoration: const InputDecoration(
-                      labelText: 'Email',
-                      hintText: 'user@nhansu.com',
-                      prefixIcon: Icon(Icons.email_outlined, size: 18),
+                      labelText: 'Email hoặc SĐT',
+                      hintText: 'user@nhansu.com / 0908567567',
+                      prefixIcon: Icon(Icons.person_outline, size: 18),
                     ),
                     validator: (v) {
-                      if (v == null || v.trim().isEmpty) {
-                        return 'Vui lòng nhập email';
+                      final value = v?.trim() ?? '';
+                      if (value.isEmpty) {
+                        return 'Vui lòng nhập email hoặc số điện thoại';
                       }
-                      if (!v.contains('@')) return 'Email không hợp lệ';
+                      final isEmail = value.contains('@');
+                      final isPhone =
+                          RegExp(r'^\d{9,11}$').hasMatch(value.replaceAll(RegExp(r'[.\-\s]'), ''));
+                      if (!isEmail && !isPhone) {
+                        return 'Email hoặc SĐT không hợp lệ';
+                      }
                       return null;
                     },
                   ),

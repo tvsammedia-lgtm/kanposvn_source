@@ -11,7 +11,10 @@ class AuthService {
   static AuthService get instance => _instance ??= AuthService._();
 
   static const _apiBaseUrl = 'https://kanposvn-admin.vercel.app';
+  /// IAM server đăng ký HR Payroll với app_code cũ kannhansuhrpayroll
+  /// (migration 003/005/006); thử mã mới trước rồi fallback về mã cũ.
   static const _appCode = 'kanposvnhrpayroll';
+  static const _legacyAppCode = 'kannhansuhrpayroll';
   static const _prefToken = 'auth_token';
   static const _prefUser = 'auth_user';
   static const _prefStoreId = 'auth_store_id';
@@ -33,16 +36,38 @@ class AuthService {
   String? get storeName => _storeName;
   String? get storePhone => _storePhone;
 
-  Future<String?> login(String email, String password) async {
+  /// Đăng nhập bằng email HOẶC số điện thoại (server hỗ trợ cả hai).
+  Future<String?> login(String identifier, String password) async {
+    final isEmail = identifier.contains('@');
+    // Thử app_code mới trước; nếu server trả lỗi quyền (403) do DB vẫn dùng
+    // mã cũ kannhansuhrpayroll thì thử lại với mã cũ.
+    for (final appCode in [_appCode, _legacyAppCode]) {
+      final err = await _loginAttempt(
+        identifier: identifier,
+        isEmail: isEmail,
+        password: password,
+        appCode: appCode,
+      );
+      if (err == null || !err.contains('quyền')) return err;
+    }
+    return 'Đăng nhập thất bại';
+  }
+
+  Future<String?> _loginAttempt({
+    required String identifier,
+    required bool isEmail,
+    required String password,
+    required String appCode,
+  }) async {
     try {
       final uri = Uri.parse('$_apiBaseUrl/api/auth/login');
       final resp = await http.post(
         uri,
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
-          'email': email,
+          if (isEmail) 'email': identifier else 'phone': identifier,
           'password': password,
-          'app_code': _appCode,
+          'app_code': appCode,
         }),
       ).timeout(const Duration(seconds: 10));
 
@@ -57,18 +82,20 @@ class AuthService {
         if (userData is Map<String, dynamic>) {
           _user = UserInfo(
             id: userData['id']?.toString() ?? '',
-            email: userData['email']?.toString() ?? email,
-            name: userData['name']?.toString() ?? '',
+            email: userData['email']?.toString() ?? identifier,
+            name: userData['name']?.toString() ??
+                userData['full_name']?.toString() ??
+                '',
             role: null,
           );
         } else {
-          _user = UserInfo(id: '', email: email, name: email);
+          _user = UserInfo(id: '', email: identifier, name: identifier);
         }
 
         final perms = data['permissions'];
         if (perms is List) {
           final appPerm = perms.cast<Map<String, dynamic>>().firstWhere(
-                (p) => p['app_code'] == _appCode,
+                (p) => p['app_code'] == _appCode || p['app_code'] == _legacyAppCode,
                 orElse: () => {},
               );
           if (appPerm.isNotEmpty) {
