@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/auth/employee_auth.dart';
-import '../../../core/auth/employee_management_screen.dart';
 import '../../../core/auth/employee_role_policy.dart';
 import '../../../core/providers.dart';
 import '../../../core/widgets/account_switcher_button.dart';
@@ -15,7 +14,6 @@ import 'spa_beds_screen.dart';
 import 'spa_customers_screen.dart';
 import 'spa_inventory_screen.dart';
 import 'spa_sales_report_screen.dart';
-import 'spa_sync_screen.dart';
 import 'spa_settings_screen.dart';
 import 'spa_appointments_screen.dart';
 import 'spa_technicians_screen.dart';
@@ -66,7 +64,7 @@ class _KanPosVNSpaShellState extends ConsumerState<KanPosVNSpaShell> {
     EmployeeRoles.cashier: const {'beds', 'customers', 'appointments', 'product_pos'},
     EmployeeRoles.sale: const {'beds', 'customers', 'appointments', 'product_pos', 'combos'},
     EmployeeRoles.warehouse: const {'inventory'},
-    EmployeeRoles.accountant: const {'dashboard', 'report', 'finance', 'settings', 'employees'},
+    EmployeeRoles.accountant: const {'dashboard', 'report', 'finance', 'settings'},
   };
 
   static final Map<String, ({IconData icon, String label})> _tabDefs = {
@@ -79,9 +77,7 @@ class _KanPosVNSpaShellState extends ConsumerState<KanPosVNSpaShell> {
     'product_pos': (icon: Icons.shopping_cart, label: 'Bán SP'),
     'inventory': (icon: Icons.local_pharmacy, label: 'Kho Dược Liệu'),
     'finance': (icon: Icons.account_balance_wallet, label: 'Thu Chi'),
-    'sync': (icon: Icons.sync, label: 'Đồng Bộ'),
     'report': (icon: Icons.bar_chart, label: 'Báo Cáo'),
-    'employees': (icon: Icons.manage_accounts, label: 'Quản Lý NV'),
     'settings': (icon: Icons.settings, label: 'Cài Đặt'),
   };
 
@@ -95,9 +91,7 @@ class _KanPosVNSpaShellState extends ConsumerState<KanPosVNSpaShell> {
     'product_pos': () => const SpaProductPosScreen(),
     'inventory': () => const SpaInventoryScreen(),
     'finance': () => const SpaFinanceScreen(),
-    'sync': () => const SpaSyncScreen(),
     'report': () => const SpaSalesReportScreen(),
-    'employees': () => const EmployeeManagementScreen(),
     'settings': () => const SpaSettingsScreen(),
   };
 

@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/auth/employee_management_screen.dart';
 import '../../../core/providers.dart';
+import '../../../core/sync/api_config.dart';
+import '../providers/spa_providers.dart';
 
 class SpaSettingsScreen extends ConsumerWidget {
   const SpaSettingsScreen({super.key});
@@ -32,6 +35,40 @@ class SpaSettingsScreen extends ConsumerWidget {
               title: Text('Đăng xuất'),
               onTap: () {
                 ref.read(authServiceProvider.notifier).signOut();
+              },
+            ),
+            const Divider(),
+            ListTile(
+              leading: const Icon(Icons.manage_accounts, color: Colors.blue),
+              title: Text('Quản lý nhân viên'),
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => const EmployeeManagementScreen(),
+                  ),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.sync, color: Colors.purple),
+              title: const Text('Đồng bộ Vercel Neon DB'),
+              onTap: () async {
+                final syncService = ref.read(spaNeonSyncServiceProvider);
+                if (syncService.isSyncing) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Đang đồng bộ...')),
+                  );
+                  return;
+                }
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Đang đồng bộ...')),
+                );
+                final ok = await syncService.triggerSync(ApiConfig.baseUrl, ApiConfig.syncApiKey);
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(ok ? 'Đồng bộ hoàn tất!' : 'Đồng bộ thất bại!')),
+                  );
+                }
               },
             ),
           ],
