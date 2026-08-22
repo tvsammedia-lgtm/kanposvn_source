@@ -131,14 +131,16 @@ class _NhathuocExpenseScreenState extends ConsumerState<NhathuocExpenseScreen> {
             color: Colors.grey[100],
             child: Row(
               children: [
-                DropdownButtonFormField<ExpenseType?>(
-                  value: _filterType,
-                  decoration: const InputDecoration(labelText: 'Loại', border: OutlineInputBorder(), isDense: true),
-                  items: [
-                    const DropdownMenuItem<ExpenseType?>(value: null, child: Text('Tất cả')),
-                    ...ExpenseType.values.map((t) => DropdownMenuItem(value: t, child: Text(t.label))),
-                  ],
-                  onChanged: (v) => setState(() => _filterType = v),
+                Expanded(
+                  child: DropdownButtonFormField<ExpenseType?>(
+                    value: _filterType,
+                    decoration: const InputDecoration(labelText: 'Loại', border: OutlineInputBorder(), isDense: true),
+                    items: [
+                      const DropdownMenuItem<ExpenseType?>(value: null, child: Text('Tất cả')),
+                      ...ExpenseType.values.map((t) => DropdownMenuItem(value: t, child: Text(t.label))),
+                    ],
+                    onChanged: (v) => setState(() => _filterType = v),
+                  ),
                 ),
                 const SizedBox(width: 8),
                 Expanded(
