@@ -1,85 +1,355 @@
+import 'dart:async';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../game/game_engine.dart';
 import '../models/game_models.dart';
 import '../services/settings_service.dart';
-import '../../../../core/providers.dart';
 
-class NemdaHomeScreen extends ConsumerStatefulWidget {
-  const NemdaHomeScreen({super.key});
-  @override
-  ConsumerState<NemdaHomeScreen> createState() => _NemdaHomeScreenState();
+class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key, required this.settings});
+  final GameSettings settings;
+  @override State<HomeScreen> createState() => _HomeState();
 }
 
-class _NemdaHomeScreenState extends ConsumerState<NemdaHomeScreen> {
-  GameSettings? _settings;
-  bool _loading = true;
+class _HomeState extends State<HomeScreen> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xff07111d),
+      body: SafeArea(
+        child: Stack(children: [
+          Positioned.fill(child: Image.asset('assets/images/game_ui_reference.png', fit: BoxFit.cover)),
+          Positioned.fill(child: DecoratedBox(decoration: BoxDecoration(color: Colors.black.withOpacity(.16)))),
+          Center(child: SingleChildScrollView(
+            padding: const EdgeInsets.all(24),
+            child: Container(
+              constraints: const BoxConstraints(maxWidth: 430),
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: const Color(0xDD06233D),
+                borderRadius: BorderRadius.circular(26),
+                border: Border.all(color: Colors.white24, width: 1.5),
+                boxShadow: const [BoxShadow(color: Colors.black54, blurRadius: 28, spreadRadius: 4)],
+              ),
+              child: Column(mainAxisSize: MainAxisSize.min, children: [
+                const Text('MINGMING', style: TextStyle(fontSize: 30, fontWeight: FontWeight.w900, color: Colors.orangeAccent)),
+                const Text('VS WANGTTA', style: TextStyle(fontSize: 26, fontWeight: FontWeight.w900, color: Colors.white)),
+                const SizedBox(height: 18),
+                _menuButton(context, 'CHƠI NHANH', Icons.flash_on, () => _openGame(context, false)),
+                const SizedBox(height: 10),
+                _menuButton(context, 'ĐẤU VỚI MÁY', Icons.smart_toy, () => _openGame(context, true)),
+                const SizedBox(height: 10),
+                _menuButton(context, '2 NGƯỜI', Icons.people, () => _openGame(context, false)),
+                const SizedBox(height: 12),
+                SwitchListTile(
+                  dense: true,
+                  title: const Text('Hiện quỹ đạo đạn'),
+                  value: widget.settings.showTrajectory,
+                  onChanged: (v) async { setState(() => widget.settings.showTrajectory = v); await widget.settings.save(); },
+                ),
+                ListTile(
+                  dense: true,
+                  title: const Text('Độ khó AI'),
+                  trailing: DropdownButton<int>(
+                    value: widget.settings.difficulty,
+                    items: const [DropdownMenuItem(value: 1, child: Text('Dễ')), DropdownMenuItem(value: 2, child: Text('Thường')), DropdownMenuItem(value: 3, child: Text('Khó'))],
+                    onChanged: (v) async { if (v != null) { setState(() => widget.settings.difficulty = v); await widget.settings.save(); } },
+                  ),
+                ),
+                const SizedBox(height: 8),
+                const Text('Flutter native • Android • Không cần Flash Player', style: TextStyle(fontSize: 11, color: Colors.white60)),
+              ]),
+            ),
+          )),
+        ]),
+      ),
+    );
+  }
+
+  Widget _menuButton(BuildContext context, String text, IconData icon, VoidCallback onTap) =>
+      SizedBox(width: double.infinity, height: 54, child: ElevatedButton.icon(
+        onPressed: onTap,
+        icon: Icon(icon, color: Colors.white),
+        label: Text(text, style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w900)),
+        style: ElevatedButton.styleFrom(
+          foregroundColor: Colors.white,
+                backgroundColor: const Color(0xFF0677D9),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18), side: const BorderSide(color: Colors.white30)),
+        ),
+      ));
+
+  void _openGame(BuildContext context, bool ai) {
+    widget.settings.ai = ai;
+    Navigator.push(context, MaterialPageRoute(builder: (_) => GameScreen(settings: widget.settings)));
+  }
+}
+
+class GameScreen extends StatefulWidget {
+  const GameScreen({super.key, required this.settings});
+  final GameSettings settings;
+  @override State<GameScreen> createState() => _GameState();
+}
+
+class _GameState extends State<GameScreen> with SingleTickerProviderStateMixin {
+  GameEngine? game;
+  late Ticker ticker;
+  Duration last = Duration.zero;
+  bool paused = false;
+  double angle = 45;
+  double power = 75;
+  ProjectileType weapon = ProjectileType.normal;
+  Timer? aiDelay;
 
   @override
   void initState() {
     super.initState();
-    GameSettings.load().then((s) {
-      if (mounted) setState(() { _settings = s; _loading = false; });
-    });
+    ticker = Ticker((now) {
+      if (last == Duration.zero) last = now;
+      final dt = ((now - last).inMicroseconds / 1000000).clamp(0.0, .033);
+      last = now;
+      if (!paused && game != null) {
+        game!.update(dt);
+        if (mounted) setState(() {});
+      }
+    })..start();
   }
 
-  Future<void> _save() async => _settings?.save();
+  @override
+  void dispose() { aiDelay?.cancel(); ticker.dispose(); super.dispose(); }
+
+  bool get _canAct =>
+      game != null && !game!.finished && game!.shots.isEmpty && game!.current.mode == PlayerMode.human;
+
+  void fire() {
+    if (!_canAct) return;
+    game!.fire(angleDegrees: angle, power: power, type: weapon);
+    setState(() {});
+  }
+
+  void reset() { setState(() { game?.reset(); angle = 45; power = 75; weapon = ProjectileType.normal; paused = false; }); }
+
+  /// Di chuyển máy pháo của lượt hiện tại (dx ngang, dy dọc), giới hạn trong sân.
+  void _moveFighter(double dx, double dy) {
+    if (!_canAct) return;
+    final g = game!, f = g.current;
+    final groundY = g.height - 72.0;
+    final nx = (f.position.x + dx).clamp(30.0, g.width - 30.0);
+    final ny = (f.position.y + dy).clamp(groundY - 240.0, groundY);
+    setState(() => f.position = math.Point(nx.toDouble(), ny.toDouble()));
+  }
 
   @override
   Widget build(BuildContext context) {
-    if (_loading) return const Scaffold(body: Center(child: CircularProgressIndicator()));
-    final settings = _settings!;
     return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(gradient: LinearGradient(colors: [Color(0xff080d1d), Color(0xff24134a), Color(0xff0b2440)], begin: Alignment.topCenter, end: Alignment.bottomCenter)),
-        child: SafeArea(child: Center(child: SingleChildScrollView(padding: const EdgeInsets.all(24), child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 460), child: Column(children: [
-          Container(width: 100, height: 100, decoration: BoxDecoration(shape: BoxShape.circle, color: Colors.white.withOpacity(.08), border: Border.all(color: Colors.white24)), child: const Icon(Icons.sports_esports, size: 54)),
-          const SizedBox(height: 18), const Text('CHƠI NHAU', style: TextStyle(fontSize: 46, fontWeight: FontWeight.w900, letterSpacing: 3)),
-          const Text('ANDROID • FLUTTER EDITION', style: TextStyle(letterSpacing: 2, color: Colors.white60)), const SizedBox(height: 36),
-          SizedBox(width: double.infinity, height: 56, child: FilledButton.icon(
-            onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => NemdaGameScreen(settings: settings))),
-            icon: const Icon(Icons.play_arrow),
-            label: Text(settings.ai ? 'ĐẤU VỚI MÁY' : 'CHƠI 2 NGƯỜI', style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold)),
-          )),
-          const SizedBox(height: 12), Card(child: Padding(padding: const EdgeInsets.all(8), child: Column(children: [
-            SwitchListTile(title: const Text('Đấu với máy'), subtitle: Text(settings.ai ? 'Wangtta điều khiển bởi AI' : 'Hai người dùng chung thiết bị'), value: settings.ai, onChanged: (v) { setState(() => settings.ai = v); _save(); }),
-            ListTile(title: const Text('Độ khó AI'), trailing: DropdownButton<int>(value: settings.difficulty, items: const [DropdownMenuItem(value: 1, child: Text('Dễ')), DropdownMenuItem(value: 2, child: Text('Thường')), DropdownMenuItem(value: 3, child: Text('Khó'))], onChanged: settings.ai ? (v) { if (v != null) { setState(() => settings.difficulty = v); _save(); } } : null)),
-            SwitchListTile(title: const Text('Âm thanh'), value: settings.sound, onChanged: (v) { setState(() => settings.sound = v); _save(); }),
-          ]))),
-          const SizedBox(height: 18), const Text('Gió • vật lý đạn • Homing • Heavy • Split • Shield • Item', textAlign: TextAlign.center, style: TextStyle(color: Colors.white60)),
-          const SizedBox(height: 8), const Text('Clean-room recreation • Không cần Flash Player', style: TextStyle(color: Colors.white38, fontSize: 12)),
-        ]))))),
+      backgroundColor: Colors.black,
+      body: SafeArea(child: LayoutBuilder(builder: (context, _) {
+        game ??= GameEngine(width: 1536, height: 1024, aiEnabled: widget.settings.ai, difficulty: GameDifficulty.values[(widget.settings.difficulty - 1).clamp(0,2)]);
+        return Stack(children: [
+          Positioned.fill(child: FittedBox(fit: BoxFit.contain, alignment: Alignment.center, child: SizedBox(width: 1536, height: 1024, child: Stack(children: [
+            Positioned.fill(child: Image.asset('assets/images/game_ui_reference.png', fit: BoxFit.fill)),
+            Positioned.fill(child: CustomPaint(painter: BattleOverlayPainter(game!, angle, power, widget.settings.showTrajectory, weapon))),
+
+            // --- D-pad di chuyển (trái/phải/lên/xuống) ---
+            Positioned(
+              left: 45,
+              top: 740,
+              child: Column(children: [
+                _ctrlBtn(Icons.arrow_upward, () => _moveFighter(0, -26)),
+                const SizedBox(height: 6),
+                Row(children: [
+                  _ctrlBtn(Icons.arrow_back, () => _moveFighter(-26, 0)),
+                  const SizedBox(width: 14),
+                  _ctrlBtn(Icons.arrow_forward, () => _moveFighter(26, 0)),
+                ]),
+                const SizedBox(height: 6),
+                _ctrlBtn(Icons.arrow_downward, () => _moveFighter(0, 26)),
+              ]),
+            ),
+
+            // --- Thanh chỉnh góc bắn & lực bắn ---
+            Positioned(
+              left: 340,
+              top: 712,
+              width: 400,
+              child: Column(children: [
+                _sliderRow('GÓC', angle, 5, 85, '${angle.round()}°',
+                    (v) => setState(() => angle = v)),
+                _sliderRow('LỰC', power, 0, 100, '${power.round()}%',
+                    (v) => setState(() => power = v)),
+              ]),
+            ),
+
+            // --- Chọn đạn ---
+            Positioned(
+              left: 762,
+              top: 712,
+              width: 200,
+              child: Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  for (final t in ProjectileType.values) _weaponChip(t),
+                ],
+              ),
+            ),
+
+            // --- Nút bắn / chơi lại / tạm dừng ---
+            Positioned(left: 985, top: 852, child: _bigBtn('BẮN', fire, Colors.red.shade700)),
+            Positioned(left: 1305, top: 852, child: _bigBtn('CHƠI LẠI', reset, Colors.blueGrey.shade700)),
+            if (paused) Positioned.fill(child: Container(color: Colors.black54, child: const Center(child: Text('TẠM DỪNG', style: TextStyle(fontSize: 64, fontWeight: FontWeight.w900, color: Colors.white)))))
+          ])))),
+          Positioned(top: 8, left: 8, child: _smallButton(Icons.arrow_back, () => Navigator.pop(context))),
+          Positioned(top: 8, right: 8, child: _smallButton(paused ? Icons.play_arrow : Icons.pause, () => setState(() => paused = !paused))),
+          if (game?.finished == true) Positioned.fill(child: IgnorePointer(child: Center(child: Container(padding: const EdgeInsets.symmetric(horizontal: 26, vertical: 20), decoration: BoxDecoration(color: Colors.black.withOpacity(.82), borderRadius: BorderRadius.circular(24), border: Border.all(color: Colors.orangeAccent, width: 2)), child: Column(mainAxisSize: MainAxisSize.min, children: [Text(game!.winner == 0 ? 'MINGMING THẮNG!' : 'WANGTTA THẮNG!', style: const TextStyle(fontSize: 30, fontWeight: FontWeight.w900, color: Colors.orangeAccent)), const SizedBox(height: 12), FilledButton(onPressed: reset, child: const Text('CHƠI LẠI'))]))))),
+        ]);
+      })),
+    );
+  }
+
+  Widget _ctrlBtn(IconData icon, VoidCallback onTap) {
+    final enabled = _canAct;
+    return Opacity(
+      opacity: enabled ? 1 : .35,
+      child: Material(
+        color: Colors.white.withOpacity(.16),
+        shape: const CircleBorder(side: BorderSide(color: Colors.white38)),
+        child: InkWell(
+          onTap: enabled ? onTap : null,
+          customBorder: const CircleBorder(),
+          child: Padding(padding: const EdgeInsets.all(12), child: Icon(icon, color: Colors.white, size: 26)),
+        ),
       ),
     );
   }
+
+  Widget _sliderRow(String label, double value, double min, double max, String valueText, ValueChanged<double> onChanged) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 10),
+      decoration: BoxDecoration(color: Colors.black.withOpacity(.45), borderRadius: BorderRadius.circular(10)),
+      child: Row(children: [
+        Text('$label $valueText', style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w800, color: Colors.white)),
+        const SizedBox(width: 8),
+        Expanded(child: Slider(
+          value: value.clamp(min, max),
+          min: min,
+          max: max,
+          divisions: (max - min).round(),
+          label: valueText,
+          activeColor: Colors.orangeAccent,
+          inactiveColor: Colors.white24,
+          onChanged: onChanged,
+        )),
+      ]),
+    );
+  }
+
+  Widget _weaponChip(ProjectileType t) {
+    final selected = weapon == t;
+    return ChoiceChip(
+      label: Text(_weaponLabel(t), style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: selected ? Colors.black : Colors.white)),
+      selected: selected,
+      selectedColor: Colors.orangeAccent,
+      backgroundColor: Colors.black.withOpacity(.5),
+      side: const BorderSide(color: Colors.white24),
+      showCheckmark: false,
+      visualDensity: VisualDensity.compact,
+      onSelected: (_) => setState(() => weapon = t),
+    );
+  }
+
+  String _weaponLabel(ProjectileType t) => switch (t) {
+    ProjectileType.normal => 'THƯỜNG',
+    ProjectileType.heavy => 'MẠNH',
+    ProjectileType.homing => 'HOMING',
+    ProjectileType.split => 'SPLIT',
+  };
+
+  Widget _bigBtn(String label, VoidCallback onTap, Color color) {
+    final enabled = label != 'BẮN' || _canAct;
+    return ElevatedButton(
+      onPressed: enabled ? onTap : null,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: color,
+        foregroundColor: Colors.white,
+        disabledBackgroundColor: color.withOpacity(.35),
+        padding: const EdgeInsets.symmetric(horizontal: 34, vertical: 18),
+        textStyle: const TextStyle(fontSize: 26, fontWeight: FontWeight.w900),
+      ),
+      child: Text(label),
+    );
+  }
+
+  Widget _smallButton(IconData icon, VoidCallback onTap) => Material(color: Colors.black54, shape: const CircleBorder(), child: InkWell(onTap: onTap, customBorder: const CircleBorder(), child: Padding(padding: const EdgeInsets.all(10), child: Icon(icon, color: Colors.white))));
 }
 
-class NemdaGameScreen extends ConsumerStatefulWidget {
-  const NemdaGameScreen({super.key, required this.settings});
-  final GameSettings settings;
+class BattleOverlayPainter extends CustomPainter {
+  BattleOverlayPainter(this.g, this.angle, this.power, this.showTrajectory, this.weapon);
+  final GameEngine g; final double angle; final double power; final bool showTrajectory; final ProjectileType weapon;
+
   @override
-  ConsumerState<NemdaGameScreen> createState() => _NemdaGameState();
-}
-
-class _NemdaGameState extends ConsumerState<NemdaGameScreen> with SingleTickerProviderStateMixin {
-  GameEngine? game; late Ticker ticker; Duration last = Duration.zero; bool paused = false; double angle = 38, power = 65;
-  @override void initState() { super.initState(); ticker = Ticker((now) { if (last == Duration.zero) last = now; final dt = ((now - last).inMicroseconds / 1000000).clamp(0.0, .033); last = now; if (!paused && game != null) { game!.update(dt); if (mounted) setState(() {}); } })..start(); }
-  @override void dispose() { ticker.dispose(); super.dispose(); }
-  void fire() { if (game == null || game!.finished || game!.shots.isNotEmpty) return; game!.fire(angleDegrees: angle, power: power); setState(() {}); }
-  @override Widget build(BuildContext context) => Scaffold(backgroundColor: const Color(0xff070b15), body: SafeArea(child: LayoutBuilder(builder: (context, c) { final h = math.max(280.0, c.maxHeight - 175); final diff = GameDifficulty.values[(widget.settings.difficulty - 1).clamp(0, 2)]; if (game == null || game!.width != c.maxWidth || game!.height != h) game = GameEngine(width: c.maxWidth, height: h, aiEnabled: widget.settings.ai, difficulty: diff); return Column(children: [_hud(), Expanded(child: GestureDetector(onPanUpdate: (d) { angle = (angle - d.delta.dy * .25).clamp(8, 82); power = (power + d.delta.dx * .2).clamp(15, 100); }, onTap: fire, child: CustomPaint(painter: NemdaArenaPainter(game!), child: const SizedBox.expand()))), _controls()]); })));
-  Widget _hud() => Container(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5), child: Row(children: [Expanded(child: _hp('MINGMING', game?.left.hp ?? 100)), Container(padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5), decoration: BoxDecoration(borderRadius: BorderRadius.circular(20), color: Colors.white10), child: Column(children: [Text('Gió ${(game?.wind ?? 0).toStringAsFixed(1)}'), Text('Lượt ${game?.turn ?? 1}', style: const TextStyle(fontSize: 11, color: Colors.white54))])), Expanded(child: _hp('WANGTTA', game?.right.hp ?? 100, right: true)), IconButton(onPressed: () => setState(() => paused = !paused), icon: Icon(paused ? Icons.play_arrow : Icons.pause))]));
-  Widget _hp(String n, int hp, {bool right = false}) => Padding(padding: const EdgeInsets.symmetric(horizontal: 4), child: Column(crossAxisAlignment: right ? CrossAxisAlignment.end : CrossAxisAlignment.start, children: [Text('$n  $hp', style: const TextStyle(fontWeight: FontWeight.bold)), LinearProgressIndicator(value: hp / 100, minHeight: 6)]));
-  Widget _controls() => Container(padding: const EdgeInsets.fromLTRB(10, 2, 10, 8), child: Column(children: [Row(children: [const SizedBox(width: 38, child: Text('GÓC')), Expanded(child: Slider(value: angle, min: 8, max: 82, onChanged: (v) => setState(() => angle = v))), Text('${angle.round()}°')]), Row(children: [const SizedBox(width: 38, child: Text('LỰC')), Expanded(child: Slider(value: power, min: 15, max: 100, onChanged: (v) => setState(() => power = v))), Text('${power.round()}')]), Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [FilledButton.icon(onPressed: (game?.finished ?? false) ? null : fire, icon: const Icon(Icons.flash_on), label: const Text('BẮN')), OutlinedButton(onPressed: () => setState(() => game?.giveItem(ItemType.homing)), child: const Text('HOMING')), OutlinedButton(onPressed: () => setState(() => game?.giveItem(ItemType.shield)), child: const Text('SHIELD')), OutlinedButton(onPressed: () => setState(() => game?.giveItem(ItemType.repair)), child: const Text('HEAL')), IconButton(onPressed: () => setState(() => game?.reset()), icon: const Icon(Icons.refresh)), OutlinedButton(onPressed: () => ref.read(authServiceProvider).signOut(), style: OutlinedButton.styleFrom(foregroundColor: Colors.red), child: const Text('THOÁT'))]) ]));
-}
-
-class NemdaArenaPainter extends CustomPainter { NemdaArenaPainter(this.g); final GameEngine g;
-  @override void paint(Canvas c, Size s) { final bg = Paint()..shader = const LinearGradient(colors: [Color(0xff17234a), Color(0xff07101e)]).createShader(Offset.zero & s); c.drawRect(Offset.zero & s, bg); _stars(c, s); _wind(c, s); _ground(c, s); _fighter(c, g.left, true); _fighter(c, g.right, false); for (final sh in g.shots) { final p = Offset(sh.position.x, sh.position.y); final color = sh.type == ProjectileType.homing ? Colors.cyanAccent : sh.type == ProjectileType.heavy ? Colors.deepOrange : sh.type == ProjectileType.split ? Colors.purpleAccent : Colors.amber; c.drawCircle(p, sh.type == ProjectileType.heavy ? 9 : 6, Paint()..color = color); c.drawCircle(p, sh.type == ProjectileType.heavy ? 17 : 11, Paint()..style = PaintingStyle.stroke..strokeWidth = 2..color = color.withOpacity(.35)); } for (final i in g.impacts) { c.drawCircle(Offset(i.position.x, i.position.y), i.radius, Paint()..style = PaintingStyle.stroke..strokeWidth = 3..color = Colors.orangeAccent.withOpacity(i.life / .45)); } if (g.finished) _overlay(c, s); }
-  void _stars(Canvas c, Size s) { final p = Paint()..color = Colors.white24; for (int i = 0; i < 55; i++) { final x = (i * 83) % s.width, y = (i * 47) % math.max(1, s.height * .55); c.drawCircle(Offset(x.toDouble(), y.toDouble()), i % 3 == 0 ? 1.5 : .8, p); } }
-  void _wind(Canvas c, Size s) { final x = s.width / 2, y = 30.0, dir = g.wind >= 0 ? 1 : -1; final p = Paint()..color = Colors.white54..strokeWidth = 2; c.drawLine(Offset(x - 30 * dir, y), Offset(x + 30 * dir, y), p); c.drawLine(Offset(x + 30 * dir, y), Offset(x + 19 * dir, y - 6), p); c.drawLine(Offset(x + 30 * dir, y), Offset(x + 19 * dir, y + 6), p); }
-  void _ground(Canvas c, Size s) { final path = Path()..moveTo(0, s.height - 45); for (double x = 0; x <= s.width; x += 20) { path.lineTo(x, s.height - 45 - math.sin(x * .035) * 9 - math.sin(x * .011) * 5); } path.lineTo(s.width, s.height); path.lineTo(0, s.height); path.close(); c.drawPath(path, Paint()..color = const Color(0xff33452f)); }
-  void _fighter(Canvas c, Fighter f, bool left) { final p = Offset(f.position.x, f.position.y); final body = Paint()..color = left ? const Color(0xff29c7ff) : const Color(0xffff4e99); c.drawCircle(p, 23, body); c.drawCircle(Offset(p.dx + (left ? 7 : -7), p.dy - 5), 4, Paint()..color = Colors.white); c.drawLine(p, Offset(p.dx + f.facing * 31, p.dy - 19), Paint()..color = Colors.white..strokeWidth = 5); if (f.shield) c.drawCircle(p, 34, Paint()..style = PaintingStyle.stroke..strokeWidth = 3..color = Colors.cyanAccent); if (f.item != ItemType.none) { c.drawCircle(Offset(p.dx, p.dy - 38), 7, Paint()..color = Colors.amber); } }
-  void _overlay(Canvas c, Size s) { c.drawRect(Offset.zero & s, Paint()..color = Colors.black54); final text = g.winner == 0 ? 'MINGMING THẮNG' : 'WANGTTA THẮNG'; final tp = TextPainter(text: TextSpan(text: text, style: const TextStyle(fontSize: 32, fontWeight: FontWeight.w900, color: Colors.white)), textDirection: TextDirection.ltr)..layout(); tp.paint(c, Offset((s.width - tp.width) / 2, s.height / 2 - 30)); }
-  @override bool shouldRepaint(covariant NemdaArenaPainter old) => true;
+  void paint(Canvas c, Size s) {
+    // Canvas coordinates use the source 1536x1024 artboard (= engine world).
+    _drawFighter(c, g.left, Colors.cyanAccent);
+    _drawFighter(c, g.right, Colors.orangeAccent);
+    if (showTrajectory && g.current.mode == PlayerMode.human && g.shots.isEmpty && !g.finished) {
+      final muzzle = Offset(g.current.position.x + g.current.facing * 24, g.current.position.y - 12);
+      final rad = angle * math.pi / 180;
+      final speed = 145 + power * 4.2;
+      var vx = g.current.facing * speed * math.cos(rad);
+      var vy = -speed * math.sin(rad);
+      var x = muzzle.dx, y = muzzle.dy;
+      final p = Paint()..color = const Color(0xffb88cff)..style = PaintingStyle.fill;
+      for (int i=0; i<34; i++) {
+        x += vx * .055; y += vy * .055; vy += 315*.055; vx += g.wind*19*.055;
+        if (y > g.height - 45 || x < -70 || x > g.width + 70) break;
+        c.drawCircle(Offset(x, y), 3.5, p);
+      }
+    }
+    // Dynamic status strip that remains readable above the reference art.
+    final label = 'GÓC ${angle.round()}°   •   LỰC ${power.round()}%   •   ${_weaponName(weapon)}';
+    final tp = TextPainter(text: TextSpan(text: label, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: Colors.white, shadows: [Shadow(color: Colors.black87, blurRadius: 4)])), textDirection: TextDirection.ltr)..layout();
+    c.drawRRect(RRect.fromRectAndRadius(Rect.fromCenter(center: const Offset(770, 680), width: tp.width+30, height: 38), const Radius.circular(18)), Paint()..color=Colors.black.withOpacity(.55));
+    tp.paint(c, Offset(770-tp.width/2, 680-tp.height/2));
+    if (g.shots.isNotEmpty) {
+      for (final sh in g.shots) {
+        final p = Offset(sh.position.x, sh.position.y);
+        final col = sh.type == ProjectileType.homing ? Colors.cyanAccent : sh.type == ProjectileType.heavy ? Colors.orangeAccent : sh.type == ProjectileType.split ? Colors.purpleAccent : Colors.white;
+        c.drawCircle(p, sh.type == ProjectileType.heavy ? 10 : 6, Paint()..color=col);
+        c.drawCircle(p, sh.type == ProjectileType.heavy ? 20 : 12, Paint()..style=PaintingStyle.stroke..strokeWidth=3..color=col.withOpacity(.35));
+      }
+    }
+    for (final i in g.impacts) {
+      c.drawCircle(Offset(i.position.x, i.position.y), i.radius, Paint()..style=PaintingStyle.stroke..strokeWidth=4..color=Colors.orangeAccent.withOpacity((i.life/.45).clamp(0,1)));
+    }
+  }
+  void _drawFighter(Canvas c, Fighter f, Color color) {
+    final p = Offset(f.position.x, f.position.y);
+    final body = Paint()..color = color;
+    // Thân xe + nòng pháo hướng theo facing.
+    c.drawCircle(p.translate(0, -26), 16, body);
+    c.drawCircle(p.translate(0, -26), 16, Paint()..style=PaintingStyle.stroke..strokeWidth=2..color=Colors.black54);
+    c.save();
+    c.translate(p.dx, p.dy - 8);
+    final isCurrent = g.current == f;
+    final aimRad = isCurrent ? angle * math.pi / 180 : .35;
+    c.rotate(f.facing > 0 ? -aimRad : math.pi + aimRad);
+    c.drawRect(const Rect.fromLTWH(0, -3, 34, 6), Paint()..color = color.withOpacity(.9));
+    c.restore();
+    if (f.shield) {
+      c.drawCircle(p.translate(0, -20), 30, Paint()..style=PaintingStyle.stroke..strokeWidth=3..color=Colors.lightBlueAccent.withOpacity(.7));
+    }
+    // Thanh máu.
+    const w = 56.0;
+    final hpColor = f.hp > 50 ? Colors.greenAccent : f.hp > 25 ? Colors.orangeAccent : Colors.redAccent;
+    c.drawRRect(RRect.fromRectAndRadius(Rect.fromCenter(center: p.translate(0, -58), width: w+4, height: 11), const Radius.circular(5)), Paint()..color=Colors.black.withOpacity(.55));
+    if (f.hp > 0) {
+      c.drawRRect(RRect.fromRectAndRadius(Rect.fromLTWH(p.dx-w/2, p.dy-63.5-2.5, w*f.hp/100, 8), const Radius.circular(4)), Paint()..color=hpColor);
+    }
+    final nameTp = TextPainter(text: TextSpan(text: f.name, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: color)), textDirection: TextDirection.ltr)..layout();
+    nameTp.paint(c, Offset(p.dx - nameTp.width/2, p.dy - 84));
+  }
+  String _weaponName(ProjectileType t) => switch(t){ ProjectileType.normal=>'ĐẠN THƯỜNG', ProjectileType.heavy=>'ĐẠN MẠNH', ProjectileType.homing=>'HOMING', ProjectileType.split=>'SPLIT'};
+  @override bool shouldRepaint(covariant BattleOverlayPainter old) => true;
 }

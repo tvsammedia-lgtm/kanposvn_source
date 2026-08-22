@@ -12,19 +12,20 @@ class KanPosVNNemdaShell extends ConsumerStatefulWidget {
 }
 
 class _KanPosVNNemdaShellState extends ConsumerState<KanPosVNNemdaShell> {
-  bool _isDbInit = false;
+  GameSettings? _settings;
 
   @override
   void initState() {
     super.initState();
-    GameSettings.load().then((_) {
-      if (mounted) setState(() { _isDbInit = true; });
+    GameSettings.load().then((s) {
+      if (mounted) setState(() { _settings = s; });
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    if (!_isDbInit) {
+    final settings = _settings;
+    if (settings == null) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
     return Scaffold(
@@ -48,7 +49,7 @@ class _KanPosVNNemdaShellState extends ConsumerState<KanPosVNNemdaShell> {
           ),
         ],
       ),
-      body: const NemdaHomeScreen(),
+      body: HomeScreen(settings: settings),
     );
   }
 }
