@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../core/auth/employee_management_screen.dart';
 import '../../core/app_theme.dart';
 import '../../services/auth_service.dart';
 
@@ -42,6 +43,30 @@ class PayrollSettingsScreen extends StatelessWidget {
                 style: const TextStyle(fontWeight: FontWeight.w600),
               ),
               subtitle: Text(user?.email ?? ''),
+            ),
+          ),
+          const SizedBox(height: 16),
+          Card(
+            color: AppTheme.surface,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+              side: const BorderSide(color: AppTheme.borderColor),
+            ),
+            child: ListTile(
+              leading:
+                  const Icon(Icons.badge_outlined, color: AppTheme.primaryLight),
+              title: const Text('Quản lý tài khoản nhân viên',
+                  style: TextStyle(fontWeight: FontWeight.w600)),
+              subtitle:
+                  const Text('Thêm, sửa, xóa tài khoản nhân viên & phân quyền'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => const EmployeeManagementScreen(),
+                  ),
+                );
+              },
             ),
           ),
           const SizedBox(height: 16),

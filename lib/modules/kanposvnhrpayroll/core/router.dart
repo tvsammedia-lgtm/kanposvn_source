@@ -219,10 +219,4 @@ const navItems = [
     activeIcon: Icons.settings,
     label: 'Cài Đặt',
   ),
-  NavItem(
-    path: '/employees',
-    icon: Icons.badge_outlined,
-    activeIcon: Icons.badge,
-    label: 'Quản Lý NV',
-  ),
 ];
