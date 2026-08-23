@@ -35,7 +35,7 @@ class _SpriteActorState extends State<SpriteActor> {
 
   void _start() {
     _timer?.cancel();
-    _timer = Timer.periodic(const Duration(milliseconds: 105), (_) {
+    _timer = Timer.periodic(const Duration(milliseconds: 170), (_) {
       if (!mounted) return;
       setState(() => _frame = (_frame + 1) % 4);
     });

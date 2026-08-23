@@ -1,6 +1,7 @@
 ﻿import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:audioplayers/audioplayers.dart' hide PlayerMode;
 import '../game/game_engine.dart';
 import '../models/game_models.dart';
 import '../services/settings_service.dart';
@@ -102,6 +103,9 @@ class _GameState extends State<GameScreen> with SingleTickerProviderStateMixin {
   double angle = 45;
   double power = 75;
   ProjectileType weapon = ProjectileType.normal;
+  // Âm thanh trúng đạn: phát khi tổng máu 2 bên giảm.
+  final AudioPlayer _hitPlayer = AudioPlayer();
+  int _prevHpTotal = 200;
 
   @override
   void initState() {
@@ -112,13 +116,18 @@ class _GameState extends State<GameScreen> with SingleTickerProviderStateMixin {
       last = now;
       if (!paused && game != null) {
         game!.update(dt);
+        final hpTotal = game!.left.hp + game!.right.hp;
+        if (hpTotal < _prevHpTotal && mounted) {
+          _hitPlayer.play(AssetSource('sounds/nemda_hit.wav'));
+        }
+        _prevHpTotal = hpTotal;
         if (mounted) setState(() {});
       }
     })..start();
   }
 
   @override
-  void dispose() { ticker.dispose(); super.dispose(); }
+  void dispose() { _hitPlayer.dispose(); ticker.dispose(); super.dispose(); }
 
   bool get _canAct =>
       game != null && !game!.finished && game!.shots.isEmpty && game!.current.mode == PlayerMode.human;
@@ -129,7 +138,7 @@ class _GameState extends State<GameScreen> with SingleTickerProviderStateMixin {
     setState(() {});
   }
 
-  void reset() { setState(() { game?.reset(); angle = 45; power = 75; weapon = ProjectileType.normal; paused = false; }); }
+  void reset() { setState(() { game?.reset(); angle = 45; power = 75; weapon = ProjectileType.normal; paused = false; _prevHpTotal = 200; }); }
 
   /// Di chuyển máy pháo của lượt hiện tại, giới hạn trong sân.
   void _moveFighter(double dx, double dy) {
@@ -333,6 +342,7 @@ class BattleOverlayPainter extends CustomPainter {
   @override
   void paint(Canvas c, Size s) {
     // Canvas coordinates use the source 1536x1024 artboard (= engine world).
+    _drawWindGauge(c, g.wind);
     // Đường đất ngang tầm 2 nhân vật.
     c.drawLine(Offset(0, g.floorY), Offset(g.width, g.floorY),
         Paint()..color = Colors.white24..strokeWidth = 3);
@@ -368,6 +378,52 @@ class BattleOverlayPainter extends CustomPainter {
     for (final i in g.impacts) {
       c.drawCircle(Offset(i.position.x, i.position.y), i.radius, Paint()..style=PaintingStyle.stroke..strokeWidth=4..color=Colors.orangeAccent.withOpacity((i.life/.45).clamp(0,1)));
     }
+  }
+
+  /// Kim chỉ gió giữa-trên màn hình: hướng mũi tên = chiều gió,
+  /// độ dài + màu = mạnh/yếu để người chơi canh lực bắn.
+  void _drawWindGauge(Canvas c, double wind) {
+    const cx = 768.0, cy = 58.0;
+    final strength = (wind.abs() / 5.5).clamp(0.0, 1.0);
+    final color = Color.lerp(Colors.greenAccent, Colors.redAccent, strength)!;
+    // Khung nền
+    c.drawRRect(
+        RRect.fromRectAndRadius(
+            Rect.fromCenter(center: Offset(cx, cy), width: 340, height: 74),
+            const Radius.circular(20)),
+        Paint()..color = Colors.black.withOpacity(.55));
+    // Nhãn GIÓ
+    final tp = TextPainter(
+        text: TextSpan(
+            text: 'GIÓ ${wind.abs().toStringAsFixed(1)}',
+            style: TextStyle(
+                fontSize: 26,
+                fontWeight: FontWeight.w900,
+                color: color,
+                shadows: [Shadow(color: Colors.black87, blurRadius: 4)])),
+        textDirection: TextDirection.ltr)
+      ..layout();
+    tp.paint(c, Offset(cx - tp.width / 2, cy - 30));
+    // Trục thước
+    c.drawLine(Offset(cx - 130, cy + 16), Offset(cx + 130, cy + 16),
+        Paint()..color = Colors.white38..strokeWidth = 3);
+    if (wind.abs() < .15) {
+      c.drawCircle(Offset(cx, cy + 16), 7, Paint()..color = Colors.white70);
+      return;
+    }
+    final dir = wind > 0 ? 1 : -1;
+    final len = 24.0 + strength * 100.0;
+    final x2 = cx + dir * len;
+    // Thân mũi tên
+    c.drawLine(Offset(cx, cy + 16), Offset(x2, cy + 16),
+        Paint()..color = color..strokeWidth = 6);
+    // Đầu mũi tên
+    final head = Path()
+      ..moveTo(x2 + dir * 16, cy + 16)
+      ..lineTo(x2 - dir * 4, cy + 5)
+      ..lineTo(x2 - dir * 4, cy + 27)
+      ..close();
+    c.drawPath(head, Paint()..color = color);
   }
 
   /// Thanh máu + tên + khiên phía trên đầu nhân vật (sprite đã vẽ thân).
