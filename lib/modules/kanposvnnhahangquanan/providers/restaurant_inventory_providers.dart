@@ -95,10 +95,14 @@ class RestaurantKitchenNotifier extends StateNotifier<AsyncValue<void>> {
 
         // If transitioning to DONE, we need to deduct inventory based on Recipe
         if (newStatus == RestaurantOrderItemStatus.DONE && oldStatus != RestaurantOrderItemStatus.DONE) {
-          final itemName = order.details[itemIndex].itemName;
-          final qty = order.details[itemIndex].quantity;
-          
-          final menuItem = await db.restaurantMenuItems.filter().nameEqualTo(itemName).findFirst();
+          final detail = order.details[itemIndex];
+          final qty = detail.quantity;
+
+          // Tra công thức theo itemId (không theo tên) để tránh trùng tên món.
+          final menuItem = await db.restaurantMenuItems
+              .filter()
+              .itemIdEqualTo(detail.itemId)
+              .findFirst();
           if (menuItem != null && menuItem.recipe.isNotEmpty) {
             for (var recipeItem in menuItem.recipe) {
               final ingredient = await db.restaurantIngredients.filter().ingredientIdEqualTo(recipeItem.ingredientId).findFirst();
@@ -110,7 +114,7 @@ class RestaurantKitchenNotifier extends StateNotifier<AsyncValue<void>> {
                   ..ingredientName = ingredient.name
                   ..quantity = -totalDeductQty
                   ..type = RestaurantInventoryTxType.AUTO_DEDUCT
-                  ..note = 'Tự động trừ món $itemName (Mã HĐ: ${order.orderId.substring(0,5)})'
+                  ..note = 'Tự động trừ món ${detail.itemName} (Mã HĐ: ${order.orderId.substring(0,5)})'
                   ..createdAt = DateTime.now();
                 
                 await db.restaurantInventoryTxs.put(tx);
