@@ -20,9 +20,13 @@ class GameEngine {
   Fighter get current => leftTurn ? left : right;
   Fighter get target => leftTurn ? right : left;
 
+  /// Đường đất — ngang tầm 2 nhân vật minh họa trên artboard (đỡ thấp hơn đáy).
+  double get groundY => height * 0.52;
+  double get floorY => groundY + 34;
+
   void reset() {
-    left = Fighter(name: 'MINGMING', position: math.Point(85.0, height - 72), facing: 1);
-    right = Fighter(name: 'WANGTTA', position: math.Point(width - 85, height - 72), facing: -1, mode: aiEnabled ? PlayerMode.ai : PlayerMode.human);
+    left = Fighter(name: 'MINGMING', position: math.Point(85.0, groundY), facing: 1);
+    right = Fighter(name: 'WANGTTA', position: math.Point(width - 85, groundY), facing: -1, mode: aiEnabled ? PlayerMode.ai : PlayerMode.human);
     shots.clear(); impacts.clear();
     wind = _newWind(); leftTurn = true; finished = false; turn = 1; winner = -1; time = 0;
   }
@@ -81,7 +85,7 @@ class GameEngine {
       }
       s.velocity = math.Point(vx, vy);
       s.position = math.Point(s.position.x + vx * dt, s.position.y + vy * dt);
-      if (s.position.y >= height - 45) { _explode(s); continue; }
+      if (s.position.y >= floorY) { _explode(s); continue; }
       if (s.position.x < -70 || s.position.x > width + 70 || s.age > 8) { s.active = false; continue; }
       final victim = s.owner == 0 ? right : left;
       final dx = s.position.x - victim.position.x, dy = s.position.y - victim.position.y;

@@ -135,9 +135,8 @@ class _GameState extends State<GameScreen> with SingleTickerProviderStateMixin {
   void _moveFighter(double dx, double dy) {
     if (!_canAct) return;
     final g = game!, f = g.current;
-    final groundY = g.height - 72.0;
     final nx = (f.position.x + dx).clamp(90.0, g.width - 90.0);
-    final ny = (f.position.y + dy).clamp(groundY - 240.0, groundY);
+    final ny = (f.position.y + dy).clamp(g.groundY - 240.0, g.groundY);
     setState(() => f.position = math.Point(nx.toDouble(), ny.toDouble()));
   }
 
@@ -150,7 +149,8 @@ class _GameState extends State<GameScreen> with SingleTickerProviderStateMixin {
         final g = game!;
         return Stack(children: [
           Positioned.fill(child: FittedBox(fit: BoxFit.contain, alignment: Alignment.center, child: SizedBox(width: 1536, height: 1024, child: Stack(children: [
-            Positioned.fill(child: Image.asset('assets/images/game_ui_reference.png', fit: BoxFit.fill)),
+            // Nền tối trơn (đã bỏ ảnh nền) để nhìn rõ nhân vật bắn đạn.
+            Positioned.fill(child: Container(color: const Color(0xff07111d))),
             // Nhân vật sprite sống động, đi theo vị trí engine (= tọa độ artboard).
             Positioned(left: g.left.position.x - 90, top: g.left.position.y - 150,
                 child: SpriteActor(character: 'mingming', animation: _spriteAnimation(g, 0), size: 180)),
@@ -330,14 +330,16 @@ class _GameState extends State<GameScreen> with SingleTickerProviderStateMixin {
 class BattleOverlayPainter extends CustomPainter {
   BattleOverlayPainter(this.g, this.angle, this.power, this.showTrajectory, this.weapon);
   final GameEngine g; final double angle; final double power; final bool showTrajectory; final ProjectileType weapon;
-
   @override
   void paint(Canvas c, Size s) {
     // Canvas coordinates use the source 1536x1024 artboard (= engine world).
+    // Đường đất ngang tầm 2 nhân vật.
+    c.drawLine(Offset(0, g.floorY), Offset(g.width, g.floorY),
+        Paint()..color = Colors.white24..strokeWidth = 3);
     _drawStatus(c, g.left, Colors.cyanAccent);
     _drawStatus(c, g.right, Colors.orangeAccent);
     if (showTrajectory && g.current.mode == PlayerMode.human && g.shots.isEmpty && !g.finished) {
-      final muzzle = Offset(g.current.position.x + g.current.facing * 24, g.current.position.y - 60);
+      final muzzle = Offset(g.current.position.x + g.current.facing * 40, g.current.position.y - 70);
       final rad = angle * math.pi / 180;
       final speed = 145 + power * 4.2;
       var vx = g.current.facing * speed * math.cos(rad);
@@ -346,9 +348,10 @@ class BattleOverlayPainter extends CustomPainter {
       final p = Paint()..color = const Color(0xffb88cff)..style = PaintingStyle.fill;
       for (int i=0; i<34; i++) {
         x += vx * .055; y += vy * .055; vy += 315*.055; vx += g.wind*19*.055;
-        if (y > g.height - 45 || x < -70 || x > g.width + 70) break;
+        if (y > g.floorY || x < -70 || x > g.width + 70) break;
         c.drawCircle(Offset(x, y), 3.5, p);
-      }    }
+      }
+    }
     // Dynamic status strip that remains readable above the reference art.
     final label = 'GÓC ${angle.round()}°   •   LỰC ${power.round()}%   •   ${_weaponName(weapon)}';
     final tp = TextPainter(text: TextSpan(text: label, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: Colors.white, shadows: [Shadow(color: Colors.black87, blurRadius: 4)])), textDirection: TextDirection.ltr)..layout();
