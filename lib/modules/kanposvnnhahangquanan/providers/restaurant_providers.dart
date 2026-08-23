@@ -131,20 +131,34 @@ class RestaurantDashboardNotifier extends StateNotifier<AsyncValue<Map<String, d
       state = const AsyncValue.loading();
       final db = await _isarService.db;
       final orders = await db.restaurantOrders.where().findAll();
-      
-      double revenue = 0;
-      int completedOrders = 0;
-      
+      final now = DateTime.now();
+      final startToday = DateTime(now.year, now.month, now.day);
+      final startMonth = DateTime(now.year, now.month, 1);
+
+      double revenueToday = 0, revenueMonth = 0, revenueAll = 0;
+      int completedToday = 0, completedMonth = 0;
+
       for (var o in orders) {
-        if (o.status == RestaurantOrderStatus.COMPLETED) {
-          revenue += o.totalAmount;
-          completedOrders++;
+        if (o.status != RestaurantOrderStatus.COMPLETED) continue;
+        final closed = o.closedAt ?? o.createdAt;
+        if (closed == null) continue;
+        revenueAll += o.totalAmount;
+        if (!closed.isBefore(startToday)) {
+          revenueToday += o.totalAmount;
+          completedToday++;
+        }
+        if (!closed.isBefore(startMonth)) {
+          revenueMonth += o.totalAmount;
+          completedMonth++;
         }
       }
-      
+
       state = AsyncValue.data({
-        'revenue': revenue,
-        'completedOrders': completedOrders,
+        'revenue': revenueToday,
+        'completedOrders': completedToday,
+        'revenueMonth': revenueMonth,
+        'completedMonth': completedMonth,
+        'revenueAll': revenueAll,
       });
     } catch (e, st) {
       state = AsyncValue.error(e, st);
