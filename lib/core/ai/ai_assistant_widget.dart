@@ -6,27 +6,53 @@ import 'ai_assistant_data.dart';
 import 'ai_assistant_models.dart';
 import 'ai_assistant_provider.dart';
 
-/// Nút bong bóng trợ lý AI nổi trên mỗi module shell.
-class AiAssistantFab extends ConsumerWidget {
+/// Nút bong bóng trợ lý AI nổi trên mỗi module shell — CẦM KÉO DI CHUYỂN ĐƯỢC.
+class AiAssistantFab extends ConsumerStatefulWidget {
   final AppModule module;
   const AiAssistantFab({super.key, required this.module});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final data = assistantDataFor(module);
-    return FloatingActionButton(
-      heroTag: 'ai_assistant_${module.appCode}',
-      backgroundColor: module.color,
-      foregroundColor: Colors.white,
-      tooltip: data.assistantName,
-      onPressed: () {
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (_) => AiAssistantChatScreen(module: module),
-          ),
-        );
-      },
-      child: const Icon(Icons.smart_toy),
+  ConsumerState<AiAssistantFab> createState() => _AiAssistantFabState();
+}
+
+class _AiAssistantFabState extends ConsumerState<AiAssistantFab> {
+  // Neo gốc ở góc phải-dưới (Positioned right:16 bottom:16 trong main.dart)
+  // nên độ lệch kéo chỉ cần giá trị ÂM là đủ phủ toàn màn hình.
+  double _dx = 0;
+  double _dy = 0;
+
+  void _onPan(DragUpdateDetails d) {
+    final size = MediaQuery.of(context).size;
+    setState(() {
+      // 56 = kích thước FAB; chặn không cho kéo tràn khỏi màn hình.
+      _dx = (_dx + d.delta.dx).clamp(-(size.width - 120), 0.0);
+      _dy = (_dy + d.delta.dy).clamp(-(size.height - 160), 0.0);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final data = assistantDataFor(widget.module);
+    return GestureDetector(
+      onPanUpdate: _onPan,
+      onPanCancel: () => setState(() {}),
+      child: Transform.translate(
+        offset: Offset(_dx, _dy),
+        child: FloatingActionButton(
+          heroTag: 'ai_assistant_${widget.module.appCode}',
+          backgroundColor: widget.module.color,
+          foregroundColor: Colors.white,
+          tooltip: '${data.assistantName} (kéo để di chuyển)',
+          onPressed: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => AiAssistantChatScreen(module: widget.module),
+              ),
+            );
+          },
+          child: const Icon(Icons.smart_toy),
+        ),
+      ),
     );
   }
 }
