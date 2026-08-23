@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/auth/employee_management_screen.dart';
+import '../../../../core/providers.dart';
 import '../../core/app_theme.dart';
 import '../../services/auth_service.dart';
 
-class PayrollSettingsScreen extends StatelessWidget {
+class PayrollSettingsScreen extends ConsumerWidget {
   const PayrollSettingsScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final user = AuthService.instance.user;
 
     return Scaffold(
@@ -87,9 +88,12 @@ class PayrollSettingsScreen extends StatelessWidget {
                 ListTile(
                   leading: const Icon(Icons.logout, color: AppTheme.danger),
                   title: const Text('Đăng xuất'),
+                  subtitle: const Text('Về màn hình đăng nhập & chọn module'),
                   onTap: () async {
+                    // Xóa token nội bộ của module + phiên chính KanPosVN để
+                    // quay về màn hình Login chính → chọn lại module.
                     await AuthService.instance.logout();
-                    if (context.mounted) context.go('/login');
+                    await ref.read(authServiceProvider.notifier).signOut();
                   },
                 ),
               ],

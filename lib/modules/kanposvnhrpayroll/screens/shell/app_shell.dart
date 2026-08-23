@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../core/providers.dart';
 import '../../core/router.dart';
 import '../../core/app_theme.dart';
 import '../../services/auth_service.dart';
@@ -20,12 +22,12 @@ class AppShell extends StatelessWidget {
 }
 
 // ─── Desktop Layout (NavigationRail) ─────────────────────────────────────
-class _DesktopShell extends StatelessWidget {
+class _DesktopShell extends ConsumerWidget {
   final Widget child;
   const _DesktopShell({required this.child});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final location = GoRouterState.of(context).uri.path;
 
     final selectedIndex = navItems.indexWhere(
@@ -147,8 +149,10 @@ class _DesktopShell extends StatelessWidget {
                         width: double.infinity,
                         child: OutlinedButton.icon(
                           onPressed: () async {
+                            // Xóa token nội bộ của module + phiên chính
+                            // KanPosVN → về màn hình Login chính (chọn module).
                             await AuthService.instance.logout();
-                            if (context.mounted) context.go('/login');
+                            await ref.read(authServiceProvider.notifier).signOut();
                           },
                           icon: const Icon(Icons.logout, size: 14),
                           label: const Text('Đăng xuất', style: TextStyle(fontSize: 12)),
