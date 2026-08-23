@@ -21,7 +21,7 @@ class _HomeState extends State<HomeScreen> {
       backgroundColor: const Color(0xff07111d),
       body: SafeArea(
         child: Stack(children: [
-          Positioned.fill(child: Image.asset('assets/images/nemda_bg_home.png', fit: BoxFit.cover)),
+          Positioned.fill(child: Image.asset('assets/images/game_ui_reference.png', fit: BoxFit.cover)),
           Positioned.fill(child: DecoratedBox(decoration: BoxDecoration(color: Colors.black.withOpacity(.16)))),
           Center(child: SingleChildScrollView(
             padding: const EdgeInsets.all(24),
@@ -161,9 +161,8 @@ class _GameState extends State<GameScreen> with SingleTickerProviderStateMixin {
         final g = game!;
         return Stack(children: [
           Positioned.fill(child: FittedBox(fit: BoxFit.contain, alignment: Alignment.center, child: SizedBox(width: 1536, height: 1024, child: Stack(children: [
-            // Nền màn hình game theo ảnh mẫu nemda_01 (cát + đồi + khung WIND).
-            Positioned.fill(child: Image.asset('assets/images/nemda_bg_game.png', fit: BoxFit.fill)),
-            Positioned.fill(child: DecoratedBox(decoration: BoxDecoration(color: Colors.black.withOpacity(.08)))),
+            // Nền tối trơn để nhìn rõ nhân vật bắn đạn.
+            Positioned.fill(child: Container(color: const Color(0xff07111d))),
             // Nhân vật sprite trong suốt, đi theo vị trí engine (= tọa độ artboard).
             Positioned(left: g.left.position.x - 90, top: g.left.position.y - 150,
                 child: SpriteActor(character: 'mingming', animation: _spriteAnimation(g, 0), size: 180)),
