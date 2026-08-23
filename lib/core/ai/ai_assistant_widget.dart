@@ -17,18 +17,27 @@ class AiAssistantFab extends ConsumerStatefulWidget {
 
 class _AiAssistantFabState extends ConsumerState<AiAssistantFab> {
   // Neo gốc ở góc phải-dưới (right:16, bottom:16 trong main.dart) nên độ lệch
-  // kéo mang giá trị ÂM. Dùng Listener (pointer thô) để kéo mượt tức thì và
-  // KHÔNG tranh giải gesture với nút — bấm vẫn hoạt động sau khi kéo.
+  // kéo mang giá trị ÂM. Một GestureDetector DUY NHẤT xử lý cả kéo và bấm:
+  // - không tranh giải gesture với InkWell/Hero của FloatingActionButton
+  // - không cho lớp shell bên dưới nhận sự kiện khi đang kéo
   final ValueNotifier<Offset> _offset = ValueNotifier(Offset.zero);
 
-  void _onPointerMove(PointerMoveEvent e) {
-    final size = MediaQuery.of(context).size;
-    const fabExtent = 56.0;
+  static const _extent = 60.0;
+
+  void _clampToScreen(Size size) {
     final next = Offset(
-      (_offset.value.dx + e.delta.dx).clamp(-(size.width - fabExtent - 24), 0.0),
-      (_offset.value.dy + e.delta.dy).clamp(-(size.height - fabExtent - 24), 0.0),
+      (_offset.value.dx).clamp(-(size.width - _extent - 16), 0.0),
+      (_offset.value.dy).clamp(-(size.height - _extent - 16), 0.0),
     );
     if (next != _offset.value) _offset.value = next;
+  }
+
+  void _openChat() {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => AiAssistantChatScreen(module: widget.module),
+      ),
+    );
   }
 
   @override
@@ -40,26 +49,30 @@ class _AiAssistantFabState extends ConsumerState<AiAssistantFab> {
   @override
   Widget build(BuildContext context) {
     final data = assistantDataFor(widget.module);
-    return Listener(
-      onPointerMove: _onPointerMove,
-      onPointerCancel: (_) {},
-      child: ValueListenableBuilder<Offset>(
-        valueListenable: _offset,
-        builder: (_, o, _) => Transform.translate(
-          offset: o,
-          child: FloatingActionButton(
-            heroTag: 'ai_assistant_${widget.module.appCode}',
-            backgroundColor: widget.module.color,
-            foregroundColor: Colors.white,
-            tooltip: '${data.assistantName} (giữ và kéo để di chuyển)',
-            onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (_) => AiAssistantChatScreen(module: widget.module),
-                ),
-              );
-            },
-            child: const Icon(Icons.smart_toy),
+    return ValueListenableBuilder<Offset>(
+      valueListenable: _offset,
+      builder: (_, o, _) => Transform.translate(
+        offset: o,
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: _openChat,
+          onPanStart: (_) => _clampToScreen(MediaQuery.of(context).size),
+          onPanUpdate: (d) {
+            _offset.value += d.delta;
+            _clampToScreen(MediaQuery.of(context).size);
+          },
+          child: Tooltip(
+            message: '${data.assistantName} (giữ và kéo để di chuyển)',
+            child: Material(
+              elevation: 6,
+              shape: const CircleBorder(),
+              color: widget.module.color,
+              child: SizedBox(
+                width: _extent,
+                height: _extent,
+                child: const Icon(Icons.smart_toy, color: Colors.white, size: 28),
+              ),
+            ),
           ),
         ),
       ),
