@@ -1,10 +1,11 @@
-import 'dart:async';
-import 'dart:math' as math;
+﻿import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import '../game/game_engine.dart';
 import '../models/game_models.dart';
 import '../services/settings_service.dart';
+import 'sprite_actor.dart';
+import 'sprite_gallery_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key, required this.settings});
@@ -27,7 +28,7 @@ class _HomeState extends State<HomeScreen> {
               constraints: const BoxConstraints(maxWidth: 430),
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: const Color(0xDD06233D),
+                color: const Color(0xdd06233d),
                 borderRadius: BorderRadius.circular(26),
                 border: Border.all(color: Colors.white24, width: 1.5),
                 boxShadow: const [BoxShadow(color: Colors.black54, blurRadius: 28, spreadRadius: 4)],
@@ -41,6 +42,8 @@ class _HomeState extends State<HomeScreen> {
                 _menuButton(context, 'ĐẤU VỚI MÁY', Icons.smart_toy, () => _openGame(context, true)),
                 const SizedBox(height: 10),
                 _menuButton(context, '2 NGƯỜI', Icons.people, () => _openGame(context, false)),
+                const SizedBox(height: 10),
+                _menuButton(context, 'SPRITE ANIMATION', Icons.animation, () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SpriteGalleryScreen()))),
                 const SizedBox(height: 12),
                 SwitchListTile(
                   dense: true,
@@ -74,7 +77,7 @@ class _HomeState extends State<HomeScreen> {
         label: Text(text, style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w900)),
         style: ElevatedButton.styleFrom(
           foregroundColor: Colors.white,
-                backgroundColor: const Color(0xFF0677D9),
+          backgroundColor: const Color(0xff0677d9),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18), side: const BorderSide(color: Colors.white30)),
         ),
       ));
@@ -99,7 +102,6 @@ class _GameState extends State<GameScreen> with SingleTickerProviderStateMixin {
   double angle = 45;
   double power = 75;
   ProjectileType weapon = ProjectileType.normal;
-  Timer? aiDelay;
 
   @override
   void initState() {
@@ -116,7 +118,7 @@ class _GameState extends State<GameScreen> with SingleTickerProviderStateMixin {
   }
 
   @override
-  void dispose() { aiDelay?.cancel(); ticker.dispose(); super.dispose(); }
+  void dispose() { ticker.dispose(); super.dispose(); }
 
   bool get _canAct =>
       game != null && !game!.finished && game!.shots.isEmpty && game!.current.mode == PlayerMode.human;
@@ -129,12 +131,12 @@ class _GameState extends State<GameScreen> with SingleTickerProviderStateMixin {
 
   void reset() { setState(() { game?.reset(); angle = 45; power = 75; weapon = ProjectileType.normal; paused = false; }); }
 
-  /// Di chuyển máy pháo của lượt hiện tại (dx ngang, dy dọc), giới hạn trong sân.
+  /// Di chuyển máy pháo của lượt hiện tại, giới hạn trong sân.
   void _moveFighter(double dx, double dy) {
     if (!_canAct) return;
     final g = game!, f = g.current;
     final groundY = g.height - 72.0;
-    final nx = (f.position.x + dx).clamp(30.0, g.width - 30.0);
+    final nx = (f.position.x + dx).clamp(90.0, g.width - 90.0);
     final ny = (f.position.y + dy).clamp(groundY - 240.0, groundY);
     setState(() => f.position = math.Point(nx.toDouble(), ny.toDouble()));
   }
@@ -145,10 +147,16 @@ class _GameState extends State<GameScreen> with SingleTickerProviderStateMixin {
       backgroundColor: Colors.black,
       body: SafeArea(child: LayoutBuilder(builder: (context, _) {
         game ??= GameEngine(width: 1536, height: 1024, aiEnabled: widget.settings.ai, difficulty: GameDifficulty.values[(widget.settings.difficulty - 1).clamp(0,2)]);
+        final g = game!;
         return Stack(children: [
           Positioned.fill(child: FittedBox(fit: BoxFit.contain, alignment: Alignment.center, child: SizedBox(width: 1536, height: 1024, child: Stack(children: [
             Positioned.fill(child: Image.asset('assets/images/game_ui_reference.png', fit: BoxFit.fill)),
-            Positioned.fill(child: CustomPaint(painter: BattleOverlayPainter(game!, angle, power, widget.settings.showTrajectory, weapon))),
+            // Nhân vật sprite sống động, đi theo vị trí engine (= tọa độ artboard).
+            Positioned(left: g.left.position.x - 90, top: g.left.position.y - 150,
+                child: SpriteActor(character: 'mingming', animation: _spriteAnimation(g, 0), size: 180)),
+            Positioned(left: g.right.position.x - 90, top: g.right.position.y - 150,
+                child: SpriteActor(character: 'wangtta', animation: _spriteAnimation(g, 1), size: 180, flipX: true)),
+            Positioned.fill(child: CustomPaint(painter: BattleOverlayPainter(g, angle, power, widget.settings.showTrajectory, weapon))),
 
             // --- D-pad di chuyển (trái/phải/lên/xuống) ---
             Positioned(
@@ -194,17 +202,52 @@ class _GameState extends State<GameScreen> with SingleTickerProviderStateMixin {
               ),
             ),
 
-            // --- Nút bắn / chơi lại / tạm dừng ---
+            // --- Nút bắn / chơi lại ---
             Positioned(left: 985, top: 852, child: _bigBtn('BẮN', fire, Colors.red.shade700)),
             Positioned(left: 1305, top: 852, child: _bigBtn('CHƠI LẠI', reset, Colors.blueGrey.shade700)),
+
             if (paused) Positioned.fill(child: Container(color: Colors.black54, child: const Center(child: Text('TẠM DỪNG', style: TextStyle(fontSize: 64, fontWeight: FontWeight.w900, color: Colors.white)))))
           ])))),
           Positioned(top: 8, left: 8, child: _smallButton(Icons.arrow_back, () => Navigator.pop(context))),
           Positioned(top: 8, right: 8, child: _smallButton(paused ? Icons.play_arrow : Icons.pause, () => setState(() => paused = !paused))),
-          if (game?.finished == true) Positioned.fill(child: IgnorePointer(child: Center(child: Container(padding: const EdgeInsets.symmetric(horizontal: 26, vertical: 20), decoration: BoxDecoration(color: Colors.black.withOpacity(.82), borderRadius: BorderRadius.circular(24), border: Border.all(color: Colors.orangeAccent, width: 2)), child: Column(mainAxisSize: MainAxisSize.min, children: [Text(game!.winner == 0 ? 'MINGMING THẮNG!' : 'WANGTTA THẮNG!', style: const TextStyle(fontSize: 30, fontWeight: FontWeight.w900, color: Colors.orangeAccent)), const SizedBox(height: 12), FilledButton(onPressed: reset, child: const Text('CHƠI LẠI'))]))))),
+          if (game?.finished == true)
+            Positioned.fill(
+              child: IgnorePointer(
+                child: Center(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 26, vertical: 20),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withOpacity(.82),
+                      borderRadius: BorderRadius.circular(24),
+                      border: Border.all(color: Colors.orangeAccent, width: 2),
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(game!.winner == 0 ? 'MINGMING THẮNG!' : 'WANGTTA THẮNG!',
+                            style: const TextStyle(fontSize: 30, fontWeight: FontWeight.w900, color: Colors.orangeAccent)),
+                        const SizedBox(height: 12),
+                        FilledButton(onPressed: reset, child: const Text('CHƠI LẠI')),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
         ]);
       })),
     );
+  }
+
+  FighterAnimation _spriteAnimation(GameEngine g, int player) {
+    final fighter = player == 0 ? g.left : g.right;
+    final isCurrent = (player == 0) == g.leftTurn;
+    final dead = g.finished && fighter.hp <= 0;
+    if (dead) return FighterAnimation.dead;
+    if (g.impacts.isNotEmpty && !isCurrent) return FighterAnimation.hit;
+    if (g.shots.isNotEmpty && isCurrent) return FighterAnimation.shoot;
+    if (isCurrent) return FighterAnimation.aim;
+    return FighterAnimation.idle;
   }
 
   Widget _ctrlBtn(IconData icon, VoidCallback onTap) {
@@ -291,10 +334,10 @@ class BattleOverlayPainter extends CustomPainter {
   @override
   void paint(Canvas c, Size s) {
     // Canvas coordinates use the source 1536x1024 artboard (= engine world).
-    _drawFighter(c, g.left, Colors.cyanAccent);
-    _drawFighter(c, g.right, Colors.orangeAccent);
+    _drawStatus(c, g.left, Colors.cyanAccent);
+    _drawStatus(c, g.right, Colors.orangeAccent);
     if (showTrajectory && g.current.mode == PlayerMode.human && g.shots.isEmpty && !g.finished) {
-      final muzzle = Offset(g.current.position.x + g.current.facing * 24, g.current.position.y - 12);
+      final muzzle = Offset(g.current.position.x + g.current.facing * 24, g.current.position.y - 60);
       final rad = angle * math.pi / 180;
       final speed = 145 + power * 4.2;
       var vx = g.current.facing * speed * math.cos(rad);
@@ -305,8 +348,7 @@ class BattleOverlayPainter extends CustomPainter {
         x += vx * .055; y += vy * .055; vy += 315*.055; vx += g.wind*19*.055;
         if (y > g.height - 45 || x < -70 || x > g.width + 70) break;
         c.drawCircle(Offset(x, y), 3.5, p);
-      }
-    }
+      }    }
     // Dynamic status strip that remains readable above the reference art.
     final label = 'GÓC ${angle.round()}°   •   LỰC ${power.round()}%   •   ${_weaponName(weapon)}';
     final tp = TextPainter(text: TextSpan(text: label, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: Colors.white, shadows: [Shadow(color: Colors.black87, blurRadius: 4)])), textDirection: TextDirection.ltr)..layout();
@@ -324,31 +366,21 @@ class BattleOverlayPainter extends CustomPainter {
       c.drawCircle(Offset(i.position.x, i.position.y), i.radius, Paint()..style=PaintingStyle.stroke..strokeWidth=4..color=Colors.orangeAccent.withOpacity((i.life/.45).clamp(0,1)));
     }
   }
-  void _drawFighter(Canvas c, Fighter f, Color color) {
-    final p = Offset(f.position.x, f.position.y);
-    final body = Paint()..color = color;
-    // Thân xe + nòng pháo hướng theo facing.
-    c.drawCircle(p.translate(0, -26), 16, body);
-    c.drawCircle(p.translate(0, -26), 16, Paint()..style=PaintingStyle.stroke..strokeWidth=2..color=Colors.black54);
-    c.save();
-    c.translate(p.dx, p.dy - 8);
-    final isCurrent = g.current == f;
-    final aimRad = isCurrent ? angle * math.pi / 180 : .35;
-    c.rotate(f.facing > 0 ? -aimRad : math.pi + aimRad);
-    c.drawRect(const Rect.fromLTWH(0, -3, 34, 6), Paint()..color = color.withOpacity(.9));
-    c.restore();
+
+  /// Thanh máu + tên + khiên phía trên đầu nhân vật (sprite đã vẽ thân).
+  void _drawStatus(Canvas c, Fighter f, Color color) {
+    final p = Offset(f.position.x, f.position.y - 160);
     if (f.shield) {
-      c.drawCircle(p.translate(0, -20), 30, Paint()..style=PaintingStyle.stroke..strokeWidth=3..color=Colors.lightBlueAccent.withOpacity(.7));
+      c.drawCircle(p.translate(0, 40), 46, Paint()..style=PaintingStyle.stroke..strokeWidth=3..color=Colors.lightBlueAccent.withOpacity(.55));
     }
-    // Thanh máu.
-    const w = 56.0;
+    const w = 72.0;
     final hpColor = f.hp > 50 ? Colors.greenAccent : f.hp > 25 ? Colors.orangeAccent : Colors.redAccent;
-    c.drawRRect(RRect.fromRectAndRadius(Rect.fromCenter(center: p.translate(0, -58), width: w+4, height: 11), const Radius.circular(5)), Paint()..color=Colors.black.withOpacity(.55));
+    c.drawRRect(RRect.fromRectAndRadius(Rect.fromCenter(center: p, width: w+4, height: 12), const Radius.circular(6)), Paint()..color=Colors.black.withOpacity(.55));
     if (f.hp > 0) {
-      c.drawRRect(RRect.fromRectAndRadius(Rect.fromLTWH(p.dx-w/2, p.dy-63.5-2.5, w*f.hp/100, 8), const Radius.circular(4)), Paint()..color=hpColor);
+      c.drawRRect(RRect.fromRectAndRadius(Rect.fromLTWH(p.dx-w/2, p.dy-5, w*f.hp/100, 9), const Radius.circular(4)), Paint()..color=hpColor);
     }
-    final nameTp = TextPainter(text: TextSpan(text: f.name, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: color)), textDirection: TextDirection.ltr)..layout();
-    nameTp.paint(c, Offset(p.dx - nameTp.width/2, p.dy - 84));
+    final nameTp = TextPainter(text: TextSpan(text: '${f.name}  ${f.hp}', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: color, shadows: [Shadow(color: Colors.black87, blurRadius: 3)])), textDirection: TextDirection.ltr)..layout();
+    nameTp.paint(c, Offset(p.dx - nameTp.width/2, p.dy - 22));
   }
   String _weaponName(ProjectileType t) => switch(t){ ProjectileType.normal=>'ĐẠN THƯỜNG', ProjectileType.heavy=>'ĐẠN MẠNH', ProjectileType.homing=>'HOMING', ProjectileType.split=>'SPLIT'};
   @override bool shouldRepaint(covariant BattleOverlayPainter old) => true;

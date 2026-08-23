@@ -51,6 +51,22 @@ flutter:
     - assets/kanji_data.json
     - assets/engpic/engpic_words.json
     - assets/engpic/images/
+    - assets/sprites/mingming/idle/
+    - assets/sprites/mingming/walk/
+    - assets/sprites/mingming/run/
+    - assets/sprites/mingming/aim/
+    - assets/sprites/mingming/shoot/
+    - assets/sprites/mingming/hit/
+    - assets/sprites/mingming/fall/
+    - assets/sprites/mingming/dead/
+    - assets/sprites/wangtta/idle/
+    - assets/sprites/wangtta/walk/
+    - assets/sprites/wangtta/run/
+    - assets/sprites/wangtta/aim/
+    - assets/sprites/wangtta/shoot/
+    - assets/sprites/wangtta/hit/
+    - assets/sprites/wangtta/fall/
+    - assets/sprites/wangtta/dead/
   fonts:
     - family: Roboto
       fonts:
