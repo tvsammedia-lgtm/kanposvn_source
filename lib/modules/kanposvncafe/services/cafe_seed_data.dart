@@ -14,7 +14,7 @@ class CafeSeedData {
     final existingAreas = isarService.getAreas();
     if (existingAreas.isNotEmpty) return; // Already seeded
 
-    // 1. SEED AREAS
+    // 1. SEED AREAS (theo PRD: Tầng 1, Tầng 2, Sân vườn)
     final area1 = CafeArea(
       id: 'AREA-1',
       name: 'Tầng 1',
@@ -27,17 +27,39 @@ class CafeSeedData {
       description: 'Không gian tầng 2',
       sortOrder: 2,
     );
+    final area3 = CafeArea(
+      id: 'AREA-3',
+      name: 'Sân vườn',
+      description: 'Khu sân vườn ngoài trời',
+      sortOrder: 3,
+    );
 
-    for (var a in [area1, area2]) {
+    for (var a in [area1, area2, area3]) {
       await isarService.saveArea(a);
     }
 
-    // 2. SEED TABLES (6 bàn - 2 tầng)
+    // 2. SEED TABLES (10 bàn B1..B10 - đủ các trạng thái PRD)
     final tables = [
-      // Tầng 1
+      // Tầng 1: B1-B4
       CafeTable(
         id: 'TAB-T1',
-        name: 'Bàn T1',
+        name: 'B1',
+        areaId: area1.id,
+        areaName: area1.name,
+        seatCount: 4,
+        status: TableStatus.trong,
+      ),
+      CafeTable(
+        id: 'TAB-T2',
+        name: 'B2',
+        areaId: area1.id,
+        areaName: area1.name,
+        seatCount: 4,
+        status: TableStatus.trong,
+      ),
+      CafeTable(
+        id: 'TAB-T3',
+        name: 'B3',
         areaId: area1.id,
         areaName: area1.name,
         seatCount: 4,
@@ -45,17 +67,17 @@ class CafeSeedData {
         customerInfo: TableCustomerInfo(
           customerName: 'Nguyễn Văn A',
           phone: '0901234567',
-          guestCount: 3,
-          checkInTime: DateTime.now().subtract(const Duration(minutes: 45)),
+          guestCount: 4,
+          checkInTime: DateTime.now().subtract(const Duration(minutes: 75)),
           currentTotal: 125000,
         ),
       ),
       CafeTable(
-        id: 'TAB-T2',
-        name: 'Bàn T2',
+        id: 'TAB-T4',
+        name: 'B4',
         areaId: area1.id,
         areaName: area1.name,
-        seatCount: 4,
+        seatCount: 2,
         status: TableStatus.choThanhToan,
         customerInfo: TableCustomerInfo(
           customerName: 'Trần Thị B',
@@ -64,22 +86,14 @@ class CafeSeedData {
           currentTotal: 95000,
         ),
       ),
-      CafeTable(
-        id: 'TAB-T3',
-        name: 'Bàn T3',
-        areaId: area1.id,
-        areaName: area1.name,
-        seatCount: 4,
-        status: TableStatus.trong,
-      ),
 
-      // Tầng 2
+      // Tầng 2: B5-B7
       CafeTable(
-        id: 'TAB-T4',
-        name: 'Bàn T4',
+        id: 'TAB-T5',
+        name: 'B5',
         areaId: area2.id,
         areaName: area2.name,
-        seatCount: 4,
+        seatCount: 6,
         status: TableStatus.dangPhucVu,
         customerInfo: TableCustomerInfo(
           customerName: 'Lê Văn C',
@@ -89,21 +103,53 @@ class CafeSeedData {
         ),
       ),
       CafeTable(
-        id: 'TAB-T5',
-        name: 'Bàn T5',
+        id: 'TAB-T6',
+        name: 'B6',
+        areaId: area2.id,
+        areaName: area2.name,
+        seatCount: 2,
+        status: TableStatus.trong,
+      ),
+      CafeTable(
+        id: 'TAB-T7',
+        name: 'B7',
         areaId: area2.id,
         areaName: area2.name,
         seatCount: 8,
         status: TableStatus.daDatTruoc,
         note: 'Khách đặt tiệc sinh nhật 19h',
       ),
+
+      // Sân vườn: B8-B10
       CafeTable(
-        id: 'TAB-T6',
-        name: 'Bàn T6',
-        areaId: area2.id,
-        areaName: area2.name,
-        seatCount: 2,
+        id: 'TAB-T8',
+        name: 'B8',
+        areaId: area3.id,
+        areaName: area3.name,
+        seatCount: 4,
         status: TableStatus.trong,
+      ),
+      CafeTable(
+        id: 'TAB-T9',
+        name: 'B9',
+        areaId: area3.id,
+        areaName: area3.name,
+        seatCount: 6,
+        status: TableStatus.coKhach,
+        customerInfo: TableCustomerInfo(
+          customerName: 'Phạm Thị D',
+          guestCount: 5,
+          checkInTime: DateTime.now().subtract(const Duration(minutes: 35)),
+          currentTotal: 180000,
+        ),
+      ),
+      CafeTable(
+        id: 'TAB-T10',
+        name: 'B10',
+        areaId: area3.id,
+        areaName: area3.name,
+        seatCount: 2,
+        status: TableStatus.dangDon,
       ),
     ];
 

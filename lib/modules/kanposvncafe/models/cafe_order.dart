@@ -191,6 +191,8 @@ class CafeOrder {
   }
 
   CafeOrder copyWith({
+    String? id,
+    String? orderCode,
     OrderType? orderType,
     String? tableId,
     String? tableName,
@@ -214,8 +216,8 @@ class CafeOrder {
     DateTime? updatedAt,
   }) {
     return CafeOrder(
-      id: id,
-      orderCode: orderCode,
+      id: id ?? this.id,
+      orderCode: orderCode ?? this.orderCode,
       orderType: orderType ?? this.orderType,
       tableId: tableId ?? this.tableId,
       tableName: tableName ?? this.tableName,

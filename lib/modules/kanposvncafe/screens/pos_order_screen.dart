@@ -1,4 +1,4 @@
-import 'dart:async';
+﻿import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -25,7 +25,7 @@ class _PosOrderScreenState extends ConsumerState<PosOrderScreen> {
 
   final currencyFormatter = NumberFormat.currency(
     locale: 'vi_VN',
-    symbol: 'đ',
+    symbol: 'Ä‘',
     decimalDigits: 0,
   );
 
@@ -62,7 +62,7 @@ class _PosOrderScreenState extends ConsumerState<PosOrderScreen> {
                       children: [
                         TextField(
                           decoration: InputDecoration(
-                            hintText: 'Tìm kiếm món (Tên hoặc Mã)...',
+                            hintText: 'TÃ¬m kiáº¿m mÃ³n (TÃªn hoáº·c MÃ£)...',
                             prefixIcon: const Icon(Icons.search),
                             filled: true,
                             fillColor: Colors.white,
@@ -84,7 +84,7 @@ class _PosOrderScreenState extends ConsumerState<PosOrderScreen> {
                           child: Row(
                             children: [
                               FilterChip(
-                                label: const Text('Tất cả'),
+                                label: const Text('Táº¥t cáº£'),
                                 selected: _selectedCatId == 'ALL',
                                 onSelected: (_) =>
                                     setState(() => _selectedCatId = 'ALL'),
@@ -226,7 +226,7 @@ class _PosOrderScreenState extends ConsumerState<PosOrderScreen> {
                 horizontal: 16,
                 vertical: 24,
               ),
-              title: Text('Tùy chỉnh: ${item.name}'),
+              title: Text('TÃ¹y chá»‰nh: ${item.name}'),
               content: SingleChildScrollView(
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 350),
@@ -235,7 +235,7 @@ class _PosOrderScreenState extends ConsumerState<PosOrderScreen> {
                     children: [
                       // Size selection
                       const Text(
-                        'Chọn Size:',
+                        'Chá»n Size:',
                         style: TextStyle(fontWeight: FontWeight.bold),
                       ),
                       Wrap(
@@ -255,7 +255,7 @@ class _PosOrderScreenState extends ConsumerState<PosOrderScreen> {
                       // Topping selection
                       if (item.availableToppings.isNotEmpty) ...[
                         const Text(
-                          'Thêm Topping:',
+                          'ThÃªm Topping:',
                           style: TextStyle(fontWeight: FontWeight.bold),
                         ),
                         Column(
@@ -289,7 +289,7 @@ class _PosOrderScreenState extends ConsumerState<PosOrderScreen> {
                       TextField(
                         controller: noteController,
                         decoration: const InputDecoration(
-                          labelText: 'Ghi chú món (Ít đường, nhiều đá...)',
+                          labelText: 'Ghi chÃº mÃ³n (Ãt Ä‘Æ°á»ng, nhiá»u Ä‘Ã¡...)',
                           border: OutlineInputBorder(),
                         ),
                       ),
@@ -324,7 +324,7 @@ class _PosOrderScreenState extends ConsumerState<PosOrderScreen> {
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(ctx),
-                  child: const Text('Hủy'),
+                  child: const Text('Há»§y'),
                 ),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
@@ -343,7 +343,7 @@ class _PosOrderScreenState extends ConsumerState<PosOrderScreen> {
                     Navigator.pop(ctx);
                   },
                   child: Text(
-                    'Thêm vào đơn (${currencyFormatter.format(currentItemPrice * qty)})',
+                    'ThÃªm vÃ o Ä‘Æ¡n (${currencyFormatter.format(currentItemPrice * qty)})',
                     style: const TextStyle(color: Colors.white),
                   ),
                 ),
@@ -378,7 +378,7 @@ class _PosOrderScreenState extends ConsumerState<PosOrderScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Đơn: ${cart.orderCode}',
+                          'ÄÆ¡n: ${cart.orderCode}',
                           style: const TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 16,
@@ -386,8 +386,8 @@ class _PosOrderScreenState extends ConsumerState<PosOrderScreen> {
                         ),
                         Text(
                           cart.tableName != null
-                              ? 'Bàn: ${cart.tableName}'
-                              : 'Loại: ${cart.orderType.label}',
+                              ? 'BÃ n: ${cart.tableName}'
+                              : 'Loáº¡i: ${cart.orderType.label}',
                           style: const TextStyle(
                             color: Colors.grey,
                             fontSize: 12,
@@ -419,14 +419,37 @@ class _PosOrderScreenState extends ConsumerState<PosOrderScreen> {
                           selectedColor: const Color(0xFFD97706),
                           label: Text(t.label),
                           selected: isSel,
-                          onSelected: (_) => ref
-                              .read(cafePosCartProvider.notifier)
-                              .setOrderType(t),
+                          onSelected: (_) {
+                            ref
+                                .read(cafePosCartProvider.notifier)
+                                .setOrderType(t);
+                            if (t == OrderType.mangDi) {
+                              _showTakeAwayInfoDialog(context, cart);
+                            } else if (t == OrderType.giaoHang) {
+                              _showDeliveryInfoDialog(context, cart);
+                            }
+                          },
                         ),
                       ),
                     );
                   }).toList(),
                 ),
+                // DÃ²ng thÃ´ng tin khÃ¡ch / giao hÃ ng hiá»‡n táº¡i
+                if (cart.orderType != OrderType.taiBan &&
+                    (cart.customerPhone.isNotEmpty ||
+                        cart.deliveryPartner != null))
+                  Padding(
+                    padding: const EdgeInsets.only(top: 4),
+                    child: Text(
+                      cart.orderType == OrderType.mangDi
+                          ? 'Mang Ä‘i: ${cart.customerName} â€¢ ${cart.customerPhone}'
+                          : '${cart.deliveryPartner?.label ?? ''} â€¢ ${cart.customerName} â€¢ ${cart.customerPhone} â€¢ Ship ${cart.shippingFee.round()}Ä‘',
+                      style: const TextStyle(
+                          fontSize: 11,
+                          color: Colors.brown,
+                          fontWeight: FontWeight.w600),
+                    ),
+                  ),
                 const SizedBox(height: 8),
                 // Cart Items List
                 SizedBox(
@@ -434,7 +457,7 @@ class _PosOrderScreenState extends ConsumerState<PosOrderScreen> {
                   child: cart.items.isEmpty
                       ? const Center(
                           child: Text(
-                            'Chưa có món nào trong đơn',
+                            'ChÆ°a cÃ³ mÃ³n nÃ o trong Ä‘Æ¡n',
                             style: TextStyle(color: Colors.grey),
                           ),
                         )
@@ -462,7 +485,7 @@ class _PosOrderScreenState extends ConsumerState<PosOrderScreen> {
                                     ),
                                   if (item.note.isNotEmpty)
                                     Text(
-                                      'Ghi chú: ${item.note}',
+                                      'Ghi chÃº: ${item.note}',
                                       style: const TextStyle(
                                         fontSize: 10,
                                         color: Colors.blueGrey,
@@ -510,7 +533,7 @@ class _PosOrderScreenState extends ConsumerState<PosOrderScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text('Tạm tính:'),
+                    const Text('Táº¡m tÃ­nh:'),
                     Text(
                       currencyFormatter.format(cart.subtotal),
                       style: const TextStyle(fontWeight: FontWeight.w600),
@@ -520,7 +543,7 @@ class _PosOrderScreenState extends ConsumerState<PosOrderScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text('Giảm giá / Voucher:'),
+                    const Text('Giáº£m giÃ¡ / Voucher:'),
                     Text(
                       '-${currencyFormatter.format(cart.totalDiscount)}',
                       style: const TextStyle(color: Colors.red),
@@ -532,7 +555,7 @@ class _PosOrderScreenState extends ConsumerState<PosOrderScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     const Text(
-                      'TỔNG THANH TOÁN:',
+                      'Tá»”NG THANH TOÃN:',
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 15,
@@ -549,7 +572,7 @@ class _PosOrderScreenState extends ConsumerState<PosOrderScreen> {
                   ],
                 ),
                 const SizedBox(height: 12),
-                // Action Buttons: Tạm Tính / In Bill & Thanh Toán
+                // Action Buttons: Táº¡m TÃ­nh / In Bill & Thanh ToÃ¡n
                 Wrap(
                   spacing: 8,
                   runSpacing: 8,
@@ -560,7 +583,7 @@ class _PosOrderScreenState extends ConsumerState<PosOrderScreen> {
                           : double.infinity,
                       child: OutlinedButton.icon(
                         icon: const Icon(Icons.print, size: 18),
-                        label: const Text('In Tạm Tính'),
+                        label: const Text('In Táº¡m TÃ­nh'),
                         onPressed: cart.items.isEmpty
                             ? null
                             : () {
@@ -629,7 +652,7 @@ class _PosOrderScreenState extends ConsumerState<PosOrderScreen> {
                         ),
                         icon: const Icon(Icons.payment, color: Colors.white),
                         label: const Text(
-                          'Thanh Toán',
+                          'Thanh ToÃ¡n',
                           style: TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
@@ -661,7 +684,7 @@ class _PosOrderScreenState extends ConsumerState<PosOrderScreen> {
         .read(cafePosCartProvider.notifier)
         .checkout(PaymentMethod.tienMat, ref);
     if (!context.mounted || !mounted) return;
-    // Trừ tồn kho Cloud của chi nhánh đang dùng (best-effort, không chặn bán).
+    // Trá»« tá»“n kho Cloud cá»§a chi nhÃ¡nh Ä‘ang dÃ¹ng (best-effort, khÃ´ng cháº·n bÃ¡n).
     unawaited(_postCloudSaleDeductions(completedOrder));
     try {
       await printReceiptByMode(
@@ -673,23 +696,23 @@ class _PosOrderScreenState extends ConsumerState<PosOrderScreen> {
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('In hóa đơn thất bại: $e')),
+        SnackBar(content: Text('In hÃ³a Ä‘Æ¡n tháº¥t báº¡i: $e')),
       );
     }
     if (!context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text(
-          'Thanh toán hoàn tất! Đã tự động trừ kho nguyên liệu và thêm vào hàng chờ đồng bộ.',
+          'Thanh toÃ¡n hoÃ n táº¥t! ÄÃ£ tá»± Ä‘á»™ng trá»« kho nguyÃªn liá»‡u vÃ  thÃªm vÃ o hÃ ng chá» Ä‘á»“ng bá»™.',
         ),
       ),
     );
   }
 
-  /// Trừ tồn kho Kho đa chi nhánh khi bán hàng: với mỗi mặt hàng khớp chính xác
-  /// tên với sản phẩm Cloud thì ghi giao dịch SALE vào kho đang dùng của chi
-  /// nhánh. Best-effort: lỗi mạng/không khớp sản phẩm thì bỏ qua, không ảnh
-  /// hưởng tới hóa đơn đã thanh toán.
+  /// Trá»« tá»“n kho Kho Ä‘a chi nhÃ¡nh khi bÃ¡n hÃ ng: vá»›i má»—i máº·t hÃ ng khá»›p chÃ­nh xÃ¡c
+  /// tÃªn vá»›i sáº£n pháº©m Cloud thÃ¬ ghi giao dá»‹ch SALE vÃ o kho Ä‘ang dÃ¹ng cá»§a chi
+  /// nhÃ¡nh. Best-effort: lá»—i máº¡ng/khÃ´ng khá»›p sáº£n pháº©m thÃ¬ bá» qua, khÃ´ng áº£nh
+  /// hÆ°á»Ÿng tá»›i hÃ³a Ä‘Æ¡n Ä‘Ã£ thanh toÃ¡n.
   Future<void> _postCloudSaleDeductions(CafeOrder order) async {
     final auth = AuthService.instance;
     final whId = auth?.warehouseId;
@@ -717,8 +740,227 @@ class _PosOrderScreenState extends ConsumerState<PosOrderScreen> {
         items: matched,
       );
     } catch (e) {
-      // Best-effort: không làm hỏng luồng thanh toán.
+      // Best-effort: khÃ´ng lÃ m há»ng luá»“ng thanh toÃ¡n.
     }
+  }
+
+  /// ThÃ´ng tin khÃ¡ch Mang Ä‘i (PRD Â§8): tÃªn, SÄT, ghi chÃº, mÃ£ Ä‘Æ¡n tá»± sinh.
+  Future<void> _showTakeAwayInfoDialog(
+      BuildContext context, CafeOrder cart) async {
+    final nameCtrl = TextEditingController(
+        text: cart.customerName == 'KhÃ¡ch láº»' ? '' : cart.customerName);
+    final phoneCtrl = TextEditingController(text: cart.customerPhone);
+    final noteCtrl = TextEditingController();
+    await showDialog(
+      context: context,
+      builder: (dlgCtx) => AlertDialog(
+        title: Text('KhÃ¡ch Mang Ä‘i â€¢ ${cart.orderCode}'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: nameCtrl,
+              decoration: const InputDecoration(labelText: ''),
+            ),
+            TextField(
+              controller: phoneCtrl,
+              keyboardType: TextInputType.phone,
+              decoration: const InputDecoration(labelText: ''),
+            ),
+            TextField(
+              controller: noteCtrl,
+              decoration: const InputDecoration(labelText: ''),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(dlgCtx), child: const Text('ÄÃ³ng')),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFD97706)),
+            child: const Text('LÆ°u',
+                style: TextStyle(color: Colors.white)),
+            onPressed: () {
+              ref
+                  .read(cafePosCartProvider.notifier)
+                  .setCustomer(nameCtrl.text.trim(), phoneCtrl.text.trim(),
+                      note: noteCtrl.text.trim());
+              Navigator.pop(dlgCtx);
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// ThÃ´ng tin Giao hÃ ng (PRD Â§9): Ä‘Æ¡n vá»‹ giao, phÃ­ ship, ngÆ°á»i nháº­n, Ä‘á»‹a chá»‰.
+  Future<void> _showDeliveryInfoDialog(
+      BuildContext context, CafeOrder cart) async {
+    DeliveryPartner partner = cart.deliveryPartner ?? DeliveryPartner.grab;
+    final feeCtrl = TextEditingController(
+        text: cart.shippingFee > 0 ? cart.shippingFee.round().toString() : '');
+    final nameCtrl = TextEditingController(
+        text: cart.customerName == 'KhÃ¡ch láº»' ? '' : cart.customerName);
+    final phoneCtrl = TextEditingController(text: cart.customerPhone);
+    final addrCtrl = TextEditingController(text: cart.deliveryAddress);
+    await showDialog(
+      context: context,
+      builder: (dlgCtx) => StatefulBuilder(
+        builder: (ctx, setDState) => AlertDialog(
+          title: const Text('ÄÆ¡n Giao hÃ ng'),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                DropdownButtonFormField<DeliveryPartner>(
+                  initialValue: partner,
+                  decoration: const InputDecoration(labelText: ''),
+                  items: DeliveryPartner.values
+                      .map((p) => DropdownMenuItem(
+                          value: p, child: Text(p.label)))
+                      .toList(),
+                  onChanged: (v) => setDState(() => partner = v ?? partner),
+                ),
+                TextField(
+                  controller: nameCtrl,
+                  decoration: const InputDecoration(labelText: ''),
+                ),
+                TextField(
+                  controller: phoneCtrl,
+                  keyboardType: TextInputType.phone,
+                  decoration: const InputDecoration(labelText: ''),
+                ),
+                TextField(
+                  controller: addrCtrl,
+                  decoration: const InputDecoration(labelText: ''),
+                ),
+                TextField(
+                  controller: feeCtrl,
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(labelText: ''),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(dlgCtx), child: const Text('ÄÃ³ng')),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFD97706)),
+              child: const Text('LÆ°u', style: TextStyle(color: Colors.white)),
+              onPressed: () {
+                final notifier = ref.read(cafePosCartProvider.notifier);
+                notifier.setCustomer(nameCtrl.text.trim(), phoneCtrl.text.trim());
+                notifier.setDelivery(
+                  partner,
+                  addrCtrl.text.trim(),
+                  double.tryParse(feeCtrl.text.replaceAll(',', '')) ?? 0,
+                );
+                Navigator.pop(dlgCtx);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// TÃ¡ch hÃ³a Ä‘Æ¡n (PRD Â§18): chá»n má»™t pháº§n mÃ³n Ä‘á»ƒ thanh toÃ¡n riÃªng,
+  /// pháº§n cÃ²n láº¡i á»Ÿ láº¡i bÃ n phá»¥c vá»¥ tiáº¿p.
+  Future<void> _showSplitBillDialog(
+      BuildContext context, CafeOrder cart) async {
+    final selected = <int>{};
+    PaymentMethod method = PaymentMethod.tienMat;
+    await showDialog(
+      context: context,
+      builder: (dlgCtx) => StatefulBuilder(
+        builder: (ctx, setDState) => AlertDialog(
+          title: Text('TÃ¡ch hÃ³a Ä‘Æ¡n â€¢ ${cart.orderCode}'),
+          content: SizedBox(
+            width: 380,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text('Chá»n mÃ³n cáº§n tÃ¡ch:')),
+                Flexible(
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: cart.items.length,
+                    itemBuilder: (_, i) {
+                      final it = cart.items[i];
+                      return CheckboxListTile(
+                        dense: true,
+                        value: selected.contains(i),
+                        onChanged: (v) => setDState(() =>
+                            v == true ? selected.add(i) : selected.remove(i)),
+                        title: Text('${it.menuItemName} Ã—${it.quantity}'),
+                        subtitle: Text('Size ${it.selectedSize.name}'
+                            '${it.selectedToppings.isNotEmpty ? ' + ${it.selectedToppings.map((t) => t.name).join(", ")}' : ''}'),
+                        secondary: Text(currencyFormatter.format(it.totalPrice)),
+                      );
+                    },
+                  ),
+                ),
+                const Divider(),
+                const Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text('Thanh toÃ¡n pháº§n tÃ¡ch báº±ng:')),
+                Wrap(
+                  spacing: 6,
+                  runSpacing: 6,
+                  children: PaymentMethod.values
+                      .where((m) => m != PaymentMethod.nhieuPhuongThuc)
+                      .map((m) => ChoiceChip(
+                            label: Text(m.label, style: const TextStyle(fontSize: 11)),
+                            selected: method == m,
+                            selectedColor: const Color(0xFFD97706),
+                            labelStyle: TextStyle(
+                                color: method == m ? Colors.white : Colors.black),
+                            onSelected: (_) => setDState(() => method = m),
+                          ))
+                      .toList(),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(dlgCtx), child: const Text('Há»§y')),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFD97706)),
+              onPressed: (selected.isEmpty || selected.length == cart.items.length)
+                  ? null
+                  : () async {
+                      Navigator.pop(dlgCtx);
+                      final paidOrder = await ref
+                          .read(cafePosCartProvider.notifier)
+                          .splitCheckout(selected.toSet(), method, ref);
+                      if (paidOrder == null) return;
+                      if (!context.mounted || !mounted) return;
+                      try {
+                        await printReceiptByMode(
+                          context,
+                          ref,
+                          await _buildReceipt(paidOrder),
+                          ReceiptPrintMode.auto,
+                          pdfFilename: 'HoaDon_${paidOrder.orderCode}.pdf',
+                        );
+                      } catch (_) {}
+                      if (!context.mounted) return;
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                        content: Text(
+                            'ÄÃ£ tÃ¡ch & thu ${currencyFormatter.format(paidOrder.grandTotal)} â€” pháº§n cÃ²n láº¡i váº«n phá»¥c vá»¥ táº¡i chá»—.'),
+                      ));
+                    },
+              child: const Text('TÃ¡ch & Thu tiá»n',
+                  style: TextStyle(color: Colors.white)),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Future<ReceiptData> _buildReceipt(CafeOrder cart) async {
@@ -729,7 +971,7 @@ class _PosOrderScreenState extends ConsumerState<PosOrderScreen> {
       shopName: storeName ?? 'KANPOSVN',
       shopOwnerName: ownerName,
       shopPhone: storePhone,
-      title: 'HÓA ĐƠN THANH TOÁN',
+      title: 'HÃ“A ÄÆ N THANH TOÃN',
       orderCode: cart.orderCode,
       date: cart.paidAt ?? DateTime.now(),
       table: cart.tableName ?? '',
@@ -769,7 +1011,7 @@ class _PosOrderScreenState extends ConsumerState<PosOrderScreen> {
             horizontal: 16,
             vertical: 24,
           ),
-          title: const Text('Mẫu In Hóa Đơn Tạm Tính (K80 / K58)'),
+          title: const Text('Máº«u In HÃ³a ÄÆ¡n Táº¡m TÃ­nh (K80 / K58)'),
           content: SingleChildScrollView(
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 300),
@@ -778,14 +1020,14 @@ class _PosOrderScreenState extends ConsumerState<PosOrderScreen> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   const Text(
-                    '--- KHÁCH HÀNG TẠM TÍNH ---',
+                    '--- KHÃCH HÃ€NG Táº M TÃNH ---',
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 8),
-                  Text('Mã đơn: ${cart.orderCode}'),
+                  Text('MÃ£ Ä‘Æ¡n: ${cart.orderCode}'),
                   const SizedBox(height: 4),
                   Text(
-                    'Ngày: ${DateFormat("dd/MM/yyyy HH:mm").format(DateTime.now())}',
+                    'NgÃ y: ${DateFormat("dd/MM/yyyy HH:mm").format(DateTime.now())}',
                   ),
                   const Divider(),
                   ...cart.items.map(
@@ -808,7 +1050,7 @@ class _PosOrderScreenState extends ConsumerState<PosOrderScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text('Tổng tiền:'),
+                      const Text('Tá»•ng tiá»n:'),
                       Text(
                         currencyFormatter.format(cart.grandTotal),
                         style: const TextStyle(fontWeight: FontWeight.bold),
@@ -817,7 +1059,7 @@ class _PosOrderScreenState extends ConsumerState<PosOrderScreen> {
                   ),
                   const SizedBox(height: 12),
                   const Text(
-                    'Cảm ơn quý khách và hẹn gặp lại!',
+                    'Cáº£m Æ¡n quÃ½ khÃ¡ch vÃ  háº¹n gáº·p láº¡i!',
                     style: TextStyle(fontStyle: FontStyle.italic, fontSize: 11),
                   ),
                 ],
@@ -827,7 +1069,7 @@ class _PosOrderScreenState extends ConsumerState<PosOrderScreen> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(ctx),
-              child: const Text('Đóng'),
+              child: const Text('ÄÃ³ng'),
             ),
             ElevatedButton(
               onPressed: () async {
@@ -839,7 +1081,7 @@ class _PosOrderScreenState extends ConsumerState<PosOrderScreen> {
                   createPdfFirst: true,
                 );
               },
-              child: const Text('Gửi tới máy in'),
+              child: const Text('Gá»­i tá»›i mÃ¡y in'),
             ),
           ],
         );
@@ -865,12 +1107,29 @@ class _PosOrderScreenState extends ConsumerState<PosOrderScreen> {
   void _showPaymentDialog(BuildContext context, CafeOrder cart) {
     final screenContext = context;
     PaymentMethod selectedMethod = PaymentMethod.tienMat;
+    final total = cart.grandTotal;
+    final splitCtrls = {
+      for (final m in [
+        PaymentMethod.tienMat,
+        PaymentMethod.qr,
+        PaymentMethod.the,
+        PaymentMethod.viDienTu,
+      ])
+        m: TextEditingController(),
+    };
 
     showDialog(
       context: screenContext,
       builder: (dialogContext) {
         return StatefulBuilder(
           builder: (dialogStateContext, setPayState) {
+            double splitSum = 0;
+            if (selectedMethod == PaymentMethod.nhieuPhuongThuc) {
+              splitSum = splitCtrls.values.fold(
+                  0,
+                  (sum, c) =>
+                      sum + (double.tryParse(c.text.replaceAll(',', '')) ?? 0));
+            }
             return AlertDialog(
               scrollable: true,
               insetPadding: const EdgeInsets.symmetric(
@@ -884,7 +1143,7 @@ class _PosOrderScreenState extends ConsumerState<PosOrderScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Tổng số tiền: ${currencyFormatter.format(cart.grandTotal)}',
+                      'Tổng số tiền: ${currencyFormatter.format(total)}',
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
@@ -910,6 +1169,31 @@ class _PosOrderScreenState extends ConsumerState<PosOrderScreen> {
                         );
                       }).toList(),
                     ),
+                    // Thanh toán nhiều phương thức (PRD §15): chia số tiền
+                    if (selectedMethod == PaymentMethod.nhieuPhuongThuc) ...[
+                      const SizedBox(height: 12),
+                      const Text('Nhập số tiền từng phương thức:',
+                          style: TextStyle(fontWeight: FontWeight.w600)),
+                      ...splitCtrls.entries.map((e) => TextField(
+                            controller: e.value,
+                            keyboardType: TextInputType.number,
+                            decoration: InputDecoration(
+                              labelText: e.key.label,
+                              prefixText: 'đ ',
+                            ),
+                            onChanged: (_) => setPayState(() {}),
+                          )),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Đã nhập: ${currencyFormatter.format(splitSum)} — '
+                        '${splitSum >= total ? "ĐỦ" : "Còn thiếu ${currencyFormatter.format(total - splitSum)}"}',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color:
+                              splitSum >= total ? Colors.green : Colors.red,
+                        ),
+                      ),
+                    ],
                   ],
                 ),
               ),
@@ -918,15 +1202,49 @@ class _PosOrderScreenState extends ConsumerState<PosOrderScreen> {
                   onPressed: () => Navigator.pop(dialogContext),
                   child: const Text('Hủy'),
                 ),
+                if (cart.tableId != null)
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pop(dialogContext);
+                      _showSplitBillDialog(screenContext, cart);
+                    },
+                    child: const Text('Tách hóa đơn...'),
+                  ),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFFD97706),
                   ),
                   onPressed: () async {
+                    // Validate mixed payment trước khi đóng dialog
+                    Map<PaymentMethod, double> splits = {};
+                    if (selectedMethod == PaymentMethod.nhieuPhuongThuc) {
+                      splits = {
+                        for (final e in splitCtrls.entries)
+                          if ((double.tryParse(
+                                    e.value.text.replaceAll(',', ''),
+                                  ) ??
+                                  0) >
+                              0)
+                            e.key: double.tryParse(
+                                  e.value.text.replaceAll(',', ''),
+                                )!,
+                      };
+                      final sum = splits.values.fold(0.0, (a, b) => a + b);
+                      if (splits.isEmpty || (sum - total).abs() > 1) {
+                        ScaffoldMessenger.of(screenContext).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                                'Tổng các phương thức phải bằng đúng ${currencyFormatter.format(total)}'),
+                            backgroundColor: Colors.red,
+                          ),
+                        );
+                        return;
+                      }
+                    }
                     Navigator.pop(dialogContext);
                     final completedOrder = await ref
                         .read(cafePosCartProvider.notifier)
-                        .checkout(selectedMethod, ref);
+                        .checkout(selectedMethod, ref, mixedSplits: splits);
                     if (!screenContext.mounted || !mounted) return;
                     await printReceiptByMode(
                       screenContext,
@@ -940,13 +1258,13 @@ class _PosOrderScreenState extends ConsumerState<PosOrderScreen> {
                     ScaffoldMessenger.of(screenContext).showSnackBar(
                       const SnackBar(
                         content: Text(
-                          'Thanh toán hoàn tất! Đã tự động trừ kho nguyên liệu và thêm vào hàng chờ đồng bộ.',
+                          'Thanh toÃ¡n hoÃ n táº¥t! ÄÃ£ tá»± Ä‘á»™ng trá»« kho nguyÃªn liá»‡u vÃ  thÃªm vÃ o hÃ ng chá» Ä‘á»“ng bá»™.',
                         ),
                       ),
                     );
                   },
                   child: const Text(
-                    'Xác nhận & In Bill',
+                    'XÃ¡c nháº­n & In Bill',
                     style: TextStyle(color: Colors.white),
                   ),
                 ),

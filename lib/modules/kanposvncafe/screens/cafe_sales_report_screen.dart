@@ -177,7 +177,9 @@ class _CafeSalesReportScreenState extends ConsumerState<CafeSalesReportScreen> {
                 child: Column(
                   children: [
                     _buildFilterSection(),
-                    _buildSummarySection(_calculateSummary(orders)),
+                    // Summary phải tính trên đơn ĐÃ LỌC theo kỳ, không phải toàn bộ
+                    _buildSummarySection(
+                        _calculateSummary(_getFilteredOrders(orders))),
                   ],
                 ),
               ),
@@ -185,7 +187,7 @@ class _CafeSalesReportScreenState extends ConsumerState<CafeSalesReportScreen> {
             Expanded(
               child: _buildDetailsSection(
                 _getFilteredOrders(orders),
-                _calculateSummary(orders),
+                _calculateSummary(_getFilteredOrders(orders)),
               ),
             ),
           ],

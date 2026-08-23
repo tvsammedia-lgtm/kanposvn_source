@@ -25,10 +25,29 @@ class DashboardReportsScreen extends ConsumerWidget {
       decimalDigits: 0,
     );
 
+    final now = DateTime.now();
+    bool isToday(DateTime? d) =>
+        d != null &&
+        d.year == now.year &&
+        d.month == now.month &&
+        d.day == now.day;
     final completedOrders = orders
         .where((o) => o.status == OrderStatus.daThanhToan)
         .toList();
-    final todayRevenue = completedOrders.fold<double>(
+    // Doanh thu HÔM NAY: chỉ tính đơn đã thanh toán trong hôm nay.
+    final todayOrders = completedOrders.where((o) => isToday(o.paidAt)).toList();
+    final todayRevenue = todayOrders.fold<double>(
+      0,
+      (sum, o) => sum + o.grandTotal,
+    );
+    // Doanh thu tháng (PRD §34)
+    final monthOrders = completedOrders
+        .where((o) =>
+            o.paidAt != null &&
+            o.paidAt!.year == now.year &&
+            o.paidAt!.month == now.month)
+        .toList();
+    final monthRevenue = monthOrders.fold<double>(
       0,
       (sum, o) => sum + o.grandTotal,
     );
@@ -42,7 +61,10 @@ class DashboardReportsScreen extends ConsumerWidget {
               t.status != TableStatus.daThanhToan,
         )
         .length;
-    final takeawayOrders = completedOrders
+    final emptyTables = tables
+        .where((t) => t.status == TableStatus.trong)
+        .length;
+    final takeawayOrders = todayOrders
         .where(
           (o) =>
               o.orderType == OrderType.mangDi ||
@@ -125,6 +147,12 @@ class DashboardReportsScreen extends ConsumerWidget {
                   Colors.green,
                 ),
                 _buildStatCard(
+                  'Doanh Thu Tháng Này',
+                  currency.format(monthRevenue),
+                  Icons.calendar_month,
+                  Colors.teal,
+                ),
+                _buildStatCard(
                   'Lợi Nhuận Ước Tính',
                   currency.format(totalProfit),
                   Icons.trending_up,
@@ -135,6 +163,12 @@ class DashboardReportsScreen extends ConsumerWidget {
                   '$occupiedTables bàn',
                   Icons.table_bar,
                   Colors.purple,
+                ),
+                _buildStatCard(
+                  'Bàn Trống',
+                  '$emptyTables bàn',
+                  Icons.event_seat,
+                  Colors.green,
                 ),
                 _buildStatCard(
                   'Đơn Mang Đi / Delivery',
@@ -226,16 +260,20 @@ class DashboardReportsScreen extends ConsumerWidget {
                             ),
                           ),
                           borderData: FlBorderData(show: false),
+                          // Doanh thu thật theo khung giờ từ các đơn hôm nay
                           lineBarsData: [
                             LineChartBarData(
-                              spots: const [
-                                FlSpot(1, 150),
-                                FlSpot(2, 450),
-                                FlSpot(3, 850),
-                                FlSpot(4, 600),
-                                FlSpot(5, 750),
-                                FlSpot(6, 1200),
-                                FlSpot(7, 950),
+                              spots: [
+                                for (int h = 6; h <= 22; h += 2)
+                                  FlSpot(
+                                    (h - 6) ~/ 2 + 1.0,
+                                    todayOrders
+                                        .where((o) =>
+                                            o.paidAt != null &&
+                                            o.paidAt!.hour >= h &&
+                                            o.paidAt!.hour < h + 2)
+                                        .fold<double>(0, (s, o) => s + o.grandTotal),
+                                  ),
                               ],
                               isCurved: true,
                               color: const Color(0xFFD97706),

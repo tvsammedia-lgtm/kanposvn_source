@@ -380,8 +380,12 @@ class CafePosCartNotifier extends StateNotifier<CafeOrder> {
     state = state.copyWith(orderType: type);
   }
 
-  void setCustomer(String name, String phone) {
-    state = state.copyWith(customerName: name, customerPhone: phone);
+  void setCustomer(String name, String phone, {String? note}) {
+    state = state.copyWith(
+      customerName: name,
+      customerPhone: phone,
+      note: note ?? state.note,
+    );
   }
 
   void setDelivery(DeliveryPartner partner, String address, double fee) {
@@ -393,8 +397,25 @@ class CafePosCartNotifier extends StateNotifier<CafeOrder> {
     );
   }
 
-  Future<CafeOrder> checkout(PaymentMethod method, WidgetRef ref) async {
-    final completedOrder = state.copyWith(
+  Future<CafeOrder> checkout(
+    PaymentMethod method,
+    WidgetRef ref, {
+    Map<PaymentMethod, double> mixedSplits = const {},
+  }) async {
+    // Thanh toán nhiều phương thức (PRD §15): ghi breakdown vào note và
+    // chỉ phần TIỀN MẶT được ghi thu quỹ tiền mặt.
+    double cashToFund = 0;
+    CafeOrder baseOrder = state;
+    if (method == PaymentMethod.nhieuPhuongThuc && mixedSplits.isNotEmpty) {
+      cashToFund = mixedSplits[PaymentMethod.tienMat] ?? 0;
+      final breakdown = mixedSplits.entries
+          .where((e) => e.value > 0)
+          .map((e) => '${e.key.label}: ${e.value.round()}đ')
+          .join(' + ');
+      baseOrder = state.copyWith(note: 'Thanh toán hỗn hợp: $breakdown');
+    }
+
+    final completedOrder = baseOrder.copyWith(
       status: OrderStatus.daThanhToan,
       paymentMethod: method,
       paidAt: DateTime.now(),
@@ -407,18 +428,38 @@ class CafePosCartNotifier extends StateNotifier<CafeOrder> {
     // Auto deduct inventory based on Recipe
     await _isar.deductInventoryForOrder(completedOrder);
 
-    // Record cash revenue
+    // Record cash revenue (mixed payment → chỉ ghi phần tiền mặt vào quỹ)
     await _isar.saveCashTransaction(
       CashTransaction(
         id: 'CTX-${DateTime.now().millisecondsSinceEpoch}',
         title: 'Doanh thu đơn ${completedOrder.orderCode}',
         type: 'INCOME',
         category: 'Doanh thu bán hàng',
-        amount: completedOrder.grandTotal,
+        amount: method == PaymentMethod.nhieuPhuongThuc
+            ? cashToFund
+            : completedOrder.grandTotal,
         paymentMethod: method.label,
         performerName: completedOrder.sellerName,
       ),
     );
+
+    // Tích điểm & tổng tiêu khách hàng (PRD §20): 1 điểm / 1.000đ.
+    if (completedOrder.customerPhone.isNotEmpty) {
+      try {
+        final customers = _isar.getCustomers();
+        final match = customers.firstWhere(
+          (c) => c.phone == completedOrder.customerPhone,
+        );
+        await _isar.saveCustomer(
+          match.copyWith(
+            rewardPoints:
+                match.rewardPoints + (completedOrder.grandTotal ~/ 1000),
+            totalSpent: match.totalSpent + completedOrder.grandTotal,
+          ),
+        );
+        ref.read(cafeCustomersProvider.notifier).load();
+      } catch (_) {}
+    }
 
     // Update table status if table order
     if (completedOrder.tableId != null) {
@@ -445,6 +486,62 @@ class CafePosCartNotifier extends StateNotifier<CafeOrder> {
     startNewOrder();
 
     return completedOrder;
+  }
+
+  /// Tách hóa đơn (PRD §18): thanh toán MỘT PHẦN món của đơn hiện tại.
+  /// Các món được chọn tách thành hóa đơn riêng đã thanh toán (trừ kho,
+  /// ghi thu); phần còn lại ở lại giỏ để phục vụ tiếp trên cùng bàn.
+  Future<CafeOrder?> splitCheckout(
+    Set<int> itemIndexes,
+    PaymentMethod method,
+    WidgetRef ref,
+  ) async {
+    if (itemIndexes.isEmpty || itemIndexes.length >= state.items.length) {
+      return null; // Phải chọn một PHẦN món; tách hết hãy dùng Thanh Toán thường.
+    }
+
+    final paidItems = <CafeOrderItem>[];
+    final remainItems = <CafeOrderItem>[];
+    for (var i = 0; i < state.items.length; i++) {
+      (itemIndexes.contains(i) ? paidItems : remainItems).add(state.items[i]);
+    }
+
+    final now = DateTime.now();
+    final paidOrder = state.copyWith(
+      items: paidItems,
+      status: OrderStatus.daThanhToan,
+      paymentMethod: method,
+      paidAt: now,
+      updatedAt: now,
+      id: 'ORD-${now.millisecondsSinceEpoch}',
+      orderCode:
+          'HD${now.millisecondsSinceEpoch.toString().substring(7)}',
+      note: 'Tách từ hóa đơn ${state.orderCode}',
+    );
+
+    await _isar.saveOrder(paidOrder);
+    await _isar.deductInventoryForOrder(paidOrder);
+    await _isar.saveCashTransaction(
+      CashTransaction(
+        id: 'CTX-${DateTime.now().millisecondsSinceEpoch}',
+        title: 'Doanh thu tách đơn ${paidOrder.orderCode}',
+        type: 'INCOME',
+        category: 'Doanh thu bán hàng',
+        amount: paidOrder.grandTotal,
+        paymentMethod: method.label,
+        performerName: paidOrder.sellerName,
+      ),
+    );
+
+    // Cập nhật giỏ còn lại (giữ nguyên id/orderCode của đơn đang mở).
+    state = state.copyWith(items: remainItems);
+    await _save();
+
+    // Refresh & sync
+    ref.read(cafeInventoryProvider.notifier).loadInventory();
+    ref.read(cafeNeonSyncServiceProvider).triggerSync();
+
+    return paidOrder;
   }
 }
 

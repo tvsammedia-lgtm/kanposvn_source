@@ -266,20 +266,26 @@ Future<void> _showCustomerDialog(
           ElevatedButton(
             onPressed: () {
               if (nameCtl.text.trim().isEmpty) return;
-              final id =
-                  customer?.id ??
-                  'CUS-${DateTime.now().millisecondsSinceEpoch}';
-              ref
-                  .read(cafeCustomersProvider.notifier)
-                  .save(
-                    CafeCustomer(
-                      id: id,
-                      name: nameCtl.text.trim(),
-                      phone: phoneCtl.text.trim(),
-                      tier: tier,
-                      debtAmount: double.tryParse(debtCtl.text) ?? 0,
-                    ),
-                  );
+              // copyWith để giữ nguyên điểm tích lũy / sinh nhật / tổng tiêu
+              // khi sửa thông tin khách (tránh reset về 0).
+              final CafeCustomer saved;
+              if (customer != null) {
+                saved = customer.copyWith(
+                  name: nameCtl.text.trim(),
+                  phone: phoneCtl.text.trim(),
+                  tier: tier,
+                  debtAmount: double.tryParse(debtCtl.text) ?? 0,
+                );
+              } else {
+                saved = CafeCustomer(
+                  id: 'CUS-${DateTime.now().millisecondsSinceEpoch}',
+                  name: nameCtl.text.trim(),
+                  phone: phoneCtl.text.trim(),
+                  tier: tier,
+                  debtAmount: double.tryParse(debtCtl.text) ?? 0,
+                );
+              }
+              ref.read(cafeCustomersProvider.notifier).save(saved);
               Navigator.pop(ctx);
             },
             child: const Text('Lưu'),
