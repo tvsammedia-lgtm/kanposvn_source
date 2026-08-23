@@ -118,7 +118,10 @@ class _GameState extends State<GameScreen> with SingleTickerProviderStateMixin {
         game!.update(dt);
         final hpTotal = game!.left.hp + game!.right.hp;
         if (hpTotal < _prevHpTotal && mounted) {
-          _hitPlayer.play(AssetSource('sounds/nemda_hit.wav'));
+          // Không để lỗi âm thanh (plugin thiếu/trên web) làm crash game.
+          _hitPlayer
+              .play(AssetSource('sounds/nemda_hit.wav'))
+              .catchError((_) {});
         }
         _prevHpTotal = hpTotal;
         if (mounted) setState(() {});
