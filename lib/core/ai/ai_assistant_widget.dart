@@ -16,41 +16,51 @@ class AiAssistantFab extends ConsumerStatefulWidget {
 }
 
 class _AiAssistantFabState extends ConsumerState<AiAssistantFab> {
-  // Neo gốc ở góc phải-dưới (Positioned right:16 bottom:16 trong main.dart)
-  // nên độ lệch kéo chỉ cần giá trị ÂM là đủ phủ toàn màn hình.
-  double _dx = 0;
-  double _dy = 0;
+  // Neo gốc ở góc phải-dưới (right:16, bottom:16 trong main.dart) nên độ lệch
+  // kéo mang giá trị ÂM. Dùng Listener (pointer thô) để kéo mượt tức thì và
+  // KHÔNG tranh giải gesture với nút — bấm vẫn hoạt động sau khi kéo.
+  final ValueNotifier<Offset> _offset = ValueNotifier(Offset.zero);
 
-  void _onPan(DragUpdateDetails d) {
+  void _onPointerMove(PointerMoveEvent e) {
     final size = MediaQuery.of(context).size;
-    setState(() {
-      // 56 = kích thước FAB; chặn không cho kéo tràn khỏi màn hình.
-      _dx = (_dx + d.delta.dx).clamp(-(size.width - 120), 0.0);
-      _dy = (_dy + d.delta.dy).clamp(-(size.height - 160), 0.0);
-    });
+    const fabExtent = 56.0;
+    final next = Offset(
+      (_offset.value.dx + e.delta.dx).clamp(-(size.width - fabExtent - 24), 0.0),
+      (_offset.value.dy + e.delta.dy).clamp(-(size.height - fabExtent - 24), 0.0),
+    );
+    if (next != _offset.value) _offset.value = next;
+  }
+
+  @override
+  void dispose() {
+    _offset.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final data = assistantDataFor(widget.module);
-    return GestureDetector(
-      onPanUpdate: _onPan,
-      onPanCancel: () => setState(() {}),
-      child: Transform.translate(
-        offset: Offset(_dx, _dy),
-        child: FloatingActionButton(
-          heroTag: 'ai_assistant_${widget.module.appCode}',
-          backgroundColor: widget.module.color,
-          foregroundColor: Colors.white,
-          tooltip: '${data.assistantName} (kéo để di chuyển)',
-          onPressed: () {
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (_) => AiAssistantChatScreen(module: widget.module),
-              ),
-            );
-          },
-          child: const Icon(Icons.smart_toy),
+    return Listener(
+      onPointerMove: _onPointerMove,
+      onPointerCancel: (_) {},
+      child: ValueListenableBuilder<Offset>(
+        valueListenable: _offset,
+        builder: (_, o, _) => Transform.translate(
+          offset: o,
+          child: FloatingActionButton(
+            heroTag: 'ai_assistant_${widget.module.appCode}',
+            backgroundColor: widget.module.color,
+            foregroundColor: Colors.white,
+            tooltip: '${data.assistantName} (giữ và kéo để di chuyển)',
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => AiAssistantChatScreen(module: widget.module),
+                ),
+              );
+            },
+            child: const Icon(Icons.smart_toy),
+          ),
         ),
       ),
     );
