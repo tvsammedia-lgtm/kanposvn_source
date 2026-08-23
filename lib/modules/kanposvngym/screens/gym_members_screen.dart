@@ -74,11 +74,17 @@ class GymMembersScreen extends ConsumerWidget {
             ),
             ElevatedButton(
               onPressed: () {
+                if (nameCtrl.text.trim().isEmpty) return;
+                final phone = phoneCtrl.text.trim();
                 final member = GymMember()
                   ..memberId = 'MEM_${DateTime.now().millisecondsSinceEpoch}'
-                  ..fullName = nameCtrl.text
-                  ..phone = phoneCtrl.text;
-                  
+                  ..fullName = nameCtrl.text.trim()
+                  ..phone = phone
+                  // Mã QR check-in duy nhất: GYM + SĐT (hoặc timestamp nếu trống).
+                  ..qrCode = phone.isNotEmpty
+                      ? 'GYM$phone'
+                      : 'GYM${DateTime.now().millisecondsSinceEpoch}';
+
                 ref.read(gymMembersProvider.notifier).saveMember(member);
                 Navigator.pop(ctx);
               },
