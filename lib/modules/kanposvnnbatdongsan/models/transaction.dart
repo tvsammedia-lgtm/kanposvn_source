@@ -25,6 +25,11 @@ class TransactionRecord {
   double? floorFee;
   String? notes;
 
+  /// Tỷ lệ hoa hồng môi giới nhận (% trên tổng hoa hồng sàn).
+  double? commissionRate;
+  double? brokerBonus; // Thưởng
+  double? brokerDeduction; // Khấu trừ
+
   @Enumerated(EnumType.name)
   TransactionStatus status = TransactionStatus.negotiating;
 

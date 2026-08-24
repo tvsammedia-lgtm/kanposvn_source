@@ -4,6 +4,7 @@ import '../models/restaurant_menu_item.dart';
 import '../models/restaurant_order.dart';
 import '../models/restaurant_report_models.dart';
 import '../models/restaurant_table.dart';
+import '../models/restaurant_expense_model.dart';
 import 'restaurant_isar_service.dart';
 
 /// Xây dựng các báo cáo (mô phỏng báo cáo Crystal .rpt của KANTOUCH touch_admin)
@@ -78,10 +79,15 @@ class RestaurantReportService {
         o.closedAt != null &&
         o.closedAt!.isBefore(from));
 
-    final opening = before.fold<double>(0, (s, o) => s + o.totalAmount);
-    final thuBill = inRange.fold<double>(0, (s, o) => s + o.totalAmount);
+    final opening = before.fold<double>(0, (s, o) => s + o.totalAmount - o.discountAmount);
+    final thuBill =
+        inRange.fold<double>(0, (s, o) => s + o.totalAmount - o.discountAmount);
     final thuReceipt = 0.0; // Module chưa có phiếu thu riêng
-    final chi = 0.0; // Module chưa có dữ liệu chi tiền mặt
+    // Chi tiền mặt: tổng chi phí vận hành trong kỳ
+    final expenses = await db.restaurantExpenses.where().findAll();
+    final chi = expenses
+        .where((e) => _inRange(e.createdAt, from, to))
+        .fold<double>(0, (s, e) => s + e.amount);
     final end = opening + thuBill + thuReceipt - chi;
 
     const flex = [6, 42, 20];
@@ -176,7 +182,8 @@ class RestaurantReportService {
     final opening = orders.where((o) =>
         o.status == RestaurantOrderStatus.COMPLETED &&
         o.closedAt != null &&
-        o.closedAt!.isBefore(from)).fold<double>(0, (s, o) => s + o.totalAmount);
+        o.closedAt!.isBefore(from)).fold<double>(
+        0, (s, o) => s + o.totalAmount - o.discountAmount);
 
     final rows = <ReportRow>[
       ReportRow([
@@ -192,15 +199,34 @@ class RestaurantReportService {
     double running = opening;
     double totalIn = 0, totalOut = 0;
     for (final o in inRange) {
-      running += o.totalAmount;
-      totalIn += o.totalAmount;
+      final net = o.totalAmount - o.discountAmount;
+      running += net;
+      totalIn += net;
       final desc = o.table.value?.name ?? '';
       rows.add(ReportRow([
         ReportCell(formatDate(o.closedAt!), align: ReportCellAlign.center),
         ReportCell('HĐ${_shortId(o.orderId)}', align: ReportCellAlign.center),
-        ReportCell('Thu tiền bán hàng${desc.isNotEmpty ? ' - bàn $desc' : ''}'),
-        ReportCell(formatMoney(o.totalAmount), align: ReportCellAlign.right),
+        ReportCell(
+            'Thu tiền bán hàng${o.discountAmount > 0 ? " (giảm ${formatMoney(o.discountAmount)})" : ''}${desc.isNotEmpty ? ' - bàn $desc' : ''}'),
+        ReportCell(formatMoney(net), align: ReportCellAlign.right),
         const ReportCell(''),
+        ReportCell(formatMoney(running), align: ReportCellAlign.right),
+      ]));
+    }
+
+    // Chi phí vận hành phát sinh trong kỳ
+    final expenses = await db.restaurantExpenses.where().findAll();
+    expenses.removeWhere((e) => !_inRange(e.createdAt, from, to));
+    expenses.sort((a, b) => a.createdAt.compareTo(b.createdAt));
+    for (final e in expenses) {
+      running -= e.amount;
+      totalOut += e.amount;
+      rows.add(ReportRow([
+        ReportCell(formatDate(e.createdAt), align: ReportCellAlign.center),
+        ReportCell('CP', align: ReportCellAlign.center),
+        ReportCell('${e.category.label}${e.note.isNotEmpty ? ' - ${e.note}' : ''}'),
+        const ReportCell(''),
+        ReportCell(formatMoney(e.amount), align: ReportCellAlign.right),
         ReportCell(formatMoney(running), align: ReportCellAlign.right),
       ]));
     }
@@ -286,7 +312,7 @@ class RestaurantReportService {
 
     final rows = <ReportRow>[];
     var stt = 0;
-    int empty = 0, serving = 0, waiting = 0;
+    int empty = 0, serving = 0, waiting = 0, reserved = 0, cleaning = 0;
     for (final z in zones) {
       final list = byZone[z]!;
       rows.add(ReportRow([
@@ -307,6 +333,12 @@ class RestaurantReportService {
           case RestaurantTableStatus.WAITING_PAYMENT:
             waiting++;
             break;
+          case RestaurantTableStatus.RESERVED:
+            reserved++;
+            break;
+          case RestaurantTableStatus.CLEANING:
+            cleaning++;
+            break;
         }
         rows.add(ReportRow([
           ReportCell('$stt', align: ReportCellAlign.center),
@@ -322,6 +354,8 @@ class RestaurantReportService {
     if (empty > 0) statusSummary.write(' - Trống: $empty');
     if (serving > 0) statusSummary.write(' - Đang phục vụ: $serving');
     if (waiting > 0) statusSummary.write(' - Chờ thanh toán: $waiting');
+    if (reserved > 0) statusSummary.write(' - Đặt trước: $reserved');
+    if (cleaning > 0) statusSummary.write(' - Dọn bàn: $cleaning');
 
     return CrystalReportModel(
       formLine: '',

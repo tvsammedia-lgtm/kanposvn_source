@@ -7,20 +7,27 @@ import '../models/trip.dart';
 import '../models/attendance.dart';
 import '../models/payroll.dart';
 import '../models/kpi.dart';
+import '../models/leave_request.dart';
+import '../seed/hrpayroll_seed_data.dart';
 
 class DatabaseService {
   static DatabaseService? _instance;
   static Isar? _isar;
 
+  /// Cho phép test inject Isar riêng (temp dir) thay vì DB thật.
+  static Isar? debugOverride;
+
   DatabaseService._();
   static DatabaseService get instance => _instance ??= DatabaseService._();
 
   Isar get isar {
+    if (debugOverride != null && debugOverride!.isOpen) return debugOverride!;
     if (_isar == null) throw Exception('Isar not initialized');
     return _isar!;
   }
 
   Future<void> initialize() async {
+    if (debugOverride != null && debugOverride!.isOpen) return;
     if (_isar != null && _isar!.isOpen) return;
     const name = 'hrpayroll_db';
     final existing = Isar.getInstance(name);
@@ -40,6 +47,7 @@ class DatabaseService {
         KpiRecordSchema,
         DisciplineRecordSchema,
         BonusRecordSchema,
+        LeaveRequestSchema,
       ],
       directory: dir.path,
       name: name,
@@ -200,6 +208,26 @@ class DatabaseService {
     return isar.writeTxn(() => isar.kpiRecords.put(k));
   }
 
+  // ─── Leave requests (§8: Đơn xin nghỉ / Duyệt nghỉ) ──────────────────────
+  Future<List<LeaveRequest>> getAllLeaveRequests() async =>
+      isar.leaveRequests.where().sortByCreatedAtDesc().findAll();
+
+  Future<List<LeaveRequest>> getPendingLeaveRequests() async =>
+      isar.leaveRequests
+          .filter()
+          .statusEqualTo(LeaveStatus.pending)
+          .sortByCreatedAtDesc()
+          .findAll();
+
+  Future<int> saveLeaveRequest(LeaveRequest r) async {
+    r.updatedAt = DateTime.now();
+    r.needsSync = true;
+    return isar.writeTxn(() => isar.leaveRequests.put(r));
+  }
+
+  Future<bool> deleteLeaveRequest(int id) async =>
+      isar.writeTxn(() => isar.leaveRequests.delete(id));
+
   // ─── Bonus & Discipline ───────────────────────────────────────────────────
   Future<List<BonusRecord>> getBonusByMonth(int year, int month) async =>
       isar.bonusRecords
@@ -262,6 +290,18 @@ class DatabaseService {
   // ─── Sync helpers ─────────────────────────────────────────────────────────
   Future<List<Employee>> getUnsyncedEmployees() async =>
       isar.employees.filter().needsSyncEqualTo(true).findAll();
+
+  /// Nạp dữ liệu mẫu nếu DB trống (gọi khi shell khởi động).
+  Future<void> seedIfEmpty() async {
+    if (await isar.employees.count() > 0) return;
+    await HrPayrollSeedData.seed();
+  }
+
+  /// Xóa trắng toàn bộ collection rồi seed lại dữ liệu mẫu.
+  Future<void> resetAndSeed() async {
+    await isar.writeTxn(() => isar.clear());
+    await HrPayrollSeedData.seed();
+  }
 
   Future<List<Driver>> getUnsyncedDrivers() async =>
       isar.drivers.filter().needsSyncEqualTo(true).findAll();

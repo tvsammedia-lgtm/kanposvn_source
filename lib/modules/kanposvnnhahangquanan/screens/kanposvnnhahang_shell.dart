@@ -9,8 +9,11 @@ import '../providers/restaurant_inventory_providers.dart';
 import '../services/restaurant_seed_data.dart';
 import 'restaurant_dashboard_screen.dart';
 import 'restaurant_tables_screen.dart';
+import 'restaurant_reservations_screen.dart';
 import 'restaurant_kitchen_screen.dart';
 import 'restaurant_inventory_screen.dart';
+import 'restaurant_partners_screen.dart';
+import 'restaurant_expenses_screen.dart';
 import 'bill_search_screen.dart';
 import 'sales_report_screen.dart';
 import 'restaurant_reports_screen.dart';
@@ -45,25 +48,43 @@ class _KanPosVNRestaurantShellState extends ConsumerState<KanPosVNRestaurantShel
     ref.read(restaurantIngredientsProvider.notifier).loadIngredients();
     ref.read(restaurantInventoryTxProvider.notifier).loadTransactions();
 
+    // Phase 3: đặt bàn, khách hàng, NCC, chi phí, khuyến mãi
+    ref.read(restaurantReservationsProvider.notifier).load();
+    ref.read(restaurantCustomersProvider.notifier).loadCustomers();
+    ref.read(restaurantSuppliersProvider.notifier).loadSuppliers();
+    ref.read(restaurantExpensesProvider.notifier).loadExpenses();
+    ref.read(restaurantPromotionsProvider.notifier).load();
+
     setState(() {
       _isInit = true;
     });
   }
 
   static final Map<String, Set<String>> _roleTabs = {
-    EmployeeRoles.cashier: const {'tables', 'kitchen', 'search'},
-    EmployeeRoles.sale: const {'tables', 'kitchen'},
-    EmployeeRoles.warehouse: const {'inventory'},
-    EmployeeRoles.accountant: const {'dashboard', 'search', 'report', 'report_common', 'settings'},
+    EmployeeRoles.cashier: const {'tables', 'reservations', 'kitchen', 'partners', 'search'},
+    EmployeeRoles.sale: const {'tables', 'reservations', 'kitchen'},
+    EmployeeRoles.warehouse: const {'inventory', 'partners'},
+    EmployeeRoles.accountant: const {
+      'dashboard',
+      'expenses',
+      'partners',
+      'search',
+      'report',
+      'report_common',
+      'settings'
+    },
   };
 
   /// Định nghĩa các tab của module (id, icon, label) — thứ tự hiển thị.
   /// Quản Lý NV đã chuyển vào trong tab Cài Đặt.
   static final Map<String, ({IconData icon, String label})> _tabDefs = {
     'tables': (icon: Icons.grid_view, label: 'Sơ đồ Bàn'),
+    'reservations': (icon: Icons.event_available, label: 'Đặt Bàn'),
     'kitchen': (icon: Icons.kitchen, label: 'Bếp'),
     'inventory': (icon: Icons.inventory, label: 'Kho Hàng'),
     'dashboard': (icon: Icons.dashboard, label: 'Dashboard'),
+    'partners': (icon: Icons.people, label: 'KH & NCC'),
+    'expenses': (icon: Icons.money_off, label: 'Chi Phí'),
     'search': (icon: Icons.receipt_long, label: 'Tìm Bill'),
     'report': (icon: Icons.bar_chart, label: 'Báo Cáo'),
     'report_common': (icon: Icons.description, label: 'Báo Cáo Chung'),
@@ -72,9 +93,12 @@ class _KanPosVNRestaurantShellState extends ConsumerState<KanPosVNRestaurantShel
 
   static final Map<String, Widget Function()> _tabScreens = {
     'tables': () => const RestaurantTablesScreen(),
+    'reservations': () => const RestaurantReservationsScreen(),
     'kitchen': () => const RestaurantKitchenScreen(),
     'inventory': () => const RestaurantInventoryScreen(),
     'dashboard': () => const RestaurantDashboardScreen(),
+    'partners': () => const RestaurantPartnersScreen(),
+    'expenses': () => const RestaurantExpensesScreen(),
     'search': () => const BillSearchScreen(),
     'report': () => const SalesReportScreen(),
     'report_common': () => const RestaurantReportsScreen(),

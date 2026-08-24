@@ -22,89 +22,104 @@ const TransactionRecordSchema = CollectionSchema(
       name: r'askingPrice',
       type: IsarType.double,
     ),
-    r'brokerId': PropertySchema(
+    r'brokerBonus': PropertySchema(
       id: 1,
+      name: r'brokerBonus',
+      type: IsarType.double,
+    ),
+    r'brokerDeduction': PropertySchema(
+      id: 2,
+      name: r'brokerDeduction',
+      type: IsarType.double,
+    ),
+    r'brokerId': PropertySchema(
+      id: 3,
       name: r'brokerId',
       type: IsarType.string,
     ),
     r'buyerId': PropertySchema(
-      id: 2,
+      id: 4,
       name: r'buyerId',
       type: IsarType.string,
     ),
     r'commission': PropertySchema(
-      id: 3,
+      id: 5,
       name: r'commission',
       type: IsarType.double,
     ),
+    r'commissionRate': PropertySchema(
+      id: 6,
+      name: r'commissionRate',
+      type: IsarType.double,
+    ),
     r'deletedAt': PropertySchema(
-      id: 4,
+      id: 7,
       name: r'deletedAt',
       type: IsarType.dateTime,
     ),
     r'deviceId': PropertySchema(
-      id: 5,
+      id: 8,
       name: r'deviceId',
       type: IsarType.string,
     ),
     r'finalPrice': PropertySchema(
-      id: 6,
+      id: 9,
       name: r'finalPrice',
       type: IsarType.double,
     ),
     r'floorFee': PropertySchema(
-      id: 7,
+      id: 10,
       name: r'floorFee',
       type: IsarType.double,
     ),
     r'isSynced': PropertySchema(
-      id: 8,
+      id: 11,
       name: r'isSynced',
       type: IsarType.bool,
     ),
     r'notes': PropertySchema(
-      id: 9,
+      id: 12,
       name: r'notes',
       type: IsarType.string,
     ),
     r'propertyId': PropertySchema(
-      id: 10,
+      id: 13,
       name: r'propertyId',
       type: IsarType.string,
     ),
     r'remoteId': PropertySchema(
-      id: 11,
+      id: 14,
       name: r'remoteId',
       type: IsarType.string,
     ),
     r'sellerId': PropertySchema(
-      id: 12,
+      id: 15,
       name: r'sellerId',
       type: IsarType.string,
     ),
     r'status': PropertySchema(
-      id: 13,
+      id: 16,
       name: r'status',
       type: IsarType.string,
       enumMap: _TransactionRecordstatusEnumValueMap,
     ),
     r'transactionCode': PropertySchema(
-      id: 14,
+      id: 17,
       name: r'transactionCode',
       type: IsarType.string,
     ),
     r'transactionDate': PropertySchema(
-      id: 15,
+      id: 18,
       name: r'transactionDate',
       type: IsarType.dateTime,
     ),
     r'updatedAt': PropertySchema(
-      id: 16,
+      id: 19,
       name: r'updatedAt',
       type: IsarType.dateTime,
     ),
     r'version': PropertySchema(
-      id: 17,
+      id: 20,
       name: r'version',
       type: IsarType.long,
     )
@@ -197,23 +212,26 @@ void _transactionRecordSerialize(
   Map<Type, List<int>> allOffsets,
 ) {
   writer.writeDouble(offsets[0], object.askingPrice);
-  writer.writeString(offsets[1], object.brokerId);
-  writer.writeString(offsets[2], object.buyerId);
-  writer.writeDouble(offsets[3], object.commission);
-  writer.writeDateTime(offsets[4], object.deletedAt);
-  writer.writeString(offsets[5], object.deviceId);
-  writer.writeDouble(offsets[6], object.finalPrice);
-  writer.writeDouble(offsets[7], object.floorFee);
-  writer.writeBool(offsets[8], object.isSynced);
-  writer.writeString(offsets[9], object.notes);
-  writer.writeString(offsets[10], object.propertyId);
-  writer.writeString(offsets[11], object.remoteId);
-  writer.writeString(offsets[12], object.sellerId);
-  writer.writeString(offsets[13], object.status.name);
-  writer.writeString(offsets[14], object.transactionCode);
-  writer.writeDateTime(offsets[15], object.transactionDate);
-  writer.writeDateTime(offsets[16], object.updatedAt);
-  writer.writeLong(offsets[17], object.version);
+  writer.writeDouble(offsets[1], object.brokerBonus);
+  writer.writeDouble(offsets[2], object.brokerDeduction);
+  writer.writeString(offsets[3], object.brokerId);
+  writer.writeString(offsets[4], object.buyerId);
+  writer.writeDouble(offsets[5], object.commission);
+  writer.writeDouble(offsets[6], object.commissionRate);
+  writer.writeDateTime(offsets[7], object.deletedAt);
+  writer.writeString(offsets[8], object.deviceId);
+  writer.writeDouble(offsets[9], object.finalPrice);
+  writer.writeDouble(offsets[10], object.floorFee);
+  writer.writeBool(offsets[11], object.isSynced);
+  writer.writeString(offsets[12], object.notes);
+  writer.writeString(offsets[13], object.propertyId);
+  writer.writeString(offsets[14], object.remoteId);
+  writer.writeString(offsets[15], object.sellerId);
+  writer.writeString(offsets[16], object.status.name);
+  writer.writeString(offsets[17], object.transactionCode);
+  writer.writeDateTime(offsets[18], object.transactionDate);
+  writer.writeDateTime(offsets[19], object.updatedAt);
+  writer.writeLong(offsets[20], object.version);
 }
 
 TransactionRecord _transactionRecordDeserialize(
@@ -224,26 +242,29 @@ TransactionRecord _transactionRecordDeserialize(
 ) {
   final object = TransactionRecord();
   object.askingPrice = reader.readDoubleOrNull(offsets[0]);
-  object.brokerId = reader.readStringOrNull(offsets[1]);
-  object.buyerId = reader.readStringOrNull(offsets[2]);
-  object.commission = reader.readDoubleOrNull(offsets[3]);
-  object.deletedAt = reader.readDateTimeOrNull(offsets[4]);
-  object.deviceId = reader.readString(offsets[5]);
-  object.finalPrice = reader.readDoubleOrNull(offsets[6]);
-  object.floorFee = reader.readDoubleOrNull(offsets[7]);
+  object.brokerBonus = reader.readDoubleOrNull(offsets[1]);
+  object.brokerDeduction = reader.readDoubleOrNull(offsets[2]);
+  object.brokerId = reader.readStringOrNull(offsets[3]);
+  object.buyerId = reader.readStringOrNull(offsets[4]);
+  object.commission = reader.readDoubleOrNull(offsets[5]);
+  object.commissionRate = reader.readDoubleOrNull(offsets[6]);
+  object.deletedAt = reader.readDateTimeOrNull(offsets[7]);
+  object.deviceId = reader.readString(offsets[8]);
+  object.finalPrice = reader.readDoubleOrNull(offsets[9]);
+  object.floorFee = reader.readDoubleOrNull(offsets[10]);
   object.id = id;
-  object.isSynced = reader.readBool(offsets[8]);
-  object.notes = reader.readStringOrNull(offsets[9]);
-  object.propertyId = reader.readStringOrNull(offsets[10]);
-  object.remoteId = reader.readStringOrNull(offsets[11]);
-  object.sellerId = reader.readStringOrNull(offsets[12]);
+  object.isSynced = reader.readBool(offsets[11]);
+  object.notes = reader.readStringOrNull(offsets[12]);
+  object.propertyId = reader.readStringOrNull(offsets[13]);
+  object.remoteId = reader.readStringOrNull(offsets[14]);
+  object.sellerId = reader.readStringOrNull(offsets[15]);
   object.status = _TransactionRecordstatusValueEnumMap[
-          reader.readStringOrNull(offsets[13])] ??
+          reader.readStringOrNull(offsets[16])] ??
       TransactionStatus.negotiating;
-  object.transactionCode = reader.readStringOrNull(offsets[14]);
-  object.transactionDate = reader.readDateTimeOrNull(offsets[15]);
-  object.updatedAt = reader.readDateTimeOrNull(offsets[16]);
-  object.version = reader.readLongOrNull(offsets[17]);
+  object.transactionCode = reader.readStringOrNull(offsets[17]);
+  object.transactionDate = reader.readDateTimeOrNull(offsets[18]);
+  object.updatedAt = reader.readDateTimeOrNull(offsets[19]);
+  object.version = reader.readLongOrNull(offsets[20]);
   return object;
 }
 
@@ -257,40 +278,46 @@ P _transactionRecordDeserializeProp<P>(
     case 0:
       return (reader.readDoubleOrNull(offset)) as P;
     case 1:
-      return (reader.readStringOrNull(offset)) as P;
-    case 2:
-      return (reader.readStringOrNull(offset)) as P;
-    case 3:
       return (reader.readDoubleOrNull(offset)) as P;
+    case 2:
+      return (reader.readDoubleOrNull(offset)) as P;
+    case 3:
+      return (reader.readStringOrNull(offset)) as P;
     case 4:
-      return (reader.readDateTimeOrNull(offset)) as P;
+      return (reader.readStringOrNull(offset)) as P;
     case 5:
-      return (reader.readString(offset)) as P;
+      return (reader.readDoubleOrNull(offset)) as P;
     case 6:
       return (reader.readDoubleOrNull(offset)) as P;
     case 7:
-      return (reader.readDoubleOrNull(offset)) as P;
+      return (reader.readDateTimeOrNull(offset)) as P;
     case 8:
-      return (reader.readBool(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 9:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readDoubleOrNull(offset)) as P;
     case 10:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readDoubleOrNull(offset)) as P;
     case 11:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readBool(offset)) as P;
     case 12:
       return (reader.readStringOrNull(offset)) as P;
     case 13:
-      return (_TransactionRecordstatusValueEnumMap[
-              reader.readStringOrNull(offset)] ??
-          TransactionStatus.negotiating) as P;
+      return (reader.readStringOrNull(offset)) as P;
     case 14:
       return (reader.readStringOrNull(offset)) as P;
     case 15:
-      return (reader.readDateTimeOrNull(offset)) as P;
+      return (reader.readStringOrNull(offset)) as P;
     case 16:
-      return (reader.readDateTimeOrNull(offset)) as P;
+      return (_TransactionRecordstatusValueEnumMap[
+              reader.readStringOrNull(offset)] ??
+          TransactionStatus.negotiating) as P;
     case 17:
+      return (reader.readStringOrNull(offset)) as P;
+    case 18:
+      return (reader.readDateTimeOrNull(offset)) as P;
+    case 19:
+      return (reader.readDateTimeOrNull(offset)) as P;
+    case 20:
       return (reader.readLongOrNull(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -606,6 +633,174 @@ extension TransactionRecordQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.between(
         property: r'askingPrice',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<TransactionRecord, TransactionRecord, QAfterFilterCondition>
+      brokerBonusIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'brokerBonus',
+      ));
+    });
+  }
+
+  QueryBuilder<TransactionRecord, TransactionRecord, QAfterFilterCondition>
+      brokerBonusIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'brokerBonus',
+      ));
+    });
+  }
+
+  QueryBuilder<TransactionRecord, TransactionRecord, QAfterFilterCondition>
+      brokerBonusEqualTo(
+    double? value, {
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'brokerBonus',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<TransactionRecord, TransactionRecord, QAfterFilterCondition>
+      brokerBonusGreaterThan(
+    double? value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'brokerBonus',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<TransactionRecord, TransactionRecord, QAfterFilterCondition>
+      brokerBonusLessThan(
+    double? value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'brokerBonus',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<TransactionRecord, TransactionRecord, QAfterFilterCondition>
+      brokerBonusBetween(
+    double? lower,
+    double? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'brokerBonus',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<TransactionRecord, TransactionRecord, QAfterFilterCondition>
+      brokerDeductionIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'brokerDeduction',
+      ));
+    });
+  }
+
+  QueryBuilder<TransactionRecord, TransactionRecord, QAfterFilterCondition>
+      brokerDeductionIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'brokerDeduction',
+      ));
+    });
+  }
+
+  QueryBuilder<TransactionRecord, TransactionRecord, QAfterFilterCondition>
+      brokerDeductionEqualTo(
+    double? value, {
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'brokerDeduction',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<TransactionRecord, TransactionRecord, QAfterFilterCondition>
+      brokerDeductionGreaterThan(
+    double? value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'brokerDeduction',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<TransactionRecord, TransactionRecord, QAfterFilterCondition>
+      brokerDeductionLessThan(
+    double? value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'brokerDeduction',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<TransactionRecord, TransactionRecord, QAfterFilterCondition>
+      brokerDeductionBetween(
+    double? lower,
+    double? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'brokerDeduction',
         lower: lower,
         includeLower: includeLower,
         upper: upper,
@@ -998,6 +1193,90 @@ extension TransactionRecordQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.between(
         property: r'commission',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<TransactionRecord, TransactionRecord, QAfterFilterCondition>
+      commissionRateIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'commissionRate',
+      ));
+    });
+  }
+
+  QueryBuilder<TransactionRecord, TransactionRecord, QAfterFilterCondition>
+      commissionRateIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'commissionRate',
+      ));
+    });
+  }
+
+  QueryBuilder<TransactionRecord, TransactionRecord, QAfterFilterCondition>
+      commissionRateEqualTo(
+    double? value, {
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'commissionRate',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<TransactionRecord, TransactionRecord, QAfterFilterCondition>
+      commissionRateGreaterThan(
+    double? value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'commissionRate',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<TransactionRecord, TransactionRecord, QAfterFilterCondition>
+      commissionRateLessThan(
+    double? value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'commissionRate',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<TransactionRecord, TransactionRecord, QAfterFilterCondition>
+      commissionRateBetween(
+    double? lower,
+    double? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'commissionRate',
         lower: lower,
         includeLower: includeLower,
         upper: upper,
@@ -2603,6 +2882,34 @@ extension TransactionRecordQuerySortBy
   }
 
   QueryBuilder<TransactionRecord, TransactionRecord, QAfterSortBy>
+      sortByBrokerBonus() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'brokerBonus', Sort.asc);
+    });
+  }
+
+  QueryBuilder<TransactionRecord, TransactionRecord, QAfterSortBy>
+      sortByBrokerBonusDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'brokerBonus', Sort.desc);
+    });
+  }
+
+  QueryBuilder<TransactionRecord, TransactionRecord, QAfterSortBy>
+      sortByBrokerDeduction() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'brokerDeduction', Sort.asc);
+    });
+  }
+
+  QueryBuilder<TransactionRecord, TransactionRecord, QAfterSortBy>
+      sortByBrokerDeductionDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'brokerDeduction', Sort.desc);
+    });
+  }
+
+  QueryBuilder<TransactionRecord, TransactionRecord, QAfterSortBy>
       sortByBrokerId() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'brokerId', Sort.asc);
@@ -2641,6 +2948,20 @@ extension TransactionRecordQuerySortBy
       sortByCommissionDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'commission', Sort.desc);
+    });
+  }
+
+  QueryBuilder<TransactionRecord, TransactionRecord, QAfterSortBy>
+      sortByCommissionRate() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'commissionRate', Sort.asc);
+    });
+  }
+
+  QueryBuilder<TransactionRecord, TransactionRecord, QAfterSortBy>
+      sortByCommissionRateDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'commissionRate', Sort.desc);
     });
   }
 
@@ -2858,6 +3179,34 @@ extension TransactionRecordQuerySortThenBy
   }
 
   QueryBuilder<TransactionRecord, TransactionRecord, QAfterSortBy>
+      thenByBrokerBonus() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'brokerBonus', Sort.asc);
+    });
+  }
+
+  QueryBuilder<TransactionRecord, TransactionRecord, QAfterSortBy>
+      thenByBrokerBonusDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'brokerBonus', Sort.desc);
+    });
+  }
+
+  QueryBuilder<TransactionRecord, TransactionRecord, QAfterSortBy>
+      thenByBrokerDeduction() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'brokerDeduction', Sort.asc);
+    });
+  }
+
+  QueryBuilder<TransactionRecord, TransactionRecord, QAfterSortBy>
+      thenByBrokerDeductionDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'brokerDeduction', Sort.desc);
+    });
+  }
+
+  QueryBuilder<TransactionRecord, TransactionRecord, QAfterSortBy>
       thenByBrokerId() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'brokerId', Sort.asc);
@@ -2896,6 +3245,20 @@ extension TransactionRecordQuerySortThenBy
       thenByCommissionDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'commission', Sort.desc);
+    });
+  }
+
+  QueryBuilder<TransactionRecord, TransactionRecord, QAfterSortBy>
+      thenByCommissionRate() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'commissionRate', Sort.asc);
+    });
+  }
+
+  QueryBuilder<TransactionRecord, TransactionRecord, QAfterSortBy>
+      thenByCommissionRateDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'commissionRate', Sort.desc);
     });
   }
 
@@ -3119,6 +3482,20 @@ extension TransactionRecordQueryWhereDistinct
   }
 
   QueryBuilder<TransactionRecord, TransactionRecord, QDistinct>
+      distinctByBrokerBonus() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'brokerBonus');
+    });
+  }
+
+  QueryBuilder<TransactionRecord, TransactionRecord, QDistinct>
+      distinctByBrokerDeduction() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'brokerDeduction');
+    });
+  }
+
+  QueryBuilder<TransactionRecord, TransactionRecord, QDistinct>
       distinctByBrokerId({bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'brokerId', caseSensitive: caseSensitive);
@@ -3136,6 +3513,13 @@ extension TransactionRecordQueryWhereDistinct
       distinctByCommission() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'commission');
+    });
+  }
+
+  QueryBuilder<TransactionRecord, TransactionRecord, QDistinct>
+      distinctByCommissionRate() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'commissionRate');
     });
   }
 
@@ -3254,6 +3638,20 @@ extension TransactionRecordQueryProperty
     });
   }
 
+  QueryBuilder<TransactionRecord, double?, QQueryOperations>
+      brokerBonusProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'brokerBonus');
+    });
+  }
+
+  QueryBuilder<TransactionRecord, double?, QQueryOperations>
+      brokerDeductionProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'brokerDeduction');
+    });
+  }
+
   QueryBuilder<TransactionRecord, String?, QQueryOperations>
       brokerIdProperty() {
     return QueryBuilder.apply(this, (query) {
@@ -3271,6 +3669,13 @@ extension TransactionRecordQueryProperty
       commissionProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'commission');
+    });
+  }
+
+  QueryBuilder<TransactionRecord, double?, QQueryOperations>
+      commissionRateProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'commissionRate');
     });
   }
 

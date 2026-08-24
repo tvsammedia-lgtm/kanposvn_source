@@ -7,6 +7,7 @@ import '../models/trip.dart';
 import '../models/attendance.dart';
 import '../models/payroll.dart';
 import '../models/kpi.dart';
+import '../models/leave_request.dart';
 import '../services/database_service.dart';
 import '../services/sync_service.dart';
 import '../services/auth_service.dart';
@@ -230,6 +231,12 @@ final attendanceByMonthProvider =
     FutureProvider.family<List<Attendance>, SelectedMonth>((ref, month) async {
   final db = ref.watch(dbProvider);
   return db.getAttendanceByMonth(month.year, month.month);
+});
+
+// ─── Leave requests (§8: Đơn xin nghỉ / Duyệt nghỉ) ────────────────────────
+final leaveRequestsProvider = FutureProvider<List<LeaveRequest>>((ref) async {
+  final db = ref.watch(dbProvider);
+  return db.getAllLeaveRequests();
 });
 
 // ─── Payroll ───────────────────────────────────────────────────────────────

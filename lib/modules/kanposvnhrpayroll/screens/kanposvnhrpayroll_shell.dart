@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/app_theme.dart';
 import '../core/router.dart';
+import '../services/auth_service.dart';
 import '../services/database_service.dart';
 import '../services/sync_service.dart';
 
@@ -30,7 +31,18 @@ class _KanPosVnHrPayrollShellState extends ConsumerState<KanPosVnHrPayrollShell>
   Future<void> _init() async {
     try {
       await DatabaseService.instance.initialize();
+      // Nạp dữ liệu mẫu nếu DB trống (nhân viên/tài xế/xe/chuyến/chấm công).
+      await DatabaseService.instance.seedIfEmpty();
       await SyncService.instance.loadConfig();
+      // Module chia sẻ key phiên với AuthService chính: nếu Owner đã đăng
+      // nhập trên màn hình chính thì module có sẵn token hợp lệ — không
+      // bắt đăng nhập lần thứ hai trên login riêng của module.
+      await AuthService.instance.ensureSessionLoaded();
+      // appRouter là singleton: giữ location cũ từ phiên trước (vd /settings)
+      // khiến lần vào này rơi nhầm màn cũ thay vì Dashboard → reset về đầu.
+      if (AuthService.instance.isLoggedIn) {
+        appRouter.go('/dashboard');
+      }
       if (mounted) {
         setState(() => _ready = true);
       }

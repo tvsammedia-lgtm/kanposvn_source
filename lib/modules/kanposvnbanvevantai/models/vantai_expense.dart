@@ -8,7 +8,14 @@ enum ExpenseCategory {
   TOLL('Trạm Thu Phí'),
   SALARY('Lương Tài Xế'),
   MAINTENANCE('Sửa Chữa / Bảo Dưỡng'),
-  OTHER('Khác');
+  OTHER('Khác'),
+  DEPOT('Bến Bãi'),
+  SOCIAL_INSURANCE('BHXH'),
+  DEPRECIATION('Khấu Hao'),
+  OFFICE('Văn Phòng'),
+  UTILITIES('Điện Nước'),
+  INTERNET('Internet'),
+  MARKETING('Marketing');
 
   final String label;
   const ExpenseCategory(this.label);

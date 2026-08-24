@@ -12,6 +12,15 @@ enum VehicleType {
   const VehicleType(this.label);
 }
 
+enum VehicleStatus {
+  ACTIVE('Đang hoạt động'),
+  MAINTENANCE('Bảo dưỡng'),
+  REPAIR('Sửa chữa');
+
+  final String label;
+  const VehicleStatus(this.label);
+}
+
 @collection
 class VantaiVehicle {
   Id id = Isar.autoIncrement;
@@ -24,14 +33,24 @@ class VantaiVehicle {
 
   @Index(unique: true, replace: true)
   String vehicleId = '';
-  
-  String plateNumber = ''; // Biển số
-  
+
+  String plateNumber = '';
   @enumerated
   VehicleType type = VehicleType.SLEEPER;
-  
-  int totalSeats = 0; // Tổng số chỗ
-  
-  String brand = ''; // Hãng xe (Thaco, Hyundai...)
+  int totalSeats = 0;
+  String brand = '';
   int manufactureYear = 2020;
+
+  // Thông tin kỹ thuật / theo dõi (PRD mục 3)
+  bool gpsEnabled = false;
+  double odometerKm = 0; // km đã chạy
+  DateTime? nextMaintenanceDate; // lịch bảo dưỡng
+  double nextMaintenanceKm = 0; // km hạn bảo dưỡng
+  DateTime? lastOilChange; // thay nhớt
+  DateTime? lastTireChange; // thay lốp
+  DateTime? inspectionExpiry; // đăng kiểm
+  DateTime? insuranceExpiry; // bảo hiểm
+
+  @enumerated
+  VehicleStatus status = VehicleStatus.ACTIVE;
 }

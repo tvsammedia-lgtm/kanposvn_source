@@ -27,50 +27,91 @@ const RestaurantOrderSchema = CollectionSchema(
       name: r'createdAt',
       type: IsarType.dateTime,
     ),
-    r'deletedAt': PropertySchema(
+    r'customerId': PropertySchema(
       id: 2,
+      name: r'customerId',
+      type: IsarType.string,
+    ),
+    r'customerName': PropertySchema(
+      id: 3,
+      name: r'customerName',
+      type: IsarType.string,
+    ),
+    r'customerPhone': PropertySchema(
+      id: 4,
+      name: r'customerPhone',
+      type: IsarType.string,
+    ),
+    r'deletedAt': PropertySchema(
+      id: 5,
       name: r'deletedAt',
       type: IsarType.dateTime,
     ),
     r'details': PropertySchema(
-      id: 3,
+      id: 6,
       name: r'details',
       type: IsarType.objectList,
       target: r'RestaurantOrderDetail',
     ),
     r'deviceId': PropertySchema(
-      id: 4,
+      id: 7,
       name: r'deviceId',
       type: IsarType.string,
     ),
+    r'discountAmount': PropertySchema(
+      id: 8,
+      name: r'discountAmount',
+      type: IsarType.double,
+    ),
+    r'earnedPoints': PropertySchema(
+      id: 9,
+      name: r'earnedPoints',
+      type: IsarType.long,
+    ),
+    r'finalAmount': PropertySchema(
+      id: 10,
+      name: r'finalAmount',
+      type: IsarType.double,
+    ),
     r'isSynced': PropertySchema(
-      id: 5,
+      id: 11,
       name: r'isSynced',
       type: IsarType.bool,
     ),
     r'orderId': PropertySchema(
-      id: 6,
+      id: 12,
       name: r'orderId',
       type: IsarType.string,
     ),
+    r'payments': PropertySchema(
+      id: 13,
+      name: r'payments',
+      type: IsarType.objectList,
+      target: r'RestaurantOrderPayment',
+    ),
+    r'promotionName': PropertySchema(
+      id: 14,
+      name: r'promotionName',
+      type: IsarType.string,
+    ),
     r'status': PropertySchema(
-      id: 7,
+      id: 15,
       name: r'status',
       type: IsarType.byte,
       enumMap: _RestaurantOrderstatusEnumValueMap,
     ),
     r'totalAmount': PropertySchema(
-      id: 8,
+      id: 16,
       name: r'totalAmount',
       type: IsarType.double,
     ),
     r'updatedAt': PropertySchema(
-      id: 9,
+      id: 17,
       name: r'updatedAt',
       type: IsarType.dateTime,
     ),
     r'version': PropertySchema(
-      id: 10,
+      id: 18,
       name: r'version',
       type: IsarType.long,
     )
@@ -103,7 +144,10 @@ const RestaurantOrderSchema = CollectionSchema(
       single: true,
     )
   },
-  embeddedSchemas: {r'RestaurantOrderDetail': RestaurantOrderDetailSchema},
+  embeddedSchemas: {
+    r'RestaurantOrderDetail': RestaurantOrderDetailSchema,
+    r'RestaurantOrderPayment': RestaurantOrderPaymentSchema
+  },
   getId: _restaurantOrderGetId,
   getLinks: _restaurantOrderGetLinks,
   attach: _restaurantOrderAttach,
@@ -116,6 +160,9 @@ int _restaurantOrderEstimateSize(
   Map<Type, List<int>> allOffsets,
 ) {
   var bytesCount = offsets.last;
+  bytesCount += 3 + object.customerId.length * 3;
+  bytesCount += 3 + object.customerName.length * 3;
+  bytesCount += 3 + object.customerPhone.length * 3;
   bytesCount += 3 + object.details.length * 3;
   {
     final offsets = allOffsets[RestaurantOrderDetail]!;
@@ -127,6 +174,16 @@ int _restaurantOrderEstimateSize(
   }
   bytesCount += 3 + object.deviceId.length * 3;
   bytesCount += 3 + object.orderId.length * 3;
+  bytesCount += 3 + object.payments.length * 3;
+  {
+    final offsets = allOffsets[RestaurantOrderPayment]!;
+    for (var i = 0; i < object.payments.length; i++) {
+      final value = object.payments[i];
+      bytesCount +=
+          RestaurantOrderPaymentSchema.estimateSize(value, offsets, allOffsets);
+    }
+  }
+  bytesCount += 3 + object.promotionName.length * 3;
   return bytesCount;
 }
 
@@ -138,20 +195,33 @@ void _restaurantOrderSerialize(
 ) {
   writer.writeDateTime(offsets[0], object.closedAt);
   writer.writeDateTime(offsets[1], object.createdAt);
-  writer.writeDateTime(offsets[2], object.deletedAt);
+  writer.writeString(offsets[2], object.customerId);
+  writer.writeString(offsets[3], object.customerName);
+  writer.writeString(offsets[4], object.customerPhone);
+  writer.writeDateTime(offsets[5], object.deletedAt);
   writer.writeObjectList<RestaurantOrderDetail>(
-    offsets[3],
+    offsets[6],
     allOffsets,
     RestaurantOrderDetailSchema.serialize,
     object.details,
   );
-  writer.writeString(offsets[4], object.deviceId);
-  writer.writeBool(offsets[5], object.isSynced);
-  writer.writeString(offsets[6], object.orderId);
-  writer.writeByte(offsets[7], object.status.index);
-  writer.writeDouble(offsets[8], object.totalAmount);
-  writer.writeDateTime(offsets[9], object.updatedAt);
-  writer.writeLong(offsets[10], object.version);
+  writer.writeString(offsets[7], object.deviceId);
+  writer.writeDouble(offsets[8], object.discountAmount);
+  writer.writeLong(offsets[9], object.earnedPoints);
+  writer.writeDouble(offsets[10], object.finalAmount);
+  writer.writeBool(offsets[11], object.isSynced);
+  writer.writeString(offsets[12], object.orderId);
+  writer.writeObjectList<RestaurantOrderPayment>(
+    offsets[13],
+    allOffsets,
+    RestaurantOrderPaymentSchema.serialize,
+    object.payments,
+  );
+  writer.writeString(offsets[14], object.promotionName);
+  writer.writeByte(offsets[15], object.status.index);
+  writer.writeDouble(offsets[16], object.totalAmount);
+  writer.writeDateTime(offsets[17], object.updatedAt);
+  writer.writeLong(offsets[18], object.version);
 }
 
 RestaurantOrder _restaurantOrderDeserialize(
@@ -163,24 +233,37 @@ RestaurantOrder _restaurantOrderDeserialize(
   final object = RestaurantOrder();
   object.closedAt = reader.readDateTimeOrNull(offsets[0]);
   object.createdAt = reader.readDateTimeOrNull(offsets[1]);
-  object.deletedAt = reader.readDateTimeOrNull(offsets[2]);
+  object.customerId = reader.readString(offsets[2]);
+  object.customerName = reader.readString(offsets[3]);
+  object.customerPhone = reader.readString(offsets[4]);
+  object.deletedAt = reader.readDateTimeOrNull(offsets[5]);
   object.details = reader.readObjectList<RestaurantOrderDetail>(
-        offsets[3],
+        offsets[6],
         RestaurantOrderDetailSchema.deserialize,
         allOffsets,
         RestaurantOrderDetail(),
       ) ??
       [];
-  object.deviceId = reader.readString(offsets[4]);
+  object.deviceId = reader.readString(offsets[7]);
+  object.discountAmount = reader.readDouble(offsets[8]);
+  object.earnedPoints = reader.readLong(offsets[9]);
   object.id = id;
-  object.isSynced = reader.readBool(offsets[5]);
-  object.orderId = reader.readString(offsets[6]);
+  object.isSynced = reader.readBool(offsets[11]);
+  object.orderId = reader.readString(offsets[12]);
+  object.payments = reader.readObjectList<RestaurantOrderPayment>(
+        offsets[13],
+        RestaurantOrderPaymentSchema.deserialize,
+        allOffsets,
+        RestaurantOrderPayment(),
+      ) ??
+      [];
+  object.promotionName = reader.readString(offsets[14]);
   object.status =
-      _RestaurantOrderstatusValueEnumMap[reader.readByteOrNull(offsets[7])] ??
+      _RestaurantOrderstatusValueEnumMap[reader.readByteOrNull(offsets[15])] ??
           RestaurantOrderStatus.SERVING;
-  object.totalAmount = reader.readDouble(offsets[8]);
-  object.updatedAt = reader.readDateTime(offsets[9]);
-  object.version = reader.readLong(offsets[10]);
+  object.totalAmount = reader.readDouble(offsets[16]);
+  object.updatedAt = reader.readDateTime(offsets[17]);
+  object.version = reader.readLong(offsets[18]);
   return object;
 }
 
@@ -196,8 +279,14 @@ P _restaurantOrderDeserializeProp<P>(
     case 1:
       return (reader.readDateTimeOrNull(offset)) as P;
     case 2:
-      return (reader.readDateTimeOrNull(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 3:
+      return (reader.readString(offset)) as P;
+    case 4:
+      return (reader.readString(offset)) as P;
+    case 5:
+      return (reader.readDateTimeOrNull(offset)) as P;
+    case 6:
       return (reader.readObjectList<RestaurantOrderDetail>(
             offset,
             RestaurantOrderDetailSchema.deserialize,
@@ -205,21 +294,37 @@ P _restaurantOrderDeserializeProp<P>(
             RestaurantOrderDetail(),
           ) ??
           []) as P;
-    case 4:
-      return (reader.readString(offset)) as P;
-    case 5:
-      return (reader.readBool(offset)) as P;
-    case 6:
-      return (reader.readString(offset)) as P;
     case 7:
-      return (_RestaurantOrderstatusValueEnumMap[
-              reader.readByteOrNull(offset)] ??
-          RestaurantOrderStatus.SERVING) as P;
+      return (reader.readString(offset)) as P;
     case 8:
       return (reader.readDouble(offset)) as P;
     case 9:
-      return (reader.readDateTime(offset)) as P;
+      return (reader.readLong(offset)) as P;
     case 10:
+      return (reader.readDouble(offset)) as P;
+    case 11:
+      return (reader.readBool(offset)) as P;
+    case 12:
+      return (reader.readString(offset)) as P;
+    case 13:
+      return (reader.readObjectList<RestaurantOrderPayment>(
+            offset,
+            RestaurantOrderPaymentSchema.deserialize,
+            allOffsets,
+            RestaurantOrderPayment(),
+          ) ??
+          []) as P;
+    case 14:
+      return (reader.readString(offset)) as P;
+    case 15:
+      return (_RestaurantOrderstatusValueEnumMap[
+              reader.readByteOrNull(offset)] ??
+          RestaurantOrderStatus.SERVING) as P;
+    case 16:
+      return (reader.readDouble(offset)) as P;
+    case 17:
+      return (reader.readDateTime(offset)) as P;
+    case 18:
       return (reader.readLong(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -581,6 +686,414 @@ extension RestaurantOrderQueryFilter
   }
 
   QueryBuilder<RestaurantOrder, RestaurantOrder, QAfterFilterCondition>
+      customerIdEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'customerId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantOrder, RestaurantOrder, QAfterFilterCondition>
+      customerIdGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'customerId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantOrder, RestaurantOrder, QAfterFilterCondition>
+      customerIdLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'customerId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantOrder, RestaurantOrder, QAfterFilterCondition>
+      customerIdBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'customerId',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantOrder, RestaurantOrder, QAfterFilterCondition>
+      customerIdStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'customerId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantOrder, RestaurantOrder, QAfterFilterCondition>
+      customerIdEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'customerId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantOrder, RestaurantOrder, QAfterFilterCondition>
+      customerIdContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'customerId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantOrder, RestaurantOrder, QAfterFilterCondition>
+      customerIdMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'customerId',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantOrder, RestaurantOrder, QAfterFilterCondition>
+      customerIdIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'customerId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantOrder, RestaurantOrder, QAfterFilterCondition>
+      customerIdIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'customerId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantOrder, RestaurantOrder, QAfterFilterCondition>
+      customerNameEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'customerName',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantOrder, RestaurantOrder, QAfterFilterCondition>
+      customerNameGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'customerName',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantOrder, RestaurantOrder, QAfterFilterCondition>
+      customerNameLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'customerName',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantOrder, RestaurantOrder, QAfterFilterCondition>
+      customerNameBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'customerName',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantOrder, RestaurantOrder, QAfterFilterCondition>
+      customerNameStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'customerName',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantOrder, RestaurantOrder, QAfterFilterCondition>
+      customerNameEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'customerName',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantOrder, RestaurantOrder, QAfterFilterCondition>
+      customerNameContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'customerName',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantOrder, RestaurantOrder, QAfterFilterCondition>
+      customerNameMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'customerName',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantOrder, RestaurantOrder, QAfterFilterCondition>
+      customerNameIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'customerName',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantOrder, RestaurantOrder, QAfterFilterCondition>
+      customerNameIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'customerName',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantOrder, RestaurantOrder, QAfterFilterCondition>
+      customerPhoneEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'customerPhone',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantOrder, RestaurantOrder, QAfterFilterCondition>
+      customerPhoneGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'customerPhone',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantOrder, RestaurantOrder, QAfterFilterCondition>
+      customerPhoneLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'customerPhone',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantOrder, RestaurantOrder, QAfterFilterCondition>
+      customerPhoneBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'customerPhone',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantOrder, RestaurantOrder, QAfterFilterCondition>
+      customerPhoneStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'customerPhone',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantOrder, RestaurantOrder, QAfterFilterCondition>
+      customerPhoneEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'customerPhone',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantOrder, RestaurantOrder, QAfterFilterCondition>
+      customerPhoneContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'customerPhone',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantOrder, RestaurantOrder, QAfterFilterCondition>
+      customerPhoneMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'customerPhone',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantOrder, RestaurantOrder, QAfterFilterCondition>
+      customerPhoneIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'customerPhone',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantOrder, RestaurantOrder, QAfterFilterCondition>
+      customerPhoneIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'customerPhone',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantOrder, RestaurantOrder, QAfterFilterCondition>
       deletedAtIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNull(
@@ -880,6 +1393,194 @@ extension RestaurantOrderQueryFilter
   }
 
   QueryBuilder<RestaurantOrder, RestaurantOrder, QAfterFilterCondition>
+      discountAmountEqualTo(
+    double value, {
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'discountAmount',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantOrder, RestaurantOrder, QAfterFilterCondition>
+      discountAmountGreaterThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'discountAmount',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantOrder, RestaurantOrder, QAfterFilterCondition>
+      discountAmountLessThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'discountAmount',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantOrder, RestaurantOrder, QAfterFilterCondition>
+      discountAmountBetween(
+    double lower,
+    double upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'discountAmount',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantOrder, RestaurantOrder, QAfterFilterCondition>
+      earnedPointsEqualTo(int value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'earnedPoints',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantOrder, RestaurantOrder, QAfterFilterCondition>
+      earnedPointsGreaterThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'earnedPoints',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantOrder, RestaurantOrder, QAfterFilterCondition>
+      earnedPointsLessThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'earnedPoints',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantOrder, RestaurantOrder, QAfterFilterCondition>
+      earnedPointsBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'earnedPoints',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantOrder, RestaurantOrder, QAfterFilterCondition>
+      finalAmountEqualTo(
+    double value, {
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'finalAmount',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantOrder, RestaurantOrder, QAfterFilterCondition>
+      finalAmountGreaterThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'finalAmount',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantOrder, RestaurantOrder, QAfterFilterCondition>
+      finalAmountLessThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'finalAmount',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantOrder, RestaurantOrder, QAfterFilterCondition>
+      finalAmountBetween(
+    double lower,
+    double upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'finalAmount',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantOrder, RestaurantOrder, QAfterFilterCondition>
       idEqualTo(Id value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
@@ -1076,6 +1777,231 @@ extension RestaurantOrderQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         property: r'orderId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantOrder, RestaurantOrder, QAfterFilterCondition>
+      paymentsLengthEqualTo(int length) {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'payments',
+        length,
+        true,
+        length,
+        true,
+      );
+    });
+  }
+
+  QueryBuilder<RestaurantOrder, RestaurantOrder, QAfterFilterCondition>
+      paymentsIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'payments',
+        0,
+        true,
+        0,
+        true,
+      );
+    });
+  }
+
+  QueryBuilder<RestaurantOrder, RestaurantOrder, QAfterFilterCondition>
+      paymentsIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'payments',
+        0,
+        false,
+        999999,
+        true,
+      );
+    });
+  }
+
+  QueryBuilder<RestaurantOrder, RestaurantOrder, QAfterFilterCondition>
+      paymentsLengthLessThan(
+    int length, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'payments',
+        0,
+        true,
+        length,
+        include,
+      );
+    });
+  }
+
+  QueryBuilder<RestaurantOrder, RestaurantOrder, QAfterFilterCondition>
+      paymentsLengthGreaterThan(
+    int length, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'payments',
+        length,
+        include,
+        999999,
+        true,
+      );
+    });
+  }
+
+  QueryBuilder<RestaurantOrder, RestaurantOrder, QAfterFilterCondition>
+      paymentsLengthBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'payments',
+        lower,
+        includeLower,
+        upper,
+        includeUpper,
+      );
+    });
+  }
+
+  QueryBuilder<RestaurantOrder, RestaurantOrder, QAfterFilterCondition>
+      promotionNameEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'promotionName',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantOrder, RestaurantOrder, QAfterFilterCondition>
+      promotionNameGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'promotionName',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantOrder, RestaurantOrder, QAfterFilterCondition>
+      promotionNameLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'promotionName',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantOrder, RestaurantOrder, QAfterFilterCondition>
+      promotionNameBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'promotionName',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantOrder, RestaurantOrder, QAfterFilterCondition>
+      promotionNameStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'promotionName',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantOrder, RestaurantOrder, QAfterFilterCondition>
+      promotionNameEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'promotionName',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantOrder, RestaurantOrder, QAfterFilterCondition>
+      promotionNameContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'promotionName',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantOrder, RestaurantOrder, QAfterFilterCondition>
+      promotionNameMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'promotionName',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantOrder, RestaurantOrder, QAfterFilterCondition>
+      promotionNameIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'promotionName',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantOrder, RestaurantOrder, QAfterFilterCondition>
+      promotionNameIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'promotionName',
         value: '',
       ));
     });
@@ -1324,6 +2250,13 @@ extension RestaurantOrderQueryObject
       return query.object(q, r'details');
     });
   }
+
+  QueryBuilder<RestaurantOrder, RestaurantOrder, QAfterFilterCondition>
+      paymentsElement(FilterQuery<RestaurantOrderPayment> q) {
+    return QueryBuilder.apply(this, (query) {
+      return query.object(q, r'payments');
+    });
+  }
 }
 
 extension RestaurantOrderQueryLinks
@@ -1374,6 +2307,48 @@ extension RestaurantOrderQuerySortBy
   }
 
   QueryBuilder<RestaurantOrder, RestaurantOrder, QAfterSortBy>
+      sortByCustomerId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'customerId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<RestaurantOrder, RestaurantOrder, QAfterSortBy>
+      sortByCustomerIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'customerId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<RestaurantOrder, RestaurantOrder, QAfterSortBy>
+      sortByCustomerName() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'customerName', Sort.asc);
+    });
+  }
+
+  QueryBuilder<RestaurantOrder, RestaurantOrder, QAfterSortBy>
+      sortByCustomerNameDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'customerName', Sort.desc);
+    });
+  }
+
+  QueryBuilder<RestaurantOrder, RestaurantOrder, QAfterSortBy>
+      sortByCustomerPhone() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'customerPhone', Sort.asc);
+    });
+  }
+
+  QueryBuilder<RestaurantOrder, RestaurantOrder, QAfterSortBy>
+      sortByCustomerPhoneDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'customerPhone', Sort.desc);
+    });
+  }
+
+  QueryBuilder<RestaurantOrder, RestaurantOrder, QAfterSortBy>
       sortByDeletedAt() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'deletedAt', Sort.asc);
@@ -1402,6 +2377,48 @@ extension RestaurantOrderQuerySortBy
   }
 
   QueryBuilder<RestaurantOrder, RestaurantOrder, QAfterSortBy>
+      sortByDiscountAmount() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'discountAmount', Sort.asc);
+    });
+  }
+
+  QueryBuilder<RestaurantOrder, RestaurantOrder, QAfterSortBy>
+      sortByDiscountAmountDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'discountAmount', Sort.desc);
+    });
+  }
+
+  QueryBuilder<RestaurantOrder, RestaurantOrder, QAfterSortBy>
+      sortByEarnedPoints() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'earnedPoints', Sort.asc);
+    });
+  }
+
+  QueryBuilder<RestaurantOrder, RestaurantOrder, QAfterSortBy>
+      sortByEarnedPointsDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'earnedPoints', Sort.desc);
+    });
+  }
+
+  QueryBuilder<RestaurantOrder, RestaurantOrder, QAfterSortBy>
+      sortByFinalAmount() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'finalAmount', Sort.asc);
+    });
+  }
+
+  QueryBuilder<RestaurantOrder, RestaurantOrder, QAfterSortBy>
+      sortByFinalAmountDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'finalAmount', Sort.desc);
+    });
+  }
+
+  QueryBuilder<RestaurantOrder, RestaurantOrder, QAfterSortBy>
       sortByIsSynced() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'isSynced', Sort.asc);
@@ -1425,6 +2442,20 @@ extension RestaurantOrderQuerySortBy
       sortByOrderIdDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'orderId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<RestaurantOrder, RestaurantOrder, QAfterSortBy>
+      sortByPromotionName() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'promotionName', Sort.asc);
+    });
+  }
+
+  QueryBuilder<RestaurantOrder, RestaurantOrder, QAfterSortBy>
+      sortByPromotionNameDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'promotionName', Sort.desc);
     });
   }
 
@@ -1514,6 +2545,48 @@ extension RestaurantOrderQuerySortThenBy
   }
 
   QueryBuilder<RestaurantOrder, RestaurantOrder, QAfterSortBy>
+      thenByCustomerId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'customerId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<RestaurantOrder, RestaurantOrder, QAfterSortBy>
+      thenByCustomerIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'customerId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<RestaurantOrder, RestaurantOrder, QAfterSortBy>
+      thenByCustomerName() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'customerName', Sort.asc);
+    });
+  }
+
+  QueryBuilder<RestaurantOrder, RestaurantOrder, QAfterSortBy>
+      thenByCustomerNameDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'customerName', Sort.desc);
+    });
+  }
+
+  QueryBuilder<RestaurantOrder, RestaurantOrder, QAfterSortBy>
+      thenByCustomerPhone() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'customerPhone', Sort.asc);
+    });
+  }
+
+  QueryBuilder<RestaurantOrder, RestaurantOrder, QAfterSortBy>
+      thenByCustomerPhoneDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'customerPhone', Sort.desc);
+    });
+  }
+
+  QueryBuilder<RestaurantOrder, RestaurantOrder, QAfterSortBy>
       thenByDeletedAt() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'deletedAt', Sort.asc);
@@ -1538,6 +2611,48 @@ extension RestaurantOrderQuerySortThenBy
       thenByDeviceIdDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'deviceId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<RestaurantOrder, RestaurantOrder, QAfterSortBy>
+      thenByDiscountAmount() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'discountAmount', Sort.asc);
+    });
+  }
+
+  QueryBuilder<RestaurantOrder, RestaurantOrder, QAfterSortBy>
+      thenByDiscountAmountDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'discountAmount', Sort.desc);
+    });
+  }
+
+  QueryBuilder<RestaurantOrder, RestaurantOrder, QAfterSortBy>
+      thenByEarnedPoints() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'earnedPoints', Sort.asc);
+    });
+  }
+
+  QueryBuilder<RestaurantOrder, RestaurantOrder, QAfterSortBy>
+      thenByEarnedPointsDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'earnedPoints', Sort.desc);
+    });
+  }
+
+  QueryBuilder<RestaurantOrder, RestaurantOrder, QAfterSortBy>
+      thenByFinalAmount() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'finalAmount', Sort.asc);
+    });
+  }
+
+  QueryBuilder<RestaurantOrder, RestaurantOrder, QAfterSortBy>
+      thenByFinalAmountDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'finalAmount', Sort.desc);
     });
   }
 
@@ -1577,6 +2692,20 @@ extension RestaurantOrderQuerySortThenBy
       thenByOrderIdDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'orderId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<RestaurantOrder, RestaurantOrder, QAfterSortBy>
+      thenByPromotionName() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'promotionName', Sort.asc);
+    });
+  }
+
+  QueryBuilder<RestaurantOrder, RestaurantOrder, QAfterSortBy>
+      thenByPromotionNameDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'promotionName', Sort.desc);
     });
   }
 
@@ -1652,6 +2781,28 @@ extension RestaurantOrderQueryWhereDistinct
   }
 
   QueryBuilder<RestaurantOrder, RestaurantOrder, QDistinct>
+      distinctByCustomerId({bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'customerId', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<RestaurantOrder, RestaurantOrder, QDistinct>
+      distinctByCustomerName({bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'customerName', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<RestaurantOrder, RestaurantOrder, QDistinct>
+      distinctByCustomerPhone({bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'customerPhone',
+          caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<RestaurantOrder, RestaurantOrder, QDistinct>
       distinctByDeletedAt() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'deletedAt');
@@ -1666,6 +2817,27 @@ extension RestaurantOrderQueryWhereDistinct
   }
 
   QueryBuilder<RestaurantOrder, RestaurantOrder, QDistinct>
+      distinctByDiscountAmount() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'discountAmount');
+    });
+  }
+
+  QueryBuilder<RestaurantOrder, RestaurantOrder, QDistinct>
+      distinctByEarnedPoints() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'earnedPoints');
+    });
+  }
+
+  QueryBuilder<RestaurantOrder, RestaurantOrder, QDistinct>
+      distinctByFinalAmount() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'finalAmount');
+    });
+  }
+
+  QueryBuilder<RestaurantOrder, RestaurantOrder, QDistinct>
       distinctByIsSynced() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'isSynced');
@@ -1676,6 +2848,14 @@ extension RestaurantOrderQueryWhereDistinct
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'orderId', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<RestaurantOrder, RestaurantOrder, QDistinct>
+      distinctByPromotionName({bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'promotionName',
+          caseSensitive: caseSensitive);
     });
   }
 
@@ -1729,6 +2909,26 @@ extension RestaurantOrderQueryProperty
     });
   }
 
+  QueryBuilder<RestaurantOrder, String, QQueryOperations> customerIdProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'customerId');
+    });
+  }
+
+  QueryBuilder<RestaurantOrder, String, QQueryOperations>
+      customerNameProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'customerName');
+    });
+  }
+
+  QueryBuilder<RestaurantOrder, String, QQueryOperations>
+      customerPhoneProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'customerPhone');
+    });
+  }
+
   QueryBuilder<RestaurantOrder, DateTime?, QQueryOperations>
       deletedAtProperty() {
     return QueryBuilder.apply(this, (query) {
@@ -1749,6 +2949,26 @@ extension RestaurantOrderQueryProperty
     });
   }
 
+  QueryBuilder<RestaurantOrder, double, QQueryOperations>
+      discountAmountProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'discountAmount');
+    });
+  }
+
+  QueryBuilder<RestaurantOrder, int, QQueryOperations> earnedPointsProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'earnedPoints');
+    });
+  }
+
+  QueryBuilder<RestaurantOrder, double, QQueryOperations>
+      finalAmountProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'finalAmount');
+    });
+  }
+
   QueryBuilder<RestaurantOrder, bool, QQueryOperations> isSyncedProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'isSynced');
@@ -1758,6 +2978,20 @@ extension RestaurantOrderQueryProperty
   QueryBuilder<RestaurantOrder, String, QQueryOperations> orderIdProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'orderId');
+    });
+  }
+
+  QueryBuilder<RestaurantOrder, List<RestaurantOrderPayment>, QQueryOperations>
+      paymentsProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'payments');
+    });
+  }
+
+  QueryBuilder<RestaurantOrder, String, QQueryOperations>
+      promotionNameProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'promotionName');
     });
   }
 
@@ -1792,6 +3026,227 @@ extension RestaurantOrderQueryProperty
 // **************************************************************************
 // IsarEmbeddedGenerator
 // **************************************************************************
+
+// coverage:ignore-file
+// ignore_for_file: duplicate_ignore, non_constant_identifier_names, constant_identifier_names, invalid_use_of_protected_member, unnecessary_cast, prefer_const_constructors, lines_longer_than_80_chars, require_trailing_commas, inference_failure_on_function_invocation, unnecessary_parenthesis, unnecessary_raw_strings, unnecessary_null_checks, join_return_with_assignment, prefer_final_locals, avoid_js_rounded_ints, avoid_positional_boolean_parameters, always_specify_types
+
+const RestaurantOrderPaymentSchema = Schema(
+  name: r'RestaurantOrderPayment',
+  id: 5923985796910358414,
+  properties: {
+    r'amount': PropertySchema(
+      id: 0,
+      name: r'amount',
+      type: IsarType.double,
+    ),
+    r'method': PropertySchema(
+      id: 1,
+      name: r'method',
+      type: IsarType.byte,
+      enumMap: _RestaurantOrderPaymentmethodEnumValueMap,
+    )
+  },
+  estimateSize: _restaurantOrderPaymentEstimateSize,
+  serialize: _restaurantOrderPaymentSerialize,
+  deserialize: _restaurantOrderPaymentDeserialize,
+  deserializeProp: _restaurantOrderPaymentDeserializeProp,
+);
+
+int _restaurantOrderPaymentEstimateSize(
+  RestaurantOrderPayment object,
+  List<int> offsets,
+  Map<Type, List<int>> allOffsets,
+) {
+  var bytesCount = offsets.last;
+  return bytesCount;
+}
+
+void _restaurantOrderPaymentSerialize(
+  RestaurantOrderPayment object,
+  IsarWriter writer,
+  List<int> offsets,
+  Map<Type, List<int>> allOffsets,
+) {
+  writer.writeDouble(offsets[0], object.amount);
+  writer.writeByte(offsets[1], object.method.index);
+}
+
+RestaurantOrderPayment _restaurantOrderPaymentDeserialize(
+  Id id,
+  IsarReader reader,
+  List<int> offsets,
+  Map<Type, List<int>> allOffsets,
+) {
+  final object = RestaurantOrderPayment();
+  object.amount = reader.readDouble(offsets[0]);
+  object.method = _RestaurantOrderPaymentmethodValueEnumMap[
+          reader.readByteOrNull(offsets[1])] ??
+      RestaurantPaymentMethod.CASH;
+  return object;
+}
+
+P _restaurantOrderPaymentDeserializeProp<P>(
+  IsarReader reader,
+  int propertyId,
+  int offset,
+  Map<Type, List<int>> allOffsets,
+) {
+  switch (propertyId) {
+    case 0:
+      return (reader.readDouble(offset)) as P;
+    case 1:
+      return (_RestaurantOrderPaymentmethodValueEnumMap[
+              reader.readByteOrNull(offset)] ??
+          RestaurantPaymentMethod.CASH) as P;
+    default:
+      throw IsarError('Unknown property with id $propertyId');
+  }
+}
+
+const _RestaurantOrderPaymentmethodEnumValueMap = {
+  'CASH': 0,
+  'QR': 1,
+  'BANK_TRANSFER': 2,
+  'CARD': 3,
+  'E_WALLET': 4,
+  'DEBT': 5,
+};
+const _RestaurantOrderPaymentmethodValueEnumMap = {
+  0: RestaurantPaymentMethod.CASH,
+  1: RestaurantPaymentMethod.QR,
+  2: RestaurantPaymentMethod.BANK_TRANSFER,
+  3: RestaurantPaymentMethod.CARD,
+  4: RestaurantPaymentMethod.E_WALLET,
+  5: RestaurantPaymentMethod.DEBT,
+};
+
+extension RestaurantOrderPaymentQueryFilter on QueryBuilder<
+    RestaurantOrderPayment, RestaurantOrderPayment, QFilterCondition> {
+  QueryBuilder<RestaurantOrderPayment, RestaurantOrderPayment,
+      QAfterFilterCondition> amountEqualTo(
+    double value, {
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'amount',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantOrderPayment, RestaurantOrderPayment,
+      QAfterFilterCondition> amountGreaterThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'amount',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantOrderPayment, RestaurantOrderPayment,
+      QAfterFilterCondition> amountLessThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'amount',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantOrderPayment, RestaurantOrderPayment,
+      QAfterFilterCondition> amountBetween(
+    double lower,
+    double upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'amount',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantOrderPayment, RestaurantOrderPayment,
+      QAfterFilterCondition> methodEqualTo(RestaurantPaymentMethod value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'method',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantOrderPayment, RestaurantOrderPayment,
+      QAfterFilterCondition> methodGreaterThan(
+    RestaurantPaymentMethod value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'method',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantOrderPayment, RestaurantOrderPayment,
+      QAfterFilterCondition> methodLessThan(
+    RestaurantPaymentMethod value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'method',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantOrderPayment, RestaurantOrderPayment,
+      QAfterFilterCondition> methodBetween(
+    RestaurantPaymentMethod lower,
+    RestaurantPaymentMethod upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'method',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+}
+
+extension RestaurantOrderPaymentQueryObject on QueryBuilder<
+    RestaurantOrderPayment, RestaurantOrderPayment, QFilterCondition> {}
 
 // coverage:ignore-file
 // ignore_for_file: duplicate_ignore, non_constant_identifier_names, constant_identifier_names, invalid_use_of_protected_member, unnecessary_cast, prefer_const_constructors, lines_longer_than_80_chars, require_trailing_commas, inference_failure_on_function_invocation, unnecessary_parenthesis, unnecessary_raw_strings, unnecessary_null_checks, join_return_with_assignment, prefer_final_locals, avoid_js_rounded_ints, avoid_positional_boolean_parameters, always_specify_types

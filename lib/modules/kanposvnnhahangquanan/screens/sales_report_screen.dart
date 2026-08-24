@@ -86,7 +86,7 @@ class _SalesReportScreenState extends ConsumerState<SalesReportScreen> {
   Map<String, dynamic> _calculateSummary(List<RestaurantOrder> orders) {
     final completedOrders = orders.where((o) => o.status == RestaurantOrderStatus.COMPLETED).toList();
     
-    double totalRevenue = completedOrders.fold(0, (sum, order) => sum + order.totalAmount);
+    double totalRevenue = completedOrders.fold(0, (sum, order) => sum + order.totalAmount - order.discountAmount);
     int orderCount = completedOrders.length;
     double avgOrderValue = orderCount > 0 ? totalRevenue / orderCount : 0;
 
@@ -353,7 +353,7 @@ class _SalesReportScreenState extends ConsumerState<SalesReportScreen> {
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Text(
-                  currencyFormat.format(order.totalAmount),
+                  currencyFormat.format(order.totalAmount - order.discountAmount),
                   style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.green),
                 ),
                 Container(

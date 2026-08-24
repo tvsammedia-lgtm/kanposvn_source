@@ -22,49 +22,54 @@ const VantaiTripSchema = CollectionSchema(
       name: r'arrivalTime',
       type: IsarType.dateTime,
     ),
-    r'deletedAt': PropertySchema(
+    r'assistantName': PropertySchema(
       id: 1,
+      name: r'assistantName',
+      type: IsarType.string,
+    ),
+    r'deletedAt': PropertySchema(
+      id: 2,
       name: r'deletedAt',
       type: IsarType.dateTime,
     ),
     r'departureTime': PropertySchema(
-      id: 2,
+      id: 3,
       name: r'departureTime',
       type: IsarType.dateTime,
     ),
     r'deviceId': PropertySchema(
-      id: 3,
+      id: 4,
       name: r'deviceId',
       type: IsarType.string,
     ),
     r'driverName': PropertySchema(
-      id: 4,
+      id: 5,
       name: r'driverName',
       type: IsarType.string,
     ),
     r'isSynced': PropertySchema(
-      id: 5,
+      id: 6,
       name: r'isSynced',
       type: IsarType.bool,
     ),
     r'status': PropertySchema(
-      id: 6,
+      id: 7,
       name: r'status',
       type: IsarType.byte,
       enumMap: _VantaiTripstatusEnumValueMap,
     ),
     r'tripId': PropertySchema(
-      id: 7,
+      id: 8,
       name: r'tripId',
       type: IsarType.string,
     ),
     r'updatedAt': PropertySchema(
-      id: 8,
+      id: 9,
       name: r'updatedAt',
       type: IsarType.dateTime,
     ),
     r'version': PropertySchema(
-      id: 9,
+      id: 10,
       name: r'version',
       type: IsarType.long,
     )
@@ -87,6 +92,19 @@ const VantaiTripSchema = CollectionSchema(
           caseSensitive: true,
         )
       ],
+    ),
+    r'departureTime': IndexSchema(
+      id: -7681666715416168582,
+      name: r'departureTime',
+      unique: false,
+      replace: false,
+      properties: [
+        IndexPropertySchema(
+          name: r'departureTime',
+          type: IndexType.value,
+          caseSensitive: false,
+        )
+      ],
     )
   },
   links: {
@@ -100,6 +118,18 @@ const VantaiTripSchema = CollectionSchema(
       id: 441542903582871958,
       name: r'vehicle',
       target: r'VantaiVehicle',
+      single: true,
+    ),
+    r'driver': LinkSchema(
+      id: 3923580532408724132,
+      name: r'driver',
+      target: r'VantaiDriver',
+      single: true,
+    ),
+    r'assistant': LinkSchema(
+      id: -2024824657641323567,
+      name: r'assistant',
+      target: r'VantaiDriver',
       single: true,
     )
   },
@@ -116,6 +146,7 @@ int _vantaiTripEstimateSize(
   Map<Type, List<int>> allOffsets,
 ) {
   var bytesCount = offsets.last;
+  bytesCount += 3 + object.assistantName.length * 3;
   bytesCount += 3 + object.deviceId.length * 3;
   bytesCount += 3 + object.driverName.length * 3;
   bytesCount += 3 + object.tripId.length * 3;
@@ -129,15 +160,16 @@ void _vantaiTripSerialize(
   Map<Type, List<int>> allOffsets,
 ) {
   writer.writeDateTime(offsets[0], object.arrivalTime);
-  writer.writeDateTime(offsets[1], object.deletedAt);
-  writer.writeDateTime(offsets[2], object.departureTime);
-  writer.writeString(offsets[3], object.deviceId);
-  writer.writeString(offsets[4], object.driverName);
-  writer.writeBool(offsets[5], object.isSynced);
-  writer.writeByte(offsets[6], object.status.index);
-  writer.writeString(offsets[7], object.tripId);
-  writer.writeDateTime(offsets[8], object.updatedAt);
-  writer.writeLong(offsets[9], object.version);
+  writer.writeString(offsets[1], object.assistantName);
+  writer.writeDateTime(offsets[2], object.deletedAt);
+  writer.writeDateTime(offsets[3], object.departureTime);
+  writer.writeString(offsets[4], object.deviceId);
+  writer.writeString(offsets[5], object.driverName);
+  writer.writeBool(offsets[6], object.isSynced);
+  writer.writeByte(offsets[7], object.status.index);
+  writer.writeString(offsets[8], object.tripId);
+  writer.writeDateTime(offsets[9], object.updatedAt);
+  writer.writeLong(offsets[10], object.version);
 }
 
 VantaiTrip _vantaiTripDeserialize(
@@ -148,18 +180,19 @@ VantaiTrip _vantaiTripDeserialize(
 ) {
   final object = VantaiTrip();
   object.arrivalTime = reader.readDateTimeOrNull(offsets[0]);
-  object.deletedAt = reader.readDateTimeOrNull(offsets[1]);
-  object.departureTime = reader.readDateTimeOrNull(offsets[2]);
-  object.deviceId = reader.readString(offsets[3]);
-  object.driverName = reader.readString(offsets[4]);
+  object.assistantName = reader.readString(offsets[1]);
+  object.deletedAt = reader.readDateTimeOrNull(offsets[2]);
+  object.departureTime = reader.readDateTimeOrNull(offsets[3]);
+  object.deviceId = reader.readString(offsets[4]);
+  object.driverName = reader.readString(offsets[5]);
   object.id = id;
-  object.isSynced = reader.readBool(offsets[5]);
+  object.isSynced = reader.readBool(offsets[6]);
   object.status =
-      _VantaiTripstatusValueEnumMap[reader.readByteOrNull(offsets[6])] ??
+      _VantaiTripstatusValueEnumMap[reader.readByteOrNull(offsets[7])] ??
           TripStatus.SCHEDULED;
-  object.tripId = reader.readString(offsets[7]);
-  object.updatedAt = reader.readDateTime(offsets[8]);
-  object.version = reader.readLong(offsets[9]);
+  object.tripId = reader.readString(offsets[8]);
+  object.updatedAt = reader.readDateTime(offsets[9]);
+  object.version = reader.readLong(offsets[10]);
   return object;
 }
 
@@ -173,23 +206,25 @@ P _vantaiTripDeserializeProp<P>(
     case 0:
       return (reader.readDateTimeOrNull(offset)) as P;
     case 1:
-      return (reader.readDateTimeOrNull(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 2:
       return (reader.readDateTimeOrNull(offset)) as P;
     case 3:
-      return (reader.readString(offset)) as P;
+      return (reader.readDateTimeOrNull(offset)) as P;
     case 4:
       return (reader.readString(offset)) as P;
     case 5:
-      return (reader.readBool(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 6:
+      return (reader.readBool(offset)) as P;
+    case 7:
       return (_VantaiTripstatusValueEnumMap[reader.readByteOrNull(offset)] ??
           TripStatus.SCHEDULED) as P;
-    case 7:
-      return (reader.readString(offset)) as P;
     case 8:
-      return (reader.readDateTime(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 9:
+      return (reader.readDateTime(offset)) as P;
+    case 10:
       return (reader.readLong(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -214,7 +249,7 @@ Id _vantaiTripGetId(VantaiTrip object) {
 }
 
 List<IsarLinkBase<dynamic>> _vantaiTripGetLinks(VantaiTrip object) {
-  return [object.route, object.vehicle];
+  return [object.route, object.vehicle, object.driver, object.assistant];
 }
 
 void _vantaiTripAttach(IsarCollection<dynamic> col, Id id, VantaiTrip object) {
@@ -222,6 +257,9 @@ void _vantaiTripAttach(IsarCollection<dynamic> col, Id id, VantaiTrip object) {
   object.route.attach(col, col.isar.collection<VantaiRoute>(), r'route', id);
   object.vehicle
       .attach(col, col.isar.collection<VantaiVehicle>(), r'vehicle', id);
+  object.driver.attach(col, col.isar.collection<VantaiDriver>(), r'driver', id);
+  object.assistant
+      .attach(col, col.isar.collection<VantaiDriver>(), r'assistant', id);
 }
 
 extension VantaiTripByIndex on IsarCollection<VantaiTrip> {
@@ -284,6 +322,14 @@ extension VantaiTripQueryWhereSort
   QueryBuilder<VantaiTrip, VantaiTrip, QAfterWhere> anyId() {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(const IdWhereClause.any());
+    });
+  }
+
+  QueryBuilder<VantaiTrip, VantaiTrip, QAfterWhere> anyDepartureTime() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(
+        const IndexWhereClause.any(indexName: r'departureTime'),
+      );
     });
   }
 }
@@ -399,6 +445,119 @@ extension VantaiTripQueryWhere
       }
     });
   }
+
+  QueryBuilder<VantaiTrip, VantaiTrip, QAfterWhereClause>
+      departureTimeIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.equalTo(
+        indexName: r'departureTime',
+        value: [null],
+      ));
+    });
+  }
+
+  QueryBuilder<VantaiTrip, VantaiTrip, QAfterWhereClause>
+      departureTimeIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.between(
+        indexName: r'departureTime',
+        lower: [null],
+        includeLower: false,
+        upper: [],
+      ));
+    });
+  }
+
+  QueryBuilder<VantaiTrip, VantaiTrip, QAfterWhereClause> departureTimeEqualTo(
+      DateTime? departureTime) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.equalTo(
+        indexName: r'departureTime',
+        value: [departureTime],
+      ));
+    });
+  }
+
+  QueryBuilder<VantaiTrip, VantaiTrip, QAfterWhereClause>
+      departureTimeNotEqualTo(DateTime? departureTime) {
+    return QueryBuilder.apply(this, (query) {
+      if (query.whereSort == Sort.asc) {
+        return query
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'departureTime',
+              lower: [],
+              upper: [departureTime],
+              includeUpper: false,
+            ))
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'departureTime',
+              lower: [departureTime],
+              includeLower: false,
+              upper: [],
+            ));
+      } else {
+        return query
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'departureTime',
+              lower: [departureTime],
+              includeLower: false,
+              upper: [],
+            ))
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'departureTime',
+              lower: [],
+              upper: [departureTime],
+              includeUpper: false,
+            ));
+      }
+    });
+  }
+
+  QueryBuilder<VantaiTrip, VantaiTrip, QAfterWhereClause>
+      departureTimeGreaterThan(
+    DateTime? departureTime, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.between(
+        indexName: r'departureTime',
+        lower: [departureTime],
+        includeLower: include,
+        upper: [],
+      ));
+    });
+  }
+
+  QueryBuilder<VantaiTrip, VantaiTrip, QAfterWhereClause> departureTimeLessThan(
+    DateTime? departureTime, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.between(
+        indexName: r'departureTime',
+        lower: [],
+        upper: [departureTime],
+        includeUpper: include,
+      ));
+    });
+  }
+
+  QueryBuilder<VantaiTrip, VantaiTrip, QAfterWhereClause> departureTimeBetween(
+    DateTime? lowerDepartureTime,
+    DateTime? upperDepartureTime, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.between(
+        indexName: r'departureTime',
+        lower: [lowerDepartureTime],
+        includeLower: includeLower,
+        upper: [upperDepartureTime],
+        includeUpper: includeUpper,
+      ));
+    });
+  }
 }
 
 extension VantaiTripQueryFilter
@@ -473,6 +632,142 @@ extension VantaiTripQueryFilter
         includeLower: includeLower,
         upper: upper,
         includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<VantaiTrip, VantaiTrip, QAfterFilterCondition>
+      assistantNameEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'assistantName',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<VantaiTrip, VantaiTrip, QAfterFilterCondition>
+      assistantNameGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'assistantName',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<VantaiTrip, VantaiTrip, QAfterFilterCondition>
+      assistantNameLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'assistantName',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<VantaiTrip, VantaiTrip, QAfterFilterCondition>
+      assistantNameBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'assistantName',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<VantaiTrip, VantaiTrip, QAfterFilterCondition>
+      assistantNameStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'assistantName',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<VantaiTrip, VantaiTrip, QAfterFilterCondition>
+      assistantNameEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'assistantName',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<VantaiTrip, VantaiTrip, QAfterFilterCondition>
+      assistantNameContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'assistantName',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<VantaiTrip, VantaiTrip, QAfterFilterCondition>
+      assistantNameMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'assistantName',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<VantaiTrip, VantaiTrip, QAfterFilterCondition>
+      assistantNameIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'assistantName',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<VantaiTrip, VantaiTrip, QAfterFilterCondition>
+      assistantNameIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'assistantName',
+        value: '',
       ));
     });
   }
@@ -1278,6 +1573,33 @@ extension VantaiTripQueryLinks
       return query.linkLength(r'vehicle', 0, true, 0, true);
     });
   }
+
+  QueryBuilder<VantaiTrip, VantaiTrip, QAfterFilterCondition> driver(
+      FilterQuery<VantaiDriver> q) {
+    return QueryBuilder.apply(this, (query) {
+      return query.link(q, r'driver');
+    });
+  }
+
+  QueryBuilder<VantaiTrip, VantaiTrip, QAfterFilterCondition> driverIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.linkLength(r'driver', 0, true, 0, true);
+    });
+  }
+
+  QueryBuilder<VantaiTrip, VantaiTrip, QAfterFilterCondition> assistant(
+      FilterQuery<VantaiDriver> q) {
+    return QueryBuilder.apply(this, (query) {
+      return query.link(q, r'assistant');
+    });
+  }
+
+  QueryBuilder<VantaiTrip, VantaiTrip, QAfterFilterCondition>
+      assistantIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.linkLength(r'assistant', 0, true, 0, true);
+    });
+  }
 }
 
 extension VantaiTripQuerySortBy
@@ -1291,6 +1613,18 @@ extension VantaiTripQuerySortBy
   QueryBuilder<VantaiTrip, VantaiTrip, QAfterSortBy> sortByArrivalTimeDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'arrivalTime', Sort.desc);
+    });
+  }
+
+  QueryBuilder<VantaiTrip, VantaiTrip, QAfterSortBy> sortByAssistantName() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'assistantName', Sort.asc);
+    });
+  }
+
+  QueryBuilder<VantaiTrip, VantaiTrip, QAfterSortBy> sortByAssistantNameDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'assistantName', Sort.desc);
     });
   }
 
@@ -1414,6 +1748,18 @@ extension VantaiTripQuerySortThenBy
   QueryBuilder<VantaiTrip, VantaiTrip, QAfterSortBy> thenByArrivalTimeDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'arrivalTime', Sort.desc);
+    });
+  }
+
+  QueryBuilder<VantaiTrip, VantaiTrip, QAfterSortBy> thenByAssistantName() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'assistantName', Sort.asc);
+    });
+  }
+
+  QueryBuilder<VantaiTrip, VantaiTrip, QAfterSortBy> thenByAssistantNameDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'assistantName', Sort.desc);
     });
   }
 
@@ -1546,6 +1892,14 @@ extension VantaiTripQueryWhereDistinct
     });
   }
 
+  QueryBuilder<VantaiTrip, VantaiTrip, QDistinct> distinctByAssistantName(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'assistantName',
+          caseSensitive: caseSensitive);
+    });
+  }
+
   QueryBuilder<VantaiTrip, VantaiTrip, QDistinct> distinctByDeletedAt() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'deletedAt');
@@ -1615,6 +1969,12 @@ extension VantaiTripQueryProperty
   QueryBuilder<VantaiTrip, DateTime?, QQueryOperations> arrivalTimeProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'arrivalTime');
+    });
+  }
+
+  QueryBuilder<VantaiTrip, String, QQueryOperations> assistantNameProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'assistantName');
     });
   }
 

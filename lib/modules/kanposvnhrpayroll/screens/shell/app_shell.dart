@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../core/providers.dart';
-import '../../core/router.dart';
 import '../../core/app_theme.dart';
+import '../../core/router.dart';
 import '../../services/auth_service.dart';
+import '../../services/hrpayroll_logout.dart';
 
 class AppShell extends StatelessWidget {
   final Widget child;
@@ -149,10 +149,10 @@ class _DesktopShell extends ConsumerWidget {
                         width: double.infinity,
                         child: OutlinedButton.icon(
                           onPressed: () async {
-                            // Xóa token nội bộ của module + phiên chính
-                            // KanPosVN → về màn hình Login chính (chọn module).
-                            await AuthService.instance.logout();
-                            await ref.read(authServiceProvider.notifier).signOut();
+                            // Đăng xuất phiên chính + xóa token module, và
+                            // CHỐT HẠN điều hướng về LoginScreen qua root
+                            // navigator (luôn về màn hình đăng nhập chính).
+                            await performHrPayrollLogout(context, ref);
                           },
                           icon: const Icon(Icons.logout, size: 14),
                           label: const Text('Đăng xuất', style: TextStyle(fontSize: 12)),

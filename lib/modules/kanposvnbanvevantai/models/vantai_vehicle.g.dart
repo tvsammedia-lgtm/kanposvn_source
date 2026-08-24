@@ -32,44 +32,90 @@ const VantaiVehicleSchema = CollectionSchema(
       name: r'deviceId',
       type: IsarType.string,
     ),
-    r'isSynced': PropertySchema(
+    r'gpsEnabled': PropertySchema(
       id: 3,
+      name: r'gpsEnabled',
+      type: IsarType.bool,
+    ),
+    r'inspectionExpiry': PropertySchema(
+      id: 4,
+      name: r'inspectionExpiry',
+      type: IsarType.dateTime,
+    ),
+    r'insuranceExpiry': PropertySchema(
+      id: 5,
+      name: r'insuranceExpiry',
+      type: IsarType.dateTime,
+    ),
+    r'isSynced': PropertySchema(
+      id: 6,
       name: r'isSynced',
       type: IsarType.bool,
     ),
+    r'lastOilChange': PropertySchema(
+      id: 7,
+      name: r'lastOilChange',
+      type: IsarType.dateTime,
+    ),
+    r'lastTireChange': PropertySchema(
+      id: 8,
+      name: r'lastTireChange',
+      type: IsarType.dateTime,
+    ),
     r'manufactureYear': PropertySchema(
-      id: 4,
+      id: 9,
       name: r'manufactureYear',
       type: IsarType.long,
     ),
+    r'nextMaintenanceDate': PropertySchema(
+      id: 10,
+      name: r'nextMaintenanceDate',
+      type: IsarType.dateTime,
+    ),
+    r'nextMaintenanceKm': PropertySchema(
+      id: 11,
+      name: r'nextMaintenanceKm',
+      type: IsarType.double,
+    ),
+    r'odometerKm': PropertySchema(
+      id: 12,
+      name: r'odometerKm',
+      type: IsarType.double,
+    ),
     r'plateNumber': PropertySchema(
-      id: 5,
+      id: 13,
       name: r'plateNumber',
       type: IsarType.string,
     ),
+    r'status': PropertySchema(
+      id: 14,
+      name: r'status',
+      type: IsarType.byte,
+      enumMap: _VantaiVehiclestatusEnumValueMap,
+    ),
     r'totalSeats': PropertySchema(
-      id: 6,
+      id: 15,
       name: r'totalSeats',
       type: IsarType.long,
     ),
     r'type': PropertySchema(
-      id: 7,
+      id: 16,
       name: r'type',
       type: IsarType.byte,
       enumMap: _VantaiVehicletypeEnumValueMap,
     ),
     r'updatedAt': PropertySchema(
-      id: 8,
+      id: 17,
       name: r'updatedAt',
       type: IsarType.dateTime,
     ),
     r'vehicleId': PropertySchema(
-      id: 9,
+      id: 18,
       name: r'vehicleId',
       type: IsarType.string,
     ),
     r'version': PropertySchema(
-      id: 10,
+      id: 19,
       name: r'version',
       type: IsarType.long,
     )
@@ -124,14 +170,23 @@ void _vantaiVehicleSerialize(
   writer.writeString(offsets[0], object.brand);
   writer.writeDateTime(offsets[1], object.deletedAt);
   writer.writeString(offsets[2], object.deviceId);
-  writer.writeBool(offsets[3], object.isSynced);
-  writer.writeLong(offsets[4], object.manufactureYear);
-  writer.writeString(offsets[5], object.plateNumber);
-  writer.writeLong(offsets[6], object.totalSeats);
-  writer.writeByte(offsets[7], object.type.index);
-  writer.writeDateTime(offsets[8], object.updatedAt);
-  writer.writeString(offsets[9], object.vehicleId);
-  writer.writeLong(offsets[10], object.version);
+  writer.writeBool(offsets[3], object.gpsEnabled);
+  writer.writeDateTime(offsets[4], object.inspectionExpiry);
+  writer.writeDateTime(offsets[5], object.insuranceExpiry);
+  writer.writeBool(offsets[6], object.isSynced);
+  writer.writeDateTime(offsets[7], object.lastOilChange);
+  writer.writeDateTime(offsets[8], object.lastTireChange);
+  writer.writeLong(offsets[9], object.manufactureYear);
+  writer.writeDateTime(offsets[10], object.nextMaintenanceDate);
+  writer.writeDouble(offsets[11], object.nextMaintenanceKm);
+  writer.writeDouble(offsets[12], object.odometerKm);
+  writer.writeString(offsets[13], object.plateNumber);
+  writer.writeByte(offsets[14], object.status.index);
+  writer.writeLong(offsets[15], object.totalSeats);
+  writer.writeByte(offsets[16], object.type.index);
+  writer.writeDateTime(offsets[17], object.updatedAt);
+  writer.writeString(offsets[18], object.vehicleId);
+  writer.writeLong(offsets[19], object.version);
 }
 
 VantaiVehicle _vantaiVehicleDeserialize(
@@ -144,17 +199,28 @@ VantaiVehicle _vantaiVehicleDeserialize(
   object.brand = reader.readString(offsets[0]);
   object.deletedAt = reader.readDateTimeOrNull(offsets[1]);
   object.deviceId = reader.readString(offsets[2]);
+  object.gpsEnabled = reader.readBool(offsets[3]);
   object.id = id;
-  object.isSynced = reader.readBool(offsets[3]);
-  object.manufactureYear = reader.readLong(offsets[4]);
-  object.plateNumber = reader.readString(offsets[5]);
-  object.totalSeats = reader.readLong(offsets[6]);
+  object.inspectionExpiry = reader.readDateTimeOrNull(offsets[4]);
+  object.insuranceExpiry = reader.readDateTimeOrNull(offsets[5]);
+  object.isSynced = reader.readBool(offsets[6]);
+  object.lastOilChange = reader.readDateTimeOrNull(offsets[7]);
+  object.lastTireChange = reader.readDateTimeOrNull(offsets[8]);
+  object.manufactureYear = reader.readLong(offsets[9]);
+  object.nextMaintenanceDate = reader.readDateTimeOrNull(offsets[10]);
+  object.nextMaintenanceKm = reader.readDouble(offsets[11]);
+  object.odometerKm = reader.readDouble(offsets[12]);
+  object.plateNumber = reader.readString(offsets[13]);
+  object.status =
+      _VantaiVehiclestatusValueEnumMap[reader.readByteOrNull(offsets[14])] ??
+          VehicleStatus.ACTIVE;
+  object.totalSeats = reader.readLong(offsets[15]);
   object.type =
-      _VantaiVehicletypeValueEnumMap[reader.readByteOrNull(offsets[7])] ??
+      _VantaiVehicletypeValueEnumMap[reader.readByteOrNull(offsets[16])] ??
           VehicleType.SLEEPER;
-  object.updatedAt = reader.readDateTime(offsets[8]);
-  object.vehicleId = reader.readString(offsets[9]);
-  object.version = reader.readLong(offsets[10]);
+  object.updatedAt = reader.readDateTime(offsets[17]);
+  object.vehicleId = reader.readString(offsets[18]);
+  object.version = reader.readLong(offsets[19]);
   return object;
 }
 
@@ -174,25 +240,54 @@ P _vantaiVehicleDeserializeProp<P>(
     case 3:
       return (reader.readBool(offset)) as P;
     case 4:
-      return (reader.readLong(offset)) as P;
+      return (reader.readDateTimeOrNull(offset)) as P;
     case 5:
-      return (reader.readString(offset)) as P;
+      return (reader.readDateTimeOrNull(offset)) as P;
     case 6:
-      return (reader.readLong(offset)) as P;
+      return (reader.readBool(offset)) as P;
     case 7:
+      return (reader.readDateTimeOrNull(offset)) as P;
+    case 8:
+      return (reader.readDateTimeOrNull(offset)) as P;
+    case 9:
+      return (reader.readLong(offset)) as P;
+    case 10:
+      return (reader.readDateTimeOrNull(offset)) as P;
+    case 11:
+      return (reader.readDouble(offset)) as P;
+    case 12:
+      return (reader.readDouble(offset)) as P;
+    case 13:
+      return (reader.readString(offset)) as P;
+    case 14:
+      return (_VantaiVehiclestatusValueEnumMap[reader.readByteOrNull(offset)] ??
+          VehicleStatus.ACTIVE) as P;
+    case 15:
+      return (reader.readLong(offset)) as P;
+    case 16:
       return (_VantaiVehicletypeValueEnumMap[reader.readByteOrNull(offset)] ??
           VehicleType.SLEEPER) as P;
-    case 8:
+    case 17:
       return (reader.readDateTime(offset)) as P;
-    case 9:
+    case 18:
       return (reader.readString(offset)) as P;
-    case 10:
+    case 19:
       return (reader.readLong(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
   }
 }
 
+const _VantaiVehiclestatusEnumValueMap = {
+  'ACTIVE': 0,
+  'MAINTENANCE': 1,
+  'REPAIR': 2,
+};
+const _VantaiVehiclestatusValueEnumMap = {
+  0: VehicleStatus.ACTIVE,
+  1: VehicleStatus.MAINTENANCE,
+  2: VehicleStatus.REPAIR,
+};
 const _VantaiVehicletypeEnumValueMap = {
   'SLEEPER': 0,
   'SEAT': 1,
@@ -748,6 +843,16 @@ extension VantaiVehicleQueryFilter
     });
   }
 
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterFilterCondition>
+      gpsEnabledEqualTo(bool value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'gpsEnabled',
+        value: value,
+      ));
+    });
+  }
+
   QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterFilterCondition> idEqualTo(
       Id value) {
     return QueryBuilder.apply(this, (query) {
@@ -803,11 +908,307 @@ extension VantaiVehicleQueryFilter
   }
 
   QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterFilterCondition>
+      inspectionExpiryIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'inspectionExpiry',
+      ));
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterFilterCondition>
+      inspectionExpiryIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'inspectionExpiry',
+      ));
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterFilterCondition>
+      inspectionExpiryEqualTo(DateTime? value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'inspectionExpiry',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterFilterCondition>
+      inspectionExpiryGreaterThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'inspectionExpiry',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterFilterCondition>
+      inspectionExpiryLessThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'inspectionExpiry',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterFilterCondition>
+      inspectionExpiryBetween(
+    DateTime? lower,
+    DateTime? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'inspectionExpiry',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterFilterCondition>
+      insuranceExpiryIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'insuranceExpiry',
+      ));
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterFilterCondition>
+      insuranceExpiryIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'insuranceExpiry',
+      ));
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterFilterCondition>
+      insuranceExpiryEqualTo(DateTime? value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'insuranceExpiry',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterFilterCondition>
+      insuranceExpiryGreaterThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'insuranceExpiry',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterFilterCondition>
+      insuranceExpiryLessThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'insuranceExpiry',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterFilterCondition>
+      insuranceExpiryBetween(
+    DateTime? lower,
+    DateTime? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'insuranceExpiry',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterFilterCondition>
       isSyncedEqualTo(bool value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'isSynced',
         value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterFilterCondition>
+      lastOilChangeIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'lastOilChange',
+      ));
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterFilterCondition>
+      lastOilChangeIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'lastOilChange',
+      ));
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterFilterCondition>
+      lastOilChangeEqualTo(DateTime? value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'lastOilChange',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterFilterCondition>
+      lastOilChangeGreaterThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'lastOilChange',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterFilterCondition>
+      lastOilChangeLessThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'lastOilChange',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterFilterCondition>
+      lastOilChangeBetween(
+    DateTime? lower,
+    DateTime? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'lastOilChange',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterFilterCondition>
+      lastTireChangeIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'lastTireChange',
+      ));
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterFilterCondition>
+      lastTireChangeIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'lastTireChange',
+      ));
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterFilterCondition>
+      lastTireChangeEqualTo(DateTime? value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'lastTireChange',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterFilterCondition>
+      lastTireChangeGreaterThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'lastTireChange',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterFilterCondition>
+      lastTireChangeLessThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'lastTireChange',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterFilterCondition>
+      lastTireChangeBetween(
+    DateTime? lower,
+    DateTime? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'lastTireChange',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
       ));
     });
   }
@@ -864,6 +1265,212 @@ extension VantaiVehicleQueryFilter
         includeLower: includeLower,
         upper: upper,
         includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterFilterCondition>
+      nextMaintenanceDateIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'nextMaintenanceDate',
+      ));
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterFilterCondition>
+      nextMaintenanceDateIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'nextMaintenanceDate',
+      ));
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterFilterCondition>
+      nextMaintenanceDateEqualTo(DateTime? value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'nextMaintenanceDate',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterFilterCondition>
+      nextMaintenanceDateGreaterThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'nextMaintenanceDate',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterFilterCondition>
+      nextMaintenanceDateLessThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'nextMaintenanceDate',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterFilterCondition>
+      nextMaintenanceDateBetween(
+    DateTime? lower,
+    DateTime? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'nextMaintenanceDate',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterFilterCondition>
+      nextMaintenanceKmEqualTo(
+    double value, {
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'nextMaintenanceKm',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterFilterCondition>
+      nextMaintenanceKmGreaterThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'nextMaintenanceKm',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterFilterCondition>
+      nextMaintenanceKmLessThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'nextMaintenanceKm',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterFilterCondition>
+      nextMaintenanceKmBetween(
+    double lower,
+    double upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'nextMaintenanceKm',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterFilterCondition>
+      odometerKmEqualTo(
+    double value, {
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'odometerKm',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterFilterCondition>
+      odometerKmGreaterThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'odometerKm',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterFilterCondition>
+      odometerKmLessThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'odometerKm',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterFilterCondition>
+      odometerKmBetween(
+    double lower,
+    double upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'odometerKm',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        epsilon: epsilon,
       ));
     });
   }
@@ -1000,6 +1607,62 @@ extension VantaiVehicleQueryFilter
       return query.addFilterCondition(FilterCondition.greaterThan(
         property: r'plateNumber',
         value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterFilterCondition>
+      statusEqualTo(VehicleStatus value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'status',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterFilterCondition>
+      statusGreaterThan(
+    VehicleStatus value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'status',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterFilterCondition>
+      statusLessThan(
+    VehicleStatus value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'status',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterFilterCondition>
+      statusBetween(
+    VehicleStatus lower,
+    VehicleStatus upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'status',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
       ));
     });
   }
@@ -1410,6 +2073,47 @@ extension VantaiVehicleQuerySortBy
     });
   }
 
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterSortBy> sortByGpsEnabled() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'gpsEnabled', Sort.asc);
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterSortBy>
+      sortByGpsEnabledDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'gpsEnabled', Sort.desc);
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterSortBy>
+      sortByInspectionExpiry() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'inspectionExpiry', Sort.asc);
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterSortBy>
+      sortByInspectionExpiryDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'inspectionExpiry', Sort.desc);
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterSortBy>
+      sortByInsuranceExpiry() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'insuranceExpiry', Sort.asc);
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterSortBy>
+      sortByInsuranceExpiryDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'insuranceExpiry', Sort.desc);
+    });
+  }
+
   QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterSortBy> sortByIsSynced() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'isSynced', Sort.asc);
@@ -1420,6 +2124,34 @@ extension VantaiVehicleQuerySortBy
       sortByIsSyncedDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'isSynced', Sort.desc);
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterSortBy>
+      sortByLastOilChange() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'lastOilChange', Sort.asc);
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterSortBy>
+      sortByLastOilChangeDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'lastOilChange', Sort.desc);
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterSortBy>
+      sortByLastTireChange() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'lastTireChange', Sort.asc);
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterSortBy>
+      sortByLastTireChangeDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'lastTireChange', Sort.desc);
     });
   }
 
@@ -1437,6 +2169,47 @@ extension VantaiVehicleQuerySortBy
     });
   }
 
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterSortBy>
+      sortByNextMaintenanceDate() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'nextMaintenanceDate', Sort.asc);
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterSortBy>
+      sortByNextMaintenanceDateDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'nextMaintenanceDate', Sort.desc);
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterSortBy>
+      sortByNextMaintenanceKm() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'nextMaintenanceKm', Sort.asc);
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterSortBy>
+      sortByNextMaintenanceKmDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'nextMaintenanceKm', Sort.desc);
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterSortBy> sortByOdometerKm() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'odometerKm', Sort.asc);
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterSortBy>
+      sortByOdometerKmDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'odometerKm', Sort.desc);
+    });
+  }
+
   QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterSortBy> sortByPlateNumber() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'plateNumber', Sort.asc);
@@ -1447,6 +2220,18 @@ extension VantaiVehicleQuerySortBy
       sortByPlateNumberDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'plateNumber', Sort.desc);
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterSortBy> sortByStatus() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'status', Sort.asc);
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterSortBy> sortByStatusDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'status', Sort.desc);
     });
   }
 
@@ -1554,6 +2339,19 @@ extension VantaiVehicleQuerySortThenBy
     });
   }
 
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterSortBy> thenByGpsEnabled() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'gpsEnabled', Sort.asc);
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterSortBy>
+      thenByGpsEnabledDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'gpsEnabled', Sort.desc);
+    });
+  }
+
   QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterSortBy> thenById() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'id', Sort.asc);
@@ -1563,6 +2361,34 @@ extension VantaiVehicleQuerySortThenBy
   QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterSortBy> thenByIdDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'id', Sort.desc);
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterSortBy>
+      thenByInspectionExpiry() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'inspectionExpiry', Sort.asc);
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterSortBy>
+      thenByInspectionExpiryDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'inspectionExpiry', Sort.desc);
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterSortBy>
+      thenByInsuranceExpiry() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'insuranceExpiry', Sort.asc);
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterSortBy>
+      thenByInsuranceExpiryDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'insuranceExpiry', Sort.desc);
     });
   }
 
@@ -1580,6 +2406,34 @@ extension VantaiVehicleQuerySortThenBy
   }
 
   QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterSortBy>
+      thenByLastOilChange() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'lastOilChange', Sort.asc);
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterSortBy>
+      thenByLastOilChangeDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'lastOilChange', Sort.desc);
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterSortBy>
+      thenByLastTireChange() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'lastTireChange', Sort.asc);
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterSortBy>
+      thenByLastTireChangeDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'lastTireChange', Sort.desc);
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterSortBy>
       thenByManufactureYear() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'manufactureYear', Sort.asc);
@@ -1593,6 +2447,47 @@ extension VantaiVehicleQuerySortThenBy
     });
   }
 
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterSortBy>
+      thenByNextMaintenanceDate() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'nextMaintenanceDate', Sort.asc);
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterSortBy>
+      thenByNextMaintenanceDateDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'nextMaintenanceDate', Sort.desc);
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterSortBy>
+      thenByNextMaintenanceKm() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'nextMaintenanceKm', Sort.asc);
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterSortBy>
+      thenByNextMaintenanceKmDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'nextMaintenanceKm', Sort.desc);
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterSortBy> thenByOdometerKm() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'odometerKm', Sort.asc);
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterSortBy>
+      thenByOdometerKmDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'odometerKm', Sort.desc);
+    });
+  }
+
   QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterSortBy> thenByPlateNumber() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'plateNumber', Sort.asc);
@@ -1603,6 +2498,18 @@ extension VantaiVehicleQuerySortThenBy
       thenByPlateNumberDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'plateNumber', Sort.desc);
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterSortBy> thenByStatus() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'status', Sort.asc);
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QAfterSortBy> thenByStatusDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'status', Sort.desc);
     });
   }
 
@@ -1692,9 +2599,43 @@ extension VantaiVehicleQueryWhereDistinct
     });
   }
 
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QDistinct> distinctByGpsEnabled() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'gpsEnabled');
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QDistinct>
+      distinctByInspectionExpiry() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'inspectionExpiry');
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QDistinct>
+      distinctByInsuranceExpiry() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'insuranceExpiry');
+    });
+  }
+
   QueryBuilder<VantaiVehicle, VantaiVehicle, QDistinct> distinctByIsSynced() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'isSynced');
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QDistinct>
+      distinctByLastOilChange() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'lastOilChange');
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QDistinct>
+      distinctByLastTireChange() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'lastTireChange');
     });
   }
 
@@ -1705,10 +2646,36 @@ extension VantaiVehicleQueryWhereDistinct
     });
   }
 
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QDistinct>
+      distinctByNextMaintenanceDate() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'nextMaintenanceDate');
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QDistinct>
+      distinctByNextMaintenanceKm() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'nextMaintenanceKm');
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QDistinct> distinctByOdometerKm() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'odometerKm');
+    });
+  }
+
   QueryBuilder<VantaiVehicle, VantaiVehicle, QDistinct> distinctByPlateNumber(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'plateNumber', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VantaiVehicle, QDistinct> distinctByStatus() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'status');
     });
   }
 
@@ -1770,9 +2737,43 @@ extension VantaiVehicleQueryProperty
     });
   }
 
+  QueryBuilder<VantaiVehicle, bool, QQueryOperations> gpsEnabledProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'gpsEnabled');
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, DateTime?, QQueryOperations>
+      inspectionExpiryProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'inspectionExpiry');
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, DateTime?, QQueryOperations>
+      insuranceExpiryProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'insuranceExpiry');
+    });
+  }
+
   QueryBuilder<VantaiVehicle, bool, QQueryOperations> isSyncedProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'isSynced');
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, DateTime?, QQueryOperations>
+      lastOilChangeProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'lastOilChange');
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, DateTime?, QQueryOperations>
+      lastTireChangeProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'lastTireChange');
     });
   }
 
@@ -1782,9 +2783,36 @@ extension VantaiVehicleQueryProperty
     });
   }
 
+  QueryBuilder<VantaiVehicle, DateTime?, QQueryOperations>
+      nextMaintenanceDateProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'nextMaintenanceDate');
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, double, QQueryOperations>
+      nextMaintenanceKmProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'nextMaintenanceKm');
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, double, QQueryOperations> odometerKmProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'odometerKm');
+    });
+  }
+
   QueryBuilder<VantaiVehicle, String, QQueryOperations> plateNumberProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'plateNumber');
+    });
+  }
+
+  QueryBuilder<VantaiVehicle, VehicleStatus, QQueryOperations>
+      statusProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'status');
     });
   }
 

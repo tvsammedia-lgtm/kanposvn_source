@@ -260,12 +260,14 @@ const _VantaiShipmentstatusEnumValueMap = {
   'IN_TRANSIT': 1,
   'DELIVERED': 2,
   'CANCELLED': 3,
+  'AT_WAREHOUSE': 4,
 };
 const _VantaiShipmentstatusValueEnumMap = {
   0: ShipmentStatus.PENDING,
   1: ShipmentStatus.IN_TRANSIT,
   2: ShipmentStatus.DELIVERED,
   3: ShipmentStatus.CANCELLED,
+  4: ShipmentStatus.AT_WAREHOUSE,
 };
 
 Id _vantaiShipmentGetId(VantaiShipment object) {

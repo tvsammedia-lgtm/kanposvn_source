@@ -20,6 +20,25 @@ enum RestaurantOrderItemStatus {
   const RestaurantOrderItemStatus(this.label);
 }
 
+enum RestaurantPaymentMethod {
+  CASH('Tiền mặt'),
+  QR('QR'),
+  BANK_TRANSFER('Chuyển khoản'),
+  CARD('Thẻ'),
+  E_WALLET('Ví điện tử'),
+  DEBT('Công nợ');
+
+  final String label;
+  const RestaurantPaymentMethod(this.label);
+}
+
+@embedded
+class RestaurantOrderPayment {
+  @enumerated
+  RestaurantPaymentMethod method = RestaurantPaymentMethod.CASH;
+  double amount = 0;
+}
+
 @embedded
 class RestaurantOrderDetail {
   String detailId = ''; // To uniquely identify the item in KDS
@@ -50,11 +69,24 @@ class RestaurantOrder {
 
   List<RestaurantOrderDetail> details = [];
 
-  double totalAmount = 0.0;
+  double totalAmount = 0.0; // Tạm tính trước giảm giá
+  double discountAmount = 0.0; // Tổng khuyến mãi/giảm giá
+  String promotionName = ''; // Tên KM áp dụng (nếu có)
+
+  /// Thanh toán: hỗ trợ kết hợp nhiều phương thức (tiền mặt + QR + thẻ...)
+  List<RestaurantOrderPayment> payments = [];
+
+  // Thông tin khách hàng (tùy chọn) — phục vụ tích điểm & công nợ
+  String customerId = '';
+  String customerName = '';
+  String customerPhone = '';
+  int earnedPoints = 0;
 
   @enumerated
   RestaurantOrderStatus status = RestaurantOrderStatus.SERVING;
 
   DateTime? createdAt;
   DateTime? closedAt;
+
+  double get finalAmount => totalAmount - discountAmount;
 }

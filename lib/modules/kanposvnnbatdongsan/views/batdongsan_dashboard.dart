@@ -9,15 +9,23 @@ import '../../../core/widgets/owner_info_bar.dart';
 import '../../../core/providers.dart';
 import '../providers/batdongsan_providers.dart';
 import '../services/batdongsan_seed_data.dart';
+import 'batdongsan_home_screen.dart';
 import 'property_list_screen.dart';
+import 'customer_list_screen.dart';
+import 'broker_list_screen.dart';
+import 'transaction_list_screen.dart';
+import 'batdongsan_match_screen.dart';
+import 'batdongsan_finance_screen.dart';
 import 'batdongsan_sales_report_screen.dart';
 import 'batdongsan_settings_screen.dart';
 
+/// Shell module Bất động sản — tab theo PRD kanbatdongsan.md mục 4.
 class BatDongSanDashboard extends ConsumerStatefulWidget {
   const BatDongSanDashboard({super.key});
 
   @override
-  ConsumerState<BatDongSanDashboard> createState() => _BatDongSanDashboardState();
+  ConsumerState<BatDongSanDashboard> createState() =>
+      _BatDongSanDashboardState();
 }
 
 class _BatDongSanDashboardState extends ConsumerState<BatDongSanDashboard> {
@@ -38,6 +46,7 @@ class _BatDongSanDashboardState extends ConsumerState<BatDongSanDashboard> {
     ref.invalidate(buyersProvider);
     ref.invalidate(sellersProvider);
     ref.invalidate(brokersProvider);
+    ref.invalidate(floorFeesProvider);
     if (mounted) {
       setState(() {
         _isInit = true;
@@ -46,35 +55,48 @@ class _BatDongSanDashboardState extends ConsumerState<BatDongSanDashboard> {
   }
 
   static final Map<String, Set<String>> _roleTabs = {
-    EmployeeRoles.cashier: const {'pos', 'finance', 'report', 'reports'},
-    EmployeeRoles.sale: const {'pos', 'contracts', 'finance', 'report', 'reports', 'materials'},
-    EmployeeRoles.warehouse: const {'inventory', 'materials', 'material_categories', 'pos'},
-    EmployeeRoles.accountant: const {'dashboard', 'finance', 'contracts', 'report', 'reports', 'materials', 'material_categories', 'settings'},
+    EmployeeRoles.cashier: const {'home', 'transactions', 'finance', 'report'},
+    EmployeeRoles.sale: const {
+      'home',
+      'properties',
+      'customers',
+      'brokers',
+      'transactions',
+      'match',
+      'report'
+    },
+    EmployeeRoles.warehouse: const {'home', 'properties'},
+    EmployeeRoles.accountant: const {
+      'home',
+      'finance',
+      'transactions',
+      'brokers',
+      'report',
+      'settings'
+    },
   };
 
   static final Map<String, ({IconData icon, String label})> _tabDefs = {
-    'dashboard': (icon: Icons.dashboard, label: 'Dashboard'),
-    'pos': (icon: Icons.point_of_sale, label: 'Bán Lẻ'),
-    'contracts': (icon: Icons.assignment, label: 'Hợp Đồng'),
-    'material_categories': (icon: Icons.category, label: 'Nhóm VT'),
-    'materials': (icon: Icons.widgets, label: 'Vật tư'),
-    'inventory': (icon: Icons.inventory, label: 'Kho Hàng'),
-    'finance': (icon: Icons.account_balance_wallet, label: 'Thu Chi'),
+    'home': (icon: Icons.dashboard, label: 'Tổng Quan'),
+    'properties': (icon: Icons.home_work, label: 'BĐS'),
+    'customers': (icon: Icons.people, label: 'Khách Hàng'),
+    'brokers': (icon: Icons.badge, label: 'Môi Giới'),
+    'transactions': (icon: Icons.handshake, label: 'Giao Dịch'),
+    'match': (icon: Icons.join_inner, label: 'So Khớp'),
+    'finance': (icon: Icons.account_balance_wallet, label: 'Phí Sàn'),
     'report': (icon: Icons.bar_chart, label: 'Báo Cáo'),
-    'reports': (icon: Icons.folder_shared, label: 'Báo Cáo Chung'),
     'settings': (icon: Icons.settings, label: 'Cài Đặt'),
   };
 
   static final Map<String, Widget Function()> _tabScreens = {
-    'dashboard': () => const PropertyListScreen(),
-    'pos': () => const PropertyListScreen(),
-    'contracts': () => const PropertyListScreen(),
-    'material_categories': () => const PropertyListScreen(),
-    'materials': () => const PropertyListScreen(),
-    'inventory': () => const PropertyListScreen(),
-    'finance': () => const PropertyListScreen(),
+    'home': () => const BatDongSanHomeScreen(),
+    'properties': () => const PropertyListScreen(),
+    'customers': () => const CustomerListScreen(),
+    'brokers': () => const BrokerListScreen(),
+    'transactions': () => const TransactionListScreen(),
+    'match': () => const BatDongSanMatchScreen(),
+    'finance': () => const BatDongSanFinanceScreen(),
     'report': () => const BatDongSanSalesReportScreen(),
-    'reports': () => const BatDongSanSalesReportScreen(),
     'settings': () => const BatDongSanSettingsScreen(),
   };
 
@@ -111,7 +133,7 @@ class _BatDongSanDashboardState extends ConsumerState<BatDongSanDashboard> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Quản lý Bất động sản'),
+        title: const Text('Quản lý Môi giới Bất động sản'),
         actions: const [
           AccountSwitcherButton(),
         ],
@@ -124,24 +146,27 @@ class _BatDongSanDashboardState extends ConsumerState<BatDongSanDashboard> {
             child: Row(
               children: [
                 NavigationRail(
-            selectedIndex: safeIndex,
-            onDestinationSelected: (index) => setState(() => _selectedIndex = index),
-            labelType: NavigationRailLabelType.all,
-            scrollable: true,
-            selectedIconTheme: const IconThemeData(color: Color(0xFF0284C7)),
-            selectedLabelTextStyle: const TextStyle(color: Color(0xFF0284C7), fontWeight: FontWeight.bold),
-            destinations: [
-              for (final t in tabs)
-                NavigationRailDestination(
-                  icon: Icon(t.icon),
-                  label: Text(t.label),
+                  selectedIndex: safeIndex,
+                  onDestinationSelected: (index) =>
+                      setState(() => _selectedIndex = index),
+                  labelType: NavigationRailLabelType.all,
+                  scrollable: true,
+                  selectedIconTheme:
+                      const IconThemeData(color: Color(0xFF0284C7)),
+                  selectedLabelTextStyle: const TextStyle(
+                      color: Color(0xFF0284C7), fontWeight: FontWeight.bold),
+                  destinations: [
+                    for (final t in tabs)
+                      NavigationRailDestination(
+                        icon: Icon(t.icon),
+                        label: Text(t.label),
+                      ),
+                  ],
                 ),
-            ],
-          ),
-          const VerticalDivider(thickness: 1, width: 1),
-          Expanded(child: tabs[safeIndex].screen),
-        ],
-      ),
+                const VerticalDivider(thickness: 1, width: 1),
+                Expanded(child: tabs[safeIndex].screen),
+              ],
+            ),
           ),
         ],
       ),

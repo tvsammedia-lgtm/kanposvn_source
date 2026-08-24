@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import '../../core/providers.dart';
 import '../../core/app_theme.dart';
 import '../../core/widgets.dart';
 import '../../models/attendance.dart';
 import '../../models/employee.dart';
+import '../../models/leave_request.dart';
 import '../../services/database_service.dart';
 
 class AttendanceScreen extends ConsumerWidget {
@@ -44,6 +46,12 @@ class AttendanceScreen extends ConsumerWidget {
                       .previousMonth(),
                   onNext: () =>
                       ref.read(selectedMonthProvider.notifier).nextMonth(),
+                ),
+                const SizedBox(width: 12),
+                OutlinedButton.icon(
+                  onPressed: () => _showLeaveRequestsSheet(context, ref),
+                  icon: const Icon(Icons.event_busy, size: 18),
+                  label: const Text('Đơn nghỉ phép'),
                 ),
                 const SizedBox(width: 12),
                 ElevatedButton.icon(
@@ -188,6 +196,143 @@ class AttendanceScreen extends ConsumerWidget {
       ),
     );
   }
+
+  // ═════════════ ĐƠN NGHỈ PHÉP (§8: Tạo đơn -> Duyệt/Từ chối) ═════════════
+
+  void _showLeaveRequestsSheet(BuildContext context, WidgetRef ref) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: AppTheme.surface,
+      isScrollControlled: true,
+      builder: (ctx) => Consumer(builder: (context, sheetRef, _) {
+        final leavesAsync = sheetRef.watch(leaveRequestsProvider);
+        return SizedBox(
+          height: MediaQuery.of(ctx).size.height * 0.75,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Text('Đơn nghỉ phép',
+                    style: Theme.of(ctx)
+                        .textTheme
+                        .titleLarge
+                        ?.copyWith(fontWeight: FontWeight.bold)),
+              ),
+              Expanded(
+                child: leavesAsync.when(
+                  loading: () =>
+                      const Center(child: CircularProgressIndicator()),
+                  error: (e, _) => Center(child: Text('Lỗi: $e')),
+                  data: (leaves) {
+                    if (leaves.isEmpty) {
+                      return const Center(child: Text('Chưa có đơn nào'));
+                    }
+                    return ListView.separated(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      itemCount: leaves.length,
+                      separatorBuilder: (_, __) => const Divider(height: 1),
+                      itemBuilder: (context, i) {
+                        final r = leaves[i];
+                        final statusColor = switch (r.status) {
+                          LeaveStatus.pending => Colors.orange,
+                          LeaveStatus.approved => Colors.green,
+                          LeaveStatus.rejected => Colors.red,
+                          LeaveStatus.cancelled => Colors.grey,
+                        };
+                        final statusLabel = switch (r.status) {
+                          LeaveStatus.pending => 'Chờ duyệt',
+                          LeaveStatus.approved => 'Đã duyệt',
+                          LeaveStatus.rejected => 'Từ chối',
+                          LeaveStatus.cancelled => 'Đã hủy',
+                        };
+                        final df = DateFormat('dd/MM');
+                        return ListTile(
+                          contentPadding: EdgeInsets.zero,
+                          title: Row(children: [
+                            Expanded(
+                                child: Text('${r.employeeName} · '
+                                    '${df.format(r.fromDate)} - ${df.format(r.toDate)}'
+                                    ' (${r.days} ngày)')),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 8, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: statusColor.withOpacity(0.12),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Text(statusLabel,
+                                  style: TextStyle(
+                                      fontSize: 11, color: statusColor)),
+                            ),
+                          ]),
+                          subtitle: Text(
+                            '${_leaveTypeLabel(r.leaveType)}'
+                            '${r.reason != null ? " · ${r.reason}" : ""}'
+                            '${r.approvalNote != null ? "\nGhi chú: ${r.approvalNote}" : ""}',
+                          ),
+                          isThreeLine: r.approvalNote != null,
+                          trailing: r.status == LeaveStatus.pending
+                              ? Row(mainAxisSize: MainAxisSize.min, children: [
+                                  IconButton(
+                                    tooltip: 'Duyệt',
+                                    icon: const Icon(Icons.check_circle,
+                                        color: Colors.green),
+                                    onPressed: () async {
+                                      r.status = LeaveStatus.approved;
+                                      r.approvedAt = DateTime.now();
+                                      r.approverName = 'Quản lý';
+                                      await DatabaseService.instance
+                                          .saveLeaveRequest(r);
+                                      // Trừ phép năm khi duyệt phép năm.
+                                      if (r.leaveType == LeaveType.annual) {
+                                        final emp = await DatabaseService
+                                            .instance
+                                            .getEmployeeById(r.employeeId);
+                                        if (emp != null) {
+                                          emp.annualLeaveUsed += r.days;
+                                          await DatabaseService.instance
+                                              .saveEmployee(emp);
+                                        }
+                                      }
+                                      sheetRef.invalidate(leaveRequestsProvider);
+                                    },
+                                  ),
+                                  IconButton(
+                                    tooltip: 'Từ chối',
+                                    icon: const Icon(Icons.cancel,
+                                        color: Colors.redAccent),
+                                    onPressed: () async {
+                                      r.status = LeaveStatus.rejected;
+                                      r.approvedAt = DateTime.now();
+                                      r.approverName = 'Quản lý';
+                                      await DatabaseService.instance
+                                          .saveLeaveRequest(r);
+                                      sheetRef.invalidate(leaveRequestsProvider);
+                                    },
+                                  ),
+                                ])
+                              : null,
+                        );
+                      },
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        );
+      }),
+    );
+  }
+
+  static String _leaveTypeLabel(LeaveType t) => switch (t) {
+        LeaveType.annual => 'Phép năm',
+        LeaveType.sick => 'Nghỉ ốm',
+        LeaveType.maternity => 'Thai sản',
+        LeaveType.unpaid => 'Không lương',
+        LeaveType.holiday => 'Nghỉ lễ',
+      };
 
   void _showAddAttendanceDialog(
       BuildContext context, WidgetRef ref, SelectedMonth month) {

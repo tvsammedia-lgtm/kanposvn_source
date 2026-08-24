@@ -5,7 +5,9 @@ part 'restaurant_table.g.dart';
 enum RestaurantTableStatus {
   EMPTY('Trống'),
   SERVING('Đang phục vụ'),
-  WAITING_PAYMENT('Chờ thanh toán');
+  WAITING_PAYMENT('Chờ thanh toán'),
+  RESERVED('Đặt trước'),
+  CLEANING('Dọn bàn');
 
   final String label;
   const RestaurantTableStatus(this.label);
@@ -26,7 +28,9 @@ class RestaurantTable {
 
   String name = ''; // e.g., Bàn 01
   String zone = ''; // e.g., Tầng 1, Sân Vườn, VIP
-  
+
+  int capacity = 4; // Sức chứa (số khách)
+
   @enumerated
   RestaurantTableStatus status = RestaurantTableStatus.EMPTY;
 }

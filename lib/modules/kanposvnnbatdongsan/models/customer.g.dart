@@ -30,86 +30,116 @@ const CustomerSchema = CollectionSchema(
     r'demandArea': PropertySchema(
       id: 2,
       name: r'demandArea',
+      type: IsarType.string,
+    ),
+    r'demandAreaFrom': PropertySchema(
+      id: 3,
+      name: r'demandAreaFrom',
+      type: IsarType.double,
+    ),
+    r'demandAreaTo': PropertySchema(
+      id: 4,
+      name: r'demandAreaTo',
       type: IsarType.double,
     ),
     r'demandCity': PropertySchema(
-      id: 3,
+      id: 5,
       name: r'demandCity',
       type: IsarType.string,
     ),
+    r'demandDirection': PropertySchema(
+      id: 6,
+      name: r'demandDirection',
+      type: IsarType.string,
+    ),
     r'demandDistrict': PropertySchema(
-      id: 4,
+      id: 7,
       name: r'demandDistrict',
       type: IsarType.string,
     ),
+    r'demandFrontage': PropertySchema(
+      id: 8,
+      name: r'demandFrontage',
+      type: IsarType.string,
+    ),
+    r'demandLegalStatus': PropertySchema(
+      id: 9,
+      name: r'demandLegalStatus',
+      type: IsarType.string,
+    ),
     r'demandPriceFrom': PropertySchema(
-      id: 5,
+      id: 10,
       name: r'demandPriceFrom',
       type: IsarType.double,
     ),
     r'demandPriceTo': PropertySchema(
-      id: 6,
+      id: 11,
       name: r'demandPriceTo',
       type: IsarType.double,
     ),
     r'demandPropertyType': PropertySchema(
-      id: 7,
+      id: 12,
       name: r'demandPropertyType',
       type: IsarType.string,
     ),
     r'demandWard': PropertySchema(
-      id: 8,
+      id: 13,
       name: r'demandWard',
       type: IsarType.string,
     ),
     r'deviceId': PropertySchema(
-      id: 9,
+      id: 14,
       name: r'deviceId',
       type: IsarType.string,
     ),
     r'email': PropertySchema(
-      id: 10,
+      id: 15,
       name: r'email',
       type: IsarType.string,
     ),
     r'isSynced': PropertySchema(
-      id: 11,
+      id: 16,
       name: r'isSynced',
       type: IsarType.bool,
     ),
+    r'isVip': PropertySchema(
+      id: 17,
+      name: r'isVip',
+      type: IsarType.bool,
+    ),
     r'name': PropertySchema(
-      id: 12,
+      id: 18,
       name: r'name',
       type: IsarType.string,
     ),
     r'notes': PropertySchema(
-      id: 13,
+      id: 19,
       name: r'notes',
       type: IsarType.string,
     ),
     r'phone': PropertySchema(
-      id: 14,
+      id: 20,
       name: r'phone',
       type: IsarType.string,
     ),
     r'remoteId': PropertySchema(
-      id: 15,
+      id: 21,
       name: r'remoteId',
       type: IsarType.string,
     ),
     r'type': PropertySchema(
-      id: 16,
+      id: 22,
       name: r'type',
       type: IsarType.string,
       enumMap: _CustomertypeEnumValueMap,
     ),
     r'updatedAt': PropertySchema(
-      id: 17,
+      id: 23,
       name: r'updatedAt',
       type: IsarType.dateTime,
     ),
     r'version': PropertySchema(
-      id: 18,
+      id: 24,
       name: r'version',
       type: IsarType.long,
     )
@@ -155,13 +185,37 @@ int _customerEstimateSize(
     }
   }
   {
+    final value = object.demandArea;
+    if (value != null) {
+      bytesCount += 3 + value.length * 3;
+    }
+  }
+  {
     final value = object.demandCity;
     if (value != null) {
       bytesCount += 3 + value.length * 3;
     }
   }
   {
+    final value = object.demandDirection;
+    if (value != null) {
+      bytesCount += 3 + value.length * 3;
+    }
+  }
+  {
     final value = object.demandDistrict;
+    if (value != null) {
+      bytesCount += 3 + value.length * 3;
+    }
+  }
+  {
+    final value = object.demandFrontage;
+    if (value != null) {
+      bytesCount += 3 + value.length * 3;
+    }
+  }
+  {
+    final value = object.demandLegalStatus;
     if (value != null) {
       bytesCount += 3 + value.length * 3;
     }
@@ -221,23 +275,29 @@ void _customerSerialize(
 ) {
   writer.writeString(offsets[0], object.address);
   writer.writeDateTime(offsets[1], object.deletedAt);
-  writer.writeDouble(offsets[2], object.demandArea);
-  writer.writeString(offsets[3], object.demandCity);
-  writer.writeString(offsets[4], object.demandDistrict);
-  writer.writeDouble(offsets[5], object.demandPriceFrom);
-  writer.writeDouble(offsets[6], object.demandPriceTo);
-  writer.writeString(offsets[7], object.demandPropertyType);
-  writer.writeString(offsets[8], object.demandWard);
-  writer.writeString(offsets[9], object.deviceId);
-  writer.writeString(offsets[10], object.email);
-  writer.writeBool(offsets[11], object.isSynced);
-  writer.writeString(offsets[12], object.name);
-  writer.writeString(offsets[13], object.notes);
-  writer.writeString(offsets[14], object.phone);
-  writer.writeString(offsets[15], object.remoteId);
-  writer.writeString(offsets[16], object.type.name);
-  writer.writeDateTime(offsets[17], object.updatedAt);
-  writer.writeLong(offsets[18], object.version);
+  writer.writeString(offsets[2], object.demandArea);
+  writer.writeDouble(offsets[3], object.demandAreaFrom);
+  writer.writeDouble(offsets[4], object.demandAreaTo);
+  writer.writeString(offsets[5], object.demandCity);
+  writer.writeString(offsets[6], object.demandDirection);
+  writer.writeString(offsets[7], object.demandDistrict);
+  writer.writeString(offsets[8], object.demandFrontage);
+  writer.writeString(offsets[9], object.demandLegalStatus);
+  writer.writeDouble(offsets[10], object.demandPriceFrom);
+  writer.writeDouble(offsets[11], object.demandPriceTo);
+  writer.writeString(offsets[12], object.demandPropertyType);
+  writer.writeString(offsets[13], object.demandWard);
+  writer.writeString(offsets[14], object.deviceId);
+  writer.writeString(offsets[15], object.email);
+  writer.writeBool(offsets[16], object.isSynced);
+  writer.writeBool(offsets[17], object.isVip);
+  writer.writeString(offsets[18], object.name);
+  writer.writeString(offsets[19], object.notes);
+  writer.writeString(offsets[20], object.phone);
+  writer.writeString(offsets[21], object.remoteId);
+  writer.writeString(offsets[22], object.type.name);
+  writer.writeDateTime(offsets[23], object.updatedAt);
+  writer.writeLong(offsets[24], object.version);
 }
 
 Customer _customerDeserialize(
@@ -249,26 +309,32 @@ Customer _customerDeserialize(
   final object = Customer();
   object.address = reader.readStringOrNull(offsets[0]);
   object.deletedAt = reader.readDateTimeOrNull(offsets[1]);
-  object.demandArea = reader.readDoubleOrNull(offsets[2]);
-  object.demandCity = reader.readStringOrNull(offsets[3]);
-  object.demandDistrict = reader.readStringOrNull(offsets[4]);
-  object.demandPriceFrom = reader.readDoubleOrNull(offsets[5]);
-  object.demandPriceTo = reader.readDoubleOrNull(offsets[6]);
-  object.demandPropertyType = reader.readStringOrNull(offsets[7]);
-  object.demandWard = reader.readStringOrNull(offsets[8]);
-  object.deviceId = reader.readString(offsets[9]);
-  object.email = reader.readStringOrNull(offsets[10]);
+  object.demandArea = reader.readStringOrNull(offsets[2]);
+  object.demandAreaFrom = reader.readDoubleOrNull(offsets[3]);
+  object.demandAreaTo = reader.readDoubleOrNull(offsets[4]);
+  object.demandCity = reader.readStringOrNull(offsets[5]);
+  object.demandDirection = reader.readStringOrNull(offsets[6]);
+  object.demandDistrict = reader.readStringOrNull(offsets[7]);
+  object.demandFrontage = reader.readStringOrNull(offsets[8]);
+  object.demandLegalStatus = reader.readStringOrNull(offsets[9]);
+  object.demandPriceFrom = reader.readDoubleOrNull(offsets[10]);
+  object.demandPriceTo = reader.readDoubleOrNull(offsets[11]);
+  object.demandPropertyType = reader.readStringOrNull(offsets[12]);
+  object.demandWard = reader.readStringOrNull(offsets[13]);
+  object.deviceId = reader.readString(offsets[14]);
+  object.email = reader.readStringOrNull(offsets[15]);
   object.id = id;
-  object.isSynced = reader.readBool(offsets[11]);
-  object.name = reader.readStringOrNull(offsets[12]);
-  object.notes = reader.readStringOrNull(offsets[13]);
-  object.phone = reader.readStringOrNull(offsets[14]);
-  object.remoteId = reader.readStringOrNull(offsets[15]);
+  object.isSynced = reader.readBool(offsets[16]);
+  object.isVip = reader.readBool(offsets[17]);
+  object.name = reader.readStringOrNull(offsets[18]);
+  object.notes = reader.readStringOrNull(offsets[19]);
+  object.phone = reader.readStringOrNull(offsets[20]);
+  object.remoteId = reader.readStringOrNull(offsets[21]);
   object.type =
-      _CustomertypeValueEnumMap[reader.readStringOrNull(offsets[16])] ??
+      _CustomertypeValueEnumMap[reader.readStringOrNull(offsets[22])] ??
           CustomerType.buyer;
-  object.updatedAt = reader.readDateTimeOrNull(offsets[17]);
-  object.version = reader.readLongOrNull(offsets[18]);
+  object.updatedAt = reader.readDateTimeOrNull(offsets[23]);
+  object.version = reader.readLongOrNull(offsets[24]);
   return object;
 }
 
@@ -284,39 +350,51 @@ P _customerDeserializeProp<P>(
     case 1:
       return (reader.readDateTimeOrNull(offset)) as P;
     case 2:
-      return (reader.readDoubleOrNull(offset)) as P;
+      return (reader.readStringOrNull(offset)) as P;
     case 3:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readDoubleOrNull(offset)) as P;
     case 4:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readDoubleOrNull(offset)) as P;
     case 5:
-      return (reader.readDoubleOrNull(offset)) as P;
+      return (reader.readStringOrNull(offset)) as P;
     case 6:
-      return (reader.readDoubleOrNull(offset)) as P;
+      return (reader.readStringOrNull(offset)) as P;
     case 7:
       return (reader.readStringOrNull(offset)) as P;
     case 8:
       return (reader.readStringOrNull(offset)) as P;
     case 9:
-      return (reader.readString(offset)) as P;
-    case 10:
       return (reader.readStringOrNull(offset)) as P;
+    case 10:
+      return (reader.readDoubleOrNull(offset)) as P;
     case 11:
-      return (reader.readBool(offset)) as P;
+      return (reader.readDoubleOrNull(offset)) as P;
     case 12:
       return (reader.readStringOrNull(offset)) as P;
     case 13:
       return (reader.readStringOrNull(offset)) as P;
     case 14:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 15:
       return (reader.readStringOrNull(offset)) as P;
     case 16:
+      return (reader.readBool(offset)) as P;
+    case 17:
+      return (reader.readBool(offset)) as P;
+    case 18:
+      return (reader.readStringOrNull(offset)) as P;
+    case 19:
+      return (reader.readStringOrNull(offset)) as P;
+    case 20:
+      return (reader.readStringOrNull(offset)) as P;
+    case 21:
+      return (reader.readStringOrNull(offset)) as P;
+    case 22:
       return (_CustomertypeValueEnumMap[reader.readStringOrNull(offset)] ??
           CustomerType.buyer) as P;
-    case 17:
+    case 23:
       return (reader.readDateTimeOrNull(offset)) as P;
-    case 18:
+    case 24:
       return (reader.readLongOrNull(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -774,19 +852,169 @@ extension CustomerQueryFilter
   }
 
   QueryBuilder<Customer, Customer, QAfterFilterCondition> demandAreaEqualTo(
+    String? value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'demandArea',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterFilterCondition> demandAreaGreaterThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'demandArea',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterFilterCondition> demandAreaLessThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'demandArea',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterFilterCondition> demandAreaBetween(
+    String? lower,
+    String? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'demandArea',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterFilterCondition> demandAreaStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'demandArea',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterFilterCondition> demandAreaEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'demandArea',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterFilterCondition> demandAreaContains(
+      String value,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'demandArea',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterFilterCondition> demandAreaMatches(
+      String pattern,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'demandArea',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterFilterCondition> demandAreaIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'demandArea',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterFilterCondition>
+      demandAreaIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'demandArea',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterFilterCondition>
+      demandAreaFromIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'demandAreaFrom',
+      ));
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterFilterCondition>
+      demandAreaFromIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'demandAreaFrom',
+      ));
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterFilterCondition> demandAreaFromEqualTo(
     double? value, {
     double epsilon = Query.epsilon,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'demandArea',
+        property: r'demandAreaFrom',
         value: value,
         epsilon: epsilon,
       ));
     });
   }
 
-  QueryBuilder<Customer, Customer, QAfterFilterCondition> demandAreaGreaterThan(
+  QueryBuilder<Customer, Customer, QAfterFilterCondition>
+      demandAreaFromGreaterThan(
     double? value, {
     bool include = false,
     double epsilon = Query.epsilon,
@@ -794,14 +1022,15 @@ extension CustomerQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         include: include,
-        property: r'demandArea',
+        property: r'demandAreaFrom',
         value: value,
         epsilon: epsilon,
       ));
     });
   }
 
-  QueryBuilder<Customer, Customer, QAfterFilterCondition> demandAreaLessThan(
+  QueryBuilder<Customer, Customer, QAfterFilterCondition>
+      demandAreaFromLessThan(
     double? value, {
     bool include = false,
     double epsilon = Query.epsilon,
@@ -809,14 +1038,14 @@ extension CustomerQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.lessThan(
         include: include,
-        property: r'demandArea',
+        property: r'demandAreaFrom',
         value: value,
         epsilon: epsilon,
       ));
     });
   }
 
-  QueryBuilder<Customer, Customer, QAfterFilterCondition> demandAreaBetween(
+  QueryBuilder<Customer, Customer, QAfterFilterCondition> demandAreaFromBetween(
     double? lower,
     double? upper, {
     bool includeLower = true,
@@ -825,7 +1054,87 @@ extension CustomerQueryFilter
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.between(
-        property: r'demandArea',
+        property: r'demandAreaFrom',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterFilterCondition> demandAreaToIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'demandAreaTo',
+      ));
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterFilterCondition>
+      demandAreaToIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'demandAreaTo',
+      ));
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterFilterCondition> demandAreaToEqualTo(
+    double? value, {
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'demandAreaTo',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterFilterCondition>
+      demandAreaToGreaterThan(
+    double? value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'demandAreaTo',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterFilterCondition> demandAreaToLessThan(
+    double? value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'demandAreaTo',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterFilterCondition> demandAreaToBetween(
+    double? lower,
+    double? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'demandAreaTo',
         lower: lower,
         includeLower: includeLower,
         upper: upper,
@@ -984,6 +1293,160 @@ extension CustomerQueryFilter
   }
 
   QueryBuilder<Customer, Customer, QAfterFilterCondition>
+      demandDirectionIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'demandDirection',
+      ));
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterFilterCondition>
+      demandDirectionIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'demandDirection',
+      ));
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterFilterCondition>
+      demandDirectionEqualTo(
+    String? value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'demandDirection',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterFilterCondition>
+      demandDirectionGreaterThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'demandDirection',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterFilterCondition>
+      demandDirectionLessThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'demandDirection',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterFilterCondition>
+      demandDirectionBetween(
+    String? lower,
+    String? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'demandDirection',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterFilterCondition>
+      demandDirectionStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'demandDirection',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterFilterCondition>
+      demandDirectionEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'demandDirection',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterFilterCondition>
+      demandDirectionContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'demandDirection',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterFilterCondition>
+      demandDirectionMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'demandDirection',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterFilterCondition>
+      demandDirectionIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'demandDirection',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterFilterCondition>
+      demandDirectionIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'demandDirection',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterFilterCondition>
       demandDistrictIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNull(
@@ -1131,6 +1594,313 @@ extension CustomerQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         property: r'demandDistrict',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterFilterCondition>
+      demandFrontageIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'demandFrontage',
+      ));
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterFilterCondition>
+      demandFrontageIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'demandFrontage',
+      ));
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterFilterCondition> demandFrontageEqualTo(
+    String? value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'demandFrontage',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterFilterCondition>
+      demandFrontageGreaterThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'demandFrontage',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterFilterCondition>
+      demandFrontageLessThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'demandFrontage',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterFilterCondition> demandFrontageBetween(
+    String? lower,
+    String? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'demandFrontage',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterFilterCondition>
+      demandFrontageStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'demandFrontage',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterFilterCondition>
+      demandFrontageEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'demandFrontage',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterFilterCondition>
+      demandFrontageContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'demandFrontage',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterFilterCondition> demandFrontageMatches(
+      String pattern,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'demandFrontage',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterFilterCondition>
+      demandFrontageIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'demandFrontage',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterFilterCondition>
+      demandFrontageIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'demandFrontage',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterFilterCondition>
+      demandLegalStatusIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'demandLegalStatus',
+      ));
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterFilterCondition>
+      demandLegalStatusIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'demandLegalStatus',
+      ));
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterFilterCondition>
+      demandLegalStatusEqualTo(
+    String? value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'demandLegalStatus',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterFilterCondition>
+      demandLegalStatusGreaterThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'demandLegalStatus',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterFilterCondition>
+      demandLegalStatusLessThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'demandLegalStatus',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterFilterCondition>
+      demandLegalStatusBetween(
+    String? lower,
+    String? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'demandLegalStatus',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterFilterCondition>
+      demandLegalStatusStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'demandLegalStatus',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterFilterCondition>
+      demandLegalStatusEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'demandLegalStatus',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterFilterCondition>
+      demandLegalStatusContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'demandLegalStatus',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterFilterCondition>
+      demandLegalStatusMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'demandLegalStatus',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterFilterCondition>
+      demandLegalStatusIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'demandLegalStatus',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterFilterCondition>
+      demandLegalStatusIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'demandLegalStatus',
         value: '',
       ));
     });
@@ -1936,6 +2706,16 @@ extension CustomerQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'isSynced',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterFilterCondition> isVipEqualTo(
+      bool value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'isVip',
         value: value,
       ));
     });
@@ -2837,6 +3617,30 @@ extension CustomerQuerySortBy on QueryBuilder<Customer, Customer, QSortBy> {
     });
   }
 
+  QueryBuilder<Customer, Customer, QAfterSortBy> sortByDemandAreaFrom() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'demandAreaFrom', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterSortBy> sortByDemandAreaFromDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'demandAreaFrom', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterSortBy> sortByDemandAreaTo() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'demandAreaTo', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterSortBy> sortByDemandAreaToDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'demandAreaTo', Sort.desc);
+    });
+  }
+
   QueryBuilder<Customer, Customer, QAfterSortBy> sortByDemandCity() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'demandCity', Sort.asc);
@@ -2849,6 +3653,18 @@ extension CustomerQuerySortBy on QueryBuilder<Customer, Customer, QSortBy> {
     });
   }
 
+  QueryBuilder<Customer, Customer, QAfterSortBy> sortByDemandDirection() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'demandDirection', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterSortBy> sortByDemandDirectionDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'demandDirection', Sort.desc);
+    });
+  }
+
   QueryBuilder<Customer, Customer, QAfterSortBy> sortByDemandDistrict() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'demandDistrict', Sort.asc);
@@ -2858,6 +3674,30 @@ extension CustomerQuerySortBy on QueryBuilder<Customer, Customer, QSortBy> {
   QueryBuilder<Customer, Customer, QAfterSortBy> sortByDemandDistrictDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'demandDistrict', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterSortBy> sortByDemandFrontage() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'demandFrontage', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterSortBy> sortByDemandFrontageDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'demandFrontage', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterSortBy> sortByDemandLegalStatus() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'demandLegalStatus', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterSortBy> sortByDemandLegalStatusDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'demandLegalStatus', Sort.desc);
     });
   }
 
@@ -2943,6 +3783,18 @@ extension CustomerQuerySortBy on QueryBuilder<Customer, Customer, QSortBy> {
   QueryBuilder<Customer, Customer, QAfterSortBy> sortByIsSyncedDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'isSynced', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterSortBy> sortByIsVip() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isVip', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterSortBy> sortByIsVipDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isVip', Sort.desc);
     });
   }
 
@@ -3069,6 +3921,30 @@ extension CustomerQuerySortThenBy
     });
   }
 
+  QueryBuilder<Customer, Customer, QAfterSortBy> thenByDemandAreaFrom() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'demandAreaFrom', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterSortBy> thenByDemandAreaFromDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'demandAreaFrom', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterSortBy> thenByDemandAreaTo() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'demandAreaTo', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterSortBy> thenByDemandAreaToDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'demandAreaTo', Sort.desc);
+    });
+  }
+
   QueryBuilder<Customer, Customer, QAfterSortBy> thenByDemandCity() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'demandCity', Sort.asc);
@@ -3081,6 +3957,18 @@ extension CustomerQuerySortThenBy
     });
   }
 
+  QueryBuilder<Customer, Customer, QAfterSortBy> thenByDemandDirection() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'demandDirection', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterSortBy> thenByDemandDirectionDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'demandDirection', Sort.desc);
+    });
+  }
+
   QueryBuilder<Customer, Customer, QAfterSortBy> thenByDemandDistrict() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'demandDistrict', Sort.asc);
@@ -3090,6 +3978,30 @@ extension CustomerQuerySortThenBy
   QueryBuilder<Customer, Customer, QAfterSortBy> thenByDemandDistrictDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'demandDistrict', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterSortBy> thenByDemandFrontage() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'demandFrontage', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterSortBy> thenByDemandFrontageDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'demandFrontage', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterSortBy> thenByDemandLegalStatus() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'demandLegalStatus', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterSortBy> thenByDemandLegalStatusDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'demandLegalStatus', Sort.desc);
     });
   }
 
@@ -3187,6 +4099,18 @@ extension CustomerQuerySortThenBy
   QueryBuilder<Customer, Customer, QAfterSortBy> thenByIsSyncedDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'isSynced', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterSortBy> thenByIsVip() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isVip', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterSortBy> thenByIsVipDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isVip', Sort.desc);
     });
   }
 
@@ -3290,9 +4214,22 @@ extension CustomerQueryWhereDistinct
     });
   }
 
-  QueryBuilder<Customer, Customer, QDistinct> distinctByDemandArea() {
+  QueryBuilder<Customer, Customer, QDistinct> distinctByDemandArea(
+      {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(r'demandArea');
+      return query.addDistinctBy(r'demandArea', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QDistinct> distinctByDemandAreaFrom() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'demandAreaFrom');
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QDistinct> distinctByDemandAreaTo() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'demandAreaTo');
     });
   }
 
@@ -3303,10 +4240,34 @@ extension CustomerQueryWhereDistinct
     });
   }
 
+  QueryBuilder<Customer, Customer, QDistinct> distinctByDemandDirection(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'demandDirection',
+          caseSensitive: caseSensitive);
+    });
+  }
+
   QueryBuilder<Customer, Customer, QDistinct> distinctByDemandDistrict(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'demandDistrict',
+          caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QDistinct> distinctByDemandFrontage(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'demandFrontage',
+          caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QDistinct> distinctByDemandLegalStatus(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'demandLegalStatus',
           caseSensitive: caseSensitive);
     });
   }
@@ -3355,6 +4316,12 @@ extension CustomerQueryWhereDistinct
   QueryBuilder<Customer, Customer, QDistinct> distinctByIsSynced() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'isSynced');
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QDistinct> distinctByIsVip() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'isVip');
     });
   }
 
@@ -3426,9 +4393,21 @@ extension CustomerQueryProperty
     });
   }
 
-  QueryBuilder<Customer, double?, QQueryOperations> demandAreaProperty() {
+  QueryBuilder<Customer, String?, QQueryOperations> demandAreaProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'demandArea');
+    });
+  }
+
+  QueryBuilder<Customer, double?, QQueryOperations> demandAreaFromProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'demandAreaFrom');
+    });
+  }
+
+  QueryBuilder<Customer, double?, QQueryOperations> demandAreaToProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'demandAreaTo');
     });
   }
 
@@ -3438,9 +4417,28 @@ extension CustomerQueryProperty
     });
   }
 
+  QueryBuilder<Customer, String?, QQueryOperations> demandDirectionProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'demandDirection');
+    });
+  }
+
   QueryBuilder<Customer, String?, QQueryOperations> demandDistrictProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'demandDistrict');
+    });
+  }
+
+  QueryBuilder<Customer, String?, QQueryOperations> demandFrontageProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'demandFrontage');
+    });
+  }
+
+  QueryBuilder<Customer, String?, QQueryOperations>
+      demandLegalStatusProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'demandLegalStatus');
     });
   }
 
@@ -3484,6 +4482,12 @@ extension CustomerQueryProperty
   QueryBuilder<Customer, bool, QQueryOperations> isSyncedProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'isSynced');
+    });
+  }
+
+  QueryBuilder<Customer, bool, QQueryOperations> isVipProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'isVip');
     });
   }
 

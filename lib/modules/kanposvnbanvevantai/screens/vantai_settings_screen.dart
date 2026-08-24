@@ -8,10 +8,15 @@ import '../../../core/providers.dart';
 /// Bản sao phân quyền tab mặc định của module Vận Tải & Vé
 /// (đồng bộ với `_roleTabs` trong `kanposvnbanvevantai_shell.dart`).
 final Map<String, Set<String>> _vantaiRoleTabs = {
-  EmployeeRoles.cashier: const {'ticketing', 'dispatch'},
+  EmployeeRoles.cashier: const {'ticketing', 'dispatch', 'partners'},
   EmployeeRoles.sale: const {'ticketing', 'dispatch'},
-  EmployeeRoles.warehouse: const {'shipment'},
-  EmployeeRoles.accountant: const {'dashboard', 'accounting', 'settings'},
+  EmployeeRoles.warehouse: const {'shipment', 'fleet', 'partners'},
+  EmployeeRoles.accountant: const {
+    'dashboard',
+    'accounting',
+    'partners',
+    'settings'
+  },
 };
 
 /// Danh sách tab hiển thị khi cấu hình quyền nhân viên
@@ -21,6 +26,9 @@ const List<(String, String)> _vantaiTabOptions = [
   ('ticketing', 'Bán Vé'),
   ('dispatch', 'Điều Xe'),
   ('shipment', 'Nhận Hàng'),
+  ('fleet', 'Tuyến & Xe'),
+  ('drivers', 'Tài Xế'),
+  ('partners', 'KH & NCC'),
   ('accounting', 'Kế Toán'),
   ('employees', 'Quản Lý NV'),
   ('settings', 'Cài Đặt'),

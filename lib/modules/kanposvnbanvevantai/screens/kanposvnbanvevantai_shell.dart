@@ -7,9 +7,12 @@ import '../../../core/widgets/account_switcher_button.dart';
 import '../providers/vantai_providers.dart';
 import '../services/vantai_seed_data.dart';
 import 'vantai_dashboard_screen.dart';
+import 'vantai_fleet_screen.dart';
+import 'vantai_drivers_screen.dart';
 import 'vantai_ticketing_screen.dart';
 import 'vantai_dispatch_screen.dart';
 import 'vantai_shipment_screen.dart';
+import 'vantai_partners_screen.dart';
 import 'vantai_accounting_screen.dart';
 import 'vantai_settings_screen.dart';
 
@@ -33,12 +36,17 @@ class _KanPosVNBanvevantaiShellState extends ConsumerState<KanPosVNBanvevantaiSh
   Future<void> _initData() async {
     final isarService = ref.read(vantaiIsarServiceProvider);
     await VantaiSeedData.seedIfEmpty(isarService);
+    if (!mounted) return;
     ref.read(vantaiRoutesProvider.notifier).loadRoutes();
     ref.read(vantaiVehiclesProvider.notifier).loadVehicles();
+    ref.read(vantaiDriversProvider.notifier).loadDrivers();
+    ref.read(vantaiCustomersProvider.notifier).loadCustomers();
+    ref.read(vantaiSuppliersProvider.notifier).loadSuppliers();
     ref.read(vantaiTicketsProvider.notifier).loadTickets();
     ref.read(vantaiTripsProvider.notifier).loadTrips();
     ref.read(vantaiShipmentsProvider.notifier).loadShipments();
     ref.read(vantaiExpensesProvider.notifier).loadExpenses();
+    ref.read(vantaiCashTxProvider.notifier).loadTx();
     ref.read(vantaiDashboardProvider.notifier).loadDashboard();
     setState(() {
       _isInit = true;
@@ -46,10 +54,15 @@ class _KanPosVNBanvevantaiShellState extends ConsumerState<KanPosVNBanvevantaiSh
   }
 
   static final Map<String, Set<String>> _roleTabs = {
-    EmployeeRoles.cashier: const {'ticketing', 'dispatch'},
+    EmployeeRoles.cashier: const {'ticketing', 'dispatch', 'partners'},
     EmployeeRoles.sale: const {'ticketing', 'dispatch'},
-    EmployeeRoles.warehouse: const {'shipment'},
-    EmployeeRoles.accountant: const {'dashboard', 'accounting', 'settings'},
+    EmployeeRoles.warehouse: const {'shipment', 'fleet', 'partners'},
+    EmployeeRoles.accountant: const {
+      'dashboard',
+      'accounting',
+      'partners',
+      'settings'
+    },
   };
 
   static final List<({String id, Widget screen, IconData icon, String label})>
@@ -58,6 +71,9 @@ class _KanPosVNBanvevantaiShellState extends ConsumerState<KanPosVNBanvevantaiSh
     (id: 'ticketing', screen: const VantaiTicketingScreen(), icon: Icons.airplane_ticket, label: 'Bán Vé'),
     (id: 'dispatch', screen: const VantaiDispatchScreen(), icon: Icons.departure_board, label: 'Điều Xe'),
     (id: 'shipment', screen: const VantaiShipmentScreen(), icon: Icons.inventory_2, label: 'Nhận Hàng'),
+    (id: 'fleet', screen: const VantaiFleetScreen(), icon: Icons.alt_route, label: 'Tuyến & Xe'),
+    (id: 'drivers', screen: const VantaiDriversScreen(), icon: Icons.badge, label: 'Tài Xế'),
+    (id: 'partners', screen: const VantaiPartnersScreen(), icon: Icons.people, label: 'KH & NCC'),
     (id: 'accounting', screen: const VantaiAccountingScreen(), icon: Icons.account_balance_wallet, label: 'Kế Toán'),
     (id: 'settings', screen: const VantaiSettingsScreen(), icon: Icons.settings, label: 'Cài Đặt'),
   ];

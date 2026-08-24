@@ -12,6 +12,7 @@ import 'crm_license_screen.dart';
 import 'crm_ticket_screen.dart';
 import 'crm_sale_screen.dart';
 import 'crm_cloud_customers_screen.dart';
+import 'crm_backup_screen.dart';
 
 class CrmDashboardScreen extends ConsumerWidget {
   const CrmDashboardScreen({super.key});
@@ -92,6 +93,17 @@ class CrmDashboardScreen extends ConsumerWidget {
               onTap: () {
                 Navigator.pop(context);
                 Navigator.push(context, MaterialPageRoute(builder: (_) => const CrmTicketScreen()));
+              },
+            ),
+            const Divider(),
+            ListTile(
+              leading: const Icon(Icons.backup, color: Color(0xFFE11D48)),
+              title: const Text('Quản lý Backup / Restore',
+                  style: TextStyle(fontWeight: FontWeight.w600)),
+              subtitle: const Text('Sao lưu & phục hồi dữ liệu từng module'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(context, MaterialPageRoute(builder: (_) => const CrmBackupScreen()));
               },
             ),
           ],

@@ -42,39 +42,55 @@ const VantaiTicketSchema = CollectionSchema(
       name: r'isSynced',
       type: IsarType.bool,
     ),
-    r'price': PropertySchema(
+    r'passengerName': PropertySchema(
       id: 5,
+      name: r'passengerName',
+      type: IsarType.string,
+    ),
+    r'passengerPhone': PropertySchema(
+      id: 6,
+      name: r'passengerPhone',
+      type: IsarType.string,
+    ),
+    r'paymentMethod': PropertySchema(
+      id: 7,
+      name: r'paymentMethod',
+      type: IsarType.byte,
+      enumMap: _VantaiTicketpaymentMethodEnumValueMap,
+    ),
+    r'price': PropertySchema(
+      id: 8,
       name: r'price',
       type: IsarType.double,
     ),
     r'seatNumber': PropertySchema(
-      id: 6,
+      id: 9,
       name: r'seatNumber',
       type: IsarType.string,
     ),
     r'status': PropertySchema(
-      id: 7,
+      id: 10,
       name: r'status',
       type: IsarType.byte,
       enumMap: _VantaiTicketstatusEnumValueMap,
     ),
     r'ticketCode': PropertySchema(
-      id: 8,
+      id: 11,
       name: r'ticketCode',
       type: IsarType.string,
     ),
     r'ticketId': PropertySchema(
-      id: 9,
+      id: 12,
       name: r'ticketId',
       type: IsarType.string,
     ),
     r'updatedAt': PropertySchema(
-      id: 10,
+      id: 13,
       name: r'updatedAt',
       type: IsarType.dateTime,
     ),
     r'version': PropertySchema(
-      id: 11,
+      id: 14,
       name: r'version',
       type: IsarType.long,
     )
@@ -93,6 +109,19 @@ const VantaiTicketSchema = CollectionSchema(
       properties: [
         IndexPropertySchema(
           name: r'ticketId',
+          type: IndexType.hash,
+          caseSensitive: true,
+        )
+      ],
+    ),
+    r'ticketCode': IndexSchema(
+      id: -5171396740593256752,
+      name: r'ticketCode',
+      unique: false,
+      replace: false,
+      properties: [
+        IndexPropertySchema(
+          name: r'ticketCode',
           type: IndexType.hash,
           caseSensitive: true,
         )
@@ -139,6 +168,8 @@ int _vantaiTicketEstimateSize(
 ) {
   var bytesCount = offsets.last;
   bytesCount += 3 + object.deviceId.length * 3;
+  bytesCount += 3 + object.passengerName.length * 3;
+  bytesCount += 3 + object.passengerPhone.length * 3;
   bytesCount += 3 + object.seatNumber.length * 3;
   bytesCount += 3 + object.ticketCode.length * 3;
   bytesCount += 3 + object.ticketId.length * 3;
@@ -156,13 +187,16 @@ void _vantaiTicketSerialize(
   writer.writeDateTime(offsets[2], object.departureTime);
   writer.writeString(offsets[3], object.deviceId);
   writer.writeBool(offsets[4], object.isSynced);
-  writer.writeDouble(offsets[5], object.price);
-  writer.writeString(offsets[6], object.seatNumber);
-  writer.writeByte(offsets[7], object.status.index);
-  writer.writeString(offsets[8], object.ticketCode);
-  writer.writeString(offsets[9], object.ticketId);
-  writer.writeDateTime(offsets[10], object.updatedAt);
-  writer.writeLong(offsets[11], object.version);
+  writer.writeString(offsets[5], object.passengerName);
+  writer.writeString(offsets[6], object.passengerPhone);
+  writer.writeByte(offsets[7], object.paymentMethod.index);
+  writer.writeDouble(offsets[8], object.price);
+  writer.writeString(offsets[9], object.seatNumber);
+  writer.writeByte(offsets[10], object.status.index);
+  writer.writeString(offsets[11], object.ticketCode);
+  writer.writeString(offsets[12], object.ticketId);
+  writer.writeDateTime(offsets[13], object.updatedAt);
+  writer.writeLong(offsets[14], object.version);
 }
 
 VantaiTicket _vantaiTicketDeserialize(
@@ -178,15 +212,20 @@ VantaiTicket _vantaiTicketDeserialize(
   object.deviceId = reader.readString(offsets[3]);
   object.id = id;
   object.isSynced = reader.readBool(offsets[4]);
-  object.price = reader.readDouble(offsets[5]);
-  object.seatNumber = reader.readString(offsets[6]);
+  object.passengerName = reader.readString(offsets[5]);
+  object.passengerPhone = reader.readString(offsets[6]);
+  object.paymentMethod = _VantaiTicketpaymentMethodValueEnumMap[
+          reader.readByteOrNull(offsets[7])] ??
+      TicketPaymentMethod.CASH;
+  object.price = reader.readDouble(offsets[8]);
+  object.seatNumber = reader.readString(offsets[9]);
   object.status =
-      _VantaiTicketstatusValueEnumMap[reader.readByteOrNull(offsets[7])] ??
+      _VantaiTicketstatusValueEnumMap[reader.readByteOrNull(offsets[10])] ??
           TicketStatus.RESERVED;
-  object.ticketCode = reader.readString(offsets[8]);
-  object.ticketId = reader.readString(offsets[9]);
-  object.updatedAt = reader.readDateTime(offsets[10]);
-  object.version = reader.readLong(offsets[11]);
+  object.ticketCode = reader.readString(offsets[11]);
+  object.ticketId = reader.readString(offsets[12]);
+  object.updatedAt = reader.readDateTime(offsets[13]);
+  object.version = reader.readLong(offsets[14]);
   return object;
 }
 
@@ -208,25 +247,45 @@ P _vantaiTicketDeserializeProp<P>(
     case 4:
       return (reader.readBool(offset)) as P;
     case 5:
-      return (reader.readDouble(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 6:
       return (reader.readString(offset)) as P;
     case 7:
-      return (_VantaiTicketstatusValueEnumMap[reader.readByteOrNull(offset)] ??
-          TicketStatus.RESERVED) as P;
+      return (_VantaiTicketpaymentMethodValueEnumMap[
+              reader.readByteOrNull(offset)] ??
+          TicketPaymentMethod.CASH) as P;
     case 8:
-      return (reader.readString(offset)) as P;
+      return (reader.readDouble(offset)) as P;
     case 9:
       return (reader.readString(offset)) as P;
     case 10:
-      return (reader.readDateTime(offset)) as P;
+      return (_VantaiTicketstatusValueEnumMap[reader.readByteOrNull(offset)] ??
+          TicketStatus.RESERVED) as P;
     case 11:
+      return (reader.readString(offset)) as P;
+    case 12:
+      return (reader.readString(offset)) as P;
+    case 13:
+      return (reader.readDateTime(offset)) as P;
+    case 14:
       return (reader.readLong(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
   }
 }
 
+const _VantaiTicketpaymentMethodEnumValueMap = {
+  'CASH': 0,
+  'TRANSFER': 1,
+  'QR': 2,
+  'DEBT': 3,
+};
+const _VantaiTicketpaymentMethodValueEnumMap = {
+  0: TicketPaymentMethod.CASH,
+  1: TicketPaymentMethod.TRANSFER,
+  2: TicketPaymentMethod.QR,
+  3: TicketPaymentMethod.DEBT,
+};
 const _VantaiTicketstatusEnumValueMap = {
   'RESERVED': 0,
   'PAID': 1,
@@ -429,6 +488,51 @@ extension VantaiTicketQueryWhere
               indexName: r'ticketId',
               lower: [],
               upper: [ticketId],
+              includeUpper: false,
+            ));
+      }
+    });
+  }
+
+  QueryBuilder<VantaiTicket, VantaiTicket, QAfterWhereClause> ticketCodeEqualTo(
+      String ticketCode) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.equalTo(
+        indexName: r'ticketCode',
+        value: [ticketCode],
+      ));
+    });
+  }
+
+  QueryBuilder<VantaiTicket, VantaiTicket, QAfterWhereClause>
+      ticketCodeNotEqualTo(String ticketCode) {
+    return QueryBuilder.apply(this, (query) {
+      if (query.whereSort == Sort.asc) {
+        return query
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'ticketCode',
+              lower: [],
+              upper: [ticketCode],
+              includeUpper: false,
+            ))
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'ticketCode',
+              lower: [ticketCode],
+              includeLower: false,
+              upper: [],
+            ));
+      } else {
+        return query
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'ticketCode',
+              lower: [ticketCode],
+              includeLower: false,
+              upper: [],
+            ))
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'ticketCode',
+              lower: [],
+              upper: [ticketCode],
               includeUpper: false,
             ));
       }
@@ -855,6 +959,334 @@ extension VantaiTicketQueryFilter
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'isSynced',
         value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<VantaiTicket, VantaiTicket, QAfterFilterCondition>
+      passengerNameEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'passengerName',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<VantaiTicket, VantaiTicket, QAfterFilterCondition>
+      passengerNameGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'passengerName',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<VantaiTicket, VantaiTicket, QAfterFilterCondition>
+      passengerNameLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'passengerName',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<VantaiTicket, VantaiTicket, QAfterFilterCondition>
+      passengerNameBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'passengerName',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<VantaiTicket, VantaiTicket, QAfterFilterCondition>
+      passengerNameStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'passengerName',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<VantaiTicket, VantaiTicket, QAfterFilterCondition>
+      passengerNameEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'passengerName',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<VantaiTicket, VantaiTicket, QAfterFilterCondition>
+      passengerNameContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'passengerName',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<VantaiTicket, VantaiTicket, QAfterFilterCondition>
+      passengerNameMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'passengerName',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<VantaiTicket, VantaiTicket, QAfterFilterCondition>
+      passengerNameIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'passengerName',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<VantaiTicket, VantaiTicket, QAfterFilterCondition>
+      passengerNameIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'passengerName',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<VantaiTicket, VantaiTicket, QAfterFilterCondition>
+      passengerPhoneEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'passengerPhone',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<VantaiTicket, VantaiTicket, QAfterFilterCondition>
+      passengerPhoneGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'passengerPhone',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<VantaiTicket, VantaiTicket, QAfterFilterCondition>
+      passengerPhoneLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'passengerPhone',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<VantaiTicket, VantaiTicket, QAfterFilterCondition>
+      passengerPhoneBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'passengerPhone',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<VantaiTicket, VantaiTicket, QAfterFilterCondition>
+      passengerPhoneStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'passengerPhone',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<VantaiTicket, VantaiTicket, QAfterFilterCondition>
+      passengerPhoneEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'passengerPhone',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<VantaiTicket, VantaiTicket, QAfterFilterCondition>
+      passengerPhoneContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'passengerPhone',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<VantaiTicket, VantaiTicket, QAfterFilterCondition>
+      passengerPhoneMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'passengerPhone',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<VantaiTicket, VantaiTicket, QAfterFilterCondition>
+      passengerPhoneIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'passengerPhone',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<VantaiTicket, VantaiTicket, QAfterFilterCondition>
+      passengerPhoneIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'passengerPhone',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<VantaiTicket, VantaiTicket, QAfterFilterCondition>
+      paymentMethodEqualTo(TicketPaymentMethod value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'paymentMethod',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<VantaiTicket, VantaiTicket, QAfterFilterCondition>
+      paymentMethodGreaterThan(
+    TicketPaymentMethod value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'paymentMethod',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<VantaiTicket, VantaiTicket, QAfterFilterCondition>
+      paymentMethodLessThan(
+    TicketPaymentMethod value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'paymentMethod',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<VantaiTicket, VantaiTicket, QAfterFilterCondition>
+      paymentMethodBetween(
+    TicketPaymentMethod lower,
+    TicketPaymentMethod upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'paymentMethod',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
       ));
     });
   }
@@ -1623,6 +2055,46 @@ extension VantaiTicketQuerySortBy
     });
   }
 
+  QueryBuilder<VantaiTicket, VantaiTicket, QAfterSortBy> sortByPassengerName() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'passengerName', Sort.asc);
+    });
+  }
+
+  QueryBuilder<VantaiTicket, VantaiTicket, QAfterSortBy>
+      sortByPassengerNameDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'passengerName', Sort.desc);
+    });
+  }
+
+  QueryBuilder<VantaiTicket, VantaiTicket, QAfterSortBy>
+      sortByPassengerPhone() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'passengerPhone', Sort.asc);
+    });
+  }
+
+  QueryBuilder<VantaiTicket, VantaiTicket, QAfterSortBy>
+      sortByPassengerPhoneDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'passengerPhone', Sort.desc);
+    });
+  }
+
+  QueryBuilder<VantaiTicket, VantaiTicket, QAfterSortBy> sortByPaymentMethod() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'paymentMethod', Sort.asc);
+    });
+  }
+
+  QueryBuilder<VantaiTicket, VantaiTicket, QAfterSortBy>
+      sortByPaymentMethodDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'paymentMethod', Sort.desc);
+    });
+  }
+
   QueryBuilder<VantaiTicket, VantaiTicket, QAfterSortBy> sortByPrice() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'price', Sort.asc);
@@ -1786,6 +2258,46 @@ extension VantaiTicketQuerySortThenBy
     });
   }
 
+  QueryBuilder<VantaiTicket, VantaiTicket, QAfterSortBy> thenByPassengerName() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'passengerName', Sort.asc);
+    });
+  }
+
+  QueryBuilder<VantaiTicket, VantaiTicket, QAfterSortBy>
+      thenByPassengerNameDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'passengerName', Sort.desc);
+    });
+  }
+
+  QueryBuilder<VantaiTicket, VantaiTicket, QAfterSortBy>
+      thenByPassengerPhone() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'passengerPhone', Sort.asc);
+    });
+  }
+
+  QueryBuilder<VantaiTicket, VantaiTicket, QAfterSortBy>
+      thenByPassengerPhoneDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'passengerPhone', Sort.desc);
+    });
+  }
+
+  QueryBuilder<VantaiTicket, VantaiTicket, QAfterSortBy> thenByPaymentMethod() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'paymentMethod', Sort.asc);
+    });
+  }
+
+  QueryBuilder<VantaiTicket, VantaiTicket, QAfterSortBy>
+      thenByPaymentMethodDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'paymentMethod', Sort.desc);
+    });
+  }
+
   QueryBuilder<VantaiTicket, VantaiTicket, QAfterSortBy> thenByPrice() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'price', Sort.asc);
@@ -1907,6 +2419,29 @@ extension VantaiTicketQueryWhereDistinct
     });
   }
 
+  QueryBuilder<VantaiTicket, VantaiTicket, QDistinct> distinctByPassengerName(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'passengerName',
+          caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<VantaiTicket, VantaiTicket, QDistinct> distinctByPassengerPhone(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'passengerPhone',
+          caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<VantaiTicket, VantaiTicket, QDistinct>
+      distinctByPaymentMethod() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'paymentMethod');
+    });
+  }
+
   QueryBuilder<VantaiTicket, VantaiTicket, QDistinct> distinctByPrice() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'price');
@@ -1990,6 +2525,26 @@ extension VantaiTicketQueryProperty
   QueryBuilder<VantaiTicket, bool, QQueryOperations> isSyncedProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'isSynced');
+    });
+  }
+
+  QueryBuilder<VantaiTicket, String, QQueryOperations> passengerNameProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'passengerName');
+    });
+  }
+
+  QueryBuilder<VantaiTicket, String, QQueryOperations>
+      passengerPhoneProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'passengerPhone');
+    });
+  }
+
+  QueryBuilder<VantaiTicket, TicketPaymentMethod, QQueryOperations>
+      paymentMethodProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'paymentMethod');
     });
   }
 

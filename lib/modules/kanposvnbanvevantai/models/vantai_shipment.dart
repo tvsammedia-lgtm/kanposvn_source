@@ -5,10 +5,11 @@ import 'vantai_customer.dart';
 part 'vantai_shipment.g.dart';
 
 enum ShipmentStatus {
-  PENDING('Chờ gửi'),
-  IN_TRANSIT('Đang giao'),
+  PENDING('Chờ nhận hàng'),
+  IN_TRANSIT('Đang đi'),
   DELIVERED('Đã giao'),
-  CANCELLED('Đã hủy');
+  CANCELLED('Đã hủy'),
+  AT_WAREHOUSE('Tại kho trung chuyển');
 
   final String label;
   const ShipmentStatus(this.label);

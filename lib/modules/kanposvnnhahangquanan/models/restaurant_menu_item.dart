@@ -9,6 +9,14 @@ class RestaurantRecipeItem {
   double quantity = 0;
 }
 
+/// Một món thành phần bên trong Combo (VD: 1 Cua + 1 Tôm + 2 Bia).
+@embedded
+class RestaurantComboItem {
+  String itemId = '';
+  String itemName = '';
+  int quantity = 1;
+}
+
 @collection
 class RestaurantMenuItem {
   Id id = Isar.autoIncrement;
@@ -22,11 +30,20 @@ class RestaurantMenuItem {
   @Index(unique: true, replace: true)
   String itemId = '';
 
+  @Index()
+  String barcode = '';
+
   String name = ''; // e.g., Tôm Hùm Nướng Phô Mai
   String category = ''; // e.g., Hải Sản, Đồ Rừng, Đồ Uống
-  
+
   double price = 0.0;
   String unit = ''; // e.g., Đĩa, Con, Lon, Kg
 
   List<RestaurantRecipeItem> recipe = [];
+
+  /// Combo: true nếu đây là món combo gồm nhiều món con.
+  bool isCombo = false;
+  List<RestaurantComboItem> comboItems = [];
+
+  String description = '';
 }

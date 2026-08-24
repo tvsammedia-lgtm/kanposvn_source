@@ -4,13 +4,20 @@ import '../models/property.dart';
 import '../models/customer.dart';
 import '../models/transaction.dart';
 import '../models/broker.dart';
+import '../models/floor_fee.dart';
 
 class KanBatDongSanIsarDB {
   static Isar? _isar;
 
+  /// Cho phép test inject Isar riêng (temp dir) thay vì DB thật.
+  static Isar? debugOverride;
+
   static Future<Isar> getInstance() async {
+    if (debugOverride != null && debugOverride!.isOpen) return debugOverride!;
     if (_isar != null && _isar!.isOpen) return _isar!;
-    const name = 'kanbatdongsan';
+    // v2: tách hẳn khỏi DB cũ ('kanbatdongsan') vốn thiếu cột enum/status mới
+    // và có propertyType tự do (vd 'Đất') gây crash dropdown khi sửa.
+    const name = 'kanbatdongsan_v2';
     final existing = Isar.getInstance(name);
     if (existing != null && existing.isOpen) {
       _isar = existing;
@@ -22,7 +29,8 @@ class KanBatDongSanIsarDB {
         BdsPropertySchema,
         CustomerSchema,
         TransactionRecordSchema,
-        BrokerSchema
+        BrokerSchema,
+        FloorFeeSchema
       ],
       directory: dir.path,
       name: name,

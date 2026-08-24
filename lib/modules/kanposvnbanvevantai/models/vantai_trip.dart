@@ -1,6 +1,7 @@
 import 'package:isar/isar.dart';
 import 'vantai_route.dart';
 import 'vantai_vehicle.dart';
+import 'vantai_driver.dart';
 
 part 'vantai_trip.g.dart';
 
@@ -26,15 +27,21 @@ class VantaiTrip {
 
   @Index(unique: true, replace: true)
   String tripId = '';
-  
+
+  @Index()
   DateTime? departureTime;
   DateTime? arrivalTime;
-  
+
   @enumerated
   TripStatus status = TripStatus.SCHEDULED;
-  
+
+  // Giữ driverName/assistantName để hiển thị nhanh & tương thích dữ liệu cũ.
+  // Điều xe mới nên link [driver] + [assistant].
   String driverName = '';
-  
+  String assistantName = '';
+
   final route = IsarLink<VantaiRoute>();
   final vehicle = IsarLink<VantaiVehicle>();
+  final driver = IsarLink<VantaiDriver>();
+  final assistant = IsarLink<VantaiDriver>();
 }

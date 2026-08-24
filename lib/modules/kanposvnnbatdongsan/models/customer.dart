@@ -20,14 +20,22 @@ class Customer {
   @Enumerated(EnumType.name)
   CustomerType type = CustomerType.buyer;
 
-  // For Buyers
+  /// Khách VIP (báo cáo khách hàng - PRD mục 15).
+  bool isVip = false;
+
+  // Nhu cầu khách mua (PRD mục 6)
   String? demandCity;
   String? demandDistrict;
   String? demandWard;
+  String? demandArea; // Khu vực mong muốn
   double? demandPriceFrom;
   double? demandPriceTo;
-  double? demandArea;
+  double? demandAreaFrom;
+  double? demandAreaTo;
   String? demandPropertyType;
+  String? demandDirection; // Hướng mong muốn
+  String? demandFrontage; // Mặt tiền mong muốn
+  String? demandLegalStatus; // Pháp lý mong muốn
 
   // Sync details
   DateTime? updatedAt;

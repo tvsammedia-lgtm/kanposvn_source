@@ -197,6 +197,13 @@ const _VantaiExpensecategoryEnumValueMap = {
   'SALARY': 2,
   'MAINTENANCE': 3,
   'OTHER': 4,
+  'DEPOT': 5,
+  'SOCIAL_INSURANCE': 6,
+  'DEPRECIATION': 7,
+  'OFFICE': 8,
+  'UTILITIES': 9,
+  'INTERNET': 10,
+  'MARKETING': 11,
 };
 const _VantaiExpensecategoryValueEnumMap = {
   0: ExpenseCategory.FUEL,
@@ -204,6 +211,13 @@ const _VantaiExpensecategoryValueEnumMap = {
   2: ExpenseCategory.SALARY,
   3: ExpenseCategory.MAINTENANCE,
   4: ExpenseCategory.OTHER,
+  5: ExpenseCategory.DEPOT,
+  6: ExpenseCategory.SOCIAL_INSURANCE,
+  7: ExpenseCategory.DEPRECIATION,
+  8: ExpenseCategory.OFFICE,
+  9: ExpenseCategory.UTILITIES,
+  10: ExpenseCategory.INTERNET,
+  11: ExpenseCategory.MARKETING,
 };
 
 Id _vantaiExpenseGetId(VantaiExpense object) {

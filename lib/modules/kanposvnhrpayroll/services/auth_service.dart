@@ -146,6 +146,48 @@ class AuthService {
     await prefs.remove(_prefStorePhone);
   }
 
+  /// Chỉ xóa phiên trong RAM, KHÔNG đụng SharedPreferences.
+  ///
+  /// Các key ('auth_token', 'auth_user', 'auth_store_id'...) được CHIA SẺ với
+  /// AuthService chính của KanPosVN — nếu xóa sẽ phá luôn phiên/cửa hàng mà
+  /// core cố tình giữ lại cho luồng đăng nhập lại (nguyên nhân lỗi "đăng xuất
+  /// xong không đăng nhập lại được").
+  void clearSessionMemory() {
+    _token = '';
+    _user = null;
+    _storeId = null;
+    _storeName = null;
+    _storePhone = null;
+  }
+
+  /// Nạp phiên từ SharedPreferences nếu chưa có trong bộ nhớ.
+  ///
+  /// Module dùng chung key phiên với AuthService chính: sau khi Owner đăng
+  /// nhập lại trên màn hình chính KanPosVN (lưu 'auth_token' mới), shell gọi
+  /// hàm này để module có ngay phiên hợp lệ — không bắt đăng nhập lần thứ hai
+  /// trên màn login riêng của module.
+  Future<void> ensureSessionLoaded() async {
+    if (_token.isNotEmpty && _user != null) return;
+    final prefs = await SharedPreferences.getInstance();
+    _token = prefs.getString(_prefToken) ?? '';
+    final userJson = prefs.getString(_prefUser);
+    if (userJson != null && userJson.isNotEmpty) {
+      try {
+        _user = UserInfo.fromJson(jsonDecode(userJson) as Map<String, dynamic>);
+      } catch (_) {
+        _user = null;
+      }
+    }
+    if (_token.isEmpty || _user == null) {
+      // Phiên không đầy đủ -> coi như chưa đăng nhập để router điều hướng.
+      clearSessionMemory();
+      return;
+    }
+    _storeId = prefs.getString(_prefStoreId);
+    _storeName = prefs.getString(_prefStoreName);
+    _storePhone = prefs.getString(_prefStorePhone);
+  }
+
   Map<String, String> get authHeaders => {
         'Content-Type': 'application/json',
         if (_token.isNotEmpty) 'Authorization': 'Bearer $_token',

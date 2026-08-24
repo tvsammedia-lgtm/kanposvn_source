@@ -17,49 +17,54 @@ const RestaurantTableSchema = CollectionSchema(
   name: r'RestaurantTable',
   id: -8016913043800839875,
   properties: {
-    r'deletedAt': PropertySchema(
+    r'capacity': PropertySchema(
       id: 0,
+      name: r'capacity',
+      type: IsarType.long,
+    ),
+    r'deletedAt': PropertySchema(
+      id: 1,
       name: r'deletedAt',
       type: IsarType.dateTime,
     ),
     r'deviceId': PropertySchema(
-      id: 1,
+      id: 2,
       name: r'deviceId',
       type: IsarType.string,
     ),
     r'isSynced': PropertySchema(
-      id: 2,
+      id: 3,
       name: r'isSynced',
       type: IsarType.bool,
     ),
     r'name': PropertySchema(
-      id: 3,
+      id: 4,
       name: r'name',
       type: IsarType.string,
     ),
     r'status': PropertySchema(
-      id: 4,
+      id: 5,
       name: r'status',
       type: IsarType.byte,
       enumMap: _RestaurantTablestatusEnumValueMap,
     ),
     r'tableId': PropertySchema(
-      id: 5,
+      id: 6,
       name: r'tableId',
       type: IsarType.string,
     ),
     r'updatedAt': PropertySchema(
-      id: 6,
+      id: 7,
       name: r'updatedAt',
       type: IsarType.dateTime,
     ),
     r'version': PropertySchema(
-      id: 7,
+      id: 8,
       name: r'version',
       type: IsarType.long,
     ),
     r'zone': PropertySchema(
-      id: 8,
+      id: 9,
       name: r'zone',
       type: IsarType.string,
     )
@@ -111,15 +116,16 @@ void _restaurantTableSerialize(
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
-  writer.writeDateTime(offsets[0], object.deletedAt);
-  writer.writeString(offsets[1], object.deviceId);
-  writer.writeBool(offsets[2], object.isSynced);
-  writer.writeString(offsets[3], object.name);
-  writer.writeByte(offsets[4], object.status.index);
-  writer.writeString(offsets[5], object.tableId);
-  writer.writeDateTime(offsets[6], object.updatedAt);
-  writer.writeLong(offsets[7], object.version);
-  writer.writeString(offsets[8], object.zone);
+  writer.writeLong(offsets[0], object.capacity);
+  writer.writeDateTime(offsets[1], object.deletedAt);
+  writer.writeString(offsets[2], object.deviceId);
+  writer.writeBool(offsets[3], object.isSynced);
+  writer.writeString(offsets[4], object.name);
+  writer.writeByte(offsets[5], object.status.index);
+  writer.writeString(offsets[6], object.tableId);
+  writer.writeDateTime(offsets[7], object.updatedAt);
+  writer.writeLong(offsets[8], object.version);
+  writer.writeString(offsets[9], object.zone);
 }
 
 RestaurantTable _restaurantTableDeserialize(
@@ -129,18 +135,19 @@ RestaurantTable _restaurantTableDeserialize(
   Map<Type, List<int>> allOffsets,
 ) {
   final object = RestaurantTable();
-  object.deletedAt = reader.readDateTimeOrNull(offsets[0]);
-  object.deviceId = reader.readString(offsets[1]);
+  object.capacity = reader.readLong(offsets[0]);
+  object.deletedAt = reader.readDateTimeOrNull(offsets[1]);
+  object.deviceId = reader.readString(offsets[2]);
   object.id = id;
-  object.isSynced = reader.readBool(offsets[2]);
-  object.name = reader.readString(offsets[3]);
+  object.isSynced = reader.readBool(offsets[3]);
+  object.name = reader.readString(offsets[4]);
   object.status =
-      _RestaurantTablestatusValueEnumMap[reader.readByteOrNull(offsets[4])] ??
+      _RestaurantTablestatusValueEnumMap[reader.readByteOrNull(offsets[5])] ??
           RestaurantTableStatus.EMPTY;
-  object.tableId = reader.readString(offsets[5]);
-  object.updatedAt = reader.readDateTime(offsets[6]);
-  object.version = reader.readLong(offsets[7]);
-  object.zone = reader.readString(offsets[8]);
+  object.tableId = reader.readString(offsets[6]);
+  object.updatedAt = reader.readDateTime(offsets[7]);
+  object.version = reader.readLong(offsets[8]);
+  object.zone = reader.readString(offsets[9]);
   return object;
 }
 
@@ -152,24 +159,26 @@ P _restaurantTableDeserializeProp<P>(
 ) {
   switch (propertyId) {
     case 0:
-      return (reader.readDateTimeOrNull(offset)) as P;
+      return (reader.readLong(offset)) as P;
     case 1:
-      return (reader.readString(offset)) as P;
+      return (reader.readDateTimeOrNull(offset)) as P;
     case 2:
-      return (reader.readBool(offset)) as P;
-    case 3:
       return (reader.readString(offset)) as P;
+    case 3:
+      return (reader.readBool(offset)) as P;
     case 4:
+      return (reader.readString(offset)) as P;
+    case 5:
       return (_RestaurantTablestatusValueEnumMap[
               reader.readByteOrNull(offset)] ??
           RestaurantTableStatus.EMPTY) as P;
-    case 5:
-      return (reader.readString(offset)) as P;
     case 6:
-      return (reader.readDateTime(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 7:
-      return (reader.readLong(offset)) as P;
+      return (reader.readDateTime(offset)) as P;
     case 8:
+      return (reader.readLong(offset)) as P;
+    case 9:
       return (reader.readString(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -180,11 +189,15 @@ const _RestaurantTablestatusEnumValueMap = {
   'EMPTY': 0,
   'SERVING': 1,
   'WAITING_PAYMENT': 2,
+  'RESERVED': 3,
+  'CLEANING': 4,
 };
 const _RestaurantTablestatusValueEnumMap = {
   0: RestaurantTableStatus.EMPTY,
   1: RestaurantTableStatus.SERVING,
   2: RestaurantTableStatus.WAITING_PAYMENT,
+  3: RestaurantTableStatus.RESERVED,
+  4: RestaurantTableStatus.CLEANING,
 };
 
 Id _restaurantTableGetId(RestaurantTable object) {
@@ -382,6 +395,62 @@ extension RestaurantTableQueryWhere
 
 extension RestaurantTableQueryFilter
     on QueryBuilder<RestaurantTable, RestaurantTable, QFilterCondition> {
+  QueryBuilder<RestaurantTable, RestaurantTable, QAfterFilterCondition>
+      capacityEqualTo(int value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'capacity',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantTable, RestaurantTable, QAfterFilterCondition>
+      capacityGreaterThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'capacity',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantTable, RestaurantTable, QAfterFilterCondition>
+      capacityLessThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'capacity',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantTable, RestaurantTable, QAfterFilterCondition>
+      capacityBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'capacity',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
   QueryBuilder<RestaurantTable, RestaurantTable, QAfterFilterCondition>
       deletedAtIsNull() {
     return QueryBuilder.apply(this, (query) {
@@ -1244,6 +1313,20 @@ extension RestaurantTableQueryLinks
 extension RestaurantTableQuerySortBy
     on QueryBuilder<RestaurantTable, RestaurantTable, QSortBy> {
   QueryBuilder<RestaurantTable, RestaurantTable, QAfterSortBy>
+      sortByCapacity() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'capacity', Sort.asc);
+    });
+  }
+
+  QueryBuilder<RestaurantTable, RestaurantTable, QAfterSortBy>
+      sortByCapacityDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'capacity', Sort.desc);
+    });
+  }
+
+  QueryBuilder<RestaurantTable, RestaurantTable, QAfterSortBy>
       sortByDeletedAt() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'deletedAt', Sort.asc);
@@ -1367,6 +1450,20 @@ extension RestaurantTableQuerySortBy
 
 extension RestaurantTableQuerySortThenBy
     on QueryBuilder<RestaurantTable, RestaurantTable, QSortThenBy> {
+  QueryBuilder<RestaurantTable, RestaurantTable, QAfterSortBy>
+      thenByCapacity() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'capacity', Sort.asc);
+    });
+  }
+
+  QueryBuilder<RestaurantTable, RestaurantTable, QAfterSortBy>
+      thenByCapacityDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'capacity', Sort.desc);
+    });
+  }
+
   QueryBuilder<RestaurantTable, RestaurantTable, QAfterSortBy>
       thenByDeletedAt() {
     return QueryBuilder.apply(this, (query) {
@@ -1504,6 +1601,13 @@ extension RestaurantTableQuerySortThenBy
 extension RestaurantTableQueryWhereDistinct
     on QueryBuilder<RestaurantTable, RestaurantTable, QDistinct> {
   QueryBuilder<RestaurantTable, RestaurantTable, QDistinct>
+      distinctByCapacity() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'capacity');
+    });
+  }
+
+  QueryBuilder<RestaurantTable, RestaurantTable, QDistinct>
       distinctByDeletedAt() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'deletedAt');
@@ -1571,6 +1675,12 @@ extension RestaurantTableQueryProperty
   QueryBuilder<RestaurantTable, int, QQueryOperations> idProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'id');
+    });
+  }
+
+  QueryBuilder<RestaurantTable, int, QQueryOperations> capacityProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'capacity');
     });
   }
 

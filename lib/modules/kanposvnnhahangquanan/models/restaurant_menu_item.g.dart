@@ -18,59 +18,80 @@ const RestaurantMenuItemSchema = CollectionSchema(
   name: r'RestaurantMenuItem',
   id: -2460424494678099602,
   properties: {
-    r'category': PropertySchema(
+    r'barcode': PropertySchema(
       id: 0,
+      name: r'barcode',
+      type: IsarType.string,
+    ),
+    r'category': PropertySchema(
+      id: 1,
       name: r'category',
       type: IsarType.string,
     ),
+    r'comboItems': PropertySchema(
+      id: 2,
+      name: r'comboItems',
+      type: IsarType.objectList,
+      target: r'RestaurantComboItem',
+    ),
     r'deletedAt': PropertySchema(
-      id: 1,
+      id: 3,
       name: r'deletedAt',
       type: IsarType.dateTime,
     ),
+    r'description': PropertySchema(
+      id: 4,
+      name: r'description',
+      type: IsarType.string,
+    ),
     r'deviceId': PropertySchema(
-      id: 2,
+      id: 5,
       name: r'deviceId',
       type: IsarType.string,
     ),
+    r'isCombo': PropertySchema(
+      id: 6,
+      name: r'isCombo',
+      type: IsarType.bool,
+    ),
     r'isSynced': PropertySchema(
-      id: 3,
+      id: 7,
       name: r'isSynced',
       type: IsarType.bool,
     ),
     r'itemId': PropertySchema(
-      id: 4,
+      id: 8,
       name: r'itemId',
       type: IsarType.string,
     ),
     r'name': PropertySchema(
-      id: 5,
+      id: 9,
       name: r'name',
       type: IsarType.string,
     ),
     r'price': PropertySchema(
-      id: 6,
+      id: 10,
       name: r'price',
       type: IsarType.double,
     ),
     r'recipe': PropertySchema(
-      id: 7,
+      id: 11,
       name: r'recipe',
       type: IsarType.objectList,
       target: r'RestaurantRecipeItem',
     ),
     r'unit': PropertySchema(
-      id: 8,
+      id: 12,
       name: r'unit',
       type: IsarType.string,
     ),
     r'updatedAt': PropertySchema(
-      id: 9,
+      id: 13,
       name: r'updatedAt',
       type: IsarType.dateTime,
     ),
     r'version': PropertySchema(
-      id: 10,
+      id: 14,
       name: r'version',
       type: IsarType.long,
     )
@@ -93,10 +114,26 @@ const RestaurantMenuItemSchema = CollectionSchema(
           caseSensitive: true,
         )
       ],
+    ),
+    r'barcode': IndexSchema(
+      id: 1156800733621869998,
+      name: r'barcode',
+      unique: false,
+      replace: false,
+      properties: [
+        IndexPropertySchema(
+          name: r'barcode',
+          type: IndexType.hash,
+          caseSensitive: true,
+        )
+      ],
     )
   },
   links: {},
-  embeddedSchemas: {r'RestaurantRecipeItem': RestaurantRecipeItemSchema},
+  embeddedSchemas: {
+    r'RestaurantRecipeItem': RestaurantRecipeItemSchema,
+    r'RestaurantComboItem': RestaurantComboItemSchema
+  },
   getId: _restaurantMenuItemGetId,
   getLinks: _restaurantMenuItemGetLinks,
   attach: _restaurantMenuItemAttach,
@@ -109,7 +146,18 @@ int _restaurantMenuItemEstimateSize(
   Map<Type, List<int>> allOffsets,
 ) {
   var bytesCount = offsets.last;
+  bytesCount += 3 + object.barcode.length * 3;
   bytesCount += 3 + object.category.length * 3;
+  bytesCount += 3 + object.comboItems.length * 3;
+  {
+    final offsets = allOffsets[RestaurantComboItem]!;
+    for (var i = 0; i < object.comboItems.length; i++) {
+      final value = object.comboItems[i];
+      bytesCount +=
+          RestaurantComboItemSchema.estimateSize(value, offsets, allOffsets);
+    }
+  }
+  bytesCount += 3 + object.description.length * 3;
   bytesCount += 3 + object.deviceId.length * 3;
   bytesCount += 3 + object.itemId.length * 3;
   bytesCount += 3 + object.name.length * 3;
@@ -132,22 +180,31 @@ void _restaurantMenuItemSerialize(
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
-  writer.writeString(offsets[0], object.category);
-  writer.writeDateTime(offsets[1], object.deletedAt);
-  writer.writeString(offsets[2], object.deviceId);
-  writer.writeBool(offsets[3], object.isSynced);
-  writer.writeString(offsets[4], object.itemId);
-  writer.writeString(offsets[5], object.name);
-  writer.writeDouble(offsets[6], object.price);
+  writer.writeString(offsets[0], object.barcode);
+  writer.writeString(offsets[1], object.category);
+  writer.writeObjectList<RestaurantComboItem>(
+    offsets[2],
+    allOffsets,
+    RestaurantComboItemSchema.serialize,
+    object.comboItems,
+  );
+  writer.writeDateTime(offsets[3], object.deletedAt);
+  writer.writeString(offsets[4], object.description);
+  writer.writeString(offsets[5], object.deviceId);
+  writer.writeBool(offsets[6], object.isCombo);
+  writer.writeBool(offsets[7], object.isSynced);
+  writer.writeString(offsets[8], object.itemId);
+  writer.writeString(offsets[9], object.name);
+  writer.writeDouble(offsets[10], object.price);
   writer.writeObjectList<RestaurantRecipeItem>(
-    offsets[7],
+    offsets[11],
     allOffsets,
     RestaurantRecipeItemSchema.serialize,
     object.recipe,
   );
-  writer.writeString(offsets[8], object.unit);
-  writer.writeDateTime(offsets[9], object.updatedAt);
-  writer.writeLong(offsets[10], object.version);
+  writer.writeString(offsets[12], object.unit);
+  writer.writeDateTime(offsets[13], object.updatedAt);
+  writer.writeLong(offsets[14], object.version);
 }
 
 RestaurantMenuItem _restaurantMenuItemDeserialize(
@@ -157,24 +214,34 @@ RestaurantMenuItem _restaurantMenuItemDeserialize(
   Map<Type, List<int>> allOffsets,
 ) {
   final object = RestaurantMenuItem();
-  object.category = reader.readString(offsets[0]);
-  object.deletedAt = reader.readDateTimeOrNull(offsets[1]);
-  object.deviceId = reader.readString(offsets[2]);
+  object.barcode = reader.readString(offsets[0]);
+  object.category = reader.readString(offsets[1]);
+  object.comboItems = reader.readObjectList<RestaurantComboItem>(
+        offsets[2],
+        RestaurantComboItemSchema.deserialize,
+        allOffsets,
+        RestaurantComboItem(),
+      ) ??
+      [];
+  object.deletedAt = reader.readDateTimeOrNull(offsets[3]);
+  object.description = reader.readString(offsets[4]);
+  object.deviceId = reader.readString(offsets[5]);
   object.id = id;
-  object.isSynced = reader.readBool(offsets[3]);
-  object.itemId = reader.readString(offsets[4]);
-  object.name = reader.readString(offsets[5]);
-  object.price = reader.readDouble(offsets[6]);
+  object.isCombo = reader.readBool(offsets[6]);
+  object.isSynced = reader.readBool(offsets[7]);
+  object.itemId = reader.readString(offsets[8]);
+  object.name = reader.readString(offsets[9]);
+  object.price = reader.readDouble(offsets[10]);
   object.recipe = reader.readObjectList<RestaurantRecipeItem>(
-        offsets[7],
+        offsets[11],
         RestaurantRecipeItemSchema.deserialize,
         allOffsets,
         RestaurantRecipeItem(),
       ) ??
       [];
-  object.unit = reader.readString(offsets[8]);
-  object.updatedAt = reader.readDateTime(offsets[9]);
-  object.version = reader.readLong(offsets[10]);
+  object.unit = reader.readString(offsets[12]);
+  object.updatedAt = reader.readDateTime(offsets[13]);
+  object.version = reader.readLong(offsets[14]);
   return object;
 }
 
@@ -188,18 +255,32 @@ P _restaurantMenuItemDeserializeProp<P>(
     case 0:
       return (reader.readString(offset)) as P;
     case 1:
-      return (reader.readDateTimeOrNull(offset)) as P;
-    case 2:
       return (reader.readString(offset)) as P;
+    case 2:
+      return (reader.readObjectList<RestaurantComboItem>(
+            offset,
+            RestaurantComboItemSchema.deserialize,
+            allOffsets,
+            RestaurantComboItem(),
+          ) ??
+          []) as P;
     case 3:
-      return (reader.readBool(offset)) as P;
+      return (reader.readDateTimeOrNull(offset)) as P;
     case 4:
       return (reader.readString(offset)) as P;
     case 5:
       return (reader.readString(offset)) as P;
     case 6:
-      return (reader.readDouble(offset)) as P;
+      return (reader.readBool(offset)) as P;
     case 7:
+      return (reader.readBool(offset)) as P;
+    case 8:
+      return (reader.readString(offset)) as P;
+    case 9:
+      return (reader.readString(offset)) as P;
+    case 10:
+      return (reader.readDouble(offset)) as P;
+    case 11:
       return (reader.readObjectList<RestaurantRecipeItem>(
             offset,
             RestaurantRecipeItemSchema.deserialize,
@@ -207,11 +288,11 @@ P _restaurantMenuItemDeserializeProp<P>(
             RestaurantRecipeItem(),
           ) ??
           []) as P;
-    case 8:
+    case 12:
       return (reader.readString(offset)) as P;
-    case 9:
+    case 13:
       return (reader.readDateTime(offset)) as P;
-    case 10:
+    case 14:
       return (reader.readLong(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -410,10 +491,191 @@ extension RestaurantMenuItemQueryWhere
       }
     });
   }
+
+  QueryBuilder<RestaurantMenuItem, RestaurantMenuItem, QAfterWhereClause>
+      barcodeEqualTo(String barcode) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.equalTo(
+        indexName: r'barcode',
+        value: [barcode],
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantMenuItem, RestaurantMenuItem, QAfterWhereClause>
+      barcodeNotEqualTo(String barcode) {
+    return QueryBuilder.apply(this, (query) {
+      if (query.whereSort == Sort.asc) {
+        return query
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'barcode',
+              lower: [],
+              upper: [barcode],
+              includeUpper: false,
+            ))
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'barcode',
+              lower: [barcode],
+              includeLower: false,
+              upper: [],
+            ));
+      } else {
+        return query
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'barcode',
+              lower: [barcode],
+              includeLower: false,
+              upper: [],
+            ))
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'barcode',
+              lower: [],
+              upper: [barcode],
+              includeUpper: false,
+            ));
+      }
+    });
+  }
 }
 
 extension RestaurantMenuItemQueryFilter
     on QueryBuilder<RestaurantMenuItem, RestaurantMenuItem, QFilterCondition> {
+  QueryBuilder<RestaurantMenuItem, RestaurantMenuItem, QAfterFilterCondition>
+      barcodeEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'barcode',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantMenuItem, RestaurantMenuItem, QAfterFilterCondition>
+      barcodeGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'barcode',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantMenuItem, RestaurantMenuItem, QAfterFilterCondition>
+      barcodeLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'barcode',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantMenuItem, RestaurantMenuItem, QAfterFilterCondition>
+      barcodeBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'barcode',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantMenuItem, RestaurantMenuItem, QAfterFilterCondition>
+      barcodeStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'barcode',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantMenuItem, RestaurantMenuItem, QAfterFilterCondition>
+      barcodeEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'barcode',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantMenuItem, RestaurantMenuItem, QAfterFilterCondition>
+      barcodeContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'barcode',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantMenuItem, RestaurantMenuItem, QAfterFilterCondition>
+      barcodeMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'barcode',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantMenuItem, RestaurantMenuItem, QAfterFilterCondition>
+      barcodeIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'barcode',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantMenuItem, RestaurantMenuItem, QAfterFilterCondition>
+      barcodeIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'barcode',
+        value: '',
+      ));
+    });
+  }
+
   QueryBuilder<RestaurantMenuItem, RestaurantMenuItem, QAfterFilterCondition>
       categoryEqualTo(
     String value, {
@@ -551,6 +813,95 @@ extension RestaurantMenuItemQueryFilter
   }
 
   QueryBuilder<RestaurantMenuItem, RestaurantMenuItem, QAfterFilterCondition>
+      comboItemsLengthEqualTo(int length) {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'comboItems',
+        length,
+        true,
+        length,
+        true,
+      );
+    });
+  }
+
+  QueryBuilder<RestaurantMenuItem, RestaurantMenuItem, QAfterFilterCondition>
+      comboItemsIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'comboItems',
+        0,
+        true,
+        0,
+        true,
+      );
+    });
+  }
+
+  QueryBuilder<RestaurantMenuItem, RestaurantMenuItem, QAfterFilterCondition>
+      comboItemsIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'comboItems',
+        0,
+        false,
+        999999,
+        true,
+      );
+    });
+  }
+
+  QueryBuilder<RestaurantMenuItem, RestaurantMenuItem, QAfterFilterCondition>
+      comboItemsLengthLessThan(
+    int length, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'comboItems',
+        0,
+        true,
+        length,
+        include,
+      );
+    });
+  }
+
+  QueryBuilder<RestaurantMenuItem, RestaurantMenuItem, QAfterFilterCondition>
+      comboItemsLengthGreaterThan(
+    int length, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'comboItems',
+        length,
+        include,
+        999999,
+        true,
+      );
+    });
+  }
+
+  QueryBuilder<RestaurantMenuItem, RestaurantMenuItem, QAfterFilterCondition>
+      comboItemsLengthBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'comboItems',
+        lower,
+        includeLower,
+        upper,
+        includeUpper,
+      );
+    });
+  }
+
+  QueryBuilder<RestaurantMenuItem, RestaurantMenuItem, QAfterFilterCondition>
       deletedAtIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNull(
@@ -620,6 +971,142 @@ extension RestaurantMenuItemQueryFilter
         includeLower: includeLower,
         upper: upper,
         includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantMenuItem, RestaurantMenuItem, QAfterFilterCondition>
+      descriptionEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'description',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantMenuItem, RestaurantMenuItem, QAfterFilterCondition>
+      descriptionGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'description',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantMenuItem, RestaurantMenuItem, QAfterFilterCondition>
+      descriptionLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'description',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantMenuItem, RestaurantMenuItem, QAfterFilterCondition>
+      descriptionBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'description',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantMenuItem, RestaurantMenuItem, QAfterFilterCondition>
+      descriptionStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'description',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantMenuItem, RestaurantMenuItem, QAfterFilterCondition>
+      descriptionEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'description',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantMenuItem, RestaurantMenuItem, QAfterFilterCondition>
+      descriptionContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'description',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantMenuItem, RestaurantMenuItem, QAfterFilterCondition>
+      descriptionMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'description',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantMenuItem, RestaurantMenuItem, QAfterFilterCondition>
+      descriptionIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'description',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantMenuItem, RestaurantMenuItem, QAfterFilterCondition>
+      descriptionIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'description',
+        value: '',
       ));
     });
   }
@@ -812,6 +1299,16 @@ extension RestaurantMenuItemQueryFilter
         includeLower: includeLower,
         upper: upper,
         includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantMenuItem, RestaurantMenuItem, QAfterFilterCondition>
+      isComboEqualTo(bool value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'isCombo',
+        value: value,
       ));
     });
   }
@@ -1505,6 +2002,13 @@ extension RestaurantMenuItemQueryFilter
 extension RestaurantMenuItemQueryObject
     on QueryBuilder<RestaurantMenuItem, RestaurantMenuItem, QFilterCondition> {
   QueryBuilder<RestaurantMenuItem, RestaurantMenuItem, QAfterFilterCondition>
+      comboItemsElement(FilterQuery<RestaurantComboItem> q) {
+    return QueryBuilder.apply(this, (query) {
+      return query.object(q, r'comboItems');
+    });
+  }
+
+  QueryBuilder<RestaurantMenuItem, RestaurantMenuItem, QAfterFilterCondition>
       recipeElement(FilterQuery<RestaurantRecipeItem> q) {
     return QueryBuilder.apply(this, (query) {
       return query.object(q, r'recipe');
@@ -1517,6 +2021,20 @@ extension RestaurantMenuItemQueryLinks
 
 extension RestaurantMenuItemQuerySortBy
     on QueryBuilder<RestaurantMenuItem, RestaurantMenuItem, QSortBy> {
+  QueryBuilder<RestaurantMenuItem, RestaurantMenuItem, QAfterSortBy>
+      sortByBarcode() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'barcode', Sort.asc);
+    });
+  }
+
+  QueryBuilder<RestaurantMenuItem, RestaurantMenuItem, QAfterSortBy>
+      sortByBarcodeDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'barcode', Sort.desc);
+    });
+  }
+
   QueryBuilder<RestaurantMenuItem, RestaurantMenuItem, QAfterSortBy>
       sortByCategory() {
     return QueryBuilder.apply(this, (query) {
@@ -1546,6 +2064,20 @@ extension RestaurantMenuItemQuerySortBy
   }
 
   QueryBuilder<RestaurantMenuItem, RestaurantMenuItem, QAfterSortBy>
+      sortByDescription() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'description', Sort.asc);
+    });
+  }
+
+  QueryBuilder<RestaurantMenuItem, RestaurantMenuItem, QAfterSortBy>
+      sortByDescriptionDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'description', Sort.desc);
+    });
+  }
+
+  QueryBuilder<RestaurantMenuItem, RestaurantMenuItem, QAfterSortBy>
       sortByDeviceId() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'deviceId', Sort.asc);
@@ -1556,6 +2088,20 @@ extension RestaurantMenuItemQuerySortBy
       sortByDeviceIdDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'deviceId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<RestaurantMenuItem, RestaurantMenuItem, QAfterSortBy>
+      sortByIsCombo() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isCombo', Sort.asc);
+    });
+  }
+
+  QueryBuilder<RestaurantMenuItem, RestaurantMenuItem, QAfterSortBy>
+      sortByIsComboDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isCombo', Sort.desc);
     });
   }
 
@@ -1661,6 +2207,20 @@ extension RestaurantMenuItemQuerySortBy
 extension RestaurantMenuItemQuerySortThenBy
     on QueryBuilder<RestaurantMenuItem, RestaurantMenuItem, QSortThenBy> {
   QueryBuilder<RestaurantMenuItem, RestaurantMenuItem, QAfterSortBy>
+      thenByBarcode() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'barcode', Sort.asc);
+    });
+  }
+
+  QueryBuilder<RestaurantMenuItem, RestaurantMenuItem, QAfterSortBy>
+      thenByBarcodeDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'barcode', Sort.desc);
+    });
+  }
+
+  QueryBuilder<RestaurantMenuItem, RestaurantMenuItem, QAfterSortBy>
       thenByCategory() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'category', Sort.asc);
@@ -1689,6 +2249,20 @@ extension RestaurantMenuItemQuerySortThenBy
   }
 
   QueryBuilder<RestaurantMenuItem, RestaurantMenuItem, QAfterSortBy>
+      thenByDescription() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'description', Sort.asc);
+    });
+  }
+
+  QueryBuilder<RestaurantMenuItem, RestaurantMenuItem, QAfterSortBy>
+      thenByDescriptionDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'description', Sort.desc);
+    });
+  }
+
+  QueryBuilder<RestaurantMenuItem, RestaurantMenuItem, QAfterSortBy>
       thenByDeviceId() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'deviceId', Sort.asc);
@@ -1713,6 +2287,20 @@ extension RestaurantMenuItemQuerySortThenBy
       thenByIdDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'id', Sort.desc);
+    });
+  }
+
+  QueryBuilder<RestaurantMenuItem, RestaurantMenuItem, QAfterSortBy>
+      thenByIsCombo() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isCombo', Sort.asc);
+    });
+  }
+
+  QueryBuilder<RestaurantMenuItem, RestaurantMenuItem, QAfterSortBy>
+      thenByIsComboDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isCombo', Sort.desc);
     });
   }
 
@@ -1818,6 +2406,13 @@ extension RestaurantMenuItemQuerySortThenBy
 extension RestaurantMenuItemQueryWhereDistinct
     on QueryBuilder<RestaurantMenuItem, RestaurantMenuItem, QDistinct> {
   QueryBuilder<RestaurantMenuItem, RestaurantMenuItem, QDistinct>
+      distinctByBarcode({bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'barcode', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<RestaurantMenuItem, RestaurantMenuItem, QDistinct>
       distinctByCategory({bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'category', caseSensitive: caseSensitive);
@@ -1832,9 +2427,23 @@ extension RestaurantMenuItemQueryWhereDistinct
   }
 
   QueryBuilder<RestaurantMenuItem, RestaurantMenuItem, QDistinct>
+      distinctByDescription({bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'description', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<RestaurantMenuItem, RestaurantMenuItem, QDistinct>
       distinctByDeviceId({bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'deviceId', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<RestaurantMenuItem, RestaurantMenuItem, QDistinct>
+      distinctByIsCombo() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'isCombo');
     });
   }
 
@@ -1896,10 +2505,23 @@ extension RestaurantMenuItemQueryProperty
     });
   }
 
+  QueryBuilder<RestaurantMenuItem, String, QQueryOperations> barcodeProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'barcode');
+    });
+  }
+
   QueryBuilder<RestaurantMenuItem, String, QQueryOperations>
       categoryProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'category');
+    });
+  }
+
+  QueryBuilder<RestaurantMenuItem, List<RestaurantComboItem>, QQueryOperations>
+      comboItemsProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'comboItems');
     });
   }
 
@@ -1911,9 +2533,22 @@ extension RestaurantMenuItemQueryProperty
   }
 
   QueryBuilder<RestaurantMenuItem, String, QQueryOperations>
+      descriptionProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'description');
+    });
+  }
+
+  QueryBuilder<RestaurantMenuItem, String, QQueryOperations>
       deviceIdProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'deviceId');
+    });
+  }
+
+  QueryBuilder<RestaurantMenuItem, bool, QQueryOperations> isComboProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'isCombo');
     });
   }
 
@@ -2401,3 +3036,419 @@ extension RestaurantRecipeItemQueryFilter on QueryBuilder<RestaurantRecipeItem,
 
 extension RestaurantRecipeItemQueryObject on QueryBuilder<RestaurantRecipeItem,
     RestaurantRecipeItem, QFilterCondition> {}
+
+// coverage:ignore-file
+// ignore_for_file: duplicate_ignore, non_constant_identifier_names, constant_identifier_names, invalid_use_of_protected_member, unnecessary_cast, prefer_const_constructors, lines_longer_than_80_chars, require_trailing_commas, inference_failure_on_function_invocation, unnecessary_parenthesis, unnecessary_raw_strings, unnecessary_null_checks, join_return_with_assignment, prefer_final_locals, avoid_js_rounded_ints, avoid_positional_boolean_parameters, always_specify_types
+
+const RestaurantComboItemSchema = Schema(
+  name: r'RestaurantComboItem',
+  id: 8646166260984738182,
+  properties: {
+    r'itemId': PropertySchema(
+      id: 0,
+      name: r'itemId',
+      type: IsarType.string,
+    ),
+    r'itemName': PropertySchema(
+      id: 1,
+      name: r'itemName',
+      type: IsarType.string,
+    ),
+    r'quantity': PropertySchema(
+      id: 2,
+      name: r'quantity',
+      type: IsarType.long,
+    )
+  },
+  estimateSize: _restaurantComboItemEstimateSize,
+  serialize: _restaurantComboItemSerialize,
+  deserialize: _restaurantComboItemDeserialize,
+  deserializeProp: _restaurantComboItemDeserializeProp,
+);
+
+int _restaurantComboItemEstimateSize(
+  RestaurantComboItem object,
+  List<int> offsets,
+  Map<Type, List<int>> allOffsets,
+) {
+  var bytesCount = offsets.last;
+  bytesCount += 3 + object.itemId.length * 3;
+  bytesCount += 3 + object.itemName.length * 3;
+  return bytesCount;
+}
+
+void _restaurantComboItemSerialize(
+  RestaurantComboItem object,
+  IsarWriter writer,
+  List<int> offsets,
+  Map<Type, List<int>> allOffsets,
+) {
+  writer.writeString(offsets[0], object.itemId);
+  writer.writeString(offsets[1], object.itemName);
+  writer.writeLong(offsets[2], object.quantity);
+}
+
+RestaurantComboItem _restaurantComboItemDeserialize(
+  Id id,
+  IsarReader reader,
+  List<int> offsets,
+  Map<Type, List<int>> allOffsets,
+) {
+  final object = RestaurantComboItem();
+  object.itemId = reader.readString(offsets[0]);
+  object.itemName = reader.readString(offsets[1]);
+  object.quantity = reader.readLong(offsets[2]);
+  return object;
+}
+
+P _restaurantComboItemDeserializeProp<P>(
+  IsarReader reader,
+  int propertyId,
+  int offset,
+  Map<Type, List<int>> allOffsets,
+) {
+  switch (propertyId) {
+    case 0:
+      return (reader.readString(offset)) as P;
+    case 1:
+      return (reader.readString(offset)) as P;
+    case 2:
+      return (reader.readLong(offset)) as P;
+    default:
+      throw IsarError('Unknown property with id $propertyId');
+  }
+}
+
+extension RestaurantComboItemQueryFilter on QueryBuilder<RestaurantComboItem,
+    RestaurantComboItem, QFilterCondition> {
+  QueryBuilder<RestaurantComboItem, RestaurantComboItem, QAfterFilterCondition>
+      itemIdEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'itemId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantComboItem, RestaurantComboItem, QAfterFilterCondition>
+      itemIdGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'itemId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantComboItem, RestaurantComboItem, QAfterFilterCondition>
+      itemIdLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'itemId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantComboItem, RestaurantComboItem, QAfterFilterCondition>
+      itemIdBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'itemId',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantComboItem, RestaurantComboItem, QAfterFilterCondition>
+      itemIdStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'itemId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantComboItem, RestaurantComboItem, QAfterFilterCondition>
+      itemIdEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'itemId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantComboItem, RestaurantComboItem, QAfterFilterCondition>
+      itemIdContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'itemId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantComboItem, RestaurantComboItem, QAfterFilterCondition>
+      itemIdMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'itemId',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantComboItem, RestaurantComboItem, QAfterFilterCondition>
+      itemIdIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'itemId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantComboItem, RestaurantComboItem, QAfterFilterCondition>
+      itemIdIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'itemId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantComboItem, RestaurantComboItem, QAfterFilterCondition>
+      itemNameEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'itemName',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantComboItem, RestaurantComboItem, QAfterFilterCondition>
+      itemNameGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'itemName',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantComboItem, RestaurantComboItem, QAfterFilterCondition>
+      itemNameLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'itemName',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantComboItem, RestaurantComboItem, QAfterFilterCondition>
+      itemNameBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'itemName',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantComboItem, RestaurantComboItem, QAfterFilterCondition>
+      itemNameStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'itemName',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantComboItem, RestaurantComboItem, QAfterFilterCondition>
+      itemNameEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'itemName',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantComboItem, RestaurantComboItem, QAfterFilterCondition>
+      itemNameContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'itemName',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantComboItem, RestaurantComboItem, QAfterFilterCondition>
+      itemNameMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'itemName',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantComboItem, RestaurantComboItem, QAfterFilterCondition>
+      itemNameIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'itemName',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantComboItem, RestaurantComboItem, QAfterFilterCondition>
+      itemNameIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'itemName',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantComboItem, RestaurantComboItem, QAfterFilterCondition>
+      quantityEqualTo(int value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'quantity',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantComboItem, RestaurantComboItem, QAfterFilterCondition>
+      quantityGreaterThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'quantity',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantComboItem, RestaurantComboItem, QAfterFilterCondition>
+      quantityLessThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'quantity',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<RestaurantComboItem, RestaurantComboItem, QAfterFilterCondition>
+      quantityBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'quantity',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+}
+
+extension RestaurantComboItemQueryObject on QueryBuilder<RestaurantComboItem,
+    RestaurantComboItem, QFilterCondition> {}

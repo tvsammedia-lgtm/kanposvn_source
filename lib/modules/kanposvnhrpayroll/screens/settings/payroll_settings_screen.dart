@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/auth/employee_management_screen.dart';
-import '../../../../core/providers.dart';
 import '../../core/app_theme.dart';
 import '../../services/auth_service.dart';
+import '../../services/hrpayroll_logout.dart';
 
 class PayrollSettingsScreen extends ConsumerWidget {
   const PayrollSettingsScreen({super.key});
@@ -90,10 +90,11 @@ class PayrollSettingsScreen extends ConsumerWidget {
                   title: const Text('Đăng xuất'),
                   subtitle: const Text('Về màn hình đăng nhập & chọn module'),
                   onTap: () async {
-                    // Xóa token nội bộ của module + phiên chính KanPosVN để
-                    // quay về màn hình Login chính → chọn lại module.
-                    await AuthService.instance.logout();
-                    await ref.read(authServiceProvider.notifier).signOut();
+                    // Đăng xuất phiên chính + xóa token module, và CHỐT HẠN
+                    // điều hướng về LoginScreen qua root navigator để luôn
+                    // trở lại màn hình đăng nhập (kể cả khi chuỗi reactive
+                    // notifyListeners -> main.dart bị lỗi giữa chừng).
+                    await performHrPayrollLogout(context, ref);
                   },
                 ),
               ],

@@ -57,83 +57,104 @@ const BdsPropertySchema = CollectionSchema(
       name: r'deviceId',
       type: IsarType.string,
     ),
-    r'district': PropertySchema(
+    r'direction': PropertySchema(
       id: 8,
+      name: r'direction',
+      type: IsarType.string,
+    ),
+    r'district': PropertySchema(
+      id: 9,
       name: r'district',
       type: IsarType.string,
     ),
     r'features': PropertySchema(
-      id: 9,
+      id: 10,
       name: r'features',
       type: IsarType.stringList,
     ),
     r'floors': PropertySchema(
-      id: 10,
+      id: 11,
       name: r'floors',
       type: IsarType.long,
     ),
+    r'frontage': PropertySchema(
+      id: 12,
+      name: r'frontage',
+      type: IsarType.string,
+    ),
     r'isSynced': PropertySchema(
-      id: 11,
+      id: 13,
       name: r'isSynced',
       type: IsarType.bool,
     ),
     r'legalStatus': PropertySchema(
-      id: 12,
+      id: 14,
       name: r'legalStatus',
       type: IsarType.string,
     ),
     r'length': PropertySchema(
-      id: 13,
+      id: 15,
       name: r'length',
       type: IsarType.double,
     ),
     r'ownerId': PropertySchema(
-      id: 14,
+      id: 16,
       name: r'ownerId',
       type: IsarType.string,
     ),
     r'price': PropertySchema(
-      id: 15,
+      id: 17,
       name: r'price',
       type: IsarType.double,
     ),
+    r'propertyCode': PropertySchema(
+      id: 18,
+      name: r'propertyCode',
+      type: IsarType.string,
+    ),
     r'propertyType': PropertySchema(
-      id: 16,
+      id: 19,
       name: r'propertyType',
       type: IsarType.string,
     ),
     r'province': PropertySchema(
-      id: 17,
+      id: 20,
       name: r'province',
       type: IsarType.string,
     ),
     r'remoteId': PropertySchema(
-      id: 18,
+      id: 21,
       name: r'remoteId',
       type: IsarType.string,
     ),
+    r'status': PropertySchema(
+      id: 22,
+      name: r'status',
+      type: IsarType.string,
+      enumMap: _BdsPropertystatusEnumValueMap,
+    ),
     r'title': PropertySchema(
-      id: 19,
+      id: 23,
       name: r'title',
       type: IsarType.string,
     ),
     r'updatedAt': PropertySchema(
-      id: 20,
+      id: 24,
       name: r'updatedAt',
       type: IsarType.dateTime,
     ),
     r'version': PropertySchema(
-      id: 21,
+      id: 25,
       name: r'version',
       type: IsarType.long,
     ),
     r'ward': PropertySchema(
-      id: 22,
+      id: 26,
       name: r'ward',
       type: IsarType.string,
     ),
     r'width': PropertySchema(
-      id: 23,
+      id: 27,
       name: r'width',
       type: IsarType.double,
     )
@@ -152,6 +173,19 @@ const BdsPropertySchema = CollectionSchema(
       properties: [
         IndexPropertySchema(
           name: r'remoteId',
+          type: IndexType.hash,
+          caseSensitive: true,
+        )
+      ],
+    ),
+    r'propertyCode': IndexSchema(
+      id: -2215546117714102148,
+      name: r'propertyCode',
+      unique: false,
+      replace: false,
+      properties: [
+        IndexPropertySchema(
+          name: r'propertyCode',
           type: IndexType.hash,
           caseSensitive: true,
         )
@@ -192,6 +226,12 @@ int _bdsPropertyEstimateSize(
   }
   bytesCount += 3 + object.deviceId.length * 3;
   {
+    final value = object.direction;
+    if (value != null) {
+      bytesCount += 3 + value.length * 3;
+    }
+  }
+  {
     final value = object.district;
     if (value != null) {
       bytesCount += 3 + value.length * 3;
@@ -210,6 +250,12 @@ int _bdsPropertyEstimateSize(
     }
   }
   {
+    final value = object.frontage;
+    if (value != null) {
+      bytesCount += 3 + value.length * 3;
+    }
+  }
+  {
     final value = object.legalStatus;
     if (value != null) {
       bytesCount += 3 + value.length * 3;
@@ -217,6 +263,12 @@ int _bdsPropertyEstimateSize(
   }
   {
     final value = object.ownerId;
+    if (value != null) {
+      bytesCount += 3 + value.length * 3;
+    }
+  }
+  {
+    final value = object.propertyCode;
     if (value != null) {
       bytesCount += 3 + value.length * 3;
     }
@@ -239,6 +291,7 @@ int _bdsPropertyEstimateSize(
       bytesCount += 3 + value.length * 3;
     }
   }
+  bytesCount += 3 + object.status.name.length * 3;
   {
     final value = object.title;
     if (value != null) {
@@ -268,22 +321,26 @@ void _bdsPropertySerialize(
   writer.writeDateTime(offsets[5], object.deletedAt);
   writer.writeString(offsets[6], object.description);
   writer.writeString(offsets[7], object.deviceId);
-  writer.writeString(offsets[8], object.district);
-  writer.writeStringList(offsets[9], object.features);
-  writer.writeLong(offsets[10], object.floors);
-  writer.writeBool(offsets[11], object.isSynced);
-  writer.writeString(offsets[12], object.legalStatus);
-  writer.writeDouble(offsets[13], object.length);
-  writer.writeString(offsets[14], object.ownerId);
-  writer.writeDouble(offsets[15], object.price);
-  writer.writeString(offsets[16], object.propertyType);
-  writer.writeString(offsets[17], object.province);
-  writer.writeString(offsets[18], object.remoteId);
-  writer.writeString(offsets[19], object.title);
-  writer.writeDateTime(offsets[20], object.updatedAt);
-  writer.writeLong(offsets[21], object.version);
-  writer.writeString(offsets[22], object.ward);
-  writer.writeDouble(offsets[23], object.width);
+  writer.writeString(offsets[8], object.direction);
+  writer.writeString(offsets[9], object.district);
+  writer.writeStringList(offsets[10], object.features);
+  writer.writeLong(offsets[11], object.floors);
+  writer.writeString(offsets[12], object.frontage);
+  writer.writeBool(offsets[13], object.isSynced);
+  writer.writeString(offsets[14], object.legalStatus);
+  writer.writeDouble(offsets[15], object.length);
+  writer.writeString(offsets[16], object.ownerId);
+  writer.writeDouble(offsets[17], object.price);
+  writer.writeString(offsets[18], object.propertyCode);
+  writer.writeString(offsets[19], object.propertyType);
+  writer.writeString(offsets[20], object.province);
+  writer.writeString(offsets[21], object.remoteId);
+  writer.writeString(offsets[22], object.status.name);
+  writer.writeString(offsets[23], object.title);
+  writer.writeDateTime(offsets[24], object.updatedAt);
+  writer.writeLong(offsets[25], object.version);
+  writer.writeString(offsets[26], object.ward);
+  writer.writeDouble(offsets[27], object.width);
 }
 
 BdsProperty _bdsPropertyDeserialize(
@@ -301,23 +358,29 @@ BdsProperty _bdsPropertyDeserialize(
   object.deletedAt = reader.readDateTimeOrNull(offsets[5]);
   object.description = reader.readStringOrNull(offsets[6]);
   object.deviceId = reader.readString(offsets[7]);
-  object.district = reader.readStringOrNull(offsets[8]);
-  object.features = reader.readStringList(offsets[9]);
-  object.floors = reader.readLongOrNull(offsets[10]);
+  object.direction = reader.readStringOrNull(offsets[8]);
+  object.district = reader.readStringOrNull(offsets[9]);
+  object.features = reader.readStringList(offsets[10]);
+  object.floors = reader.readLongOrNull(offsets[11]);
+  object.frontage = reader.readStringOrNull(offsets[12]);
   object.id = id;
-  object.isSynced = reader.readBool(offsets[11]);
-  object.legalStatus = reader.readStringOrNull(offsets[12]);
-  object.length = reader.readDoubleOrNull(offsets[13]);
-  object.ownerId = reader.readStringOrNull(offsets[14]);
-  object.price = reader.readDoubleOrNull(offsets[15]);
-  object.propertyType = reader.readStringOrNull(offsets[16]);
-  object.province = reader.readStringOrNull(offsets[17]);
-  object.remoteId = reader.readStringOrNull(offsets[18]);
-  object.title = reader.readStringOrNull(offsets[19]);
-  object.updatedAt = reader.readDateTimeOrNull(offsets[20]);
-  object.version = reader.readLongOrNull(offsets[21]);
-  object.ward = reader.readStringOrNull(offsets[22]);
-  object.width = reader.readDoubleOrNull(offsets[23]);
+  object.isSynced = reader.readBool(offsets[13]);
+  object.legalStatus = reader.readStringOrNull(offsets[14]);
+  object.length = reader.readDoubleOrNull(offsets[15]);
+  object.ownerId = reader.readStringOrNull(offsets[16]);
+  object.price = reader.readDoubleOrNull(offsets[17]);
+  object.propertyCode = reader.readStringOrNull(offsets[18]);
+  object.propertyType = reader.readStringOrNull(offsets[19]);
+  object.province = reader.readStringOrNull(offsets[20]);
+  object.remoteId = reader.readStringOrNull(offsets[21]);
+  object.status =
+      _BdsPropertystatusValueEnumMap[reader.readStringOrNull(offsets[22])] ??
+          PropertyStatus.available;
+  object.title = reader.readStringOrNull(offsets[23]);
+  object.updatedAt = reader.readDateTimeOrNull(offsets[24]);
+  object.version = reader.readLongOrNull(offsets[25]);
+  object.ward = reader.readStringOrNull(offsets[26]);
+  object.width = reader.readDoubleOrNull(offsets[27]);
   return object;
 }
 
@@ -347,15 +410,15 @@ P _bdsPropertyDeserializeProp<P>(
     case 8:
       return (reader.readStringOrNull(offset)) as P;
     case 9:
-      return (reader.readStringList(offset)) as P;
+      return (reader.readStringOrNull(offset)) as P;
     case 10:
-      return (reader.readLongOrNull(offset)) as P;
+      return (reader.readStringList(offset)) as P;
     case 11:
-      return (reader.readBool(offset)) as P;
+      return (reader.readLongOrNull(offset)) as P;
     case 12:
       return (reader.readStringOrNull(offset)) as P;
     case 13:
-      return (reader.readDoubleOrNull(offset)) as P;
+      return (reader.readBool(offset)) as P;
     case 14:
       return (reader.readStringOrNull(offset)) as P;
     case 15:
@@ -363,23 +426,45 @@ P _bdsPropertyDeserializeProp<P>(
     case 16:
       return (reader.readStringOrNull(offset)) as P;
     case 17:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readDoubleOrNull(offset)) as P;
     case 18:
       return (reader.readStringOrNull(offset)) as P;
     case 19:
       return (reader.readStringOrNull(offset)) as P;
     case 20:
-      return (reader.readDateTimeOrNull(offset)) as P;
-    case 21:
-      return (reader.readLongOrNull(offset)) as P;
-    case 22:
       return (reader.readStringOrNull(offset)) as P;
+    case 21:
+      return (reader.readStringOrNull(offset)) as P;
+    case 22:
+      return (_BdsPropertystatusValueEnumMap[reader.readStringOrNull(offset)] ??
+          PropertyStatus.available) as P;
     case 23:
+      return (reader.readStringOrNull(offset)) as P;
+    case 24:
+      return (reader.readDateTimeOrNull(offset)) as P;
+    case 25:
+      return (reader.readLongOrNull(offset)) as P;
+    case 26:
+      return (reader.readStringOrNull(offset)) as P;
+    case 27:
       return (reader.readDoubleOrNull(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
   }
 }
+
+const _BdsPropertystatusEnumValueMap = {
+  r'available': r'available',
+  r'negotiating': r'negotiating',
+  r'deposited': r'deposited',
+  r'sold': r'sold',
+};
+const _BdsPropertystatusValueEnumMap = {
+  r'available': PropertyStatus.available,
+  r'negotiating': PropertyStatus.negotiating,
+  r'deposited': PropertyStatus.deposited,
+  r'sold': PropertyStatus.sold,
+};
 
 Id _bdsPropertyGetId(BdsProperty object) {
   return object.id;
@@ -586,6 +671,73 @@ extension BdsPropertyQueryWhere
               indexName: r'remoteId',
               lower: [],
               upper: [remoteId],
+              includeUpper: false,
+            ));
+      }
+    });
+  }
+
+  QueryBuilder<BdsProperty, BdsProperty, QAfterWhereClause>
+      propertyCodeIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.equalTo(
+        indexName: r'propertyCode',
+        value: [null],
+      ));
+    });
+  }
+
+  QueryBuilder<BdsProperty, BdsProperty, QAfterWhereClause>
+      propertyCodeIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.between(
+        indexName: r'propertyCode',
+        lower: [null],
+        includeLower: false,
+        upper: [],
+      ));
+    });
+  }
+
+  QueryBuilder<BdsProperty, BdsProperty, QAfterWhereClause> propertyCodeEqualTo(
+      String? propertyCode) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.equalTo(
+        indexName: r'propertyCode',
+        value: [propertyCode],
+      ));
+    });
+  }
+
+  QueryBuilder<BdsProperty, BdsProperty, QAfterWhereClause>
+      propertyCodeNotEqualTo(String? propertyCode) {
+    return QueryBuilder.apply(this, (query) {
+      if (query.whereSort == Sort.asc) {
+        return query
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'propertyCode',
+              lower: [],
+              upper: [propertyCode],
+              includeUpper: false,
+            ))
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'propertyCode',
+              lower: [propertyCode],
+              includeLower: false,
+              upper: [],
+            ));
+      } else {
+        return query
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'propertyCode',
+              lower: [propertyCode],
+              includeLower: false,
+              upper: [],
+            ))
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'propertyCode',
+              lower: [],
+              upper: [propertyCode],
               includeUpper: false,
             ));
       }
@@ -1489,6 +1641,160 @@ extension BdsPropertyQueryFilter
   }
 
   QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      directionIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'direction',
+      ));
+    });
+  }
+
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      directionIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'direction',
+      ));
+    });
+  }
+
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      directionEqualTo(
+    String? value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'direction',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      directionGreaterThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'direction',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      directionLessThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'direction',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      directionBetween(
+    String? lower,
+    String? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'direction',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      directionStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'direction',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      directionEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'direction',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      directionContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'direction',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      directionMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'direction',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      directionIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'direction',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      directionIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'direction',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
       districtIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNull(
@@ -1951,6 +2257,159 @@ extension BdsPropertyQueryFilter
         includeLower: includeLower,
         upper: upper,
         includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      frontageIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'frontage',
+      ));
+    });
+  }
+
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      frontageIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'frontage',
+      ));
+    });
+  }
+
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition> frontageEqualTo(
+    String? value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'frontage',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      frontageGreaterThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'frontage',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      frontageLessThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'frontage',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition> frontageBetween(
+    String? lower,
+    String? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'frontage',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      frontageStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'frontage',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      frontageEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'frontage',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      frontageContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'frontage',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition> frontageMatches(
+      String pattern,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'frontage',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      frontageIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'frontage',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      frontageIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'frontage',
+        value: '',
       ));
     });
   }
@@ -2485,6 +2944,160 @@ extension BdsPropertyQueryFilter
   }
 
   QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      propertyCodeIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'propertyCode',
+      ));
+    });
+  }
+
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      propertyCodeIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'propertyCode',
+      ));
+    });
+  }
+
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      propertyCodeEqualTo(
+    String? value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'propertyCode',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      propertyCodeGreaterThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'propertyCode',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      propertyCodeLessThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'propertyCode',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      propertyCodeBetween(
+    String? lower,
+    String? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'propertyCode',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      propertyCodeStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'propertyCode',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      propertyCodeEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'propertyCode',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      propertyCodeContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'propertyCode',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      propertyCodeMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'propertyCode',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      propertyCodeIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'propertyCode',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      propertyCodeIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'propertyCode',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
       propertyTypeIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNull(
@@ -2939,6 +3552,140 @@ extension BdsPropertyQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         property: r'remoteId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition> statusEqualTo(
+    PropertyStatus value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'status',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      statusGreaterThan(
+    PropertyStatus value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'status',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition> statusLessThan(
+    PropertyStatus value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'status',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition> statusBetween(
+    PropertyStatus lower,
+    PropertyStatus upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'status',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      statusStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'status',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition> statusEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'status',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition> statusContains(
+      String value,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'status',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition> statusMatches(
+      String pattern,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'status',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      statusIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'status',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<BdsProperty, BdsProperty, QAfterFilterCondition>
+      statusIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'status',
         value: '',
       ));
     });
@@ -3572,6 +4319,18 @@ extension BdsPropertyQuerySortBy
     });
   }
 
+  QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> sortByDirection() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'direction', Sort.asc);
+    });
+  }
+
+  QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> sortByDirectionDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'direction', Sort.desc);
+    });
+  }
+
   QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> sortByDistrict() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'district', Sort.asc);
@@ -3593,6 +4352,18 @@ extension BdsPropertyQuerySortBy
   QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> sortByFloorsDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'floors', Sort.desc);
+    });
+  }
+
+  QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> sortByFrontage() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'frontage', Sort.asc);
+    });
+  }
+
+  QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> sortByFrontageDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'frontage', Sort.desc);
     });
   }
 
@@ -3656,6 +4427,19 @@ extension BdsPropertyQuerySortBy
     });
   }
 
+  QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> sortByPropertyCode() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'propertyCode', Sort.asc);
+    });
+  }
+
+  QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy>
+      sortByPropertyCodeDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'propertyCode', Sort.desc);
+    });
+  }
+
   QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> sortByPropertyType() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'propertyType', Sort.asc);
@@ -3690,6 +4474,18 @@ extension BdsPropertyQuerySortBy
   QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> sortByRemoteIdDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'remoteId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> sortByStatus() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'status', Sort.asc);
+    });
+  }
+
+  QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> sortByStatusDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'status', Sort.desc);
     });
   }
 
@@ -3852,6 +4648,18 @@ extension BdsPropertyQuerySortThenBy
     });
   }
 
+  QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> thenByDirection() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'direction', Sort.asc);
+    });
+  }
+
+  QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> thenByDirectionDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'direction', Sort.desc);
+    });
+  }
+
   QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> thenByDistrict() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'district', Sort.asc);
@@ -3873,6 +4681,18 @@ extension BdsPropertyQuerySortThenBy
   QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> thenByFloorsDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'floors', Sort.desc);
+    });
+  }
+
+  QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> thenByFrontage() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'frontage', Sort.asc);
+    });
+  }
+
+  QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> thenByFrontageDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'frontage', Sort.desc);
     });
   }
 
@@ -3948,6 +4768,19 @@ extension BdsPropertyQuerySortThenBy
     });
   }
 
+  QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> thenByPropertyCode() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'propertyCode', Sort.asc);
+    });
+  }
+
+  QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy>
+      thenByPropertyCodeDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'propertyCode', Sort.desc);
+    });
+  }
+
   QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> thenByPropertyType() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'propertyType', Sort.asc);
@@ -3982,6 +4815,18 @@ extension BdsPropertyQuerySortThenBy
   QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> thenByRemoteIdDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'remoteId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> thenByStatus() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'status', Sort.asc);
+    });
+  }
+
+  QueryBuilder<BdsProperty, BdsProperty, QAfterSortBy> thenByStatusDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'status', Sort.desc);
     });
   }
 
@@ -4100,6 +4945,13 @@ extension BdsPropertyQueryWhereDistinct
     });
   }
 
+  QueryBuilder<BdsProperty, BdsProperty, QDistinct> distinctByDirection(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'direction', caseSensitive: caseSensitive);
+    });
+  }
+
   QueryBuilder<BdsProperty, BdsProperty, QDistinct> distinctByDistrict(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
@@ -4116,6 +4968,13 @@ extension BdsPropertyQueryWhereDistinct
   QueryBuilder<BdsProperty, BdsProperty, QDistinct> distinctByFloors() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'floors');
+    });
+  }
+
+  QueryBuilder<BdsProperty, BdsProperty, QDistinct> distinctByFrontage(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'frontage', caseSensitive: caseSensitive);
     });
   }
 
@@ -4151,6 +5010,13 @@ extension BdsPropertyQueryWhereDistinct
     });
   }
 
+  QueryBuilder<BdsProperty, BdsProperty, QDistinct> distinctByPropertyCode(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'propertyCode', caseSensitive: caseSensitive);
+    });
+  }
+
   QueryBuilder<BdsProperty, BdsProperty, QDistinct> distinctByPropertyType(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
@@ -4169,6 +5035,13 @@ extension BdsPropertyQueryWhereDistinct
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'remoteId', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<BdsProperty, BdsProperty, QDistinct> distinctByStatus(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'status', caseSensitive: caseSensitive);
     });
   }
 
@@ -4261,6 +5134,12 @@ extension BdsPropertyQueryProperty
     });
   }
 
+  QueryBuilder<BdsProperty, String?, QQueryOperations> directionProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'direction');
+    });
+  }
+
   QueryBuilder<BdsProperty, String?, QQueryOperations> districtProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'district');
@@ -4277,6 +5156,12 @@ extension BdsPropertyQueryProperty
   QueryBuilder<BdsProperty, int?, QQueryOperations> floorsProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'floors');
+    });
+  }
+
+  QueryBuilder<BdsProperty, String?, QQueryOperations> frontageProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'frontage');
     });
   }
 
@@ -4310,6 +5195,12 @@ extension BdsPropertyQueryProperty
     });
   }
 
+  QueryBuilder<BdsProperty, String?, QQueryOperations> propertyCodeProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'propertyCode');
+    });
+  }
+
   QueryBuilder<BdsProperty, String?, QQueryOperations> propertyTypeProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'propertyType');
@@ -4325,6 +5216,12 @@ extension BdsPropertyQueryProperty
   QueryBuilder<BdsProperty, String?, QQueryOperations> remoteIdProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'remoteId');
+    });
+  }
+
+  QueryBuilder<BdsProperty, PropertyStatus, QQueryOperations> statusProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'status');
     });
   }
 

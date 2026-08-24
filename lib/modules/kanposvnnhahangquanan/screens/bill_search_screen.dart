@@ -133,11 +133,19 @@ class _BillSearchScreenState extends ConsumerState<BillSearchScreen> {
               pw.SizedBox(height: 10),
               pw.Divider(),
               pw.SizedBox(height: 5),
+              if (order.discountAmount > 0)
+                pw.Row(
+                  mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                  children: [
+                    pw.Text('Giảm giá${order.promotionName.isNotEmpty ? " (${order.promotionName})" : ""}:'),
+                    pw.Text('-${order.discountAmount.toStringAsFixed(0)} đ'),
+                  ],
+                ),
               pw.Row(
                 mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                 children: [
                   pw.Text('TỔNG CỘNG:', style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold)),
-                  pw.Text('${order.totalAmount.toStringAsFixed(0)} đ', style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold)),
+                  pw.Text('${(order.totalAmount - order.discountAmount).toStringAsFixed(0)} đ', style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold)),
                 ],
               ),
               pw.SizedBox(height: 10),
@@ -302,6 +310,19 @@ class _BillSearchScreenState extends ConsumerState<BillSearchScreen> {
                                 ),
                               )),
                               const Divider(height: 24),
+                              if (_foundOrder!.discountAmount > 0)
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      'Giảm giá${_foundOrder!.promotionName.isNotEmpty ? " (${_foundOrder!.promotionName})" : ""}',
+                                    ),
+                                    Text(
+                                      '-${_foundOrder!.discountAmount.toStringAsFixed(0)} đ',
+                                      style: const TextStyle(color: Colors.green),
+                                    ),
+                                  ],
+                                ),
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
@@ -310,7 +331,7 @@ class _BillSearchScreenState extends ConsumerState<BillSearchScreen> {
                                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                                   ),
                                   Text(
-                                    '${_foundOrder!.totalAmount.toStringAsFixed(0)} đ',
+                                    '${(_foundOrder!.totalAmount - _foundOrder!.discountAmount).toStringAsFixed(0)} đ',
                                     style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.red),
                                   ),
                                 ],
@@ -369,7 +390,9 @@ class _BillSearchScreenState extends ConsumerState<BillSearchScreen> {
                                                 ))
                                             .toList(),
                                         subtotal: order.totalAmount,
-                                        grandTotal: order.totalAmount,
+                                        discount: order.discountAmount,
+                                        grandTotal:
+                                            order.totalAmount - order.discountAmount,
                                       ),
                                     );
                                   },
