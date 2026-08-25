@@ -5,6 +5,9 @@ import '../models/bida_item.dart';
 import '../models/bida_session.dart';
 import '../models/bida_sync_model.dart';
 import '../models/bida_inventory_tx.dart';
+import '../models/bida_partner.dart';
+import '../models/bida_finance.dart';
+import '../models/bida_reservation.dart';
 
 class BidaIsarService {
   late Future<Isar> db;
@@ -25,6 +28,12 @@ class BidaIsarService {
         BidaSessionSchema,
         BidaSyncQueueSchema,
         BidaInventoryTxSchema,
+        BidaCustomerSchema,
+        BidaSupplierSchema,
+        BidaFinanceTxSchema,
+        BidaPricingRuleSchema,
+        BidaBlockPlanSchema,
+        BidaReservationSchema,
       ],
       directory: dir.path,
       name: 'bida_db',

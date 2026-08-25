@@ -22,101 +22,156 @@ const RideBookingSchema = CollectionSchema(
       name: r'acceptedAt',
       type: IsarType.dateTime,
     ),
-    r'completedAt': PropertySchema(
+    r'commission': PropertySchema(
       id: 1,
+      name: r'commission',
+      type: IsarType.double,
+    ),
+    r'completedAt': PropertySchema(
+      id: 2,
       name: r'completedAt',
       type: IsarType.dateTime,
     ),
+    r'corporateUuid': PropertySchema(
+      id: 3,
+      name: r'corporateUuid',
+      type: IsarType.string,
+    ),
     r'createdAt': PropertySchema(
-      id: 2,
+      id: 4,
       name: r'createdAt',
       type: IsarType.dateTime,
     ),
+    r'discount': PropertySchema(
+      id: 5,
+      name: r'discount',
+      type: IsarType.double,
+    ),
     r'distanceKm': PropertySchema(
-      id: 3,
+      id: 6,
       name: r'distanceKm',
       type: IsarType.double,
     ),
+    r'driverEarnings': PropertySchema(
+      id: 7,
+      name: r'driverEarnings',
+      type: IsarType.double,
+    ),
     r'driverUuid': PropertySchema(
-      id: 4,
+      id: 8,
       name: r'driverUuid',
       type: IsarType.string,
     ),
     r'dropoffAddress': PropertySchema(
-      id: 5,
+      id: 9,
       name: r'dropoffAddress',
       type: IsarType.string,
     ),
     r'dropoffLat': PropertySchema(
-      id: 6,
+      id: 10,
       name: r'dropoffLat',
       type: IsarType.double,
     ),
     r'dropoffLng': PropertySchema(
-      id: 7,
+      id: 11,
       name: r'dropoffLng',
       type: IsarType.double,
     ),
     r'estimatedPrice': PropertySchema(
-      id: 8,
+      id: 12,
       name: r'estimatedPrice',
       type: IsarType.double,
     ),
     r'finalPrice': PropertySchema(
-      id: 9,
+      id: 13,
       name: r'finalPrice',
       type: IsarType.double,
     ),
     r'isSharedRide': PropertySchema(
-      id: 10,
+      id: 14,
       name: r'isSharedRide',
       type: IsarType.bool,
     ),
     r'passengerUuid': PropertySchema(
-      id: 11,
+      id: 15,
       name: r'passengerUuid',
       type: IsarType.string,
     ),
+    r'paymentMethod': PropertySchema(
+      id: 16,
+      name: r'paymentMethod',
+      type: IsarType.string,
+    ),
+    r'paymentMethodCorp': PropertySchema(
+      id: 17,
+      name: r'paymentMethodCorp',
+      type: IsarType.string,
+    ),
     r'pickupAddress': PropertySchema(
-      id: 12,
+      id: 18,
       name: r'pickupAddress',
       type: IsarType.string,
     ),
     r'pickupAt': PropertySchema(
-      id: 13,
+      id: 19,
       name: r'pickupAt',
       type: IsarType.dateTime,
     ),
     r'pickupLat': PropertySchema(
-      id: 14,
+      id: 20,
       name: r'pickupLat',
       type: IsarType.double,
     ),
     r'pickupLng': PropertySchema(
-      id: 15,
+      id: 21,
       name: r'pickupLng',
       type: IsarType.double,
     ),
+    r'promotionCode': PropertySchema(
+      id: 22,
+      name: r'promotionCode',
+      type: IsarType.string,
+    ),
     r'requestedVehicleType': PropertySchema(
-      id: 16,
+      id: 23,
       name: r'requestedVehicleType',
       type: IsarType.byte,
       enumMap: _RideBookingrequestedVehicleTypeEnumValueMap,
     ),
+    r'sharedGroupUuid': PropertySchema(
+      id: 24,
+      name: r'sharedGroupUuid',
+      type: IsarType.string,
+    ),
     r'status': PropertySchema(
-      id: 17,
+      id: 25,
       name: r'status',
       type: IsarType.byte,
       enumMap: _RideBookingstatusEnumValueMap,
     ),
+    r'surcharge': PropertySchema(
+      id: 26,
+      name: r'surcharge',
+      type: IsarType.double,
+    ),
+    r'surgeMultiplier': PropertySchema(
+      id: 27,
+      name: r'surgeMultiplier',
+      type: IsarType.double,
+    ),
     r'syncStatus': PropertySchema(
-      id: 18,
+      id: 28,
       name: r'syncStatus',
       type: IsarType.byte,
       enumMap: _RideBookingsyncStatusEnumValueMap,
     ),
+    r'updatedAt': PropertySchema(
+      id: 29,
+      name: r'updatedAt',
+      type: IsarType.dateTime,
+    ),
     r'uuid': PropertySchema(
-      id: 19,
+      id: 30,
       name: r'uuid',
       type: IsarType.string,
     )
@@ -182,6 +237,12 @@ int _rideBookingEstimateSize(
 ) {
   var bytesCount = offsets.last;
   {
+    final value = object.corporateUuid;
+    if (value != null) {
+      bytesCount += 3 + value.length * 3;
+    }
+  }
+  {
     final value = object.driverUuid;
     if (value != null) {
       bytesCount += 3 + value.length * 3;
@@ -199,8 +260,22 @@ int _rideBookingEstimateSize(
       bytesCount += 3 + value.length * 3;
     }
   }
+  bytesCount += 3 + object.paymentMethod.length * 3;
+  bytesCount += 3 + object.paymentMethodCorp.length * 3;
   {
     final value = object.pickupAddress;
+    if (value != null) {
+      bytesCount += 3 + value.length * 3;
+    }
+  }
+  {
+    final value = object.promotionCode;
+    if (value != null) {
+      bytesCount += 3 + value.length * 3;
+    }
+  }
+  {
+    final value = object.sharedGroupUuid;
     if (value != null) {
       bytesCount += 3 + value.length * 3;
     }
@@ -221,25 +296,36 @@ void _rideBookingSerialize(
   Map<Type, List<int>> allOffsets,
 ) {
   writer.writeDateTime(offsets[0], object.acceptedAt);
-  writer.writeDateTime(offsets[1], object.completedAt);
-  writer.writeDateTime(offsets[2], object.createdAt);
-  writer.writeDouble(offsets[3], object.distanceKm);
-  writer.writeString(offsets[4], object.driverUuid);
-  writer.writeString(offsets[5], object.dropoffAddress);
-  writer.writeDouble(offsets[6], object.dropoffLat);
-  writer.writeDouble(offsets[7], object.dropoffLng);
-  writer.writeDouble(offsets[8], object.estimatedPrice);
-  writer.writeDouble(offsets[9], object.finalPrice);
-  writer.writeBool(offsets[10], object.isSharedRide);
-  writer.writeString(offsets[11], object.passengerUuid);
-  writer.writeString(offsets[12], object.pickupAddress);
-  writer.writeDateTime(offsets[13], object.pickupAt);
-  writer.writeDouble(offsets[14], object.pickupLat);
-  writer.writeDouble(offsets[15], object.pickupLng);
-  writer.writeByte(offsets[16], object.requestedVehicleType.index);
-  writer.writeByte(offsets[17], object.status.index);
-  writer.writeByte(offsets[18], object.syncStatus.index);
-  writer.writeString(offsets[19], object.uuid);
+  writer.writeDouble(offsets[1], object.commission);
+  writer.writeDateTime(offsets[2], object.completedAt);
+  writer.writeString(offsets[3], object.corporateUuid);
+  writer.writeDateTime(offsets[4], object.createdAt);
+  writer.writeDouble(offsets[5], object.discount);
+  writer.writeDouble(offsets[6], object.distanceKm);
+  writer.writeDouble(offsets[7], object.driverEarnings);
+  writer.writeString(offsets[8], object.driverUuid);
+  writer.writeString(offsets[9], object.dropoffAddress);
+  writer.writeDouble(offsets[10], object.dropoffLat);
+  writer.writeDouble(offsets[11], object.dropoffLng);
+  writer.writeDouble(offsets[12], object.estimatedPrice);
+  writer.writeDouble(offsets[13], object.finalPrice);
+  writer.writeBool(offsets[14], object.isSharedRide);
+  writer.writeString(offsets[15], object.passengerUuid);
+  writer.writeString(offsets[16], object.paymentMethod);
+  writer.writeString(offsets[17], object.paymentMethodCorp);
+  writer.writeString(offsets[18], object.pickupAddress);
+  writer.writeDateTime(offsets[19], object.pickupAt);
+  writer.writeDouble(offsets[20], object.pickupLat);
+  writer.writeDouble(offsets[21], object.pickupLng);
+  writer.writeString(offsets[22], object.promotionCode);
+  writer.writeByte(offsets[23], object.requestedVehicleType.index);
+  writer.writeString(offsets[24], object.sharedGroupUuid);
+  writer.writeByte(offsets[25], object.status.index);
+  writer.writeDouble(offsets[26], object.surcharge);
+  writer.writeDouble(offsets[27], object.surgeMultiplier);
+  writer.writeByte(offsets[28], object.syncStatus.index);
+  writer.writeDateTime(offsets[29], object.updatedAt);
+  writer.writeString(offsets[30], object.uuid);
 }
 
 RideBooking _rideBookingDeserialize(
@@ -250,32 +336,43 @@ RideBooking _rideBookingDeserialize(
 ) {
   final object = RideBooking();
   object.acceptedAt = reader.readDateTimeOrNull(offsets[0]);
-  object.completedAt = reader.readDateTimeOrNull(offsets[1]);
-  object.createdAt = reader.readDateTimeOrNull(offsets[2]);
-  object.distanceKm = reader.readDouble(offsets[3]);
-  object.driverUuid = reader.readStringOrNull(offsets[4]);
-  object.dropoffAddress = reader.readStringOrNull(offsets[5]);
-  object.dropoffLat = reader.readDoubleOrNull(offsets[6]);
-  object.dropoffLng = reader.readDoubleOrNull(offsets[7]);
-  object.estimatedPrice = reader.readDouble(offsets[8]);
-  object.finalPrice = reader.readDouble(offsets[9]);
+  object.commission = reader.readDouble(offsets[1]);
+  object.completedAt = reader.readDateTimeOrNull(offsets[2]);
+  object.corporateUuid = reader.readStringOrNull(offsets[3]);
+  object.createdAt = reader.readDateTimeOrNull(offsets[4]);
+  object.discount = reader.readDouble(offsets[5]);
+  object.distanceKm = reader.readDouble(offsets[6]);
+  object.driverEarnings = reader.readDouble(offsets[7]);
+  object.driverUuid = reader.readStringOrNull(offsets[8]);
+  object.dropoffAddress = reader.readStringOrNull(offsets[9]);
+  object.dropoffLat = reader.readDoubleOrNull(offsets[10]);
+  object.dropoffLng = reader.readDoubleOrNull(offsets[11]);
+  object.estimatedPrice = reader.readDouble(offsets[12]);
+  object.finalPrice = reader.readDouble(offsets[13]);
   object.id = id;
-  object.isSharedRide = reader.readBool(offsets[10]);
-  object.passengerUuid = reader.readStringOrNull(offsets[11]);
-  object.pickupAddress = reader.readStringOrNull(offsets[12]);
-  object.pickupAt = reader.readDateTimeOrNull(offsets[13]);
-  object.pickupLat = reader.readDoubleOrNull(offsets[14]);
-  object.pickupLng = reader.readDoubleOrNull(offsets[15]);
+  object.isSharedRide = reader.readBool(offsets[14]);
+  object.passengerUuid = reader.readStringOrNull(offsets[15]);
+  object.paymentMethod = reader.readString(offsets[16]);
+  object.paymentMethodCorp = reader.readString(offsets[17]);
+  object.pickupAddress = reader.readStringOrNull(offsets[18]);
+  object.pickupAt = reader.readDateTimeOrNull(offsets[19]);
+  object.pickupLat = reader.readDoubleOrNull(offsets[20]);
+  object.pickupLng = reader.readDoubleOrNull(offsets[21]);
+  object.promotionCode = reader.readStringOrNull(offsets[22]);
   object.requestedVehicleType = _RideBookingrequestedVehicleTypeValueEnumMap[
-          reader.readByteOrNull(offsets[16])] ??
+          reader.readByteOrNull(offsets[23])] ??
       VehicleType.motorBike;
+  object.sharedGroupUuid = reader.readStringOrNull(offsets[24]);
   object.status =
-      _RideBookingstatusValueEnumMap[reader.readByteOrNull(offsets[17])] ??
+      _RideBookingstatusValueEnumMap[reader.readByteOrNull(offsets[25])] ??
           BookingStatus.findingDriver;
+  object.surcharge = reader.readDouble(offsets[26]);
+  object.surgeMultiplier = reader.readDouble(offsets[27]);
   object.syncStatus =
-      _RideBookingsyncStatusValueEnumMap[reader.readByteOrNull(offsets[18])] ??
+      _RideBookingsyncStatusValueEnumMap[reader.readByteOrNull(offsets[28])] ??
           SyncStatus.synced;
-  object.uuid = reader.readStringOrNull(offsets[19]);
+  object.updatedAt = reader.readDateTimeOrNull(offsets[29]);
+  object.uuid = reader.readStringOrNull(offsets[30]);
   return object;
 }
 
@@ -289,47 +386,69 @@ P _rideBookingDeserializeProp<P>(
     case 0:
       return (reader.readDateTimeOrNull(offset)) as P;
     case 1:
-      return (reader.readDateTimeOrNull(offset)) as P;
+      return (reader.readDouble(offset)) as P;
     case 2:
       return (reader.readDateTimeOrNull(offset)) as P;
     case 3:
-      return (reader.readDouble(offset)) as P;
+      return (reader.readStringOrNull(offset)) as P;
     case 4:
-      return (reader.readStringOrNull(offset)) as P;
-    case 5:
-      return (reader.readStringOrNull(offset)) as P;
-    case 6:
-      return (reader.readDoubleOrNull(offset)) as P;
-    case 7:
-      return (reader.readDoubleOrNull(offset)) as P;
-    case 8:
-      return (reader.readDouble(offset)) as P;
-    case 9:
-      return (reader.readDouble(offset)) as P;
-    case 10:
-      return (reader.readBool(offset)) as P;
-    case 11:
-      return (reader.readStringOrNull(offset)) as P;
-    case 12:
-      return (reader.readStringOrNull(offset)) as P;
-    case 13:
       return (reader.readDateTimeOrNull(offset)) as P;
+    case 5:
+      return (reader.readDouble(offset)) as P;
+    case 6:
+      return (reader.readDouble(offset)) as P;
+    case 7:
+      return (reader.readDouble(offset)) as P;
+    case 8:
+      return (reader.readStringOrNull(offset)) as P;
+    case 9:
+      return (reader.readStringOrNull(offset)) as P;
+    case 10:
+      return (reader.readDoubleOrNull(offset)) as P;
+    case 11:
+      return (reader.readDoubleOrNull(offset)) as P;
+    case 12:
+      return (reader.readDouble(offset)) as P;
+    case 13:
+      return (reader.readDouble(offset)) as P;
     case 14:
-      return (reader.readDoubleOrNull(offset)) as P;
+      return (reader.readBool(offset)) as P;
     case 15:
-      return (reader.readDoubleOrNull(offset)) as P;
+      return (reader.readStringOrNull(offset)) as P;
     case 16:
+      return (reader.readString(offset)) as P;
+    case 17:
+      return (reader.readString(offset)) as P;
+    case 18:
+      return (reader.readStringOrNull(offset)) as P;
+    case 19:
+      return (reader.readDateTimeOrNull(offset)) as P;
+    case 20:
+      return (reader.readDoubleOrNull(offset)) as P;
+    case 21:
+      return (reader.readDoubleOrNull(offset)) as P;
+    case 22:
+      return (reader.readStringOrNull(offset)) as P;
+    case 23:
       return (_RideBookingrequestedVehicleTypeValueEnumMap[
               reader.readByteOrNull(offset)] ??
           VehicleType.motorBike) as P;
-    case 17:
+    case 24:
+      return (reader.readStringOrNull(offset)) as P;
+    case 25:
       return (_RideBookingstatusValueEnumMap[reader.readByteOrNull(offset)] ??
           BookingStatus.findingDriver) as P;
-    case 18:
+    case 26:
+      return (reader.readDouble(offset)) as P;
+    case 27:
+      return (reader.readDouble(offset)) as P;
+    case 28:
       return (_RideBookingsyncStatusValueEnumMap[
               reader.readByteOrNull(offset)] ??
           SyncStatus.synced) as P;
-    case 19:
+    case 29:
+      return (reader.readDateTimeOrNull(offset)) as P;
+    case 30:
       return (reader.readStringOrNull(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -798,6 +917,72 @@ extension RideBookingQueryFilter
   }
 
   QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      commissionEqualTo(
+    double value, {
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'commission',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      commissionGreaterThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'commission',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      commissionLessThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'commission',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      commissionBetween(
+    double lower,
+    double upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'commission',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
       completedAtIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNull(
@@ -867,6 +1052,160 @@ extension RideBookingQueryFilter
         includeLower: includeLower,
         upper: upper,
         includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      corporateUuidIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'corporateUuid',
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      corporateUuidIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'corporateUuid',
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      corporateUuidEqualTo(
+    String? value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'corporateUuid',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      corporateUuidGreaterThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'corporateUuid',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      corporateUuidLessThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'corporateUuid',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      corporateUuidBetween(
+    String? lower,
+    String? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'corporateUuid',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      corporateUuidStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'corporateUuid',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      corporateUuidEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'corporateUuid',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      corporateUuidContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'corporateUuid',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      corporateUuidMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'corporateUuid',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      corporateUuidIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'corporateUuid',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      corporateUuidIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'corporateUuid',
+        value: '',
       ));
     });
   }
@@ -945,6 +1284,70 @@ extension RideBookingQueryFilter
     });
   }
 
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition> discountEqualTo(
+    double value, {
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'discount',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      discountGreaterThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'discount',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      discountLessThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'discount',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition> discountBetween(
+    double lower,
+    double upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'discount',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
   QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
       distanceKmEqualTo(
     double value, {
@@ -1002,6 +1405,72 @@ extension RideBookingQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.between(
         property: r'distanceKm',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      driverEarningsEqualTo(
+    double value, {
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'driverEarnings',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      driverEarningsGreaterThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'driverEarnings',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      driverEarningsLessThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'driverEarnings',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      driverEarningsBetween(
+    double lower,
+    double upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'driverEarnings',
         lower: lower,
         includeLower: includeLower,
         upper: upper,
@@ -1837,6 +2306,278 @@ extension RideBookingQueryFilter
   }
 
   QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      paymentMethodEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'paymentMethod',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      paymentMethodGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'paymentMethod',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      paymentMethodLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'paymentMethod',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      paymentMethodBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'paymentMethod',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      paymentMethodStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'paymentMethod',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      paymentMethodEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'paymentMethod',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      paymentMethodContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'paymentMethod',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      paymentMethodMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'paymentMethod',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      paymentMethodIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'paymentMethod',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      paymentMethodIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'paymentMethod',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      paymentMethodCorpEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'paymentMethodCorp',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      paymentMethodCorpGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'paymentMethodCorp',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      paymentMethodCorpLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'paymentMethodCorp',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      paymentMethodCorpBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'paymentMethodCorp',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      paymentMethodCorpStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'paymentMethodCorp',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      paymentMethodCorpEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'paymentMethodCorp',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      paymentMethodCorpContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'paymentMethodCorp',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      paymentMethodCorpMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'paymentMethodCorp',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      paymentMethodCorpIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'paymentMethodCorp',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      paymentMethodCorpIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'paymentMethodCorp',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
       pickupAddressIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNull(
@@ -2232,6 +2973,160 @@ extension RideBookingQueryFilter
   }
 
   QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      promotionCodeIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'promotionCode',
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      promotionCodeIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'promotionCode',
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      promotionCodeEqualTo(
+    String? value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'promotionCode',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      promotionCodeGreaterThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'promotionCode',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      promotionCodeLessThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'promotionCode',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      promotionCodeBetween(
+    String? lower,
+    String? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'promotionCode',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      promotionCodeStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'promotionCode',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      promotionCodeEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'promotionCode',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      promotionCodeContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'promotionCode',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      promotionCodeMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'promotionCode',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      promotionCodeIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'promotionCode',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      promotionCodeIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'promotionCode',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
       requestedVehicleTypeEqualTo(VehicleType value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
@@ -2283,6 +3178,160 @@ extension RideBookingQueryFilter
         includeLower: includeLower,
         upper: upper,
         includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      sharedGroupUuidIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'sharedGroupUuid',
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      sharedGroupUuidIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'sharedGroupUuid',
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      sharedGroupUuidEqualTo(
+    String? value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'sharedGroupUuid',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      sharedGroupUuidGreaterThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'sharedGroupUuid',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      sharedGroupUuidLessThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'sharedGroupUuid',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      sharedGroupUuidBetween(
+    String? lower,
+    String? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'sharedGroupUuid',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      sharedGroupUuidStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'sharedGroupUuid',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      sharedGroupUuidEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'sharedGroupUuid',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      sharedGroupUuidContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'sharedGroupUuid',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      sharedGroupUuidMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'sharedGroupUuid',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      sharedGroupUuidIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'sharedGroupUuid',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      sharedGroupUuidIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'sharedGroupUuid',
+        value: '',
       ));
     });
   }
@@ -2342,6 +3391,138 @@ extension RideBookingQueryFilter
   }
 
   QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      surchargeEqualTo(
+    double value, {
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'surcharge',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      surchargeGreaterThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'surcharge',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      surchargeLessThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'surcharge',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      surchargeBetween(
+    double lower,
+    double upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'surcharge',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      surgeMultiplierEqualTo(
+    double value, {
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'surgeMultiplier',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      surgeMultiplierGreaterThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'surgeMultiplier',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      surgeMultiplierLessThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'surgeMultiplier',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      surgeMultiplierBetween(
+    double lower,
+    double upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'surgeMultiplier',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
       syncStatusEqualTo(SyncStatus value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
@@ -2389,6 +3570,80 @@ extension RideBookingQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.between(
         property: r'syncStatus',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      updatedAtIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'updatedAt',
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      updatedAtIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'updatedAt',
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      updatedAtEqualTo(DateTime? value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'updatedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      updatedAtGreaterThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'updatedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      updatedAtLessThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'updatedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterFilterCondition>
+      updatedAtBetween(
+    DateTime? lower,
+    DateTime? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'updatedAt',
         lower: lower,
         includeLower: includeLower,
         upper: upper,
@@ -2566,6 +3821,18 @@ extension RideBookingQuerySortBy
     });
   }
 
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy> sortByCommission() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'commission', Sort.asc);
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy> sortByCommissionDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'commission', Sort.desc);
+    });
+  }
+
   QueryBuilder<RideBooking, RideBooking, QAfterSortBy> sortByCompletedAt() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'completedAt', Sort.asc);
@@ -2575,6 +3842,19 @@ extension RideBookingQuerySortBy
   QueryBuilder<RideBooking, RideBooking, QAfterSortBy> sortByCompletedAtDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'completedAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy> sortByCorporateUuid() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'corporateUuid', Sort.asc);
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy>
+      sortByCorporateUuidDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'corporateUuid', Sort.desc);
     });
   }
 
@@ -2590,6 +3870,18 @@ extension RideBookingQuerySortBy
     });
   }
 
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy> sortByDiscount() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'discount', Sort.asc);
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy> sortByDiscountDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'discount', Sort.desc);
+    });
+  }
+
   QueryBuilder<RideBooking, RideBooking, QAfterSortBy> sortByDistanceKm() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'distanceKm', Sort.asc);
@@ -2599,6 +3891,19 @@ extension RideBookingQuerySortBy
   QueryBuilder<RideBooking, RideBooking, QAfterSortBy> sortByDistanceKmDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'distanceKm', Sort.desc);
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy> sortByDriverEarnings() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'driverEarnings', Sort.asc);
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy>
+      sortByDriverEarningsDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'driverEarnings', Sort.desc);
     });
   }
 
@@ -2702,6 +4007,33 @@ extension RideBookingQuerySortBy
     });
   }
 
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy> sortByPaymentMethod() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'paymentMethod', Sort.asc);
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy>
+      sortByPaymentMethodDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'paymentMethod', Sort.desc);
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy>
+      sortByPaymentMethodCorp() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'paymentMethodCorp', Sort.asc);
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy>
+      sortByPaymentMethodCorpDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'paymentMethodCorp', Sort.desc);
+    });
+  }
+
   QueryBuilder<RideBooking, RideBooking, QAfterSortBy> sortByPickupAddress() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'pickupAddress', Sort.asc);
@@ -2751,6 +4083,19 @@ extension RideBookingQuerySortBy
     });
   }
 
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy> sortByPromotionCode() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'promotionCode', Sort.asc);
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy>
+      sortByPromotionCodeDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'promotionCode', Sort.desc);
+    });
+  }
+
   QueryBuilder<RideBooking, RideBooking, QAfterSortBy>
       sortByRequestedVehicleType() {
     return QueryBuilder.apply(this, (query) {
@@ -2762,6 +4107,19 @@ extension RideBookingQuerySortBy
       sortByRequestedVehicleTypeDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'requestedVehicleType', Sort.desc);
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy> sortBySharedGroupUuid() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'sharedGroupUuid', Sort.asc);
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy>
+      sortBySharedGroupUuidDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'sharedGroupUuid', Sort.desc);
     });
   }
 
@@ -2777,6 +4135,31 @@ extension RideBookingQuerySortBy
     });
   }
 
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy> sortBySurcharge() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'surcharge', Sort.asc);
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy> sortBySurchargeDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'surcharge', Sort.desc);
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy> sortBySurgeMultiplier() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'surgeMultiplier', Sort.asc);
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy>
+      sortBySurgeMultiplierDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'surgeMultiplier', Sort.desc);
+    });
+  }
+
   QueryBuilder<RideBooking, RideBooking, QAfterSortBy> sortBySyncStatus() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'syncStatus', Sort.asc);
@@ -2786,6 +4169,18 @@ extension RideBookingQuerySortBy
   QueryBuilder<RideBooking, RideBooking, QAfterSortBy> sortBySyncStatusDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'syncStatus', Sort.desc);
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy> sortByUpdatedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'updatedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy> sortByUpdatedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'updatedAt', Sort.desc);
     });
   }
 
@@ -2816,6 +4211,18 @@ extension RideBookingQuerySortThenBy
     });
   }
 
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy> thenByCommission() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'commission', Sort.asc);
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy> thenByCommissionDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'commission', Sort.desc);
+    });
+  }
+
   QueryBuilder<RideBooking, RideBooking, QAfterSortBy> thenByCompletedAt() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'completedAt', Sort.asc);
@@ -2825,6 +4232,19 @@ extension RideBookingQuerySortThenBy
   QueryBuilder<RideBooking, RideBooking, QAfterSortBy> thenByCompletedAtDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'completedAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy> thenByCorporateUuid() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'corporateUuid', Sort.asc);
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy>
+      thenByCorporateUuidDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'corporateUuid', Sort.desc);
     });
   }
 
@@ -2840,6 +4260,18 @@ extension RideBookingQuerySortThenBy
     });
   }
 
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy> thenByDiscount() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'discount', Sort.asc);
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy> thenByDiscountDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'discount', Sort.desc);
+    });
+  }
+
   QueryBuilder<RideBooking, RideBooking, QAfterSortBy> thenByDistanceKm() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'distanceKm', Sort.asc);
@@ -2849,6 +4281,19 @@ extension RideBookingQuerySortThenBy
   QueryBuilder<RideBooking, RideBooking, QAfterSortBy> thenByDistanceKmDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'distanceKm', Sort.desc);
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy> thenByDriverEarnings() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'driverEarnings', Sort.asc);
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy>
+      thenByDriverEarningsDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'driverEarnings', Sort.desc);
     });
   }
 
@@ -2964,6 +4409,33 @@ extension RideBookingQuerySortThenBy
     });
   }
 
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy> thenByPaymentMethod() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'paymentMethod', Sort.asc);
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy>
+      thenByPaymentMethodDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'paymentMethod', Sort.desc);
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy>
+      thenByPaymentMethodCorp() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'paymentMethodCorp', Sort.asc);
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy>
+      thenByPaymentMethodCorpDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'paymentMethodCorp', Sort.desc);
+    });
+  }
+
   QueryBuilder<RideBooking, RideBooking, QAfterSortBy> thenByPickupAddress() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'pickupAddress', Sort.asc);
@@ -3013,6 +4485,19 @@ extension RideBookingQuerySortThenBy
     });
   }
 
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy> thenByPromotionCode() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'promotionCode', Sort.asc);
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy>
+      thenByPromotionCodeDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'promotionCode', Sort.desc);
+    });
+  }
+
   QueryBuilder<RideBooking, RideBooking, QAfterSortBy>
       thenByRequestedVehicleType() {
     return QueryBuilder.apply(this, (query) {
@@ -3024,6 +4509,19 @@ extension RideBookingQuerySortThenBy
       thenByRequestedVehicleTypeDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'requestedVehicleType', Sort.desc);
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy> thenBySharedGroupUuid() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'sharedGroupUuid', Sort.asc);
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy>
+      thenBySharedGroupUuidDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'sharedGroupUuid', Sort.desc);
     });
   }
 
@@ -3039,6 +4537,31 @@ extension RideBookingQuerySortThenBy
     });
   }
 
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy> thenBySurcharge() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'surcharge', Sort.asc);
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy> thenBySurchargeDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'surcharge', Sort.desc);
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy> thenBySurgeMultiplier() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'surgeMultiplier', Sort.asc);
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy>
+      thenBySurgeMultiplierDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'surgeMultiplier', Sort.desc);
+    });
+  }
+
   QueryBuilder<RideBooking, RideBooking, QAfterSortBy> thenBySyncStatus() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'syncStatus', Sort.asc);
@@ -3048,6 +4571,18 @@ extension RideBookingQuerySortThenBy
   QueryBuilder<RideBooking, RideBooking, QAfterSortBy> thenBySyncStatusDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'syncStatus', Sort.desc);
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy> thenByUpdatedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'updatedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QAfterSortBy> thenByUpdatedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'updatedAt', Sort.desc);
     });
   }
 
@@ -3072,9 +4607,23 @@ extension RideBookingQueryWhereDistinct
     });
   }
 
+  QueryBuilder<RideBooking, RideBooking, QDistinct> distinctByCommission() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'commission');
+    });
+  }
+
   QueryBuilder<RideBooking, RideBooking, QDistinct> distinctByCompletedAt() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'completedAt');
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QDistinct> distinctByCorporateUuid(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'corporateUuid',
+          caseSensitive: caseSensitive);
     });
   }
 
@@ -3084,9 +4633,21 @@ extension RideBookingQueryWhereDistinct
     });
   }
 
+  QueryBuilder<RideBooking, RideBooking, QDistinct> distinctByDiscount() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'discount');
+    });
+  }
+
   QueryBuilder<RideBooking, RideBooking, QDistinct> distinctByDistanceKm() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'distanceKm');
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QDistinct> distinctByDriverEarnings() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'driverEarnings');
     });
   }
 
@@ -3143,6 +4704,22 @@ extension RideBookingQueryWhereDistinct
     });
   }
 
+  QueryBuilder<RideBooking, RideBooking, QDistinct> distinctByPaymentMethod(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'paymentMethod',
+          caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QDistinct> distinctByPaymentMethodCorp(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'paymentMethodCorp',
+          caseSensitive: caseSensitive);
+    });
+  }
+
   QueryBuilder<RideBooking, RideBooking, QDistinct> distinctByPickupAddress(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
@@ -3169,10 +4746,26 @@ extension RideBookingQueryWhereDistinct
     });
   }
 
+  QueryBuilder<RideBooking, RideBooking, QDistinct> distinctByPromotionCode(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'promotionCode',
+          caseSensitive: caseSensitive);
+    });
+  }
+
   QueryBuilder<RideBooking, RideBooking, QDistinct>
       distinctByRequestedVehicleType() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'requestedVehicleType');
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QDistinct> distinctBySharedGroupUuid(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'sharedGroupUuid',
+          caseSensitive: caseSensitive);
     });
   }
 
@@ -3182,9 +4775,28 @@ extension RideBookingQueryWhereDistinct
     });
   }
 
+  QueryBuilder<RideBooking, RideBooking, QDistinct> distinctBySurcharge() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'surcharge');
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QDistinct>
+      distinctBySurgeMultiplier() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'surgeMultiplier');
+    });
+  }
+
   QueryBuilder<RideBooking, RideBooking, QDistinct> distinctBySyncStatus() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'syncStatus');
+    });
+  }
+
+  QueryBuilder<RideBooking, RideBooking, QDistinct> distinctByUpdatedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'updatedAt');
     });
   }
 
@@ -3210,9 +4822,21 @@ extension RideBookingQueryProperty
     });
   }
 
+  QueryBuilder<RideBooking, double, QQueryOperations> commissionProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'commission');
+    });
+  }
+
   QueryBuilder<RideBooking, DateTime?, QQueryOperations> completedAtProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'completedAt');
+    });
+  }
+
+  QueryBuilder<RideBooking, String?, QQueryOperations> corporateUuidProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'corporateUuid');
     });
   }
 
@@ -3222,9 +4846,21 @@ extension RideBookingQueryProperty
     });
   }
 
+  QueryBuilder<RideBooking, double, QQueryOperations> discountProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'discount');
+    });
+  }
+
   QueryBuilder<RideBooking, double, QQueryOperations> distanceKmProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'distanceKm');
+    });
+  }
+
+  QueryBuilder<RideBooking, double, QQueryOperations> driverEarningsProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'driverEarnings');
     });
   }
 
@@ -3277,6 +4913,19 @@ extension RideBookingQueryProperty
     });
   }
 
+  QueryBuilder<RideBooking, String, QQueryOperations> paymentMethodProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'paymentMethod');
+    });
+  }
+
+  QueryBuilder<RideBooking, String, QQueryOperations>
+      paymentMethodCorpProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'paymentMethodCorp');
+    });
+  }
+
   QueryBuilder<RideBooking, String?, QQueryOperations> pickupAddressProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'pickupAddress');
@@ -3301,10 +4950,23 @@ extension RideBookingQueryProperty
     });
   }
 
+  QueryBuilder<RideBooking, String?, QQueryOperations> promotionCodeProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'promotionCode');
+    });
+  }
+
   QueryBuilder<RideBooking, VehicleType, QQueryOperations>
       requestedVehicleTypeProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'requestedVehicleType');
+    });
+  }
+
+  QueryBuilder<RideBooking, String?, QQueryOperations>
+      sharedGroupUuidProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'sharedGroupUuid');
     });
   }
 
@@ -3314,9 +4976,28 @@ extension RideBookingQueryProperty
     });
   }
 
+  QueryBuilder<RideBooking, double, QQueryOperations> surchargeProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'surcharge');
+    });
+  }
+
+  QueryBuilder<RideBooking, double, QQueryOperations>
+      surgeMultiplierProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'surgeMultiplier');
+    });
+  }
+
   QueryBuilder<RideBooking, SyncStatus, QQueryOperations> syncStatusProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'syncStatus');
+    });
+  }
+
+  QueryBuilder<RideBooking, DateTime?, QQueryOperations> updatedAtProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'updatedAt');
     });
   }
 

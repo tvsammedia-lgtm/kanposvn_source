@@ -20,6 +20,7 @@ class VideoCallHistory {
   CallHistoryStatus status = CallHistoryStatus.missed;
   
   DateTime? startedAt;
+  DateTime? answeredAt; // B bắt máy
   DateTime? endedAt;
   int? durationSeconds; // Thời lượng cuộc gọi
   

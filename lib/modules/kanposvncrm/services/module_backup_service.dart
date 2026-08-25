@@ -15,6 +15,86 @@ import '../../kanposvnnhahangquanan/services/restaurant_seed_data.dart';
 import '../../kanposvnnbatdongsan/repositories/isar_db.dart';
 import '../../kanposvnnbatdongsan/services/batdongsan_seed_data.dart';
 import '../../kanposvnhrpayroll/services/database_service.dart';
+import '../../kanposvnbida/services/bida_isar_service.dart';
+import '../../kanposvnbida/services/bida_seed_data.dart';
+import '../../kanposvnbida/models/bida_finance.dart';
+import '../../kanposvnbida/models/bida_inventory_tx.dart';
+import '../../kanposvnbida/models/bida_item.dart';
+import '../../kanposvnbida/models/bida_partner.dart';
+import '../../kanposvnbida/models/bida_session.dart';
+import '../../kanposvnbida/models/bida_table.dart';
+import '../../kanposvnparking/services/parking_isar_service.dart';
+import '../../kanposvnparking/services/parking_seed_data.dart';
+import '../../kanposvnparking/models/camera.dart';
+import '../../kanposvnparking/models/monthly_ticket.dart';
+import '../../kanposvnparking/models/parking_area.dart';
+import '../../kanposvnparking/models/parking_customer.dart';
+import '../../kanposvnparking/models/parking_finance.dart';
+import '../../kanposvnparking/models/parking_ticket.dart';
+import '../../kanposvnparking/models/parking_tariff.dart';
+import '../../kanposvnparking/models/rental.dart';
+import '../../kanposvnparking/models/vehicle.dart';
+import '../../kanposvnxeom/providers/xeom_isar_provider.dart';
+import '../../kanposvnxeom/services/xeom_seed_data.dart';
+import '../../kanposvnxeom/models/booking.dart' as xeom_booking;
+import '../../kanposvnxeom/models/customer.dart' as xeom_customer;
+import '../../kanposvnxeom/models/driver.dart' as xeom_driver;
+import '../../kanposvnxeom/models/payment.dart' as xeom_payment;
+import '../../kanposvnxeom/models/vehicle.dart' as xeom_vehicle;
+import '../../kanposvnxeom/models/ops_models.dart' as xeom_ops;
+import '../../kanposvnride/providers/ride_isar_provider.dart';
+import '../../kanposvnride/services/ride_seed_data.dart';
+import '../../kanposvnride/models/ride_booking.dart' as ride_booking;
+import '../../kanposvnride/models/ride_driver.dart' as ride_driver;
+import '../../kanposvnride/models/ride_ops_models.dart' as ride_ops;
+import '../../kanposvnride/models/ride_transaction.dart' as ride_tx;
+import '../../kanposvnride/models/ride_trip.dart' as ride_trip;
+import '../../kanposvnride/models/ride_user.dart' as ride_user;
+import '../../kanposvnride/models/ride_vehicle_type.dart' as ride_vt;
+import '../../kanposvnngoaingu/providers/ngoaingu_isar_provider.dart';
+import '../../kanposvnngoaingu/services/ngoai_ngo_seed_data.dart';
+import '../../kanposvnngoaingu/models/ai_evaluation.dart' as nn_ai;
+import '../../kanposvnngoaingu/models/assignment.dart' as nn_asg;
+import '../../kanposvnngoaingu/models/course_class.dart' as nn_cls;
+import '../../kanposvnngoaingu/models/ngoai_ngo_ops.dart' as nn_ops;
+import '../../kanposvnngoaingu/models/schedule.dart' as nn_sch;
+import '../../kanposvnngoaingu/models/student.dart' as nn_stu;
+import '../../kanposvnngoaingu/models/teacher.dart' as nn_tch;
+import '../../kanposvnngoaingu/models/user.dart' as nn_user;
+import '../../kanposvnviec/services/viec_isar_service.dart';
+import '../../kanposvnviec/services/viec_seed_data.dart';
+import '../../kanposvnviec/models/candidate.dart' as viec_cand;
+import '../../kanposvnviec/models/contract.dart' as viec_ct;
+import '../../kanposvnviec/models/employer.dart' as viec_emp;
+import '../../kanposvnviec/models/job_category.dart' as viec_cat;
+import '../../kanposvnviec/models/job_match.dart' as viec_m;
+import '../../kanposvnviec/models/job_posting.dart' as viec_job;
+import '../../kanposvnviec/models/payment.dart' as viec_pay;
+import '../../kanposvnviec/models/viec_ops_models.dart' as viec_ops;
+import '../../kanposvneshop/services/eshop_isar_service.dart';
+import '../../kanposvneshop/services/eshop_seed_data.dart';
+import '../../kanposvneshop/models/eshop_category.dart' as es_cat;
+import '../../kanposvneshop/models/eshop_cart.dart' as es_cart;
+import '../../kanposvneshop/models/eshop_gps_models.dart' as es_gps;
+import '../../kanposvnvideocall/providers/videocall_isar_provider.dart' as vc_prov;
+import '../../kanposvnvideocall/services/videocall_seed_data.dart' as vc_seed;
+import '../../kanposvnvideocall/models/call_history.dart' as vc_hist;
+import '../../kanposvnvideocall/models/contact.dart' as vc_ct;
+import '../../kanposvnvideocall/models/conversation.dart' as vc_conv;
+import '../../kanposvnvideocall/models/message.dart' as vc_msg;
+import '../../kanposvnvideocall/models/user.dart' as vc_user;
+import '../../kanposvnvideocall/models/videocall_ops_models.dart' as vc_ops;
+import '../../kanposvnairbook/providers/airbook_isar_provider.dart' as ab_prov;
+import '../../kanposvnairbook/services/airbook_seed_data.dart' as ab_seed;
+import '../../kanposvnairbook/models/airbook_ops_models.dart' as ab_ops;
+import '../../kanposvnairbook/models/booking.dart' as ab_bk;
+import '../../kanposvnairbook/models/flight_offer.dart' as ab_of;
+import '../../kanposvnairbook/models/sync_queue.dart' as ab_sq;
+import '../../kanposvneshop/models/eshop_ops_models.dart' as es_ops;
+import '../../kanposvneshop/models/eshop_order.dart' as es_ord;
+import '../../kanposvneshop/models/eshop_product.dart' as es_prod;
+import '../../kanposvneshop/models/eshop_shop.dart' as es_shop;
+import '../../kanposvneshop/models/eshop_wallet.dart' as es_wallet;
 
 /// Một module có DB Isar riêng, đăng ký vào bảng quản lý backup.
 class ModuleBackupEntry {
@@ -108,6 +188,224 @@ class ModuleBackupService {
       },
       resetToSeed: () async {
         await DatabaseService.instance.resetAndSeed();
+      },
+    ),
+    ModuleBackupEntry(
+      id: 'bida',
+      name: 'Quán Bida',
+      isarName: 'bida_db',
+      open: () => BidaIsarService().db,
+      resetToSeed: () async {
+        final db = await BidaIsarService().db;
+        await db.writeTxn(() async {
+          await db.bidaSessions.clear();
+          await db.bidaTables.clear();
+          await db.bidaItems.clear();
+          await db.bidaInventoryTxs.clear();
+          await db.bidaCustomers.clear();
+          await db.bidaSuppliers.clear();
+          await db.bidaFinanceTxs.clear();
+          await db.bidaPricingRules.clear();
+          await db.bidaBlockPlans.clear();
+        });
+        await BidaSeedData.seedIfEmpty(BidaIsarService());
+      },
+    ),
+    ModuleBackupEntry(
+      id: 'parking',
+      name: 'Kan Parking (Bãi giữ xe & Cho thuê)',
+      isarName: 'kanposvnparking_db',
+      open: () => ParkingIsarService().db,
+      resetToSeed: () async {
+        final db = await ParkingIsarService().db;
+        await db.writeTxn(() async {
+          await db.parkingTickets.clear();
+          await db.parkingVehicles.clear();
+          await db.parkingAreas.clear();
+          await db.parkingMonthlyTickets.clear();
+          await db.parkingRentals.clear();
+          await db.parkingCameras.clear();
+          await db.parkingCustomers.clear();
+          await db.parkingFinanceTxs.clear();
+          await db.parkingTariffs.clear();
+        });
+        await ParkingSeedData.seedIfEmpty(db);
+      },
+    ),
+    ModuleBackupEntry(
+      id: 'xeom',
+      name: 'Xe Ôm / Taxi (Đặt & Gọi xe)',
+      isarName: 'kanposvnxeom_db',
+      open: () => XeOmDatabaseSetup.init(),
+      resetToSeed: () async {
+        final db = await XeOmDatabaseSetup.init();
+        await db.writeTxn(() async {
+          await db.xeOmBookings.clear();
+          await db.xeOmPayments.clear();
+          await db.xeOmDrivers.clear();
+          await db.xeOmVehicles.clear();
+          await db.xeOmCustomers.clear();
+          await db.xeOmExpenses.clear();
+          await db.xeOmPromotions.clear();
+          await db.xeOmTariffs.clear();
+        });
+        await XeOmSeedData.seedIfEmpty(db);
+      },
+    ),
+    ModuleBackupEntry(
+      id: 'ride',
+      name: 'KanRide (Gọi xe)',
+      isarName: 'kanposvnride_db',
+      open: () => RideDatabaseSetup.init(),
+      resetToSeed: () async {
+        final db = await RideDatabaseSetup.init();
+        await db.writeTxn(() async {
+          await db.rideBookings.clear();
+          await db.rideDrivers.clear();
+          await db.rideUsers.clear();
+          await db.kanRideTrips.clear();
+          await db.rideTransactions.clear();
+          await db.kanRideVehicleTypes.clear();
+          await db.kanRidePromotions.clear();
+          await db.rideRatings.clear();
+          await db.rideChatMessages.clear();
+          await db.rideMaskedCalls.clear();
+          await db.rideNotifications.clear();
+          await db.rideGeoFences.clear();
+          await db.rideSupportTickets.clear();
+          await db.rideAuditLogs.clear();
+          await db.rideSelfDriveRentals.clear();
+          await db.rideDeliveryOrders.clear();
+          await db.rideCorporateAccounts.clear();
+          await db.ridePartnerApiKeys.clear();
+        });
+        await RideSeedData.seedIfEmpty(db);
+      },
+    ),
+    ModuleBackupEntry(
+      id: 'ngoaingu',
+      name: 'Trung tâm Ngoại ngữ',
+      isarName: 'kanposvnngoaingu_db',
+      open: () => NgoaiNguDatabaseSetup.init(),
+      resetToSeed: () async {
+        final db = await NgoaiNguDatabaseSetup.init();
+        await db.writeTxn(() async {
+          await db.ngoaiNguUsers.clear();
+          await db.ngoaiNguStudents.clear();
+          await db.ngoaiNguTeachers.clear();
+          await db.ngoaiNguCourses.clear();
+          await db.ngoaiNguClass.clear();
+          await db.ngoaiNguRooms.clear();
+          await db.ngoaiNguLessons.clear();
+          await db.ngoaiNguAttendances.clear();
+          await db.ngoaiNguAssignments.clear();
+          await db.ngoaiNguAssignmentSubmissions.clear();
+          await db.ngoaiNguAIAssessments.clear();
+          await db.ngoaiNguClassStudents.clear();
+          await db.ngoaiNguQuestions.clear();
+          await db.ngoaiNguTestAttempts.clear();
+          await db.ngoaiNguCertificates.clear();
+          await db.ngoaiNguInvoices.clear();
+          await db.ngoaiNguPaymentRecords.clear();
+          await db.ngoaiNguVouchers.clear();
+          await db.ngoaiNguProgressEntrys.clear();
+          await db.ngoaiNguSyncQueueItems.clear();
+          await db.ngoaiNguAuditLogs.clear();
+        });
+        await NgoaiNguSeedData.seedIfEmpty(db);
+      },
+    ),
+    ModuleBackupEntry(
+      id: 'viec',
+      name: 'KanViec (Môi giới việc làm)',
+      isarName: 'kanposvnviec_db',
+      open: () => ViecIsarService().db,
+      resetToSeed: () async {
+        final db = await ViecIsarService().db;
+        await db.writeTxn(() async {
+          await db.viecCandidates.clear();
+          await db.viecEmployers.clear();
+          await db.viecJobCategorys.clear();
+          await db.viecJobPostings.clear();
+          await db.viecJobMatchs.clear();
+          await db.viecContracts.clear();
+          await db.viecPayments.clear();
+          await db.viecWorkSessions.clear();
+          await db.viecFinanceTxs.clear();
+          await db.viecRatings.clear();
+          await db.viecNotifications.clear();
+          await db.viecAuditLogs.clear();
+        });
+        await ViecSeedData.seedIfEmpty(db);
+      },
+    ),
+    ModuleBackupEntry(
+      id: 'eshop',
+      name: 'KanShop (Thương mại điện tử)',
+      isarName: 'kanposvneshop_db',
+      open: () => EshopIsarService().db,
+      resetToSeed: () async {
+        final db = await EshopIsarService().db;
+        await db.writeTxn(() async {
+          await db.kanShopStores.clear();
+          await db.kanShopProducts.clear();
+          await db.kanShopCategorys.clear();
+          await db.kanShopCartItems.clear();
+          await db.kanShopOrders.clear();
+          await db.kanShopWallets.clear();
+          await db.eshopVouchers.clear();
+          await db.eshopFlashSales.clear();
+          await db.eshopReviews.clear();
+          await db.eshopWishlistItems.clear();
+          await db.eshopShopFollows.clear();
+          await db.eshopChatMessages.clear();
+          await db.eshopWalletTransactions.clear();
+          await db.eshopComplaintTickets.clear();
+          await db.eshopAffiliateReferrals.clear();
+          await db.eshopPointEntrys.clear();
+          await db.eshopShipments.clear();
+          await db.eshopGpsPings.clear();
+        });
+        await EshopSeedData.seedIfEmpty(db);
+      },
+    ),
+    ModuleBackupEntry(
+      id: 'videocall',
+      name: 'VideoCall / Chat',
+      isarName: 'kanposvnvideocall_db',
+      open: () => vc_prov.VideoCallDatabaseSetup.init(),
+      resetToSeed: () async {
+        final db = await vc_prov.VideoCallDatabaseSetup.init();
+        await db.writeTxn(() async {
+          await db.videoCallUsers.clear();
+          await db.videoCallContacts.clear();
+          await db.videoCallConversations.clear();
+          await db.videoCallMessages.clear();
+          await db.videoCallHistorys.clear();
+          await db.videoCallSessions.clear();
+          await db.videoCallReactions.clear();
+          await db.videoCallSyncQueueItems.clear();
+        });
+        await vc_seed.VideoCallSeedData.seedIfEmpty(db);
+      },
+    ),
+    ModuleBackupEntry(
+      id: 'airbook',
+      name: 'KanAirBook (Đặt vé máy bay)',
+      isarName: 'kanposvnairbook_db',
+      open: () => ab_prov.AirbookDatabaseSetup.init(),
+      resetToSeed: () async {
+        final db = await ab_prov.AirbookDatabaseSetup.init();
+        await db.writeTxn(() async {
+          await db.flightOffers.clear();
+          await db.bookingLocals.clear();
+          await db.syncQueueLocals.clear();
+          await db.airPassengers.clear();
+          await db.airPayments.clear();
+          await db.airPromotions.clear();
+          await db.airAuditLogs.clear();
+        });
+        await ab_seed.AirBookSeedData.seedIfEmpty(db);
       },
     ),
   ];

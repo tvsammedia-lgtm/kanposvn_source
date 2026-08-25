@@ -20,6 +20,11 @@ class SyncQueueLocal {
   
   @enumerated
   SyncStatus status = SyncStatus.pending;
+
+  /// §18. Retry & dead-letter.
+  int retryCount = 0;
+  String lastError = '';
+  bool deadLetter = false; // FAILED quá số lần -> admin kiểm tra
 }
 
 enum SyncStatus {

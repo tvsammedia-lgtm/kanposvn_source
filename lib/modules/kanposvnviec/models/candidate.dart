@@ -26,7 +26,13 @@ class ViecCandidate {
   
   List<String> categoryIds = []; // Ngành nghề muốn làm
   double desiredSalary = 0; // Lương mong muốn
-  
+
+  // §6. Thông tin bổ sung phục vụ ghép việc.
+  bool hasMotorbike = false;
+  bool hasCar = false;
+  bool hasDrivingLicense = false;
+  int experienceYears = 0;
+
   String status = 'available'; // available, working, resting
   
   DateTime createdAt = DateTime.now();

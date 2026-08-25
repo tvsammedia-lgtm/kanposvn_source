@@ -8,6 +8,10 @@ import '../models/attendance.dart';
 import '../models/payroll.dart';
 import '../models/kpi.dart';
 import '../models/leave_request.dart';
+import '../models/account.dart';
+import '../models/accounting_entry.dart';
+import '../models/payslip.dart';
+import '../models/account_default.dart';
 import '../services/database_service.dart';
 import '../services/sync_service.dart';
 import '../services/auth_service.dart';
@@ -296,6 +300,83 @@ final kpiByMonthProvider =
     FutureProvider.family<List<KpiRecord>, SelectedMonth>((ref, month) async {
   final db = ref.watch(dbProvider);
   return db.getKpiByMonth(month.year, month.month);
+});
+
+// ─── Accounts (Chart of Accounts) ─────────────────────────────────────
+final allAccountsProvider = FutureProvider<List<Account>>((ref) async {
+  final db = ref.watch(dbProvider);
+  return db.getAllAccounts();
+});
+
+final parentAccountsProvider = FutureProvider<List<Account>>((ref) async {
+  final accounts = await ref.watch(allAccountsProvider.future);
+  return accounts.where((a) => a.isParent).toList();
+});
+
+final leafAccountsProvider = FutureProvider<List<Account>>((ref) async {
+  final accounts = await ref.watch(allAccountsProvider.future);
+  return accounts.where((a) => !a.isParent).toList();
+});
+
+// ─── Account Defaults ─────────────────────────────────────────────────
+final allAccountDefaultsProvider = FutureProvider<List<AccountDefault>>((ref) async {
+  final db = ref.watch(dbProvider);
+  return db.getAllAccountDefaults();
+});
+
+final accountDefaultsByVoucherProvider =
+    FutureProvider.family<List<AccountDefault>, String>((ref, voucherType) async {
+  final db = ref.watch(dbProvider);
+  return db.getAccountDefaultsByVoucherType(voucherType);
+});
+
+// ─── Accounting Entries ────────────────────────────────────────────────
+final entriesByMonthProvider =
+    FutureProvider.family<List<AccountingEntry>, SelectedMonth>((ref, month) async {
+  final db = ref.watch(dbProvider);
+  return db.getEntriesByMonth(month.year, month.month);
+});
+
+final allEntriesProvider = FutureProvider<List<AccountingEntry>>((ref) async {
+  final db = ref.watch(dbProvider);
+  return db.getAllEntries();
+});
+
+final entryLinesProvider =
+    FutureProvider.family<List<AccountingEntryLine>, String>((ref, journalID) async {
+  final db = ref.watch(dbProvider);
+  return db.getEntryLinesByJournal(journalID);
+});
+
+// ─── Payslips ──────────────────────────────────────────────────────────
+final payslipsByMonthProvider =
+    FutureProvider.family<List<Payslip>, SelectedMonth>((ref, month) async {
+  final db = ref.watch(dbProvider);
+  return db.getPayslipsByMonth(month.year, month.month);
+});
+
+final payslipByEmployeeProvider =
+    FutureProvider.family<Payslip?, ({int employeeId, int year, int month})>(
+        (ref, params) async {
+  final db = ref.watch(dbProvider);
+  return db.getPayslipByEmployee(params.employeeId, params.year, params.month);
+});
+
+// ─── Accounting Summary ───────────────────────────────────────────────
+final accountingSummaryProvider =
+    FutureProvider.family<Map<String, dynamic>, SelectedMonth>((ref, month) async {
+  final entries = await ref.watch(entriesByMonthProvider(month).future);
+  final totalDr = entries.fold<double>(0, (s, e) => s + e.totalDebit);
+  final totalCr = entries.fold<double>(0, (s, e) => s + e.totalCredit);
+  final posted = entries.where((e) => e.status == EntryStatus.posted).length;
+  final draft = entries.where((e) => e.status == EntryStatus.draft).length;
+  return {
+    'totalEntries': entries.length,
+    'postedEntries': posted,
+    'draftEntries': draft,
+    'totalDebit': totalDr,
+    'totalCredit': totalCr,
+  };
 });
 
 // ─── Sync ──────────────────────────────────────────────────────────────────

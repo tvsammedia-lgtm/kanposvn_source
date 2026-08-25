@@ -22,7 +22,7 @@ class BidaInventoryTx {
 
   String itemId = '';
   String itemName = '';
-  
+
   int quantity = 0; // Positive for import, negative for export
 
   @enumerated
@@ -32,4 +32,20 @@ class BidaInventoryTx {
 
   @Index()
   DateTime createdAt = DateTime.now();
+
+  /// XV. Giá nhập một đơn vị (phiếu nhập hàng).
+  double unitPrice = 0.0;
+
+  /// XV. VAT (%) áp dụng cho phiếu nhập.
+  double vatPercent = 0.0;
+
+  /// XV. Chiết khấu phiếu nhập.
+  double discountAmount = 0.0;
+
+  /// XV-XVI. Nhà cung cấp của phiếu nhập.
+  String supplierId = '';
+  String supplierName = '';
+
+  /// Số phiếu nhập.
+  String invoiceNo = '';
 }

@@ -2,6 +2,7 @@
 import 'package:kanposvn/modules/kanposvnhrpayroll/models/attendance.dart';
 import 'package:kanposvn/modules/kanposvnhrpayroll/models/driver.dart';
 import 'package:kanposvn/modules/kanposvnhrpayroll/models/employee.dart';
+import 'package:kanposvn/modules/kanposvnhrpayroll/models/accounting_entry.dart';
 import 'package:kanposvn/modules/kanposvnhrpayroll/services/payroll_calculator_service.dart';
 
 Employee _emp({double base = 10000000, int dependents = 0}) => Employee()
@@ -274,6 +275,189 @@ void main() {
       expect(p.tripSalary, 0);
       expect(p.kmSalary, 0);
       expect(p.revenueSalary, 0);
+    });
+  });
+
+  // ══════════════════ PHÍ BCNLĐ NSDL (Circular 26/2023) ══════════════════
+  group('Employer insurance - chi phí BCNLĐ', () {
+    test('BHXH NSDL 17.5% trên lương cơ bản', () {
+      final p = PayrollCalculatorService.buildOfficePayroll(
+        year: 2026,
+        month: 8,
+        employee: _emp(base: 10000000),
+        attendance: _att(),
+      );
+      expect(p.employerBhxh, closeTo(1750000, 1));
+    });
+
+    test('BHYT NSDL 3% trên lương cơ bản', () {
+      final p = PayrollCalculatorService.buildOfficePayroll(
+        year: 2026,
+        month: 8,
+        employee: _emp(base: 10000000),
+        attendance: _att(),
+      );
+      expect(p.employerBhyt, closeTo(300000, 1));
+    });
+
+    test('BHTN NSDL 1% trên lương cơ bản', () {
+      final p = PayrollCalculatorService.buildOfficePayroll(
+        year: 2026,
+        month: 8,
+        employee: _emp(base: 10000000),
+        attendance: _att(),
+      );
+      expect(p.employerBhtn, closeTo(100000, 1));
+    });
+
+    test('Kinh phí công đoàn 2% trên lương cơ bản', () {
+      final p = PayrollCalculatorService.buildOfficePayroll(
+        year: 2026,
+        month: 8,
+        employee: _emp(base: 10000000),
+        attendance: _att(),
+      );
+      expect(p.unionFee, closeTo(200000, 1));
+    });
+
+    test('totalEmployerCost = gross + NSDL đóng', () {
+      final p = PayrollCalculatorService.buildOfficePayroll(
+        year: 2026,
+        month: 8,
+        employee: _emp(base: 10000000),
+        attendance: _att(),
+      );
+      expect(p.totalEmployerCost, greaterThan(p.grossSalary));
+      expect(p.totalEmployerCost,
+          closeTo(p.grossSalary + p.employerBhxh + p.employerBhyt + p.employerBhtn + p.unionFee, 1));
+    });
+
+    test('Tài xế BHXH NSDL tính trên driver.baseSalary (không phải emp.baseSalary)', () {
+      final emp = _emp(base: 0); // emp.baseSalary = 0
+      final p = PayrollCalculatorService.buildDriverPayroll(
+        year: 2026,
+        month: 8,
+        employee: emp,
+        driver: _driver(base: 9000000),
+        attendance: _att(),
+      );
+      // BHXH NSDL 17.5% trên 9tr = 1,575,000 (không phải 0)
+      expect(p.employerBhxh, closeTo(1575000, 1));
+    });
+  });
+
+  // ══════════════════ BÚT TOÁN KẾ TOÁN TT133 ══════════════════
+  group('Journal entries - hạch toán TT133', () {
+    test('Bút toán lương DR 6422 / Cr 334', () {
+      final emp = _emp(base: 10000000);
+      final p = PayrollCalculatorService.buildOfficePayroll(
+        year: 2026,
+        month: 8,
+        employee: emp,
+        attendance: _att(),
+      );
+      final entry = PayrollCalculatorService.buildSalaryJournalEntry(
+        year: 2026,
+        month: 8,
+        payrolls: [p],
+      );
+      expect(entry.voucherNumber, contains('GL-2026/08'));
+      expect(entry.totalDebit, greaterThan(0));
+      expect(entry.totalCredit, entry.totalDebit);
+      expect(entry.status, EntryStatus.draft);
+    });
+
+    test('Dòng bút toán lương có đủ 7 dòng DR/CR', () {
+      final p = PayrollCalculatorService.buildOfficePayroll(
+        year: 2026,
+        month: 8,
+        employee: _emp(base: 10000000),
+        attendance: _att(),
+      );
+      final entry = PayrollCalculatorService.buildSalaryJournalEntry(
+        year: 2026,
+        month: 8,
+        payrolls: [p],
+      );
+      final lines = PayrollCalculatorService.buildSalaryEntryLines(
+        journalID: entry.journalID,
+        payrolls: [p],
+      );
+      expect(lines.length, 7);
+      // Dr 6422 - Cr 334
+      expect(lines[0].debitAccountNumber, '6422');
+      expect(lines[1].creditAccountNumber, '334');
+      // Dr 6422 - Cr 3383/3384/3385/3382
+      expect(lines[3].creditAccountNumber, '3383');
+      expect(lines[4].creditAccountNumber, '3384');
+      expect(lines[5].creditAccountNumber, '3385');
+      expect(lines[6].creditAccountNumber, '3382');
+    });
+
+    test('Bút toán thuế TNCN DR 334 / Cr 3335', () {
+      final p = PayrollCalculatorService.buildOfficePayroll(
+        year: 2026,
+        month: 8,
+        employee: _emp(base: 30000000),
+        attendance: _att(),
+      );
+      final entry = PayrollCalculatorService.buildPitJournalEntry(
+        year: 2026,
+        month: 8,
+        payrolls: [p],
+      );
+      expect(entry.voucherNumber, contains('GL-2026/08'));
+      expect(entry.entryType, EntryType.pit);
+      expect(entry.totalDebit, p.personalIncomeTax);
+    });
+
+    test('Bút toán chi lương DR 334 / Cr 112', () {
+      final p = PayrollCalculatorService.buildOfficePayroll(
+        year: 2026,
+        month: 8,
+        employee: _emp(base: 10000000),
+        attendance: _att(),
+      );
+      final entry = PayrollCalculatorService.buildPaymentJournalEntry(
+        year: 2026,
+        month: 8,
+        payrolls: [p],
+      );
+      expect(entry.voucherNumber, contains('BA-2026/08'));
+      expect(entry.entryType, EntryType.payment);
+      expect(entry.totalDebit, p.netSalary);
+    });
+
+    test('Tổng Nợ = Tổng Có (double-entry)', () {
+      final p1 = PayrollCalculatorService.buildOfficePayroll(
+        year: 2026, month: 8, employee: _emp(base: 10000000), attendance: _att());
+      final p2 = PayrollCalculatorService.buildOfficePayroll(
+        year: 2026, month: 8, employee: _emp(base: 15000000), attendance: _att());
+      final entry = PayrollCalculatorService.buildSalaryJournalEntry(
+        year: 2026, month: 8, payrolls: [p1, p2],
+      );
+      expect(entry.totalDebit, entry.totalCredit);
+    });
+  });
+
+  // ══════════════════ PHIẾU LƯƠNG ══════════════════
+  group('Payslip generation', () {
+    test('Phiếu lương có đủ thông tin NLĐ + NSDL', () {
+      final p = PayrollCalculatorService.buildOfficePayroll(
+        year: 2026,
+        month: 8,
+        employee: _emp(base: 10000000, dependents: 1),
+        attendance: _att(workingDays: 24),
+      );
+      final slip = PayrollCalculatorService.generatePayslip(p);
+      expect(slip.year, 2026);
+      expect(slip.month, 8);
+      expect(slip.baseSalary, 10000000);
+      expect(slip.bhxhEmployee, p.socialInsurance);
+      expect(slip.bhxhEmployer, p.employerBhxh);
+      expect(slip.unionFee, p.unionFee);
+      expect(slip.netSalary, p.netSalary);
+      expect(slip.totalEmployerCost, p.totalEmployerCost);
     });
   });
 }

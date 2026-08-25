@@ -31,6 +31,15 @@ class KanShopProduct {
   
   double weightGram = 0;
   
+  bool isCombo2x1 = false; // Combo mua 2 tặng 1
+
+  /// Đánh giá trung bình (từ Review).
+  double ratingAvg = 0;
+  int ratingCount = 0;
+
+  /// Admin duyệt sản phẩm: pending | approved | rejected
+  String adminStatus = 'approved';
+
   String status = 'active'; // active, out_of_stock, hidden
   
   DateTime createdAt = DateTime.now();

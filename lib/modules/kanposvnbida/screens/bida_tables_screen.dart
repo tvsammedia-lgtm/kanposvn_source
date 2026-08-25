@@ -5,7 +5,6 @@ import '../../../core/router/module_selector_screen.dart';
 import '../providers/bida_providers.dart';
 import '../models/bida_table.dart';
 import 'bida_pos_screen.dart';
-import 'bida_sales_report_screen.dart';
 import 'bida_sync_screen.dart';
 
 class BidaTablesScreen extends ConsumerWidget {
@@ -26,16 +25,6 @@ class BidaTablesScreen extends ConsumerWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => const BidaSyncScreen()),
-              );
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.bar_chart),
-            tooltip: 'Báo cáo',
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const BidaSalesReportScreen()),
               );
             },
           ),
@@ -63,8 +52,15 @@ class BidaTablesScreen extends ConsumerWidget {
             itemCount: tables.length,
             itemBuilder: (context, index) {
               final table = tables[index];
-              final isPlaying = table.status == BidaTableStatus.PLAYING;
-              
+              // III. Màu theo trạng thái bàn.
+              final Color color = switch (table.status) {
+                BidaTableStatus.PLAYING => Colors.red[400]!,
+                BidaTableStatus.RESERVED => Colors.purple[400]!,
+                BidaTableStatus.MAINTENANCE => Colors.blueGrey[400]!,
+                BidaTableStatus.CLEANING => Colors.orange[400]!,
+                _ => Colors.green[400]!,
+              };
+
               return InkWell(
                 onTap: () {
                   Navigator.push(
@@ -76,7 +72,7 @@ class BidaTablesScreen extends ConsumerWidget {
                 },
                 child: Container(
                   decoration: BoxDecoration(
-                    color: isPlaying ? Colors.red[400] : Colors.green[400],
+                    color: color,
                     borderRadius: BorderRadius.circular(12),
                     boxShadow: const [BoxShadow(color: Colors.black26, blurRadius: 4, offset: Offset(2, 2))],
                   ),

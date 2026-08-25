@@ -57,8 +57,17 @@ class Employee {
   double healthInsuranceRate = 1.5; // %
   double unemploymentInsuranceRate = 1.0; // %
 
+  // Contract
+  String? contractType;          // xác định thời hạn / không xác định / seasonal
+  DateTime? contractStartDate;
+  DateTime? contractEndDate;
+
   // Tax
   int dependents = 0;
+
+  // Trade union
+  bool isUnionMember = true;
+  double unionFeeRate = 2.0;    // % phí công đoàn (NSDL đóng)
 
   // Annual leave
   int annualLeaveTotal = 12;

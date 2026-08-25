@@ -17,88 +17,108 @@ const KanShopProductSchema = CollectionSchema(
   name: r'KanShopProduct',
   id: 6553059856636872192,
   properties: {
-    r'barcode': PropertySchema(
+    r'adminStatus': PropertySchema(
       id: 0,
+      name: r'adminStatus',
+      type: IsarType.string,
+    ),
+    r'barcode': PropertySchema(
+      id: 1,
       name: r'barcode',
       type: IsarType.string,
     ),
     r'categoryId': PropertySchema(
-      id: 1,
+      id: 2,
       name: r'categoryId',
       type: IsarType.string,
     ),
     r'createdAt': PropertySchema(
-      id: 2,
+      id: 3,
       name: r'createdAt',
       type: IsarType.dateTime,
     ),
     r'description': PropertySchema(
-      id: 3,
+      id: 4,
       name: r'description',
       type: IsarType.string,
     ),
     r'imageUrls': PropertySchema(
-      id: 4,
+      id: 5,
       name: r'imageUrls',
       type: IsarType.stringList,
     ),
+    r'isCombo2x1': PropertySchema(
+      id: 6,
+      name: r'isCombo2x1',
+      type: IsarType.bool,
+    ),
     r'isSynced': PropertySchema(
-      id: 5,
+      id: 7,
       name: r'isSynced',
       type: IsarType.bool,
     ),
     r'name': PropertySchema(
-      id: 6,
+      id: 8,
       name: r'name',
       type: IsarType.string,
     ),
     r'originalPrice': PropertySchema(
-      id: 7,
+      id: 9,
       name: r'originalPrice',
       type: IsarType.double,
     ),
     r'productId': PropertySchema(
-      id: 8,
+      id: 10,
       name: r'productId',
       type: IsarType.string,
     ),
+    r'ratingAvg': PropertySchema(
+      id: 11,
+      name: r'ratingAvg',
+      type: IsarType.double,
+    ),
+    r'ratingCount': PropertySchema(
+      id: 12,
+      name: r'ratingCount',
+      type: IsarType.long,
+    ),
     r'salePrice': PropertySchema(
-      id: 9,
+      id: 13,
       name: r'salePrice',
       type: IsarType.double,
     ),
     r'shopId': PropertySchema(
-      id: 10,
+      id: 14,
       name: r'shopId',
       type: IsarType.string,
     ),
     r'sku': PropertySchema(
-      id: 11,
+      id: 15,
       name: r'sku',
       type: IsarType.string,
     ),
     r'status': PropertySchema(
-      id: 12,
+      id: 16,
       name: r'status',
       type: IsarType.string,
     ),
     r'stockQuantity': PropertySchema(
-      id: 13,
+      id: 17,
       name: r'stockQuantity',
       type: IsarType.long,
     ),
     r'updatedAt': PropertySchema(
-      id: 14,
+      id: 18,
       name: r'updatedAt',
       type: IsarType.dateTime,
     ),
     r'videoUrl': PropertySchema(
-      id: 15,
+      id: 19,
       name: r'videoUrl',
       type: IsarType.string,
     ),
     r'weightGram': PropertySchema(
-      id: 16,
+      id: 20,
       name: r'weightGram',
       type: IsarType.double,
     )
@@ -137,6 +157,7 @@ int _kanShopProductEstimateSize(
   Map<Type, List<int>> allOffsets,
 ) {
   var bytesCount = offsets.last;
+  bytesCount += 3 + object.adminStatus.length * 3;
   bytesCount += 3 + object.barcode.length * 3;
   bytesCount += 3 + object.categoryId.length * 3;
   bytesCount += 3 + object.description.length * 3;
@@ -167,23 +188,27 @@ void _kanShopProductSerialize(
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
-  writer.writeString(offsets[0], object.barcode);
-  writer.writeString(offsets[1], object.categoryId);
-  writer.writeDateTime(offsets[2], object.createdAt);
-  writer.writeString(offsets[3], object.description);
-  writer.writeStringList(offsets[4], object.imageUrls);
-  writer.writeBool(offsets[5], object.isSynced);
-  writer.writeString(offsets[6], object.name);
-  writer.writeDouble(offsets[7], object.originalPrice);
-  writer.writeString(offsets[8], object.productId);
-  writer.writeDouble(offsets[9], object.salePrice);
-  writer.writeString(offsets[10], object.shopId);
-  writer.writeString(offsets[11], object.sku);
-  writer.writeString(offsets[12], object.status);
-  writer.writeLong(offsets[13], object.stockQuantity);
-  writer.writeDateTime(offsets[14], object.updatedAt);
-  writer.writeString(offsets[15], object.videoUrl);
-  writer.writeDouble(offsets[16], object.weightGram);
+  writer.writeString(offsets[0], object.adminStatus);
+  writer.writeString(offsets[1], object.barcode);
+  writer.writeString(offsets[2], object.categoryId);
+  writer.writeDateTime(offsets[3], object.createdAt);
+  writer.writeString(offsets[4], object.description);
+  writer.writeStringList(offsets[5], object.imageUrls);
+  writer.writeBool(offsets[6], object.isCombo2x1);
+  writer.writeBool(offsets[7], object.isSynced);
+  writer.writeString(offsets[8], object.name);
+  writer.writeDouble(offsets[9], object.originalPrice);
+  writer.writeString(offsets[10], object.productId);
+  writer.writeDouble(offsets[11], object.ratingAvg);
+  writer.writeLong(offsets[12], object.ratingCount);
+  writer.writeDouble(offsets[13], object.salePrice);
+  writer.writeString(offsets[14], object.shopId);
+  writer.writeString(offsets[15], object.sku);
+  writer.writeString(offsets[16], object.status);
+  writer.writeLong(offsets[17], object.stockQuantity);
+  writer.writeDateTime(offsets[18], object.updatedAt);
+  writer.writeString(offsets[19], object.videoUrl);
+  writer.writeDouble(offsets[20], object.weightGram);
 }
 
 KanShopProduct _kanShopProductDeserialize(
@@ -193,24 +218,28 @@ KanShopProduct _kanShopProductDeserialize(
   Map<Type, List<int>> allOffsets,
 ) {
   final object = KanShopProduct();
-  object.barcode = reader.readString(offsets[0]);
-  object.categoryId = reader.readString(offsets[1]);
-  object.createdAt = reader.readDateTime(offsets[2]);
-  object.description = reader.readString(offsets[3]);
-  object.imageUrls = reader.readStringList(offsets[4]) ?? [];
-  object.isSynced = reader.readBool(offsets[5]);
+  object.adminStatus = reader.readString(offsets[0]);
+  object.barcode = reader.readString(offsets[1]);
+  object.categoryId = reader.readString(offsets[2]);
+  object.createdAt = reader.readDateTime(offsets[3]);
+  object.description = reader.readString(offsets[4]);
+  object.imageUrls = reader.readStringList(offsets[5]) ?? [];
+  object.isCombo2x1 = reader.readBool(offsets[6]);
+  object.isSynced = reader.readBool(offsets[7]);
   object.isarId = id;
-  object.name = reader.readString(offsets[6]);
-  object.originalPrice = reader.readDouble(offsets[7]);
-  object.productId = reader.readString(offsets[8]);
-  object.salePrice = reader.readDouble(offsets[9]);
-  object.shopId = reader.readString(offsets[10]);
-  object.sku = reader.readString(offsets[11]);
-  object.status = reader.readString(offsets[12]);
-  object.stockQuantity = reader.readLong(offsets[13]);
-  object.updatedAt = reader.readDateTime(offsets[14]);
-  object.videoUrl = reader.readStringOrNull(offsets[15]);
-  object.weightGram = reader.readDouble(offsets[16]);
+  object.name = reader.readString(offsets[8]);
+  object.originalPrice = reader.readDouble(offsets[9]);
+  object.productId = reader.readString(offsets[10]);
+  object.ratingAvg = reader.readDouble(offsets[11]);
+  object.ratingCount = reader.readLong(offsets[12]);
+  object.salePrice = reader.readDouble(offsets[13]);
+  object.shopId = reader.readString(offsets[14]);
+  object.sku = reader.readString(offsets[15]);
+  object.status = reader.readString(offsets[16]);
+  object.stockQuantity = reader.readLong(offsets[17]);
+  object.updatedAt = reader.readDateTime(offsets[18]);
+  object.videoUrl = reader.readStringOrNull(offsets[19]);
+  object.weightGram = reader.readDouble(offsets[20]);
   return object;
 }
 
@@ -226,17 +255,17 @@ P _kanShopProductDeserializeProp<P>(
     case 1:
       return (reader.readString(offset)) as P;
     case 2:
-      return (reader.readDateTime(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 3:
-      return (reader.readString(offset)) as P;
+      return (reader.readDateTime(offset)) as P;
     case 4:
-      return (reader.readStringList(offset) ?? []) as P;
-    case 5:
-      return (reader.readBool(offset)) as P;
-    case 6:
       return (reader.readString(offset)) as P;
+    case 5:
+      return (reader.readStringList(offset) ?? []) as P;
+    case 6:
+      return (reader.readBool(offset)) as P;
     case 7:
-      return (reader.readDouble(offset)) as P;
+      return (reader.readBool(offset)) as P;
     case 8:
       return (reader.readString(offset)) as P;
     case 9:
@@ -244,16 +273,24 @@ P _kanShopProductDeserializeProp<P>(
     case 10:
       return (reader.readString(offset)) as P;
     case 11:
-      return (reader.readString(offset)) as P;
+      return (reader.readDouble(offset)) as P;
     case 12:
-      return (reader.readString(offset)) as P;
-    case 13:
       return (reader.readLong(offset)) as P;
+    case 13:
+      return (reader.readDouble(offset)) as P;
     case 14:
-      return (reader.readDateTime(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 15:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 16:
+      return (reader.readString(offset)) as P;
+    case 17:
+      return (reader.readLong(offset)) as P;
+    case 18:
+      return (reader.readDateTime(offset)) as P;
+    case 19:
+      return (reader.readStringOrNull(offset)) as P;
+    case 20:
       return (reader.readDouble(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -455,6 +492,142 @@ extension KanShopProductQueryWhere
 
 extension KanShopProductQueryFilter
     on QueryBuilder<KanShopProduct, KanShopProduct, QFilterCondition> {
+  QueryBuilder<KanShopProduct, KanShopProduct, QAfterFilterCondition>
+      adminStatusEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'adminStatus',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<KanShopProduct, KanShopProduct, QAfterFilterCondition>
+      adminStatusGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'adminStatus',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<KanShopProduct, KanShopProduct, QAfterFilterCondition>
+      adminStatusLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'adminStatus',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<KanShopProduct, KanShopProduct, QAfterFilterCondition>
+      adminStatusBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'adminStatus',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<KanShopProduct, KanShopProduct, QAfterFilterCondition>
+      adminStatusStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'adminStatus',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<KanShopProduct, KanShopProduct, QAfterFilterCondition>
+      adminStatusEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'adminStatus',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<KanShopProduct, KanShopProduct, QAfterFilterCondition>
+      adminStatusContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'adminStatus',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<KanShopProduct, KanShopProduct, QAfterFilterCondition>
+      adminStatusMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'adminStatus',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<KanShopProduct, KanShopProduct, QAfterFilterCondition>
+      adminStatusIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'adminStatus',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<KanShopProduct, KanShopProduct, QAfterFilterCondition>
+      adminStatusIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'adminStatus',
+        value: '',
+      ));
+    });
+  }
+
   QueryBuilder<KanShopProduct, KanShopProduct, QAfterFilterCondition>
       barcodeEqualTo(
     String value, {
@@ -1145,6 +1318,16 @@ extension KanShopProductQueryFilter
   }
 
   QueryBuilder<KanShopProduct, KanShopProduct, QAfterFilterCondition>
+      isCombo2x1EqualTo(bool value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'isCombo2x1',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<KanShopProduct, KanShopProduct, QAfterFilterCondition>
       isSyncedEqualTo(bool value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
@@ -1544,6 +1727,128 @@ extension KanShopProductQueryFilter
       return query.addFilterCondition(FilterCondition.greaterThan(
         property: r'productId',
         value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<KanShopProduct, KanShopProduct, QAfterFilterCondition>
+      ratingAvgEqualTo(
+    double value, {
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'ratingAvg',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<KanShopProduct, KanShopProduct, QAfterFilterCondition>
+      ratingAvgGreaterThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'ratingAvg',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<KanShopProduct, KanShopProduct, QAfterFilterCondition>
+      ratingAvgLessThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'ratingAvg',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<KanShopProduct, KanShopProduct, QAfterFilterCondition>
+      ratingAvgBetween(
+    double lower,
+    double upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'ratingAvg',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<KanShopProduct, KanShopProduct, QAfterFilterCondition>
+      ratingCountEqualTo(int value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'ratingCount',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<KanShopProduct, KanShopProduct, QAfterFilterCondition>
+      ratingCountGreaterThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'ratingCount',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<KanShopProduct, KanShopProduct, QAfterFilterCondition>
+      ratingCountLessThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'ratingCount',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<KanShopProduct, KanShopProduct, QAfterFilterCondition>
+      ratingCountBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'ratingCount',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
       ));
     });
   }
@@ -2363,6 +2668,20 @@ extension KanShopProductQueryLinks
 
 extension KanShopProductQuerySortBy
     on QueryBuilder<KanShopProduct, KanShopProduct, QSortBy> {
+  QueryBuilder<KanShopProduct, KanShopProduct, QAfterSortBy>
+      sortByAdminStatus() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'adminStatus', Sort.asc);
+    });
+  }
+
+  QueryBuilder<KanShopProduct, KanShopProduct, QAfterSortBy>
+      sortByAdminStatusDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'adminStatus', Sort.desc);
+    });
+  }
+
   QueryBuilder<KanShopProduct, KanShopProduct, QAfterSortBy> sortByBarcode() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'barcode', Sort.asc);
@@ -2417,6 +2736,20 @@ extension KanShopProductQuerySortBy
     });
   }
 
+  QueryBuilder<KanShopProduct, KanShopProduct, QAfterSortBy>
+      sortByIsCombo2x1() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isCombo2x1', Sort.asc);
+    });
+  }
+
+  QueryBuilder<KanShopProduct, KanShopProduct, QAfterSortBy>
+      sortByIsCombo2x1Desc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isCombo2x1', Sort.desc);
+    });
+  }
+
   QueryBuilder<KanShopProduct, KanShopProduct, QAfterSortBy> sortByIsSynced() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'isSynced', Sort.asc);
@@ -2466,6 +2799,33 @@ extension KanShopProductQuerySortBy
       sortByProductIdDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'productId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<KanShopProduct, KanShopProduct, QAfterSortBy> sortByRatingAvg() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'ratingAvg', Sort.asc);
+    });
+  }
+
+  QueryBuilder<KanShopProduct, KanShopProduct, QAfterSortBy>
+      sortByRatingAvgDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'ratingAvg', Sort.desc);
+    });
+  }
+
+  QueryBuilder<KanShopProduct, KanShopProduct, QAfterSortBy>
+      sortByRatingCount() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'ratingCount', Sort.asc);
+    });
+  }
+
+  QueryBuilder<KanShopProduct, KanShopProduct, QAfterSortBy>
+      sortByRatingCountDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'ratingCount', Sort.desc);
     });
   }
 
@@ -2577,6 +2937,20 @@ extension KanShopProductQuerySortBy
 
 extension KanShopProductQuerySortThenBy
     on QueryBuilder<KanShopProduct, KanShopProduct, QSortThenBy> {
+  QueryBuilder<KanShopProduct, KanShopProduct, QAfterSortBy>
+      thenByAdminStatus() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'adminStatus', Sort.asc);
+    });
+  }
+
+  QueryBuilder<KanShopProduct, KanShopProduct, QAfterSortBy>
+      thenByAdminStatusDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'adminStatus', Sort.desc);
+    });
+  }
+
   QueryBuilder<KanShopProduct, KanShopProduct, QAfterSortBy> thenByBarcode() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'barcode', Sort.asc);
@@ -2628,6 +3002,20 @@ extension KanShopProductQuerySortThenBy
       thenByDescriptionDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'description', Sort.desc);
+    });
+  }
+
+  QueryBuilder<KanShopProduct, KanShopProduct, QAfterSortBy>
+      thenByIsCombo2x1() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isCombo2x1', Sort.asc);
+    });
+  }
+
+  QueryBuilder<KanShopProduct, KanShopProduct, QAfterSortBy>
+      thenByIsCombo2x1Desc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isCombo2x1', Sort.desc);
     });
   }
 
@@ -2693,6 +3081,33 @@ extension KanShopProductQuerySortThenBy
       thenByProductIdDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'productId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<KanShopProduct, KanShopProduct, QAfterSortBy> thenByRatingAvg() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'ratingAvg', Sort.asc);
+    });
+  }
+
+  QueryBuilder<KanShopProduct, KanShopProduct, QAfterSortBy>
+      thenByRatingAvgDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'ratingAvg', Sort.desc);
+    });
+  }
+
+  QueryBuilder<KanShopProduct, KanShopProduct, QAfterSortBy>
+      thenByRatingCount() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'ratingCount', Sort.asc);
+    });
+  }
+
+  QueryBuilder<KanShopProduct, KanShopProduct, QAfterSortBy>
+      thenByRatingCountDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'ratingCount', Sort.desc);
     });
   }
 
@@ -2804,6 +3219,13 @@ extension KanShopProductQuerySortThenBy
 
 extension KanShopProductQueryWhereDistinct
     on QueryBuilder<KanShopProduct, KanShopProduct, QDistinct> {
+  QueryBuilder<KanShopProduct, KanShopProduct, QDistinct> distinctByAdminStatus(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'adminStatus', caseSensitive: caseSensitive);
+    });
+  }
+
   QueryBuilder<KanShopProduct, KanShopProduct, QDistinct> distinctByBarcode(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
@@ -2839,6 +3261,13 @@ extension KanShopProductQueryWhereDistinct
     });
   }
 
+  QueryBuilder<KanShopProduct, KanShopProduct, QDistinct>
+      distinctByIsCombo2x1() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'isCombo2x1');
+    });
+  }
+
   QueryBuilder<KanShopProduct, KanShopProduct, QDistinct> distinctByIsSynced() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'isSynced');
@@ -2863,6 +3292,20 @@ extension KanShopProductQueryWhereDistinct
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'productId', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<KanShopProduct, KanShopProduct, QDistinct>
+      distinctByRatingAvg() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'ratingAvg');
+    });
+  }
+
+  QueryBuilder<KanShopProduct, KanShopProduct, QDistinct>
+      distinctByRatingCount() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'ratingCount');
     });
   }
 
@@ -2931,6 +3374,12 @@ extension KanShopProductQueryProperty
     });
   }
 
+  QueryBuilder<KanShopProduct, String, QQueryOperations> adminStatusProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'adminStatus');
+    });
+  }
+
   QueryBuilder<KanShopProduct, String, QQueryOperations> barcodeProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'barcode');
@@ -2962,6 +3411,12 @@ extension KanShopProductQueryProperty
     });
   }
 
+  QueryBuilder<KanShopProduct, bool, QQueryOperations> isCombo2x1Property() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'isCombo2x1');
+    });
+  }
+
   QueryBuilder<KanShopProduct, bool, QQueryOperations> isSyncedProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'isSynced');
@@ -2984,6 +3439,18 @@ extension KanShopProductQueryProperty
   QueryBuilder<KanShopProduct, String, QQueryOperations> productIdProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'productId');
+    });
+  }
+
+  QueryBuilder<KanShopProduct, double, QQueryOperations> ratingAvgProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'ratingAvg');
+    });
+  }
+
+  QueryBuilder<KanShopProduct, int, QQueryOperations> ratingCountProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'ratingCount');
     });
   }
 

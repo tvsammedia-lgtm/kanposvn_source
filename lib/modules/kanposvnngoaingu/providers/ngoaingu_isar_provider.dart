@@ -9,6 +9,7 @@ import '../models/course_class.dart';
 import '../models/schedule.dart';
 import '../models/assignment.dart';
 import '../models/ai_evaluation.dart';
+import '../models/ngoai_ngo_ops.dart';
 
 final ngoaiNguIsarProvider = Provider<Isar>((ref) {
   throw UnimplementedError('ngoaiNguIsarProvider must be overridden');
@@ -33,6 +34,16 @@ class NgoaiNguDatabaseSetup {
         NgoaiNguAssignmentSchema,
         NgoaiNguAssignmentSubmissionSchema,
         NgoaiNguAIAssessmentSchema,
+        NgoaiNguClassStudentSchema,
+        NgoaiNguQuestionSchema,
+        NgoaiNguTestAttemptSchema,
+        NgoaiNguCertificateSchema,
+        NgoaiNguInvoiceSchema,
+        NgoaiNguPaymentRecordSchema,
+        NgoaiNguVoucherSchema,
+        NgoaiNguProgressEntrySchema,
+        NgoaiNguSyncQueueItemSchema,
+        NgoaiNguAuditLogSchema,
       ],
       directory: dir.path,
       name: name,

@@ -7,6 +7,7 @@ import '../models/contact.dart';
 import '../models/conversation.dart';
 import '../models/message.dart';
 import '../models/call_history.dart';
+import '../models/videocall_ops_models.dart';
 
 final videoCallIsarProvider = Provider<Isar>((ref) {
   throw UnimplementedError('videoCallIsarProvider must be overridden');
@@ -25,6 +26,9 @@ class VideoCallDatabaseSetup {
         VideoCallConversationSchema,
         VideoCallMessageSchema,
         VideoCallHistorySchema,
+        VideoCallSessionSchema,
+        VideoCallReactionSchema,
+        VideoCallSyncQueueItemSchema,
       ],
       directory: dir.path,
       name: name,

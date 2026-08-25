@@ -8,6 +8,10 @@ import '../models/attendance.dart';
 import '../models/payroll.dart';
 import '../models/kpi.dart';
 import '../models/leave_request.dart';
+import '../models/account.dart';
+import '../models/accounting_entry.dart';
+import '../models/payslip.dart';
+import '../models/account_default.dart';
 import '../seed/hrpayroll_seed_data.dart';
 
 class DatabaseService {
@@ -48,6 +52,11 @@ class DatabaseService {
         DisciplineRecordSchema,
         BonusRecordSchema,
         LeaveRequestSchema,
+        AccountSchema,
+        AccountingEntrySchema,
+        AccountingEntryLineSchema,
+        PayslipSchema,
+        AccountDefaultSchema,
       ],
       directory: dir.path,
       name: name,
@@ -247,6 +256,147 @@ class DatabaseService {
 
   Future<int> saveDiscipline(DisciplineRecord d) async =>
       isar.writeTxn(() => isar.disciplineRecords.put(d));
+
+  // ─── Accounts (Chart of Accounts TT133) ─────────────────────────────────
+  Future<List<Account>> getAllAccounts() async =>
+      isar.accounts.where().findAll();
+
+  Future<Account?> getAccountByNumber(String number) async =>
+      isar.accounts.filter().accountNumberEqualTo(number).findFirst();
+
+  Future<List<Account>> getChildAccounts(int parentId) async =>
+      isar.accounts.filter().parentIdEqualTo(parentId).findAll();
+
+  Future<int> saveAccount(Account a) async {
+    a.updatedAt = DateTime.now();
+    a.needsSync = true;
+    return isar.writeTxn(() => isar.accounts.put(a));
+  }
+
+  Future<List<int>> saveAccounts(List<Account> list) async {
+    for (final a in list) {
+      a.updatedAt = DateTime.now();
+      a.needsSync = true;
+    }
+    return isar.writeTxn(() => isar.accounts.putAll(list));
+  }
+
+  // ─── Accounting Entries ──────────────────────────────────────────────────
+  Future<List<AccountingEntry>> getEntriesByMonth(int year, int month) async =>
+      isar.accountingEntrys
+          .filter()
+          .yearEqualTo(year)
+          .monthEqualTo(month)
+          .findAll();
+
+  Future<List<AccountingEntry>> getAllEntries() async =>
+      isar.accountingEntrys.where().findAll();
+
+  Future<List<AccountingEntryLine>> getEntryLinesByJournal(String journalID) async =>
+      isar.accountingEntryLines
+          .filter()
+          .journalIDEqualTo(journalID)
+          .sortByLineOrder()
+          .findAll();
+
+  Future<List<AccountingEntryLine>> getEntryLines(int entryId) async =>
+      isar.accountingEntryLines.where().findAll();
+
+  Future<int> saveEntry(AccountingEntry e) async {
+    e.updatedAt = DateTime.now();
+    e.needsSync = true;
+    return isar.writeTxn(() => isar.accountingEntrys.put(e));
+  }
+
+  Future<int> saveAccountingEntry(AccountingEntry e) async {
+    e.updatedAt = DateTime.now();
+    e.needsSync = true;
+    return isar.writeTxn(() => isar.accountingEntrys.put(e));
+  }
+
+  Future<List<int>> saveEntryLines(List<AccountingEntryLine> lines) async =>
+      isar.writeTxn(() => isar.accountingEntryLines.putAll(lines));
+
+  Future<List<int>> saveAccountingEntryLines(List<AccountingEntryLine> lines) async =>
+      isar.writeTxn(() => isar.accountingEntryLines.putAll(lines));
+
+  // ─── Payslips ───────────────────────────────────────────────────────────
+  Future<List<Payslip>> getPayslipsByMonth(int year, int month) async =>
+      isar.payslips
+          .filter()
+          .yearEqualTo(year)
+          .monthEqualTo(month)
+          .findAll();
+
+  Future<Payslip?> getPayslipByEmployee(
+      int employeeId, int year, int month) async =>
+      isar.payslips
+          .filter()
+          .employeeIdEqualTo(employeeId)
+          .yearEqualTo(year)
+          .monthEqualTo(month)
+          .findFirst();
+
+  Future<int> savePayslip(Payslip p) async {
+    p.updatedAt = DateTime.now();
+    p.needsSync = true;
+    return isar.writeTxn(() => isar.payslips.put(p));
+  }
+
+  Future<List<int>> savePayslips(List<Payslip> list) async {
+    for (final p in list) {
+      p.updatedAt = DateTime.now();
+      p.needsSync = true;
+    }
+    return isar.writeTxn(() => isar.payslips.putAll(list));
+  }
+
+  // ─── Account Defaults ────────────────────────────────────────────────
+  Future<List<AccountDefault>> getAllAccountDefaults() async =>
+      isar.accountDefaults.where().findAll();
+
+  Future<AccountDefault?> getAccountDefaultByRefType(int refType) async =>
+      isar.accountDefaults.filter().refTypeEqualTo(refType).findFirst();
+
+  Future<List<AccountDefault>> getAccountDefaultsByVoucherType(String vt) async =>
+      isar.accountDefaults.filter().voucherTypeEqualTo(vt).findAll();
+
+  Future<int> saveAccountDefault(AccountDefault a) async {
+    a.updatedAt = DateTime.now();
+    a.needsSync = true;
+    return isar.writeTxn(() => isar.accountDefaults.put(a));
+  }
+
+  Future<List<int>> saveAccountDefaults(List<AccountDefault> list) async {
+    for (final a in list) {
+      a.updatedAt = DateTime.now();
+      a.needsSync = true;
+    }
+    return isar.writeTxn(() => isar.accountDefaults.putAll(list));
+  }
+
+  // ─── Accounting Entry (bulk / lines query) ────────────────────────────
+  Future<List<AccountingEntry>> getAllAccountingEntries() async =>
+      isar.accountingEntrys.where().findAll();
+
+  Future<void> postEntry(int entryId, String postedBy) async {
+    final entry = await isar.accountingEntrys.get(entryId);
+    if (entry == null) return;
+    entry.status = EntryStatus.posted;
+    entry.postedDate = DateTime.now();
+    entry.postedBy = postedBy;
+    entry.updatedAt = DateTime.now();
+    await isar.writeTxn(() => isar.accountingEntrys.put(entry));
+  }
+
+  Future<void> reverseEntry(int entryId, String reversedBy) async {
+    final entry = await isar.accountingEntrys.get(entryId);
+    if (entry == null) return;
+    entry.status = EntryStatus.reversed;
+    entry.updatedAt = DateTime.now();
+    entry.notes = '${entry.notes ?? ''}\nĐảo bút toán bởi $reversedBy';
+    await isar.writeTxn(() => isar.accountingEntrys.put(entry));
+  }
 
   // ─── Dashboard Stats ──────────────────────────────────────────────────────
   Future<Map<String, dynamic>> getDashboardStats(int year, int month) async {

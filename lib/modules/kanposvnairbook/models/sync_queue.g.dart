@@ -22,34 +22,49 @@ const SyncQueueLocalSchema = CollectionSchema(
       name: r'createdAt',
       type: IsarType.dateTime,
     ),
-    r'entity': PropertySchema(
+    r'deadLetter': PropertySchema(
       id: 1,
+      name: r'deadLetter',
+      type: IsarType.bool,
+    ),
+    r'entity': PropertySchema(
+      id: 2,
       name: r'entity',
       type: IsarType.string,
     ),
     r'entityUuid': PropertySchema(
-      id: 2,
+      id: 3,
       name: r'entityUuid',
       type: IsarType.string,
     ),
+    r'lastError': PropertySchema(
+      id: 4,
+      name: r'lastError',
+      type: IsarType.string,
+    ),
     r'operation': PropertySchema(
-      id: 3,
+      id: 5,
       name: r'operation',
       type: IsarType.string,
     ),
     r'payload': PropertySchema(
-      id: 4,
+      id: 6,
       name: r'payload',
       type: IsarType.string,
     ),
+    r'retryCount': PropertySchema(
+      id: 7,
+      name: r'retryCount',
+      type: IsarType.long,
+    ),
     r'status': PropertySchema(
-      id: 5,
+      id: 8,
       name: r'status',
       type: IsarType.byte,
       enumMap: _SyncQueueLocalstatusEnumValueMap,
     ),
     r'uuid': PropertySchema(
-      id: 6,
+      id: 9,
       name: r'uuid',
       type: IsarType.string,
     )
@@ -100,6 +115,7 @@ int _syncQueueLocalEstimateSize(
       bytesCount += 3 + value.length * 3;
     }
   }
+  bytesCount += 3 + object.lastError.length * 3;
   {
     final value = object.operation;
     if (value != null) {
@@ -128,12 +144,15 @@ void _syncQueueLocalSerialize(
   Map<Type, List<int>> allOffsets,
 ) {
   writer.writeDateTime(offsets[0], object.createdAt);
-  writer.writeString(offsets[1], object.entity);
-  writer.writeString(offsets[2], object.entityUuid);
-  writer.writeString(offsets[3], object.operation);
-  writer.writeString(offsets[4], object.payload);
-  writer.writeByte(offsets[5], object.status.index);
-  writer.writeString(offsets[6], object.uuid);
+  writer.writeBool(offsets[1], object.deadLetter);
+  writer.writeString(offsets[2], object.entity);
+  writer.writeString(offsets[3], object.entityUuid);
+  writer.writeString(offsets[4], object.lastError);
+  writer.writeString(offsets[5], object.operation);
+  writer.writeString(offsets[6], object.payload);
+  writer.writeLong(offsets[7], object.retryCount);
+  writer.writeByte(offsets[8], object.status.index);
+  writer.writeString(offsets[9], object.uuid);
 }
 
 SyncQueueLocal _syncQueueLocalDeserialize(
@@ -144,15 +163,18 @@ SyncQueueLocal _syncQueueLocalDeserialize(
 ) {
   final object = SyncQueueLocal();
   object.createdAt = reader.readDateTimeOrNull(offsets[0]);
-  object.entity = reader.readStringOrNull(offsets[1]);
-  object.entityUuid = reader.readStringOrNull(offsets[2]);
+  object.deadLetter = reader.readBool(offsets[1]);
+  object.entity = reader.readStringOrNull(offsets[2]);
+  object.entityUuid = reader.readStringOrNull(offsets[3]);
   object.id = id;
-  object.operation = reader.readStringOrNull(offsets[3]);
-  object.payload = reader.readStringOrNull(offsets[4]);
+  object.lastError = reader.readString(offsets[4]);
+  object.operation = reader.readStringOrNull(offsets[5]);
+  object.payload = reader.readStringOrNull(offsets[6]);
+  object.retryCount = reader.readLong(offsets[7]);
   object.status =
-      _SyncQueueLocalstatusValueEnumMap[reader.readByteOrNull(offsets[5])] ??
+      _SyncQueueLocalstatusValueEnumMap[reader.readByteOrNull(offsets[8])] ??
           SyncStatus.pending;
-  object.uuid = reader.readStringOrNull(offsets[6]);
+  object.uuid = reader.readStringOrNull(offsets[9]);
   return object;
 }
 
@@ -166,18 +188,24 @@ P _syncQueueLocalDeserializeProp<P>(
     case 0:
       return (reader.readDateTimeOrNull(offset)) as P;
     case 1:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readBool(offset)) as P;
     case 2:
       return (reader.readStringOrNull(offset)) as P;
     case 3:
       return (reader.readStringOrNull(offset)) as P;
     case 4:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 5:
+      return (reader.readStringOrNull(offset)) as P;
+    case 6:
+      return (reader.readStringOrNull(offset)) as P;
+    case 7:
+      return (reader.readLong(offset)) as P;
+    case 8:
       return (_SyncQueueLocalstatusValueEnumMap[
               reader.readByteOrNull(offset)] ??
           SyncStatus.pending) as P;
-    case 6:
+    case 9:
       return (reader.readStringOrNull(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -429,6 +457,16 @@ extension SyncQueueLocalQueryFilter
         includeLower: includeLower,
         upper: upper,
         includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<SyncQueueLocal, SyncQueueLocal, QAfterFilterCondition>
+      deadLetterEqualTo(bool value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'deadLetter',
+        value: value,
       ));
     });
   }
@@ -797,6 +835,142 @@ extension SyncQueueLocalQueryFilter
   }
 
   QueryBuilder<SyncQueueLocal, SyncQueueLocal, QAfterFilterCondition>
+      lastErrorEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'lastError',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SyncQueueLocal, SyncQueueLocal, QAfterFilterCondition>
+      lastErrorGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'lastError',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SyncQueueLocal, SyncQueueLocal, QAfterFilterCondition>
+      lastErrorLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'lastError',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SyncQueueLocal, SyncQueueLocal, QAfterFilterCondition>
+      lastErrorBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'lastError',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SyncQueueLocal, SyncQueueLocal, QAfterFilterCondition>
+      lastErrorStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'lastError',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SyncQueueLocal, SyncQueueLocal, QAfterFilterCondition>
+      lastErrorEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'lastError',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SyncQueueLocal, SyncQueueLocal, QAfterFilterCondition>
+      lastErrorContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'lastError',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SyncQueueLocal, SyncQueueLocal, QAfterFilterCondition>
+      lastErrorMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'lastError',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SyncQueueLocal, SyncQueueLocal, QAfterFilterCondition>
+      lastErrorIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'lastError',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<SyncQueueLocal, SyncQueueLocal, QAfterFilterCondition>
+      lastErrorIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'lastError',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<SyncQueueLocal, SyncQueueLocal, QAfterFilterCondition>
       operationIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNull(
@@ -1105,6 +1279,62 @@ extension SyncQueueLocalQueryFilter
   }
 
   QueryBuilder<SyncQueueLocal, SyncQueueLocal, QAfterFilterCondition>
+      retryCountEqualTo(int value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'retryCount',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<SyncQueueLocal, SyncQueueLocal, QAfterFilterCondition>
+      retryCountGreaterThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'retryCount',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<SyncQueueLocal, SyncQueueLocal, QAfterFilterCondition>
+      retryCountLessThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'retryCount',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<SyncQueueLocal, SyncQueueLocal, QAfterFilterCondition>
+      retryCountBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'retryCount',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<SyncQueueLocal, SyncQueueLocal, QAfterFilterCondition>
       statusEqualTo(SyncStatus value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
@@ -1336,6 +1566,20 @@ extension SyncQueueLocalQuerySortBy
     });
   }
 
+  QueryBuilder<SyncQueueLocal, SyncQueueLocal, QAfterSortBy>
+      sortByDeadLetter() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deadLetter', Sort.asc);
+    });
+  }
+
+  QueryBuilder<SyncQueueLocal, SyncQueueLocal, QAfterSortBy>
+      sortByDeadLetterDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deadLetter', Sort.desc);
+    });
+  }
+
   QueryBuilder<SyncQueueLocal, SyncQueueLocal, QAfterSortBy> sortByEntity() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'entity', Sort.asc);
@@ -1363,6 +1607,19 @@ extension SyncQueueLocalQuerySortBy
     });
   }
 
+  QueryBuilder<SyncQueueLocal, SyncQueueLocal, QAfterSortBy> sortByLastError() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'lastError', Sort.asc);
+    });
+  }
+
+  QueryBuilder<SyncQueueLocal, SyncQueueLocal, QAfterSortBy>
+      sortByLastErrorDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'lastError', Sort.desc);
+    });
+  }
+
   QueryBuilder<SyncQueueLocal, SyncQueueLocal, QAfterSortBy> sortByOperation() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'operation', Sort.asc);
@@ -1386,6 +1643,20 @@ extension SyncQueueLocalQuerySortBy
       sortByPayloadDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'payload', Sort.desc);
+    });
+  }
+
+  QueryBuilder<SyncQueueLocal, SyncQueueLocal, QAfterSortBy>
+      sortByRetryCount() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'retryCount', Sort.asc);
+    });
+  }
+
+  QueryBuilder<SyncQueueLocal, SyncQueueLocal, QAfterSortBy>
+      sortByRetryCountDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'retryCount', Sort.desc);
     });
   }
 
@@ -1430,6 +1701,20 @@ extension SyncQueueLocalQuerySortThenBy
     });
   }
 
+  QueryBuilder<SyncQueueLocal, SyncQueueLocal, QAfterSortBy>
+      thenByDeadLetter() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deadLetter', Sort.asc);
+    });
+  }
+
+  QueryBuilder<SyncQueueLocal, SyncQueueLocal, QAfterSortBy>
+      thenByDeadLetterDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deadLetter', Sort.desc);
+    });
+  }
+
   QueryBuilder<SyncQueueLocal, SyncQueueLocal, QAfterSortBy> thenByEntity() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'entity', Sort.asc);
@@ -1469,6 +1754,19 @@ extension SyncQueueLocalQuerySortThenBy
     });
   }
 
+  QueryBuilder<SyncQueueLocal, SyncQueueLocal, QAfterSortBy> thenByLastError() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'lastError', Sort.asc);
+    });
+  }
+
+  QueryBuilder<SyncQueueLocal, SyncQueueLocal, QAfterSortBy>
+      thenByLastErrorDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'lastError', Sort.desc);
+    });
+  }
+
   QueryBuilder<SyncQueueLocal, SyncQueueLocal, QAfterSortBy> thenByOperation() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'operation', Sort.asc);
@@ -1492,6 +1790,20 @@ extension SyncQueueLocalQuerySortThenBy
       thenByPayloadDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'payload', Sort.desc);
+    });
+  }
+
+  QueryBuilder<SyncQueueLocal, SyncQueueLocal, QAfterSortBy>
+      thenByRetryCount() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'retryCount', Sort.asc);
+    });
+  }
+
+  QueryBuilder<SyncQueueLocal, SyncQueueLocal, QAfterSortBy>
+      thenByRetryCountDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'retryCount', Sort.desc);
     });
   }
 
@@ -1530,6 +1842,13 @@ extension SyncQueueLocalQueryWhereDistinct
     });
   }
 
+  QueryBuilder<SyncQueueLocal, SyncQueueLocal, QDistinct>
+      distinctByDeadLetter() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'deadLetter');
+    });
+  }
+
   QueryBuilder<SyncQueueLocal, SyncQueueLocal, QDistinct> distinctByEntity(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
@@ -1544,6 +1863,13 @@ extension SyncQueueLocalQueryWhereDistinct
     });
   }
 
+  QueryBuilder<SyncQueueLocal, SyncQueueLocal, QDistinct> distinctByLastError(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'lastError', caseSensitive: caseSensitive);
+    });
+  }
+
   QueryBuilder<SyncQueueLocal, SyncQueueLocal, QDistinct> distinctByOperation(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
@@ -1555,6 +1881,13 @@ extension SyncQueueLocalQueryWhereDistinct
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'payload', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<SyncQueueLocal, SyncQueueLocal, QDistinct>
+      distinctByRetryCount() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'retryCount');
     });
   }
 
@@ -1587,6 +1920,12 @@ extension SyncQueueLocalQueryProperty
     });
   }
 
+  QueryBuilder<SyncQueueLocal, bool, QQueryOperations> deadLetterProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'deadLetter');
+    });
+  }
+
   QueryBuilder<SyncQueueLocal, String?, QQueryOperations> entityProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'entity');
@@ -1599,6 +1938,12 @@ extension SyncQueueLocalQueryProperty
     });
   }
 
+  QueryBuilder<SyncQueueLocal, String, QQueryOperations> lastErrorProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'lastError');
+    });
+  }
+
   QueryBuilder<SyncQueueLocal, String?, QQueryOperations> operationProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'operation');
@@ -1608,6 +1953,12 @@ extension SyncQueueLocalQueryProperty
   QueryBuilder<SyncQueueLocal, String?, QQueryOperations> payloadProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'payload');
+    });
+  }
+
+  QueryBuilder<SyncQueueLocal, int, QQueryOperations> retryCountProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'retryCount');
     });
   }
 

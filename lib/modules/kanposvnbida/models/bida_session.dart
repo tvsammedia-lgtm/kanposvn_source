@@ -45,9 +45,22 @@ class BidaSession {
 
   // The hourly price recorded when the session started
   double hourlyPrice = 0.0;
-  
+
   // Total time cost
   double totalTimeCost = 0.0;
+
+  /// VIII. Tiền cọc / thanh toán trước khách đã đưa khi mở bàn.
+  double deposit = 0.0;
+
+  /// Giảm giá trên hóa đơn (không tính tiền giờ).
+  double discount = 0.0;
+
+  /// XVII. Khách hàng gắn với phiên (nếu có).
+  String customerCode = '';
+  String customerName = '';
+
+  /// Số điểm tích lũy đã cộng cho khách ở phiên này.
+  int earnedPoints = 0;
 
   // Items ordered
   List<BidaOrderLine> orderLines = [];

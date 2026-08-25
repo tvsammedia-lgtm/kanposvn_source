@@ -20,7 +20,13 @@ final Map<String, Set<String>> _bidaRoleTabs = {
 /// (đồng bộ với `_tabDefs` trong `kanposvnbida_shell.dart`).
 const List<(String, String)> _bidaTabOptions = [
   ('tables', 'Sơ đồ Bàn'),
+  ('sessions', 'Đang Chơi'),
+  ('datban', 'Đặt Bàn'),
+  ('customers', 'Khách hàng'),
   ('dashboard', 'Dashboard'),
+  ('finance', 'Thu Chi'),
+  ('reports', 'Báo cáo'),
+  ('bills', 'Tìm hóa đơn'),
   ('inventory', 'Kho Hàng'),
   ('employees', 'Quản Lý NV'),
   ('settings', 'Cài Đặt'),

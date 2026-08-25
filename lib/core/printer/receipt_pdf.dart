@@ -3,6 +3,7 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 
+import 'pdf_owner_header.dart';
 import 'receipt_data.dart';
 
 final _currency = NumberFormat.currency(locale: 'vi_VN', symbol: 'đ');
@@ -30,6 +31,8 @@ Future<void> printReceiptPdf(
     if (avail <= 0) return '$left $right';
     return '$left${' ' * avail}$right';
   }
+
+  final ownerHeader = await buildOwnerHeaderLine();
 
   final pdf = pw.Document();
 
@@ -87,6 +90,10 @@ Future<void> printReceiptPdf(
                   '${receipt.einvoiceNumber != null && receipt.einvoiceNumber!.isNotEmpty ? ' · Số: ${receipt.einvoiceNumber}' : ''}',
                   style: pw.TextStyle(fontSize: 8),
                 ),
+              ),
+            if (ownerHeader != null)
+              pw.Center(
+                child: pw.Text(ownerHeader, style: pw.TextStyle(fontSize: 8)),
               ),
             pw.Center(
               child: pw.Text(

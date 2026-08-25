@@ -87,131 +87,156 @@ const EmployeeSchema = CollectionSchema(
       name: r'cccdIssuePlace',
       type: IsarType.string,
     ),
-    r'createdAt': PropertySchema(
+    r'contractEndDate': PropertySchema(
       id: 14,
+      name: r'contractEndDate',
+      type: IsarType.dateTime,
+    ),
+    r'contractStartDate': PropertySchema(
+      id: 15,
+      name: r'contractStartDate',
+      type: IsarType.dateTime,
+    ),
+    r'contractType': PropertySchema(
+      id: 16,
+      name: r'contractType',
+      type: IsarType.string,
+    ),
+    r'createdAt': PropertySchema(
+      id: 17,
       name: r'createdAt',
       type: IsarType.dateTime,
     ),
     r'department': PropertySchema(
-      id: 15,
+      id: 18,
       name: r'department',
       type: IsarType.string,
     ),
     r'dependents': PropertySchema(
-      id: 16,
+      id: 19,
       name: r'dependents',
       type: IsarType.long,
     ),
     r'email': PropertySchema(
-      id: 17,
+      id: 20,
       name: r'email',
       type: IsarType.string,
     ),
     r'emergencyContact': PropertySchema(
-      id: 18,
+      id: 21,
       name: r'emergencyContact',
       type: IsarType.string,
     ),
     r'emergencyPhone': PropertySchema(
-      id: 19,
+      id: 22,
       name: r'emergencyPhone',
       type: IsarType.string,
     ),
     r'employeeCode': PropertySchema(
-      id: 20,
+      id: 23,
       name: r'employeeCode',
       type: IsarType.string,
     ),
     r'fullName': PropertySchema(
-      id: 21,
+      id: 24,
       name: r'fullName',
       type: IsarType.string,
     ),
     r'gender': PropertySchema(
-      id: 22,
+      id: 25,
       name: r'gender',
       type: IsarType.string,
       enumMap: _EmployeegenderEnumValueMap,
     ),
     r'hasSocialInsurance': PropertySchema(
-      id: 23,
+      id: 26,
       name: r'hasSocialInsurance',
       type: IsarType.bool,
     ),
     r'healthInsuranceRate': PropertySchema(
-      id: 24,
+      id: 27,
       name: r'healthInsuranceRate',
       type: IsarType.double,
     ),
+    r'isUnionMember': PropertySchema(
+      id: 28,
+      name: r'isUnionMember',
+      type: IsarType.bool,
+    ),
     r'joinDate': PropertySchema(
-      id: 25,
+      id: 29,
       name: r'joinDate',
       type: IsarType.dateTime,
     ),
     r'lastSyncAt': PropertySchema(
-      id: 26,
+      id: 30,
       name: r'lastSyncAt',
       type: IsarType.dateTime,
     ),
     r'maritalStatus': PropertySchema(
-      id: 27,
+      id: 31,
       name: r'maritalStatus',
       type: IsarType.string,
       enumMap: _EmployeemaritalStatusEnumValueMap,
     ),
     r'needsSync': PropertySchema(
-      id: 28,
+      id: 32,
       name: r'needsSync',
       type: IsarType.bool,
     ),
     r'phone': PropertySchema(
-      id: 29,
+      id: 33,
       name: r'phone',
       type: IsarType.string,
     ),
     r'position': PropertySchema(
-      id: 30,
+      id: 34,
       name: r'position',
       type: IsarType.string,
     ),
     r'remoteId': PropertySchema(
-      id: 31,
+      id: 35,
       name: r'remoteId',
       type: IsarType.string,
     ),
     r'resignDate': PropertySchema(
-      id: 32,
+      id: 36,
       name: r'resignDate',
       type: IsarType.dateTime,
     ),
     r'socialInsuranceCode': PropertySchema(
-      id: 33,
+      id: 37,
       name: r'socialInsuranceCode',
       type: IsarType.string,
     ),
     r'socialInsuranceRate': PropertySchema(
-      id: 34,
+      id: 38,
       name: r'socialInsuranceRate',
       type: IsarType.double,
     ),
     r'status': PropertySchema(
-      id: 35,
+      id: 39,
       name: r'status',
       type: IsarType.string,
       enumMap: _EmployeestatusEnumValueMap,
     ),
     r'taxCode': PropertySchema(
-      id: 36,
+      id: 40,
       name: r'taxCode',
       type: IsarType.string,
     ),
     r'unemploymentInsuranceRate': PropertySchema(
-      id: 37,
+      id: 41,
       name: r'unemploymentInsuranceRate',
       type: IsarType.double,
     ),
+    r'unionFeeRate': PropertySchema(
+      id: 42,
+      name: r'unionFeeRate',
+      type: IsarType.double,
+    ),
     r'updatedAt': PropertySchema(
-      id: 38,
+      id: 43,
       name: r'updatedAt',
       type: IsarType.dateTime,
     )
@@ -282,6 +307,12 @@ int _employeeEstimateSize(
   }
   {
     final value = object.cccdIssuePlace;
+    if (value != null) {
+      bytesCount += 3 + value.length * 3;
+    }
+  }
+  {
+    final value = object.contractType;
     if (value != null) {
       bytesCount += 3 + value.length * 3;
     }
@@ -358,31 +389,36 @@ void _employeeSerialize(
   writer.writeString(offsets[11], object.cccd);
   writer.writeDateTime(offsets[12], object.cccdIssueDate);
   writer.writeString(offsets[13], object.cccdIssuePlace);
-  writer.writeDateTime(offsets[14], object.createdAt);
-  writer.writeString(offsets[15], object.department);
-  writer.writeLong(offsets[16], object.dependents);
-  writer.writeString(offsets[17], object.email);
-  writer.writeString(offsets[18], object.emergencyContact);
-  writer.writeString(offsets[19], object.emergencyPhone);
-  writer.writeString(offsets[20], object.employeeCode);
-  writer.writeString(offsets[21], object.fullName);
-  writer.writeString(offsets[22], object.gender.name);
-  writer.writeBool(offsets[23], object.hasSocialInsurance);
-  writer.writeDouble(offsets[24], object.healthInsuranceRate);
-  writer.writeDateTime(offsets[25], object.joinDate);
-  writer.writeDateTime(offsets[26], object.lastSyncAt);
-  writer.writeString(offsets[27], object.maritalStatus.name);
-  writer.writeBool(offsets[28], object.needsSync);
-  writer.writeString(offsets[29], object.phone);
-  writer.writeString(offsets[30], object.position);
-  writer.writeString(offsets[31], object.remoteId);
-  writer.writeDateTime(offsets[32], object.resignDate);
-  writer.writeString(offsets[33], object.socialInsuranceCode);
-  writer.writeDouble(offsets[34], object.socialInsuranceRate);
-  writer.writeString(offsets[35], object.status.name);
-  writer.writeString(offsets[36], object.taxCode);
-  writer.writeDouble(offsets[37], object.unemploymentInsuranceRate);
-  writer.writeDateTime(offsets[38], object.updatedAt);
+  writer.writeDateTime(offsets[14], object.contractEndDate);
+  writer.writeDateTime(offsets[15], object.contractStartDate);
+  writer.writeString(offsets[16], object.contractType);
+  writer.writeDateTime(offsets[17], object.createdAt);
+  writer.writeString(offsets[18], object.department);
+  writer.writeLong(offsets[19], object.dependents);
+  writer.writeString(offsets[20], object.email);
+  writer.writeString(offsets[21], object.emergencyContact);
+  writer.writeString(offsets[22], object.emergencyPhone);
+  writer.writeString(offsets[23], object.employeeCode);
+  writer.writeString(offsets[24], object.fullName);
+  writer.writeString(offsets[25], object.gender.name);
+  writer.writeBool(offsets[26], object.hasSocialInsurance);
+  writer.writeDouble(offsets[27], object.healthInsuranceRate);
+  writer.writeBool(offsets[28], object.isUnionMember);
+  writer.writeDateTime(offsets[29], object.joinDate);
+  writer.writeDateTime(offsets[30], object.lastSyncAt);
+  writer.writeString(offsets[31], object.maritalStatus.name);
+  writer.writeBool(offsets[32], object.needsSync);
+  writer.writeString(offsets[33], object.phone);
+  writer.writeString(offsets[34], object.position);
+  writer.writeString(offsets[35], object.remoteId);
+  writer.writeDateTime(offsets[36], object.resignDate);
+  writer.writeString(offsets[37], object.socialInsuranceCode);
+  writer.writeDouble(offsets[38], object.socialInsuranceRate);
+  writer.writeString(offsets[39], object.status.name);
+  writer.writeString(offsets[40], object.taxCode);
+  writer.writeDouble(offsets[41], object.unemploymentInsuranceRate);
+  writer.writeDouble(offsets[42], object.unionFeeRate);
+  writer.writeDateTime(offsets[43], object.updatedAt);
 }
 
 Employee _employeeDeserialize(
@@ -406,38 +442,43 @@ Employee _employeeDeserialize(
   object.cccd = reader.readStringOrNull(offsets[11]);
   object.cccdIssueDate = reader.readDateTimeOrNull(offsets[12]);
   object.cccdIssuePlace = reader.readStringOrNull(offsets[13]);
-  object.createdAt = reader.readDateTime(offsets[14]);
-  object.department = reader.readString(offsets[15]);
-  object.dependents = reader.readLong(offsets[16]);
-  object.email = reader.readStringOrNull(offsets[17]);
-  object.emergencyContact = reader.readStringOrNull(offsets[18]);
-  object.emergencyPhone = reader.readStringOrNull(offsets[19]);
-  object.employeeCode = reader.readString(offsets[20]);
-  object.fullName = reader.readString(offsets[21]);
+  object.contractEndDate = reader.readDateTimeOrNull(offsets[14]);
+  object.contractStartDate = reader.readDateTimeOrNull(offsets[15]);
+  object.contractType = reader.readStringOrNull(offsets[16]);
+  object.createdAt = reader.readDateTime(offsets[17]);
+  object.department = reader.readString(offsets[18]);
+  object.dependents = reader.readLong(offsets[19]);
+  object.email = reader.readStringOrNull(offsets[20]);
+  object.emergencyContact = reader.readStringOrNull(offsets[21]);
+  object.emergencyPhone = reader.readStringOrNull(offsets[22]);
+  object.employeeCode = reader.readString(offsets[23]);
+  object.fullName = reader.readString(offsets[24]);
   object.gender =
-      _EmployeegenderValueEnumMap[reader.readStringOrNull(offsets[22])] ??
+      _EmployeegenderValueEnumMap[reader.readStringOrNull(offsets[25])] ??
           Gender.male;
-  object.hasSocialInsurance = reader.readBool(offsets[23]);
-  object.healthInsuranceRate = reader.readDouble(offsets[24]);
+  object.hasSocialInsurance = reader.readBool(offsets[26]);
+  object.healthInsuranceRate = reader.readDouble(offsets[27]);
   object.id = id;
-  object.joinDate = reader.readDateTimeOrNull(offsets[25]);
-  object.lastSyncAt = reader.readDateTimeOrNull(offsets[26]);
+  object.isUnionMember = reader.readBool(offsets[28]);
+  object.joinDate = reader.readDateTimeOrNull(offsets[29]);
+  object.lastSyncAt = reader.readDateTimeOrNull(offsets[30]);
   object.maritalStatus = _EmployeemaritalStatusValueEnumMap[
-          reader.readStringOrNull(offsets[27])] ??
+          reader.readStringOrNull(offsets[31])] ??
       MaritalStatus.single;
-  object.needsSync = reader.readBool(offsets[28]);
-  object.phone = reader.readStringOrNull(offsets[29]);
-  object.position = reader.readString(offsets[30]);
-  object.remoteId = reader.readStringOrNull(offsets[31]);
-  object.resignDate = reader.readDateTimeOrNull(offsets[32]);
-  object.socialInsuranceCode = reader.readStringOrNull(offsets[33]);
-  object.socialInsuranceRate = reader.readDouble(offsets[34]);
+  object.needsSync = reader.readBool(offsets[32]);
+  object.phone = reader.readStringOrNull(offsets[33]);
+  object.position = reader.readString(offsets[34]);
+  object.remoteId = reader.readStringOrNull(offsets[35]);
+  object.resignDate = reader.readDateTimeOrNull(offsets[36]);
+  object.socialInsuranceCode = reader.readStringOrNull(offsets[37]);
+  object.socialInsuranceRate = reader.readDouble(offsets[38]);
   object.status =
-      _EmployeestatusValueEnumMap[reader.readStringOrNull(offsets[35])] ??
+      _EmployeestatusValueEnumMap[reader.readStringOrNull(offsets[39])] ??
           EmployeeStatus.active;
-  object.taxCode = reader.readStringOrNull(offsets[36]);
-  object.unemploymentInsuranceRate = reader.readDouble(offsets[37]);
-  object.updatedAt = reader.readDateTime(offsets[38]);
+  object.taxCode = reader.readStringOrNull(offsets[40]);
+  object.unemploymentInsuranceRate = reader.readDouble(offsets[41]);
+  object.unionFeeRate = reader.readDouble(offsets[42]);
+  object.updatedAt = reader.readDateTime(offsets[43]);
   return object;
 }
 
@@ -477,58 +518,68 @@ P _employeeDeserializeProp<P>(
     case 13:
       return (reader.readStringOrNull(offset)) as P;
     case 14:
-      return (reader.readDateTime(offset)) as P;
+      return (reader.readDateTimeOrNull(offset)) as P;
     case 15:
-      return (reader.readString(offset)) as P;
+      return (reader.readDateTimeOrNull(offset)) as P;
     case 16:
-      return (reader.readLong(offset)) as P;
+      return (reader.readStringOrNull(offset)) as P;
     case 17:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readDateTime(offset)) as P;
     case 18:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 19:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readLong(offset)) as P;
     case 20:
-      return (reader.readString(offset)) as P;
+      return (reader.readStringOrNull(offset)) as P;
     case 21:
-      return (reader.readString(offset)) as P;
+      return (reader.readStringOrNull(offset)) as P;
     case 22:
+      return (reader.readStringOrNull(offset)) as P;
+    case 23:
+      return (reader.readString(offset)) as P;
+    case 24:
+      return (reader.readString(offset)) as P;
+    case 25:
       return (_EmployeegenderValueEnumMap[reader.readStringOrNull(offset)] ??
           Gender.male) as P;
-    case 23:
-      return (reader.readBool(offset)) as P;
-    case 24:
-      return (reader.readDouble(offset)) as P;
-    case 25:
-      return (reader.readDateTimeOrNull(offset)) as P;
     case 26:
-      return (reader.readDateTimeOrNull(offset)) as P;
+      return (reader.readBool(offset)) as P;
     case 27:
-      return (_EmployeemaritalStatusValueEnumMap[
-              reader.readStringOrNull(offset)] ??
-          MaritalStatus.single) as P;
+      return (reader.readDouble(offset)) as P;
     case 28:
       return (reader.readBool(offset)) as P;
     case 29:
-      return (reader.readStringOrNull(offset)) as P;
-    case 30:
-      return (reader.readString(offset)) as P;
-    case 31:
-      return (reader.readStringOrNull(offset)) as P;
-    case 32:
       return (reader.readDateTimeOrNull(offset)) as P;
+    case 30:
+      return (reader.readDateTimeOrNull(offset)) as P;
+    case 31:
+      return (_EmployeemaritalStatusValueEnumMap[
+              reader.readStringOrNull(offset)] ??
+          MaritalStatus.single) as P;
+    case 32:
+      return (reader.readBool(offset)) as P;
     case 33:
       return (reader.readStringOrNull(offset)) as P;
     case 34:
-      return (reader.readDouble(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 35:
+      return (reader.readStringOrNull(offset)) as P;
+    case 36:
+      return (reader.readDateTimeOrNull(offset)) as P;
+    case 37:
+      return (reader.readStringOrNull(offset)) as P;
+    case 38:
+      return (reader.readDouble(offset)) as P;
+    case 39:
       return (_EmployeestatusValueEnumMap[reader.readStringOrNull(offset)] ??
           EmployeeStatus.active) as P;
-    case 36:
+    case 40:
       return (reader.readStringOrNull(offset)) as P;
-    case 37:
+    case 41:
       return (reader.readDouble(offset)) as P;
-    case 38:
+    case 42:
+      return (reader.readDouble(offset)) as P;
+    case 43:
       return (reader.readDateTime(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -2156,6 +2207,305 @@ extension EmployeeQueryFilter
     });
   }
 
+  QueryBuilder<Employee, Employee, QAfterFilterCondition>
+      contractEndDateIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'contractEndDate',
+      ));
+    });
+  }
+
+  QueryBuilder<Employee, Employee, QAfterFilterCondition>
+      contractEndDateIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'contractEndDate',
+      ));
+    });
+  }
+
+  QueryBuilder<Employee, Employee, QAfterFilterCondition>
+      contractEndDateEqualTo(DateTime? value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'contractEndDate',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Employee, Employee, QAfterFilterCondition>
+      contractEndDateGreaterThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'contractEndDate',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Employee, Employee, QAfterFilterCondition>
+      contractEndDateLessThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'contractEndDate',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Employee, Employee, QAfterFilterCondition>
+      contractEndDateBetween(
+    DateTime? lower,
+    DateTime? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'contractEndDate',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<Employee, Employee, QAfterFilterCondition>
+      contractStartDateIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'contractStartDate',
+      ));
+    });
+  }
+
+  QueryBuilder<Employee, Employee, QAfterFilterCondition>
+      contractStartDateIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'contractStartDate',
+      ));
+    });
+  }
+
+  QueryBuilder<Employee, Employee, QAfterFilterCondition>
+      contractStartDateEqualTo(DateTime? value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'contractStartDate',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Employee, Employee, QAfterFilterCondition>
+      contractStartDateGreaterThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'contractStartDate',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Employee, Employee, QAfterFilterCondition>
+      contractStartDateLessThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'contractStartDate',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Employee, Employee, QAfterFilterCondition>
+      contractStartDateBetween(
+    DateTime? lower,
+    DateTime? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'contractStartDate',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<Employee, Employee, QAfterFilterCondition> contractTypeIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'contractType',
+      ));
+    });
+  }
+
+  QueryBuilder<Employee, Employee, QAfterFilterCondition>
+      contractTypeIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'contractType',
+      ));
+    });
+  }
+
+  QueryBuilder<Employee, Employee, QAfterFilterCondition> contractTypeEqualTo(
+    String? value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'contractType',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Employee, Employee, QAfterFilterCondition>
+      contractTypeGreaterThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'contractType',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Employee, Employee, QAfterFilterCondition> contractTypeLessThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'contractType',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Employee, Employee, QAfterFilterCondition> contractTypeBetween(
+    String? lower,
+    String? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'contractType',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Employee, Employee, QAfterFilterCondition>
+      contractTypeStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'contractType',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Employee, Employee, QAfterFilterCondition> contractTypeEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'contractType',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Employee, Employee, QAfterFilterCondition> contractTypeContains(
+      String value,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'contractType',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Employee, Employee, QAfterFilterCondition> contractTypeMatches(
+      String pattern,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'contractType',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Employee, Employee, QAfterFilterCondition>
+      contractTypeIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'contractType',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<Employee, Employee, QAfterFilterCondition>
+      contractTypeIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'contractType',
+        value: '',
+      ));
+    });
+  }
+
   QueryBuilder<Employee, Employee, QAfterFilterCondition> createdAtEqualTo(
       DateTime value) {
     return QueryBuilder.apply(this, (query) {
@@ -3364,6 +3714,16 @@ extension EmployeeQueryFilter
         includeLower: includeLower,
         upper: upper,
         includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<Employee, Employee, QAfterFilterCondition> isUnionMemberEqualTo(
+      bool value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'isUnionMember',
+        value: value,
       ));
     });
   }
@@ -4705,6 +5065,69 @@ extension EmployeeQueryFilter
     });
   }
 
+  QueryBuilder<Employee, Employee, QAfterFilterCondition> unionFeeRateEqualTo(
+    double value, {
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'unionFeeRate',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<Employee, Employee, QAfterFilterCondition>
+      unionFeeRateGreaterThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'unionFeeRate',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<Employee, Employee, QAfterFilterCondition> unionFeeRateLessThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'unionFeeRate',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<Employee, Employee, QAfterFilterCondition> unionFeeRateBetween(
+    double lower,
+    double upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'unionFeeRate',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
   QueryBuilder<Employee, Employee, QAfterFilterCondition> updatedAtEqualTo(
       DateTime value) {
     return QueryBuilder.apply(this, (query) {
@@ -4935,6 +5358,42 @@ extension EmployeeQuerySortBy on QueryBuilder<Employee, Employee, QSortBy> {
     });
   }
 
+  QueryBuilder<Employee, Employee, QAfterSortBy> sortByContractEndDate() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'contractEndDate', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Employee, Employee, QAfterSortBy> sortByContractEndDateDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'contractEndDate', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Employee, Employee, QAfterSortBy> sortByContractStartDate() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'contractStartDate', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Employee, Employee, QAfterSortBy> sortByContractStartDateDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'contractStartDate', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Employee, Employee, QAfterSortBy> sortByContractType() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'contractType', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Employee, Employee, QAfterSortBy> sortByContractTypeDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'contractType', Sort.desc);
+    });
+  }
+
   QueryBuilder<Employee, Employee, QAfterSortBy> sortByCreatedAt() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'createdAt', Sort.asc);
@@ -5066,6 +5525,18 @@ extension EmployeeQuerySortBy on QueryBuilder<Employee, Employee, QSortBy> {
       sortByHealthInsuranceRateDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'healthInsuranceRate', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Employee, Employee, QAfterSortBy> sortByIsUnionMember() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isUnionMember', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Employee, Employee, QAfterSortBy> sortByIsUnionMemberDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isUnionMember', Sort.desc);
     });
   }
 
@@ -5226,6 +5697,18 @@ extension EmployeeQuerySortBy on QueryBuilder<Employee, Employee, QSortBy> {
       sortByUnemploymentInsuranceRateDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'unemploymentInsuranceRate', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Employee, Employee, QAfterSortBy> sortByUnionFeeRate() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'unionFeeRate', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Employee, Employee, QAfterSortBy> sortByUnionFeeRateDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'unionFeeRate', Sort.desc);
     });
   }
 
@@ -5413,6 +5896,42 @@ extension EmployeeQuerySortThenBy
     });
   }
 
+  QueryBuilder<Employee, Employee, QAfterSortBy> thenByContractEndDate() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'contractEndDate', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Employee, Employee, QAfterSortBy> thenByContractEndDateDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'contractEndDate', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Employee, Employee, QAfterSortBy> thenByContractStartDate() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'contractStartDate', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Employee, Employee, QAfterSortBy> thenByContractStartDateDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'contractStartDate', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Employee, Employee, QAfterSortBy> thenByContractType() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'contractType', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Employee, Employee, QAfterSortBy> thenByContractTypeDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'contractType', Sort.desc);
+    });
+  }
+
   QueryBuilder<Employee, Employee, QAfterSortBy> thenByCreatedAt() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'createdAt', Sort.asc);
@@ -5556,6 +6075,18 @@ extension EmployeeQuerySortThenBy
   QueryBuilder<Employee, Employee, QAfterSortBy> thenByIdDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'id', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Employee, Employee, QAfterSortBy> thenByIsUnionMember() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isUnionMember', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Employee, Employee, QAfterSortBy> thenByIsUnionMemberDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isUnionMember', Sort.desc);
     });
   }
 
@@ -5719,6 +6250,18 @@ extension EmployeeQuerySortThenBy
     });
   }
 
+  QueryBuilder<Employee, Employee, QAfterSortBy> thenByUnionFeeRate() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'unionFeeRate', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Employee, Employee, QAfterSortBy> thenByUnionFeeRateDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'unionFeeRate', Sort.desc);
+    });
+  }
+
   QueryBuilder<Employee, Employee, QAfterSortBy> thenByUpdatedAt() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'updatedAt', Sort.asc);
@@ -5825,6 +6368,25 @@ extension EmployeeQueryWhereDistinct
     });
   }
 
+  QueryBuilder<Employee, Employee, QDistinct> distinctByContractEndDate() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'contractEndDate');
+    });
+  }
+
+  QueryBuilder<Employee, Employee, QDistinct> distinctByContractStartDate() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'contractStartDate');
+    });
+  }
+
+  QueryBuilder<Employee, Employee, QDistinct> distinctByContractType(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'contractType', caseSensitive: caseSensitive);
+    });
+  }
+
   QueryBuilder<Employee, Employee, QDistinct> distinctByCreatedAt() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'createdAt');
@@ -5897,6 +6459,12 @@ extension EmployeeQueryWhereDistinct
   QueryBuilder<Employee, Employee, QDistinct> distinctByHealthInsuranceRate() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'healthInsuranceRate');
+    });
+  }
+
+  QueryBuilder<Employee, Employee, QDistinct> distinctByIsUnionMember() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'isUnionMember');
     });
   }
 
@@ -5985,6 +6553,12 @@ extension EmployeeQueryWhereDistinct
       distinctByUnemploymentInsuranceRate() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'unemploymentInsuranceRate');
+    });
+  }
+
+  QueryBuilder<Employee, Employee, QDistinct> distinctByUnionFeeRate() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'unionFeeRate');
     });
   }
 
@@ -6088,6 +6662,26 @@ extension EmployeeQueryProperty
     });
   }
 
+  QueryBuilder<Employee, DateTime?, QQueryOperations>
+      contractEndDateProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'contractEndDate');
+    });
+  }
+
+  QueryBuilder<Employee, DateTime?, QQueryOperations>
+      contractStartDateProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'contractStartDate');
+    });
+  }
+
+  QueryBuilder<Employee, String?, QQueryOperations> contractTypeProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'contractType');
+    });
+  }
+
   QueryBuilder<Employee, DateTime, QQueryOperations> createdAtProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'createdAt');
@@ -6152,6 +6746,12 @@ extension EmployeeQueryProperty
       healthInsuranceRateProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'healthInsuranceRate');
+    });
+  }
+
+  QueryBuilder<Employee, bool, QQueryOperations> isUnionMemberProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'isUnionMember');
     });
   }
 
@@ -6234,6 +6834,12 @@ extension EmployeeQueryProperty
       unemploymentInsuranceRateProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'unemploymentInsuranceRate');
+    });
+  }
+
+  QueryBuilder<Employee, double, QQueryOperations> unionFeeRateProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'unionFeeRate');
     });
   }
 

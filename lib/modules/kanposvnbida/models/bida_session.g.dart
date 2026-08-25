@@ -17,75 +17,100 @@ const BidaSessionSchema = CollectionSchema(
   name: r'BidaSession',
   id: -8532099458227148930,
   properties: {
-    r'deletedAt': PropertySchema(
+    r'customerCode': PropertySchema(
       id: 0,
+      name: r'customerCode',
+      type: IsarType.string,
+    ),
+    r'customerName': PropertySchema(
+      id: 1,
+      name: r'customerName',
+      type: IsarType.string,
+    ),
+    r'deletedAt': PropertySchema(
+      id: 2,
       name: r'deletedAt',
       type: IsarType.dateTime,
     ),
+    r'deposit': PropertySchema(
+      id: 3,
+      name: r'deposit',
+      type: IsarType.double,
+    ),
     r'deviceId': PropertySchema(
-      id: 1,
+      id: 4,
       name: r'deviceId',
       type: IsarType.string,
     ),
+    r'discount': PropertySchema(
+      id: 5,
+      name: r'discount',
+      type: IsarType.double,
+    ),
+    r'earnedPoints': PropertySchema(
+      id: 6,
+      name: r'earnedPoints',
+      type: IsarType.long,
+    ),
     r'endTime': PropertySchema(
-      id: 2,
+      id: 7,
       name: r'endTime',
       type: IsarType.dateTime,
     ),
     r'grandTotal': PropertySchema(
-      id: 3,
+      id: 8,
       name: r'grandTotal',
       type: IsarType.double,
     ),
     r'hourlyPrice': PropertySchema(
-      id: 4,
+      id: 9,
       name: r'hourlyPrice',
       type: IsarType.double,
     ),
     r'isSynced': PropertySchema(
-      id: 5,
+      id: 10,
       name: r'isSynced',
       type: IsarType.bool,
     ),
     r'orderLines': PropertySchema(
-      id: 6,
+      id: 11,
       name: r'orderLines',
       type: IsarType.objectList,
       target: r'BidaOrderLine',
     ),
     r'sessionId': PropertySchema(
-      id: 7,
+      id: 12,
       name: r'sessionId',
       type: IsarType.string,
     ),
     r'startTime': PropertySchema(
-      id: 8,
+      id: 13,
       name: r'startTime',
       type: IsarType.dateTime,
     ),
     r'status': PropertySchema(
-      id: 9,
+      id: 14,
       name: r'status',
       type: IsarType.byte,
       enumMap: _BidaSessionstatusEnumValueMap,
     ),
     r'totalItemCost': PropertySchema(
-      id: 10,
+      id: 15,
       name: r'totalItemCost',
       type: IsarType.double,
     ),
     r'totalTimeCost': PropertySchema(
-      id: 11,
+      id: 16,
       name: r'totalTimeCost',
       type: IsarType.double,
     ),
     r'updatedAt': PropertySchema(
-      id: 12,
+      id: 17,
       name: r'updatedAt',
       type: IsarType.dateTime,
     ),
     r'version': PropertySchema(
-      id: 13,
+      id: 18,
       name: r'version',
       type: IsarType.long,
     )
@@ -131,6 +156,8 @@ int _bidaSessionEstimateSize(
   Map<Type, List<int>> allOffsets,
 ) {
   var bytesCount = offsets.last;
+  bytesCount += 3 + object.customerCode.length * 3;
+  bytesCount += 3 + object.customerName.length * 3;
   bytesCount += 3 + object.deviceId.length * 3;
   bytesCount += 3 + object.orderLines.length * 3;
   {
@@ -151,25 +178,30 @@ void _bidaSessionSerialize(
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
-  writer.writeDateTime(offsets[0], object.deletedAt);
-  writer.writeString(offsets[1], object.deviceId);
-  writer.writeDateTime(offsets[2], object.endTime);
-  writer.writeDouble(offsets[3], object.grandTotal);
-  writer.writeDouble(offsets[4], object.hourlyPrice);
-  writer.writeBool(offsets[5], object.isSynced);
+  writer.writeString(offsets[0], object.customerCode);
+  writer.writeString(offsets[1], object.customerName);
+  writer.writeDateTime(offsets[2], object.deletedAt);
+  writer.writeDouble(offsets[3], object.deposit);
+  writer.writeString(offsets[4], object.deviceId);
+  writer.writeDouble(offsets[5], object.discount);
+  writer.writeLong(offsets[6], object.earnedPoints);
+  writer.writeDateTime(offsets[7], object.endTime);
+  writer.writeDouble(offsets[8], object.grandTotal);
+  writer.writeDouble(offsets[9], object.hourlyPrice);
+  writer.writeBool(offsets[10], object.isSynced);
   writer.writeObjectList<BidaOrderLine>(
-    offsets[6],
+    offsets[11],
     allOffsets,
     BidaOrderLineSchema.serialize,
     object.orderLines,
   );
-  writer.writeString(offsets[7], object.sessionId);
-  writer.writeDateTime(offsets[8], object.startTime);
-  writer.writeByte(offsets[9], object.status.index);
-  writer.writeDouble(offsets[10], object.totalItemCost);
-  writer.writeDouble(offsets[11], object.totalTimeCost);
-  writer.writeDateTime(offsets[12], object.updatedAt);
-  writer.writeLong(offsets[13], object.version);
+  writer.writeString(offsets[12], object.sessionId);
+  writer.writeDateTime(offsets[13], object.startTime);
+  writer.writeByte(offsets[14], object.status.index);
+  writer.writeDouble(offsets[15], object.totalItemCost);
+  writer.writeDouble(offsets[16], object.totalTimeCost);
+  writer.writeDateTime(offsets[17], object.updatedAt);
+  writer.writeLong(offsets[18], object.version);
 }
 
 BidaSession _bidaSessionDeserialize(
@@ -179,27 +211,32 @@ BidaSession _bidaSessionDeserialize(
   Map<Type, List<int>> allOffsets,
 ) {
   final object = BidaSession();
-  object.deletedAt = reader.readDateTimeOrNull(offsets[0]);
-  object.deviceId = reader.readString(offsets[1]);
-  object.endTime = reader.readDateTimeOrNull(offsets[2]);
-  object.hourlyPrice = reader.readDouble(offsets[4]);
+  object.customerCode = reader.readString(offsets[0]);
+  object.customerName = reader.readString(offsets[1]);
+  object.deletedAt = reader.readDateTimeOrNull(offsets[2]);
+  object.deposit = reader.readDouble(offsets[3]);
+  object.deviceId = reader.readString(offsets[4]);
+  object.discount = reader.readDouble(offsets[5]);
+  object.earnedPoints = reader.readLong(offsets[6]);
+  object.endTime = reader.readDateTimeOrNull(offsets[7]);
+  object.hourlyPrice = reader.readDouble(offsets[9]);
   object.id = id;
-  object.isSynced = reader.readBool(offsets[5]);
+  object.isSynced = reader.readBool(offsets[10]);
   object.orderLines = reader.readObjectList<BidaOrderLine>(
-        offsets[6],
+        offsets[11],
         BidaOrderLineSchema.deserialize,
         allOffsets,
         BidaOrderLine(),
       ) ??
       [];
-  object.sessionId = reader.readString(offsets[7]);
-  object.startTime = reader.readDateTimeOrNull(offsets[8]);
+  object.sessionId = reader.readString(offsets[12]);
+  object.startTime = reader.readDateTimeOrNull(offsets[13]);
   object.status =
-      _BidaSessionstatusValueEnumMap[reader.readByteOrNull(offsets[9])] ??
+      _BidaSessionstatusValueEnumMap[reader.readByteOrNull(offsets[14])] ??
           BidaSessionStatus.OPEN;
-  object.totalTimeCost = reader.readDouble(offsets[11]);
-  object.updatedAt = reader.readDateTime(offsets[12]);
-  object.version = reader.readLong(offsets[13]);
+  object.totalTimeCost = reader.readDouble(offsets[16]);
+  object.updatedAt = reader.readDateTime(offsets[17]);
+  object.version = reader.readLong(offsets[18]);
   return object;
 }
 
@@ -211,7 +248,7 @@ P _bidaSessionDeserializeProp<P>(
 ) {
   switch (propertyId) {
     case 0:
-      return (reader.readDateTimeOrNull(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 1:
       return (reader.readString(offset)) as P;
     case 2:
@@ -219,10 +256,20 @@ P _bidaSessionDeserializeProp<P>(
     case 3:
       return (reader.readDouble(offset)) as P;
     case 4:
-      return (reader.readDouble(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 5:
-      return (reader.readBool(offset)) as P;
+      return (reader.readDouble(offset)) as P;
     case 6:
+      return (reader.readLong(offset)) as P;
+    case 7:
+      return (reader.readDateTimeOrNull(offset)) as P;
+    case 8:
+      return (reader.readDouble(offset)) as P;
+    case 9:
+      return (reader.readDouble(offset)) as P;
+    case 10:
+      return (reader.readBool(offset)) as P;
+    case 11:
       return (reader.readObjectList<BidaOrderLine>(
             offset,
             BidaOrderLineSchema.deserialize,
@@ -230,20 +277,20 @@ P _bidaSessionDeserializeProp<P>(
             BidaOrderLine(),
           ) ??
           []) as P;
-    case 7:
+    case 12:
       return (reader.readString(offset)) as P;
-    case 8:
+    case 13:
       return (reader.readDateTimeOrNull(offset)) as P;
-    case 9:
+    case 14:
       return (_BidaSessionstatusValueEnumMap[reader.readByteOrNull(offset)] ??
           BidaSessionStatus.OPEN) as P;
-    case 10:
+    case 15:
       return (reader.readDouble(offset)) as P;
-    case 11:
+    case 16:
       return (reader.readDouble(offset)) as P;
-    case 12:
+    case 17:
       return (reader.readDateTime(offset)) as P;
-    case 13:
+    case 18:
       return (reader.readLong(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -456,6 +503,278 @@ extension BidaSessionQueryWhere
 extension BidaSessionQueryFilter
     on QueryBuilder<BidaSession, BidaSession, QFilterCondition> {
   QueryBuilder<BidaSession, BidaSession, QAfterFilterCondition>
+      customerCodeEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'customerCode',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BidaSession, BidaSession, QAfterFilterCondition>
+      customerCodeGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'customerCode',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BidaSession, BidaSession, QAfterFilterCondition>
+      customerCodeLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'customerCode',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BidaSession, BidaSession, QAfterFilterCondition>
+      customerCodeBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'customerCode',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BidaSession, BidaSession, QAfterFilterCondition>
+      customerCodeStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'customerCode',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BidaSession, BidaSession, QAfterFilterCondition>
+      customerCodeEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'customerCode',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BidaSession, BidaSession, QAfterFilterCondition>
+      customerCodeContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'customerCode',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BidaSession, BidaSession, QAfterFilterCondition>
+      customerCodeMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'customerCode',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BidaSession, BidaSession, QAfterFilterCondition>
+      customerCodeIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'customerCode',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<BidaSession, BidaSession, QAfterFilterCondition>
+      customerCodeIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'customerCode',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<BidaSession, BidaSession, QAfterFilterCondition>
+      customerNameEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'customerName',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BidaSession, BidaSession, QAfterFilterCondition>
+      customerNameGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'customerName',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BidaSession, BidaSession, QAfterFilterCondition>
+      customerNameLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'customerName',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BidaSession, BidaSession, QAfterFilterCondition>
+      customerNameBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'customerName',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BidaSession, BidaSession, QAfterFilterCondition>
+      customerNameStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'customerName',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BidaSession, BidaSession, QAfterFilterCondition>
+      customerNameEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'customerName',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BidaSession, BidaSession, QAfterFilterCondition>
+      customerNameContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'customerName',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BidaSession, BidaSession, QAfterFilterCondition>
+      customerNameMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'customerName',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BidaSession, BidaSession, QAfterFilterCondition>
+      customerNameIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'customerName',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<BidaSession, BidaSession, QAfterFilterCondition>
+      customerNameIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'customerName',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<BidaSession, BidaSession, QAfterFilterCondition>
       deletedAtIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNull(
@@ -525,6 +844,69 @@ extension BidaSessionQueryFilter
         includeLower: includeLower,
         upper: upper,
         includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<BidaSession, BidaSession, QAfterFilterCondition> depositEqualTo(
+    double value, {
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'deposit',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<BidaSession, BidaSession, QAfterFilterCondition>
+      depositGreaterThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'deposit',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<BidaSession, BidaSession, QAfterFilterCondition> depositLessThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'deposit',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<BidaSession, BidaSession, QAfterFilterCondition> depositBetween(
+    double lower,
+    double upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'deposit',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        epsilon: epsilon,
       ));
     });
   }
@@ -660,6 +1042,126 @@ extension BidaSessionQueryFilter
       return query.addFilterCondition(FilterCondition.greaterThan(
         property: r'deviceId',
         value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<BidaSession, BidaSession, QAfterFilterCondition> discountEqualTo(
+    double value, {
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'discount',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<BidaSession, BidaSession, QAfterFilterCondition>
+      discountGreaterThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'discount',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<BidaSession, BidaSession, QAfterFilterCondition>
+      discountLessThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'discount',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<BidaSession, BidaSession, QAfterFilterCondition> discountBetween(
+    double lower,
+    double upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'discount',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<BidaSession, BidaSession, QAfterFilterCondition>
+      earnedPointsEqualTo(int value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'earnedPoints',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<BidaSession, BidaSession, QAfterFilterCondition>
+      earnedPointsGreaterThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'earnedPoints',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<BidaSession, BidaSession, QAfterFilterCondition>
+      earnedPointsLessThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'earnedPoints',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<BidaSession, BidaSession, QAfterFilterCondition>
+      earnedPointsBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'earnedPoints',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
       ));
     });
   }
@@ -1555,6 +2057,32 @@ extension BidaSessionQueryLinks
 
 extension BidaSessionQuerySortBy
     on QueryBuilder<BidaSession, BidaSession, QSortBy> {
+  QueryBuilder<BidaSession, BidaSession, QAfterSortBy> sortByCustomerCode() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'customerCode', Sort.asc);
+    });
+  }
+
+  QueryBuilder<BidaSession, BidaSession, QAfterSortBy>
+      sortByCustomerCodeDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'customerCode', Sort.desc);
+    });
+  }
+
+  QueryBuilder<BidaSession, BidaSession, QAfterSortBy> sortByCustomerName() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'customerName', Sort.asc);
+    });
+  }
+
+  QueryBuilder<BidaSession, BidaSession, QAfterSortBy>
+      sortByCustomerNameDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'customerName', Sort.desc);
+    });
+  }
+
   QueryBuilder<BidaSession, BidaSession, QAfterSortBy> sortByDeletedAt() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'deletedAt', Sort.asc);
@@ -1567,6 +2095,18 @@ extension BidaSessionQuerySortBy
     });
   }
 
+  QueryBuilder<BidaSession, BidaSession, QAfterSortBy> sortByDeposit() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deposit', Sort.asc);
+    });
+  }
+
+  QueryBuilder<BidaSession, BidaSession, QAfterSortBy> sortByDepositDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deposit', Sort.desc);
+    });
+  }
+
   QueryBuilder<BidaSession, BidaSession, QAfterSortBy> sortByDeviceId() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'deviceId', Sort.asc);
@@ -1576,6 +2116,31 @@ extension BidaSessionQuerySortBy
   QueryBuilder<BidaSession, BidaSession, QAfterSortBy> sortByDeviceIdDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'deviceId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<BidaSession, BidaSession, QAfterSortBy> sortByDiscount() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'discount', Sort.asc);
+    });
+  }
+
+  QueryBuilder<BidaSession, BidaSession, QAfterSortBy> sortByDiscountDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'discount', Sort.desc);
+    });
+  }
+
+  QueryBuilder<BidaSession, BidaSession, QAfterSortBy> sortByEarnedPoints() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'earnedPoints', Sort.asc);
+    });
+  }
+
+  QueryBuilder<BidaSession, BidaSession, QAfterSortBy>
+      sortByEarnedPointsDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'earnedPoints', Sort.desc);
     });
   }
 
@@ -1716,6 +2281,32 @@ extension BidaSessionQuerySortBy
 
 extension BidaSessionQuerySortThenBy
     on QueryBuilder<BidaSession, BidaSession, QSortThenBy> {
+  QueryBuilder<BidaSession, BidaSession, QAfterSortBy> thenByCustomerCode() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'customerCode', Sort.asc);
+    });
+  }
+
+  QueryBuilder<BidaSession, BidaSession, QAfterSortBy>
+      thenByCustomerCodeDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'customerCode', Sort.desc);
+    });
+  }
+
+  QueryBuilder<BidaSession, BidaSession, QAfterSortBy> thenByCustomerName() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'customerName', Sort.asc);
+    });
+  }
+
+  QueryBuilder<BidaSession, BidaSession, QAfterSortBy>
+      thenByCustomerNameDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'customerName', Sort.desc);
+    });
+  }
+
   QueryBuilder<BidaSession, BidaSession, QAfterSortBy> thenByDeletedAt() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'deletedAt', Sort.asc);
@@ -1728,6 +2319,18 @@ extension BidaSessionQuerySortThenBy
     });
   }
 
+  QueryBuilder<BidaSession, BidaSession, QAfterSortBy> thenByDeposit() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deposit', Sort.asc);
+    });
+  }
+
+  QueryBuilder<BidaSession, BidaSession, QAfterSortBy> thenByDepositDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'deposit', Sort.desc);
+    });
+  }
+
   QueryBuilder<BidaSession, BidaSession, QAfterSortBy> thenByDeviceId() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'deviceId', Sort.asc);
@@ -1737,6 +2340,31 @@ extension BidaSessionQuerySortThenBy
   QueryBuilder<BidaSession, BidaSession, QAfterSortBy> thenByDeviceIdDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'deviceId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<BidaSession, BidaSession, QAfterSortBy> thenByDiscount() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'discount', Sort.asc);
+    });
+  }
+
+  QueryBuilder<BidaSession, BidaSession, QAfterSortBy> thenByDiscountDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'discount', Sort.desc);
+    });
+  }
+
+  QueryBuilder<BidaSession, BidaSession, QAfterSortBy> thenByEarnedPoints() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'earnedPoints', Sort.asc);
+    });
+  }
+
+  QueryBuilder<BidaSession, BidaSession, QAfterSortBy>
+      thenByEarnedPointsDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'earnedPoints', Sort.desc);
     });
   }
 
@@ -1889,9 +2517,29 @@ extension BidaSessionQuerySortThenBy
 
 extension BidaSessionQueryWhereDistinct
     on QueryBuilder<BidaSession, BidaSession, QDistinct> {
+  QueryBuilder<BidaSession, BidaSession, QDistinct> distinctByCustomerCode(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'customerCode', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<BidaSession, BidaSession, QDistinct> distinctByCustomerName(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'customerName', caseSensitive: caseSensitive);
+    });
+  }
+
   QueryBuilder<BidaSession, BidaSession, QDistinct> distinctByDeletedAt() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'deletedAt');
+    });
+  }
+
+  QueryBuilder<BidaSession, BidaSession, QDistinct> distinctByDeposit() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'deposit');
     });
   }
 
@@ -1899,6 +2547,18 @@ extension BidaSessionQueryWhereDistinct
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'deviceId', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<BidaSession, BidaSession, QDistinct> distinctByDiscount() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'discount');
+    });
+  }
+
+  QueryBuilder<BidaSession, BidaSession, QDistinct> distinctByEarnedPoints() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'earnedPoints');
     });
   }
 
@@ -1978,15 +2638,45 @@ extension BidaSessionQueryProperty
     });
   }
 
+  QueryBuilder<BidaSession, String, QQueryOperations> customerCodeProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'customerCode');
+    });
+  }
+
+  QueryBuilder<BidaSession, String, QQueryOperations> customerNameProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'customerName');
+    });
+  }
+
   QueryBuilder<BidaSession, DateTime?, QQueryOperations> deletedAtProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'deletedAt');
     });
   }
 
+  QueryBuilder<BidaSession, double, QQueryOperations> depositProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'deposit');
+    });
+  }
+
   QueryBuilder<BidaSession, String, QQueryOperations> deviceIdProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'deviceId');
+    });
+  }
+
+  QueryBuilder<BidaSession, double, QQueryOperations> discountProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'discount');
+    });
+  }
+
+  QueryBuilder<BidaSession, int, QQueryOperations> earnedPointsProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'earnedPoints');
     });
   }
 

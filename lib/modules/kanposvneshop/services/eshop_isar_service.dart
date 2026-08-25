@@ -8,6 +8,8 @@ import '../models/eshop_cart.dart';
 import '../models/eshop_order.dart';
 import '../models/eshop_wallet.dart';
 import '../models/eshop_sync.dart';
+import '../models/eshop_ops_models.dart';
+import '../models/eshop_gps_models.dart';
 
 class EshopIsarService {
   late Future<Isar> db;
@@ -23,14 +25,26 @@ class EshopIsarService {
     final dir = await getApplicationDocumentsDirectory();
     return await Isar.open(
       [
-        KanShopStoreSchema,
-        KanShopProductSchema,
-        KanShopCategorySchema,
-        KanShopCartItemSchema,
-        KanShopOrderSchema,
-        KanShopWalletSchema,
-        KanShopSyncQueueSchema,
-        KanShopSyncConfigSchema,
+KanShopStoreSchema,
+KanShopProductSchema,
+KanShopCategorySchema,
+KanShopCartItemSchema,
+KanShopOrderSchema,
+KanShopWalletSchema,
+KanShopSyncQueueSchema,
+KanShopSyncConfigSchema,
+EshopVoucherSchema,
+EshopFlashSaleSchema,
+EshopReviewSchema,
+EshopWishlistItemSchema,
+EshopShopFollowSchema,
+EshopChatMessageSchema,
+EshopWalletTransactionSchema,
+EshopComplaintTicketSchema,
+EshopAffiliateReferralSchema,
+EshopPointEntrySchema,
+        EshopShipmentSchema,
+        EshopGpsPingSchema,
       ],
       inspector: true,
       directory: dir.path,

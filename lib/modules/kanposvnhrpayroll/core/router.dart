@@ -13,6 +13,11 @@ import '../screens/payroll/payroll_screen.dart';
 import '../screens/payroll/salary_entry_screen.dart';
 import '../screens/payroll/payroll_edit_screen.dart';
 import '../screens/kpi/kpi_screen.dart';
+import '../screens/accounting/accounting_screen.dart';
+import '../screens/accounting/payslip_screen.dart';
+import '../screens/accounting/journal_entry_input_screen.dart';
+import '../screens/accounting/gl_journal_entry_screen.dart';
+import '../models/accounting_entry.dart';
 import '../screens/reports/reports_screen.dart';
 import '../screens/settings/payroll_settings_screen.dart';
 import '../screens/shell/app_shell.dart';
@@ -133,6 +138,36 @@ final appRouter = GoRouter(
           pageBuilder: (c, s) => const NoTransitionPage(child: KpiScreen()),
         ),
         GoRoute(
+          path: '/accounting',
+          pageBuilder: (c, s) =>
+              const NoTransitionPage(child: AccountingScreen()),
+          routes: [
+            GoRoute(
+              path: 'payslips',
+              builder: (c, s) => const PayslipScreen(),
+            ),
+            GoRoute(
+              path: 'new-entry',
+              builder: (c, s) => const JournalEntryInputScreen(),
+            ),
+            GoRoute(
+              path: 'gl-entry',
+              builder: (c, s) {
+                final typeStr = s.uri.queryParameters['type'];
+                final entryType = EntryType.values.firstWhere(
+                  (e) => e.name == typeStr,
+                  orElse: () => EntryType.salary,
+                );
+                return GlJournalEntryScreen(
+                  initialType: entryType,
+                  year: int.tryParse(s.uri.queryParameters['year'] ?? '') ?? DateTime.now().year,
+                  month: int.tryParse(s.uri.queryParameters['month'] ?? '') ?? DateTime.now().month,
+                );
+              },
+            ),
+          ],
+        ),
+        GoRoute(
           path: '/reports',
           pageBuilder: (c, s) =>
               const NoTransitionPage(child: ReportsScreen()),
@@ -206,6 +241,12 @@ const navItems = [
     icon: Icons.trending_up_outlined,
     activeIcon: Icons.trending_up,
     label: 'KPI',
+  ),
+  NavItem(
+    path: '/accounting',
+    icon: Icons.account_balance_outlined,
+    activeIcon: Icons.account_balance,
+    label: 'Kế toán',
   ),
   NavItem(
     path: '/reports',

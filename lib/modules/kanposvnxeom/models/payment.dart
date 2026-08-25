@@ -1,5 +1,7 @@
 import 'package:isar/isar.dart';
 
+import 'booking.dart' show PaymentMethod;
+
 part 'payment.g.dart';
 
 @collection
@@ -30,15 +32,6 @@ class XeOmPayment {
   DateTime? updatedAt;
   bool isDeleted = false;
   int syncVersion = 1;
-}
-
-enum PaymentMethod {
-  cash,
-  qr,
-  momo,
-  zaloPay,
-  vnpay,
-  bankTransfer
 }
 
 enum PaymentStatus {

@@ -1,7 +1,9 @@
 import '../../../core/db/database_service.dart';
+import '../../../core/utils/id_generator.dart';
 import '../models/employee_model.dart';
 import '../models/attendance_model.dart';
 import '../models/payroll_model.dart';
+import '../models/accounting_model.dart';
 
 class NhanSuSeedData {
   static Future<void> seedIfEmpty() async {
@@ -128,6 +130,62 @@ class NhanSuSeedData {
 
     for (final pr in payrolls) {
       await db.saveItem('payrolls', pr.id, pr.toJson(), triggerSync: false);
+    }
+
+    // Seed chart of accounts (TT133)
+    if (db.getCollection('hs_accounts').isEmpty) {
+      final accounts = [
+        NhanSuAccount(id: 'ACC-001', code: '111', name: 'Tiền mặt', group: '1', isDebit: true),
+        NhanSuAccount(id: 'ACC-002', code: '112', name: 'Tiền gửi ngân hàng', group: '1', isDebit: true),
+        NhanSuAccount(id: 'ACC-003', code: '1121', name: 'Tiền gửi thanh toán', group: '1', isDebit: true),
+        NhanSuAccount(id: 'ACC-004', code: '141', name: 'Hàng hóa', group: '1', isDebit: true),
+        NhanSuAccount(id: 'ACC-005', code: '1411', name: 'Nguyên vật liệu', group: '1', isDebit: true),
+        NhanSuAccount(id: 'ACC-006', code: '3331', name: 'Thuế GTGT được khấu trừ', group: '3', isDebit: false),
+        NhanSuAccount(id: 'ACC-007', code: '3332', name: 'Thuế GTGT phải nộp', group: '3', isDebit: false),
+        NhanSuAccount(id: 'ACC-008', code: '3335', name: 'Thuế TNCN phải nộp', group: '3', isDebit: false),
+        NhanSuAccount(id: 'ACC-009', code: '334', name: 'BHXH, BHYT, BHTN phải nộp', group: '3', isDebit: false),
+        NhanSuAccount(id: 'ACC-010', code: '3341', name: 'Lương phải trả', group: '3', isDebit: false),
+        NhanSuAccount(id: 'ACC-011', code: '3342', name: 'Phúc lợi phải trả', group: '3', isDebit: false),
+        NhanSuAccount(id: 'ACC-012', code: '3382', name: 'BHXH NSDLĐ phải nộp', group: '3', isDebit: false),
+        NhanSuAccount(id: 'ACC-013', code: '3383', name: 'BHYT NSDLĐ phải nộp', group: '3', isDebit: false),
+        NhanSuAccount(id: 'ACC-014', code: '3384', name: 'BHTN NSDLĐ phải nộp', group: '3', isDebit: false),
+        NhanSuAccount(id: 'ACC-015', code: '3385', name: 'KPCĐ NSDLĐ phải nộp', group: '3', isDebit: false),
+        NhanSuAccount(id: 'ACC-016', code: '6422', name: 'Chi phí lương NSDLĐ', group: '6', isDebit: true),
+        NhanSuAccount(id: 'ACC-017', code: '6423', name: 'Chi phí phúc lợi NSDLĐ', group: '6', isDebit: true),
+        NhanSuAccount(id: 'ACC-018', code: '6424', name: 'Chi phí BHXH NSDLĐ', group: '6', isDebit: true),
+        NhanSuAccount(id: 'ACC-019', code: '6426', name: 'Chi phí công đoàn', group: '6', isDebit: true),
+        NhanSuAccount(id: 'ACC-020', code: '6428', name: 'Chi phí khác cho NLĐ', group: '6', isDebit: true),
+      ];
+
+      for (final acc in accounts) {
+        await db.saveItem('hs_accounts', acc.id, acc.toJson(), triggerSync: false);
+      }
+
+      // Seed a sample GL journal entry from payroll
+      final totalSalary = payrolls.fold<double>(0, (s, p) => s + p.earnedBaseSalary);
+      final totalBHXH = payrolls.fold<double>(0, (s, p) => s + (p.deductions['BHXH'] ?? p.deductions['baoHiem'] ?? 0));
+      final totalTax = payrolls.fold<double>(0, (s, p) => s + (p.deductions['Thuế TNCN'] ?? p.deductions['thueTNCN'] ?? 0));
+      final totalNet = payrolls.fold<double>(0, (s, p) => s + p.netSalary);
+
+      if (totalSalary > 0) {
+        final entry = NhanSuJournalEntry(
+          id: IdGenerator.generateId('JEN'),
+          journalID: 'JEN-SALARY-$year-${month.toString().padLeft(2, '0')}',
+          entryType: 'SALARY',
+          year: year,
+          month: month,
+          date: DateTime(year, month, DateTime(year, month + 1, 0).day),
+          description: 'Chi phí lương T$month/$year (${payrolls.length} NV)',
+          lines: [
+            NhanSuJournalLine(accountCode: '6422', accountName: 'Chi phí lương NSDLĐ', debit: totalSalary, credit: 0, description: 'Tổng lương NSDLĐ'),
+            NhanSuJournalLine(accountCode: '334', accountName: 'BHXH, BHYT, BHTN phải nộp', debit: 0, credit: totalBHXH, description: 'BHXH phần NLĐ đóng'),
+            NhanSuJournalLine(accountCode: '3335', accountName: 'Thuế TNCN phải nộp', debit: 0, credit: totalTax, description: 'Thuế TNCN tạm khấu trừ'),
+            NhanSuJournalLine(accountCode: '3341', accountName: 'Lương phải trả', debit: 0, credit: totalNet, description: 'Lương NET phải trả cho NLĐ'),
+          ],
+          isPosted: true,
+        );
+        await db.saveItem('hs_journal_entries', entry.id, entry.toJson(), triggerSync: false);
+      }
     }
   }
 }

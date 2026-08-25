@@ -17,74 +17,139 @@ const BookingLocalSchema = CollectionSchema(
   name: r'BookingLocal',
   id: -3603850071880143692,
   properties: {
-    r'commission': PropertySchema(
+    r'agentId': PropertySchema(
       id: 0,
+      name: r'agentId',
+      type: IsarType.string,
+    ),
+    r'commission': PropertySchema(
+      id: 1,
       name: r'commission',
       type: IsarType.double,
     ),
+    r'contactEmail': PropertySchema(
+      id: 2,
+      name: r'contactEmail',
+      type: IsarType.string,
+    ),
     r'createdAt': PropertySchema(
-      id: 1,
+      id: 3,
       name: r'createdAt',
       type: IsarType.dateTime,
     ),
+    r'discountAmount': PropertySchema(
+      id: 4,
+      name: r'discountAmount',
+      type: IsarType.double,
+    ),
+    r'expiresAt': PropertySchema(
+      id: 5,
+      name: r'expiresAt',
+      type: IsarType.dateTime,
+    ),
     r'flightOfferUuid': PropertySchema(
-      id: 2,
+      id: 6,
       name: r'flightOfferUuid',
       type: IsarType.string,
     ),
+    r'idempotencyKey': PropertySchema(
+      id: 7,
+      name: r'idempotencyKey',
+      type: IsarType.string,
+    ),
     r'isCheckedIn': PropertySchema(
-      id: 3,
+      id: 8,
       name: r'isCheckedIn',
       type: IsarType.bool,
     ),
     r'isDeleted': PropertySchema(
-      id: 4,
+      id: 9,
       name: r'isDeleted',
       type: IsarType.bool,
     ),
     r'needsSync': PropertySchema(
-      id: 5,
+      id: 10,
       name: r'needsSync',
       type: IsarType.bool,
     ),
+    r'paidAmount': PropertySchema(
+      id: 11,
+      name: r'paidAmount',
+      type: IsarType.double,
+    ),
     r'passengerName': PropertySchema(
-      id: 6,
+      id: 12,
       name: r'passengerName',
       type: IsarType.string,
     ),
     r'passengerPhone': PropertySchema(
-      id: 7,
+      id: 13,
       name: r'passengerPhone',
       type: IsarType.string,
     ),
     r'pnrCode': PropertySchema(
-      id: 8,
+      id: 14,
       name: r'pnrCode',
       type: IsarType.string,
     ),
+    r'profit': PropertySchema(
+      id: 15,
+      name: r'profit',
+      type: IsarType.double,
+    ),
+    r'promoCode': PropertySchema(
+      id: 16,
+      name: r'promoCode',
+      type: IsarType.string,
+    ),
+    r'providerBookingId': PropertySchema(
+      id: 17,
+      name: r'providerBookingId',
+      type: IsarType.string,
+    ),
+    r'remainingAmount': PropertySchema(
+      id: 18,
+      name: r'remainingAmount',
+      type: IsarType.double,
+    ),
     r'seatNumber': PropertySchema(
-      id: 9,
+      id: 19,
       name: r'seatNumber',
       type: IsarType.string,
     ),
+    r'serviceFee': PropertySchema(
+      id: 20,
+      name: r'serviceFee',
+      type: IsarType.double,
+    ),
     r'status': PropertySchema(
-      id: 10,
+      id: 21,
       name: r'status',
       type: IsarType.byte,
       enumMap: _BookingLocalstatusEnumValueMap,
     ),
+    r'supplierPrice': PropertySchema(
+      id: 22,
+      name: r'supplierPrice',
+      type: IsarType.double,
+    ),
+    r'ticketNumber': PropertySchema(
+      id: 23,
+      name: r'ticketNumber',
+      type: IsarType.string,
+    ),
     r'totalAmount': PropertySchema(
-      id: 11,
+      id: 24,
       name: r'totalAmount',
       type: IsarType.double,
     ),
     r'updatedAt': PropertySchema(
-      id: 12,
+      id: 25,
       name: r'updatedAt',
       type: IsarType.dateTime,
     ),
     r'uuid': PropertySchema(
-      id: 13,
+      id: 26,
       name: r'uuid',
       type: IsarType.string,
     )
@@ -123,8 +188,16 @@ int _bookingLocalEstimateSize(
   Map<Type, List<int>> allOffsets,
 ) {
   var bytesCount = offsets.last;
+  bytesCount += 3 + object.agentId.length * 3;
+  bytesCount += 3 + object.contactEmail.length * 3;
   {
     final value = object.flightOfferUuid;
+    if (value != null) {
+      bytesCount += 3 + value.length * 3;
+    }
+  }
+  {
+    final value = object.idempotencyKey;
     if (value != null) {
       bytesCount += 3 + value.length * 3;
     }
@@ -147,8 +220,21 @@ int _bookingLocalEstimateSize(
       bytesCount += 3 + value.length * 3;
     }
   }
+  bytesCount += 3 + object.promoCode.length * 3;
+  {
+    final value = object.providerBookingId;
+    if (value != null) {
+      bytesCount += 3 + value.length * 3;
+    }
+  }
   {
     final value = object.seatNumber;
+    if (value != null) {
+      bytesCount += 3 + value.length * 3;
+    }
+  }
+  {
+    final value = object.ticketNumber;
     if (value != null) {
       bytesCount += 3 + value.length * 3;
     }
@@ -168,20 +254,33 @@ void _bookingLocalSerialize(
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
-  writer.writeDouble(offsets[0], object.commission);
-  writer.writeDateTime(offsets[1], object.createdAt);
-  writer.writeString(offsets[2], object.flightOfferUuid);
-  writer.writeBool(offsets[3], object.isCheckedIn);
-  writer.writeBool(offsets[4], object.isDeleted);
-  writer.writeBool(offsets[5], object.needsSync);
-  writer.writeString(offsets[6], object.passengerName);
-  writer.writeString(offsets[7], object.passengerPhone);
-  writer.writeString(offsets[8], object.pnrCode);
-  writer.writeString(offsets[9], object.seatNumber);
-  writer.writeByte(offsets[10], object.status.index);
-  writer.writeDouble(offsets[11], object.totalAmount);
-  writer.writeDateTime(offsets[12], object.updatedAt);
-  writer.writeString(offsets[13], object.uuid);
+  writer.writeString(offsets[0], object.agentId);
+  writer.writeDouble(offsets[1], object.commission);
+  writer.writeString(offsets[2], object.contactEmail);
+  writer.writeDateTime(offsets[3], object.createdAt);
+  writer.writeDouble(offsets[4], object.discountAmount);
+  writer.writeDateTime(offsets[5], object.expiresAt);
+  writer.writeString(offsets[6], object.flightOfferUuid);
+  writer.writeString(offsets[7], object.idempotencyKey);
+  writer.writeBool(offsets[8], object.isCheckedIn);
+  writer.writeBool(offsets[9], object.isDeleted);
+  writer.writeBool(offsets[10], object.needsSync);
+  writer.writeDouble(offsets[11], object.paidAmount);
+  writer.writeString(offsets[12], object.passengerName);
+  writer.writeString(offsets[13], object.passengerPhone);
+  writer.writeString(offsets[14], object.pnrCode);
+  writer.writeDouble(offsets[15], object.profit);
+  writer.writeString(offsets[16], object.promoCode);
+  writer.writeString(offsets[17], object.providerBookingId);
+  writer.writeDouble(offsets[18], object.remainingAmount);
+  writer.writeString(offsets[19], object.seatNumber);
+  writer.writeDouble(offsets[20], object.serviceFee);
+  writer.writeByte(offsets[21], object.status.index);
+  writer.writeDouble(offsets[22], object.supplierPrice);
+  writer.writeString(offsets[23], object.ticketNumber);
+  writer.writeDouble(offsets[24], object.totalAmount);
+  writer.writeDateTime(offsets[25], object.updatedAt);
+  writer.writeString(offsets[26], object.uuid);
 }
 
 BookingLocal _bookingLocalDeserialize(
@@ -191,23 +290,36 @@ BookingLocal _bookingLocalDeserialize(
   Map<Type, List<int>> allOffsets,
 ) {
   final object = BookingLocal();
-  object.commission = reader.readDoubleOrNull(offsets[0]);
-  object.createdAt = reader.readDateTimeOrNull(offsets[1]);
-  object.flightOfferUuid = reader.readStringOrNull(offsets[2]);
+  object.agentId = reader.readString(offsets[0]);
+  object.commission = reader.readDoubleOrNull(offsets[1]);
+  object.contactEmail = reader.readString(offsets[2]);
+  object.createdAt = reader.readDateTimeOrNull(offsets[3]);
+  object.discountAmount = reader.readDouble(offsets[4]);
+  object.expiresAt = reader.readDateTimeOrNull(offsets[5]);
+  object.flightOfferUuid = reader.readStringOrNull(offsets[6]);
   object.id = id;
-  object.isCheckedIn = reader.readBool(offsets[3]);
-  object.isDeleted = reader.readBool(offsets[4]);
-  object.needsSync = reader.readBool(offsets[5]);
-  object.passengerName = reader.readStringOrNull(offsets[6]);
-  object.passengerPhone = reader.readStringOrNull(offsets[7]);
-  object.pnrCode = reader.readStringOrNull(offsets[8]);
-  object.seatNumber = reader.readStringOrNull(offsets[9]);
+  object.idempotencyKey = reader.readStringOrNull(offsets[7]);
+  object.isCheckedIn = reader.readBool(offsets[8]);
+  object.isDeleted = reader.readBool(offsets[9]);
+  object.needsSync = reader.readBool(offsets[10]);
+  object.paidAmount = reader.readDouble(offsets[11]);
+  object.passengerName = reader.readStringOrNull(offsets[12]);
+  object.passengerPhone = reader.readStringOrNull(offsets[13]);
+  object.pnrCode = reader.readStringOrNull(offsets[14]);
+  object.profit = reader.readDouble(offsets[15]);
+  object.promoCode = reader.readString(offsets[16]);
+  object.providerBookingId = reader.readStringOrNull(offsets[17]);
+  object.remainingAmount = reader.readDouble(offsets[18]);
+  object.seatNumber = reader.readStringOrNull(offsets[19]);
+  object.serviceFee = reader.readDouble(offsets[20]);
   object.status =
-      _BookingLocalstatusValueEnumMap[reader.readByteOrNull(offsets[10])] ??
+      _BookingLocalstatusValueEnumMap[reader.readByteOrNull(offsets[21])] ??
           BookingAirStatus.draft;
-  object.totalAmount = reader.readDoubleOrNull(offsets[11]);
-  object.updatedAt = reader.readDateTimeOrNull(offsets[12]);
-  object.uuid = reader.readStringOrNull(offsets[13]);
+  object.supplierPrice = reader.readDouble(offsets[22]);
+  object.ticketNumber = reader.readStringOrNull(offsets[23]);
+  object.totalAmount = reader.readDoubleOrNull(offsets[24]);
+  object.updatedAt = reader.readDateTimeOrNull(offsets[25]);
+  object.uuid = reader.readStringOrNull(offsets[26]);
   return object;
 }
 
@@ -219,33 +331,59 @@ P _bookingLocalDeserializeProp<P>(
 ) {
   switch (propertyId) {
     case 0:
-      return (reader.readDoubleOrNull(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 1:
-      return (reader.readDateTimeOrNull(offset)) as P;
+      return (reader.readDoubleOrNull(offset)) as P;
     case 2:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 3:
-      return (reader.readBool(offset)) as P;
+      return (reader.readDateTimeOrNull(offset)) as P;
     case 4:
-      return (reader.readBool(offset)) as P;
+      return (reader.readDouble(offset)) as P;
     case 5:
-      return (reader.readBool(offset)) as P;
+      return (reader.readDateTimeOrNull(offset)) as P;
     case 6:
       return (reader.readStringOrNull(offset)) as P;
     case 7:
       return (reader.readStringOrNull(offset)) as P;
     case 8:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readBool(offset)) as P;
     case 9:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readBool(offset)) as P;
     case 10:
+      return (reader.readBool(offset)) as P;
+    case 11:
+      return (reader.readDouble(offset)) as P;
+    case 12:
+      return (reader.readStringOrNull(offset)) as P;
+    case 13:
+      return (reader.readStringOrNull(offset)) as P;
+    case 14:
+      return (reader.readStringOrNull(offset)) as P;
+    case 15:
+      return (reader.readDouble(offset)) as P;
+    case 16:
+      return (reader.readString(offset)) as P;
+    case 17:
+      return (reader.readStringOrNull(offset)) as P;
+    case 18:
+      return (reader.readDouble(offset)) as P;
+    case 19:
+      return (reader.readStringOrNull(offset)) as P;
+    case 20:
+      return (reader.readDouble(offset)) as P;
+    case 21:
       return (_BookingLocalstatusValueEnumMap[reader.readByteOrNull(offset)] ??
           BookingAirStatus.draft) as P;
-    case 11:
+    case 22:
+      return (reader.readDouble(offset)) as P;
+    case 23:
+      return (reader.readStringOrNull(offset)) as P;
+    case 24:
       return (reader.readDoubleOrNull(offset)) as P;
-    case 12:
+    case 25:
       return (reader.readDateTimeOrNull(offset)) as P;
-    case 13:
+    case 26:
       return (reader.readStringOrNull(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -257,12 +395,26 @@ const _BookingLocalstatusEnumValueMap = {
   'pendingPayment': 1,
   'confirmed': 2,
   'cancelled': 3,
+  'held': 4,
+  'paid': 5,
+  'ticketed': 6,
+  'cancelRequested': 7,
+  'expired': 8,
+  'failed': 9,
+  'refunded': 10,
 };
 const _BookingLocalstatusValueEnumMap = {
   0: BookingAirStatus.draft,
   1: BookingAirStatus.pendingPayment,
   2: BookingAirStatus.confirmed,
   3: BookingAirStatus.cancelled,
+  4: BookingAirStatus.held,
+  5: BookingAirStatus.paid,
+  6: BookingAirStatus.ticketed,
+  7: BookingAirStatus.cancelRequested,
+  8: BookingAirStatus.expired,
+  9: BookingAirStatus.failed,
+  10: BookingAirStatus.refunded,
 };
 
 Id _bookingLocalGetId(BookingLocal object) {
@@ -480,6 +632,142 @@ extension BookingLocalQueryWhere
 extension BookingLocalQueryFilter
     on QueryBuilder<BookingLocal, BookingLocal, QFilterCondition> {
   QueryBuilder<BookingLocal, BookingLocal, QAfterFilterCondition>
+      agentIdEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'agentId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterFilterCondition>
+      agentIdGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'agentId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterFilterCondition>
+      agentIdLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'agentId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterFilterCondition>
+      agentIdBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'agentId',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterFilterCondition>
+      agentIdStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'agentId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterFilterCondition>
+      agentIdEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'agentId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterFilterCondition>
+      agentIdContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'agentId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterFilterCondition>
+      agentIdMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'agentId',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterFilterCondition>
+      agentIdIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'agentId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterFilterCondition>
+      agentIdIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'agentId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterFilterCondition>
       commissionIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNull(
@@ -564,6 +852,142 @@ extension BookingLocalQueryFilter
   }
 
   QueryBuilder<BookingLocal, BookingLocal, QAfterFilterCondition>
+      contactEmailEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'contactEmail',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterFilterCondition>
+      contactEmailGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'contactEmail',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterFilterCondition>
+      contactEmailLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'contactEmail',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterFilterCondition>
+      contactEmailBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'contactEmail',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterFilterCondition>
+      contactEmailStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'contactEmail',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterFilterCondition>
+      contactEmailEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'contactEmail',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterFilterCondition>
+      contactEmailContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'contactEmail',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterFilterCondition>
+      contactEmailMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'contactEmail',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterFilterCondition>
+      contactEmailIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'contactEmail',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterFilterCondition>
+      contactEmailIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'contactEmail',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterFilterCondition>
       createdAtIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNull(
@@ -629,6 +1053,146 @@ extension BookingLocalQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.between(
         property: r'createdAt',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterFilterCondition>
+      discountAmountEqualTo(
+    double value, {
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'discountAmount',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterFilterCondition>
+      discountAmountGreaterThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'discountAmount',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterFilterCondition>
+      discountAmountLessThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'discountAmount',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterFilterCondition>
+      discountAmountBetween(
+    double lower,
+    double upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'discountAmount',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterFilterCondition>
+      expiresAtIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'expiresAt',
+      ));
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterFilterCondition>
+      expiresAtIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'expiresAt',
+      ));
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterFilterCondition>
+      expiresAtEqualTo(DateTime? value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'expiresAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterFilterCondition>
+      expiresAtGreaterThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'expiresAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterFilterCondition>
+      expiresAtLessThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'expiresAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterFilterCondition>
+      expiresAtBetween(
+    DateTime? lower,
+    DateTime? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'expiresAt',
         lower: lower,
         includeLower: includeLower,
         upper: upper,
@@ -845,6 +1409,160 @@ extension BookingLocalQueryFilter
   }
 
   QueryBuilder<BookingLocal, BookingLocal, QAfterFilterCondition>
+      idempotencyKeyIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'idempotencyKey',
+      ));
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterFilterCondition>
+      idempotencyKeyIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'idempotencyKey',
+      ));
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterFilterCondition>
+      idempotencyKeyEqualTo(
+    String? value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'idempotencyKey',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterFilterCondition>
+      idempotencyKeyGreaterThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'idempotencyKey',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterFilterCondition>
+      idempotencyKeyLessThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'idempotencyKey',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterFilterCondition>
+      idempotencyKeyBetween(
+    String? lower,
+    String? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'idempotencyKey',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterFilterCondition>
+      idempotencyKeyStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'idempotencyKey',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterFilterCondition>
+      idempotencyKeyEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'idempotencyKey',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterFilterCondition>
+      idempotencyKeyContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'idempotencyKey',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterFilterCondition>
+      idempotencyKeyMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'idempotencyKey',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterFilterCondition>
+      idempotencyKeyIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'idempotencyKey',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterFilterCondition>
+      idempotencyKeyIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'idempotencyKey',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterFilterCondition>
       isCheckedInEqualTo(bool value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
@@ -870,6 +1588,72 @@ extension BookingLocalQueryFilter
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'needsSync',
         value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterFilterCondition>
+      paidAmountEqualTo(
+    double value, {
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'paidAmount',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterFilterCondition>
+      paidAmountGreaterThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'paidAmount',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterFilterCondition>
+      paidAmountLessThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'paidAmount',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterFilterCondition>
+      paidAmountBetween(
+    double lower,
+    double upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'paidAmount',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        epsilon: epsilon,
       ));
     });
   }
@@ -1336,6 +2120,426 @@ extension BookingLocalQueryFilter
     });
   }
 
+  QueryBuilder<BookingLocal, BookingLocal, QAfterFilterCondition> profitEqualTo(
+    double value, {
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'profit',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterFilterCondition>
+      profitGreaterThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'profit',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterFilterCondition>
+      profitLessThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'profit',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterFilterCondition> profitBetween(
+    double lower,
+    double upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'profit',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterFilterCondition>
+      promoCodeEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'promoCode',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterFilterCondition>
+      promoCodeGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'promoCode',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterFilterCondition>
+      promoCodeLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'promoCode',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterFilterCondition>
+      promoCodeBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'promoCode',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterFilterCondition>
+      promoCodeStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'promoCode',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterFilterCondition>
+      promoCodeEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'promoCode',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterFilterCondition>
+      promoCodeContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'promoCode',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterFilterCondition>
+      promoCodeMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'promoCode',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterFilterCondition>
+      promoCodeIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'promoCode',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterFilterCondition>
+      promoCodeIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'promoCode',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterFilterCondition>
+      providerBookingIdIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'providerBookingId',
+      ));
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterFilterCondition>
+      providerBookingIdIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'providerBookingId',
+      ));
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterFilterCondition>
+      providerBookingIdEqualTo(
+    String? value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'providerBookingId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterFilterCondition>
+      providerBookingIdGreaterThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'providerBookingId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterFilterCondition>
+      providerBookingIdLessThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'providerBookingId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterFilterCondition>
+      providerBookingIdBetween(
+    String? lower,
+    String? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'providerBookingId',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterFilterCondition>
+      providerBookingIdStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'providerBookingId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterFilterCondition>
+      providerBookingIdEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'providerBookingId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterFilterCondition>
+      providerBookingIdContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'providerBookingId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterFilterCondition>
+      providerBookingIdMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'providerBookingId',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterFilterCondition>
+      providerBookingIdIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'providerBookingId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterFilterCondition>
+      providerBookingIdIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'providerBookingId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterFilterCondition>
+      remainingAmountEqualTo(
+    double value, {
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'remainingAmount',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterFilterCondition>
+      remainingAmountGreaterThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'remainingAmount',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterFilterCondition>
+      remainingAmountLessThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'remainingAmount',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterFilterCondition>
+      remainingAmountBetween(
+    double lower,
+    double upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'remainingAmount',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
   QueryBuilder<BookingLocal, BookingLocal, QAfterFilterCondition>
       seatNumberIsNull() {
     return QueryBuilder.apply(this, (query) {
@@ -1490,6 +2694,72 @@ extension BookingLocalQueryFilter
     });
   }
 
+  QueryBuilder<BookingLocal, BookingLocal, QAfterFilterCondition>
+      serviceFeeEqualTo(
+    double value, {
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'serviceFee',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterFilterCondition>
+      serviceFeeGreaterThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'serviceFee',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterFilterCondition>
+      serviceFeeLessThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'serviceFee',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterFilterCondition>
+      serviceFeeBetween(
+    double lower,
+    double upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'serviceFee',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
   QueryBuilder<BookingLocal, BookingLocal, QAfterFilterCondition> statusEqualTo(
       BookingAirStatus value) {
     return QueryBuilder.apply(this, (query) {
@@ -1541,6 +2811,226 @@ extension BookingLocalQueryFilter
         includeLower: includeLower,
         upper: upper,
         includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterFilterCondition>
+      supplierPriceEqualTo(
+    double value, {
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'supplierPrice',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterFilterCondition>
+      supplierPriceGreaterThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'supplierPrice',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterFilterCondition>
+      supplierPriceLessThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'supplierPrice',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterFilterCondition>
+      supplierPriceBetween(
+    double lower,
+    double upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'supplierPrice',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterFilterCondition>
+      ticketNumberIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'ticketNumber',
+      ));
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterFilterCondition>
+      ticketNumberIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'ticketNumber',
+      ));
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterFilterCondition>
+      ticketNumberEqualTo(
+    String? value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'ticketNumber',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterFilterCondition>
+      ticketNumberGreaterThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'ticketNumber',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterFilterCondition>
+      ticketNumberLessThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'ticketNumber',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterFilterCondition>
+      ticketNumberBetween(
+    String? lower,
+    String? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'ticketNumber',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterFilterCondition>
+      ticketNumberStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'ticketNumber',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterFilterCondition>
+      ticketNumberEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'ticketNumber',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterFilterCondition>
+      ticketNumberContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'ticketNumber',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterFilterCondition>
+      ticketNumberMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'ticketNumber',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterFilterCondition>
+      ticketNumberIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'ticketNumber',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterFilterCondition>
+      ticketNumberIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'ticketNumber',
+        value: '',
       ));
     });
   }
@@ -1863,6 +3353,18 @@ extension BookingLocalQueryLinks
 
 extension BookingLocalQuerySortBy
     on QueryBuilder<BookingLocal, BookingLocal, QSortBy> {
+  QueryBuilder<BookingLocal, BookingLocal, QAfterSortBy> sortByAgentId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'agentId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterSortBy> sortByAgentIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'agentId', Sort.desc);
+    });
+  }
+
   QueryBuilder<BookingLocal, BookingLocal, QAfterSortBy> sortByCommission() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'commission', Sort.asc);
@@ -1873,6 +3375,19 @@ extension BookingLocalQuerySortBy
       sortByCommissionDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'commission', Sort.desc);
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterSortBy> sortByContactEmail() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'contactEmail', Sort.asc);
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterSortBy>
+      sortByContactEmailDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'contactEmail', Sort.desc);
     });
   }
 
@@ -1889,6 +3404,32 @@ extension BookingLocalQuerySortBy
   }
 
   QueryBuilder<BookingLocal, BookingLocal, QAfterSortBy>
+      sortByDiscountAmount() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'discountAmount', Sort.asc);
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterSortBy>
+      sortByDiscountAmountDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'discountAmount', Sort.desc);
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterSortBy> sortByExpiresAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'expiresAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterSortBy> sortByExpiresAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'expiresAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterSortBy>
       sortByFlightOfferUuid() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'flightOfferUuid', Sort.asc);
@@ -1899,6 +3440,20 @@ extension BookingLocalQuerySortBy
       sortByFlightOfferUuidDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'flightOfferUuid', Sort.desc);
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterSortBy>
+      sortByIdempotencyKey() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'idempotencyKey', Sort.asc);
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterSortBy>
+      sortByIdempotencyKeyDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'idempotencyKey', Sort.desc);
     });
   }
 
@@ -1936,6 +3491,19 @@ extension BookingLocalQuerySortBy
   QueryBuilder<BookingLocal, BookingLocal, QAfterSortBy> sortByNeedsSyncDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'needsSync', Sort.desc);
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterSortBy> sortByPaidAmount() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'paidAmount', Sort.asc);
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterSortBy>
+      sortByPaidAmountDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'paidAmount', Sort.desc);
     });
   }
 
@@ -1978,6 +3546,58 @@ extension BookingLocalQuerySortBy
     });
   }
 
+  QueryBuilder<BookingLocal, BookingLocal, QAfterSortBy> sortByProfit() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'profit', Sort.asc);
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterSortBy> sortByProfitDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'profit', Sort.desc);
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterSortBy> sortByPromoCode() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'promoCode', Sort.asc);
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterSortBy> sortByPromoCodeDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'promoCode', Sort.desc);
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterSortBy>
+      sortByProviderBookingId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'providerBookingId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterSortBy>
+      sortByProviderBookingIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'providerBookingId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterSortBy>
+      sortByRemainingAmount() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'remainingAmount', Sort.asc);
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterSortBy>
+      sortByRemainingAmountDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'remainingAmount', Sort.desc);
+    });
+  }
+
   QueryBuilder<BookingLocal, BookingLocal, QAfterSortBy> sortBySeatNumber() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'seatNumber', Sort.asc);
@@ -1991,6 +3611,19 @@ extension BookingLocalQuerySortBy
     });
   }
 
+  QueryBuilder<BookingLocal, BookingLocal, QAfterSortBy> sortByServiceFee() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'serviceFee', Sort.asc);
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterSortBy>
+      sortByServiceFeeDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'serviceFee', Sort.desc);
+    });
+  }
+
   QueryBuilder<BookingLocal, BookingLocal, QAfterSortBy> sortByStatus() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'status', Sort.asc);
@@ -2000,6 +3633,32 @@ extension BookingLocalQuerySortBy
   QueryBuilder<BookingLocal, BookingLocal, QAfterSortBy> sortByStatusDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'status', Sort.desc);
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterSortBy> sortBySupplierPrice() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'supplierPrice', Sort.asc);
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterSortBy>
+      sortBySupplierPriceDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'supplierPrice', Sort.desc);
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterSortBy> sortByTicketNumber() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'ticketNumber', Sort.asc);
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterSortBy>
+      sortByTicketNumberDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'ticketNumber', Sort.desc);
     });
   }
 
@@ -2043,6 +3702,18 @@ extension BookingLocalQuerySortBy
 
 extension BookingLocalQuerySortThenBy
     on QueryBuilder<BookingLocal, BookingLocal, QSortThenBy> {
+  QueryBuilder<BookingLocal, BookingLocal, QAfterSortBy> thenByAgentId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'agentId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterSortBy> thenByAgentIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'agentId', Sort.desc);
+    });
+  }
+
   QueryBuilder<BookingLocal, BookingLocal, QAfterSortBy> thenByCommission() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'commission', Sort.asc);
@@ -2056,6 +3727,19 @@ extension BookingLocalQuerySortThenBy
     });
   }
 
+  QueryBuilder<BookingLocal, BookingLocal, QAfterSortBy> thenByContactEmail() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'contactEmail', Sort.asc);
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterSortBy>
+      thenByContactEmailDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'contactEmail', Sort.desc);
+    });
+  }
+
   QueryBuilder<BookingLocal, BookingLocal, QAfterSortBy> thenByCreatedAt() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'createdAt', Sort.asc);
@@ -2065,6 +3749,32 @@ extension BookingLocalQuerySortThenBy
   QueryBuilder<BookingLocal, BookingLocal, QAfterSortBy> thenByCreatedAtDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'createdAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterSortBy>
+      thenByDiscountAmount() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'discountAmount', Sort.asc);
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterSortBy>
+      thenByDiscountAmountDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'discountAmount', Sort.desc);
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterSortBy> thenByExpiresAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'expiresAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterSortBy> thenByExpiresAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'expiresAt', Sort.desc);
     });
   }
 
@@ -2091,6 +3801,20 @@ extension BookingLocalQuerySortThenBy
   QueryBuilder<BookingLocal, BookingLocal, QAfterSortBy> thenByIdDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'id', Sort.desc);
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterSortBy>
+      thenByIdempotencyKey() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'idempotencyKey', Sort.asc);
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterSortBy>
+      thenByIdempotencyKeyDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'idempotencyKey', Sort.desc);
     });
   }
 
@@ -2128,6 +3852,19 @@ extension BookingLocalQuerySortThenBy
   QueryBuilder<BookingLocal, BookingLocal, QAfterSortBy> thenByNeedsSyncDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'needsSync', Sort.desc);
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterSortBy> thenByPaidAmount() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'paidAmount', Sort.asc);
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterSortBy>
+      thenByPaidAmountDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'paidAmount', Sort.desc);
     });
   }
 
@@ -2170,6 +3907,58 @@ extension BookingLocalQuerySortThenBy
     });
   }
 
+  QueryBuilder<BookingLocal, BookingLocal, QAfterSortBy> thenByProfit() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'profit', Sort.asc);
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterSortBy> thenByProfitDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'profit', Sort.desc);
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterSortBy> thenByPromoCode() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'promoCode', Sort.asc);
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterSortBy> thenByPromoCodeDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'promoCode', Sort.desc);
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterSortBy>
+      thenByProviderBookingId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'providerBookingId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterSortBy>
+      thenByProviderBookingIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'providerBookingId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterSortBy>
+      thenByRemainingAmount() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'remainingAmount', Sort.asc);
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterSortBy>
+      thenByRemainingAmountDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'remainingAmount', Sort.desc);
+    });
+  }
+
   QueryBuilder<BookingLocal, BookingLocal, QAfterSortBy> thenBySeatNumber() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'seatNumber', Sort.asc);
@@ -2183,6 +3972,19 @@ extension BookingLocalQuerySortThenBy
     });
   }
 
+  QueryBuilder<BookingLocal, BookingLocal, QAfterSortBy> thenByServiceFee() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'serviceFee', Sort.asc);
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterSortBy>
+      thenByServiceFeeDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'serviceFee', Sort.desc);
+    });
+  }
+
   QueryBuilder<BookingLocal, BookingLocal, QAfterSortBy> thenByStatus() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'status', Sort.asc);
@@ -2192,6 +3994,32 @@ extension BookingLocalQuerySortThenBy
   QueryBuilder<BookingLocal, BookingLocal, QAfterSortBy> thenByStatusDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'status', Sort.desc);
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterSortBy> thenBySupplierPrice() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'supplierPrice', Sort.asc);
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterSortBy>
+      thenBySupplierPriceDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'supplierPrice', Sort.desc);
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterSortBy> thenByTicketNumber() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'ticketNumber', Sort.asc);
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QAfterSortBy>
+      thenByTicketNumberDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'ticketNumber', Sort.desc);
     });
   }
 
@@ -2235,9 +4063,23 @@ extension BookingLocalQuerySortThenBy
 
 extension BookingLocalQueryWhereDistinct
     on QueryBuilder<BookingLocal, BookingLocal, QDistinct> {
+  QueryBuilder<BookingLocal, BookingLocal, QDistinct> distinctByAgentId(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'agentId', caseSensitive: caseSensitive);
+    });
+  }
+
   QueryBuilder<BookingLocal, BookingLocal, QDistinct> distinctByCommission() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'commission');
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QDistinct> distinctByContactEmail(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'contactEmail', caseSensitive: caseSensitive);
     });
   }
 
@@ -2247,10 +4089,31 @@ extension BookingLocalQueryWhereDistinct
     });
   }
 
+  QueryBuilder<BookingLocal, BookingLocal, QDistinct>
+      distinctByDiscountAmount() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'discountAmount');
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QDistinct> distinctByExpiresAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'expiresAt');
+    });
+  }
+
   QueryBuilder<BookingLocal, BookingLocal, QDistinct> distinctByFlightOfferUuid(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'flightOfferUuid',
+          caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QDistinct> distinctByIdempotencyKey(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'idempotencyKey',
           caseSensitive: caseSensitive);
     });
   }
@@ -2270,6 +4133,12 @@ extension BookingLocalQueryWhereDistinct
   QueryBuilder<BookingLocal, BookingLocal, QDistinct> distinctByNeedsSync() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'needsSync');
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QDistinct> distinctByPaidAmount() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'paidAmount');
     });
   }
 
@@ -2296,6 +4165,34 @@ extension BookingLocalQueryWhereDistinct
     });
   }
 
+  QueryBuilder<BookingLocal, BookingLocal, QDistinct> distinctByProfit() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'profit');
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QDistinct> distinctByPromoCode(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'promoCode', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QDistinct>
+      distinctByProviderBookingId({bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'providerBookingId',
+          caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QDistinct>
+      distinctByRemainingAmount() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'remainingAmount');
+    });
+  }
+
   QueryBuilder<BookingLocal, BookingLocal, QDistinct> distinctBySeatNumber(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
@@ -2303,9 +4200,29 @@ extension BookingLocalQueryWhereDistinct
     });
   }
 
+  QueryBuilder<BookingLocal, BookingLocal, QDistinct> distinctByServiceFee() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'serviceFee');
+    });
+  }
+
   QueryBuilder<BookingLocal, BookingLocal, QDistinct> distinctByStatus() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'status');
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QDistinct>
+      distinctBySupplierPrice() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'supplierPrice');
+    });
+  }
+
+  QueryBuilder<BookingLocal, BookingLocal, QDistinct> distinctByTicketNumber(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'ticketNumber', caseSensitive: caseSensitive);
     });
   }
 
@@ -2337,9 +4254,21 @@ extension BookingLocalQueryProperty
     });
   }
 
+  QueryBuilder<BookingLocal, String, QQueryOperations> agentIdProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'agentId');
+    });
+  }
+
   QueryBuilder<BookingLocal, double?, QQueryOperations> commissionProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'commission');
+    });
+  }
+
+  QueryBuilder<BookingLocal, String, QQueryOperations> contactEmailProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'contactEmail');
     });
   }
 
@@ -2349,10 +4278,30 @@ extension BookingLocalQueryProperty
     });
   }
 
+  QueryBuilder<BookingLocal, double, QQueryOperations>
+      discountAmountProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'discountAmount');
+    });
+  }
+
+  QueryBuilder<BookingLocal, DateTime?, QQueryOperations> expiresAtProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'expiresAt');
+    });
+  }
+
   QueryBuilder<BookingLocal, String?, QQueryOperations>
       flightOfferUuidProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'flightOfferUuid');
+    });
+  }
+
+  QueryBuilder<BookingLocal, String?, QQueryOperations>
+      idempotencyKeyProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'idempotencyKey');
     });
   }
 
@@ -2371,6 +4320,12 @@ extension BookingLocalQueryProperty
   QueryBuilder<BookingLocal, bool, QQueryOperations> needsSyncProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'needsSync');
+    });
+  }
+
+  QueryBuilder<BookingLocal, double, QQueryOperations> paidAmountProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'paidAmount');
     });
   }
 
@@ -2394,9 +4349,41 @@ extension BookingLocalQueryProperty
     });
   }
 
+  QueryBuilder<BookingLocal, double, QQueryOperations> profitProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'profit');
+    });
+  }
+
+  QueryBuilder<BookingLocal, String, QQueryOperations> promoCodeProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'promoCode');
+    });
+  }
+
+  QueryBuilder<BookingLocal, String?, QQueryOperations>
+      providerBookingIdProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'providerBookingId');
+    });
+  }
+
+  QueryBuilder<BookingLocal, double, QQueryOperations>
+      remainingAmountProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'remainingAmount');
+    });
+  }
+
   QueryBuilder<BookingLocal, String?, QQueryOperations> seatNumberProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'seatNumber');
+    });
+  }
+
+  QueryBuilder<BookingLocal, double, QQueryOperations> serviceFeeProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'serviceFee');
     });
   }
 
@@ -2404,6 +4391,18 @@ extension BookingLocalQueryProperty
       statusProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'status');
+    });
+  }
+
+  QueryBuilder<BookingLocal, double, QQueryOperations> supplierPriceProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'supplierPrice');
+    });
+  }
+
+  QueryBuilder<BookingLocal, String?, QQueryOperations> ticketNumberProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'ticketNumber');
     });
   }
 

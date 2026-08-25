@@ -5,12 +5,18 @@ import '../../../core/auth/employee_role_policy.dart';
 import '../../../core/providers.dart';
 import '../../../core/widgets/account_switcher_button.dart';
 import '../providers/bida_providers.dart';
+import '../providers/bida_partner_providers.dart';
 import '../services/bida_seed_data.dart';
 import 'bida_dashboard_screen.dart';
 import 'bida_tables_screen.dart';
-
 import 'bida_inventory_screen.dart';
 import 'bida_settings_screen.dart';
+import 'bida_dat_ban_screen.dart';
+import 'bida_active_sessions_screen.dart';
+import 'bida_customer_screen.dart';
+import 'bida_finance_screen.dart';
+import 'bida_reports_screen.dart';
+import 'bida_bill_search_screen.dart';
 
 class KanPosVNBidaShell extends ConsumerStatefulWidget {
   const KanPosVNBidaShell({super.key});
@@ -36,30 +42,44 @@ class _KanPosVNBidaShellState extends ConsumerState<KanPosVNBidaShell> {
     ref.read(bidaItemsProvider.notifier).loadItems();
     ref.read(bidaSessionsProvider.notifier).loadSessions();
     ref.read(bidaDashboardProvider.notifier).loadDashboard();
+    ref.read(bidaCustomersProvider.notifier).loadCustomers();
+    ref.read(bidaReservationsProvider.notifier).loadReservations();
+    ref.read(bidaFinanceProvider.notifier).loadTransactions();
     setState(() {
       _isInit = true;
     });
   }
 
   static final Map<String, Set<String>> _roleTabs = {
-    EmployeeRoles.cashier: const {'tables'},
-    EmployeeRoles.sale: const {'tables'},
+    EmployeeRoles.cashier: const {'tables', 'sessions', 'bills'},
+    EmployeeRoles.sale: const {'tables', 'sessions', 'customers'},
     EmployeeRoles.warehouse: const {'inventory'},
-    EmployeeRoles.accountant: const {'dashboard', 'settings'},
+    EmployeeRoles.accountant: const {'dashboard', 'finance', 'reports', 'settings', 'bills'},
   };
 
   /// Định nghĩa các tab của module (id, icon, label) — thứ tự hiển thị.
-  /// Quản Lý NV đã chuyển vào trong tab Cài Đặt.
   static final Map<String, ({IconData icon, String label})> _tabDefs = {
     'tables': (icon: Icons.grid_view, label: 'Sơ đồ Bàn'),
+    'sessions': (icon: Icons.sports_bar, label: 'Đang Chơi'),
+    'datban': (icon: Icons.book_online, label: 'Đặt Bàn'),
+    'customers': (icon: Icons.people, label: 'Khách hàng'),
     'dashboard': (icon: Icons.dashboard, label: 'Dashboard'),
+    'finance': (icon: Icons.account_balance, label: 'Thu Chi'),
+    'reports': (icon: Icons.description, label: 'Báo cáo'),
+    'bills': (icon: Icons.receipt_long, label: 'Tìm hóa đơn'),
     'inventory': (icon: Icons.inventory, label: 'Kho Hàng'),
     'settings': (icon: Icons.settings, label: 'Cài Đặt'),
   };
 
   static final Map<String, Widget Function()> _tabScreens = {
     'tables': () => const BidaTablesScreen(),
+    'sessions': () => const BidaActiveSessionsScreen(),
+    'datban': () => const BidaDatBanScreen(),
+    'customers': () => const BidaCustomerScreen(),
     'dashboard': () => const BidaDashboardScreen(),
+    'finance': () => const BidaFinanceScreen(),
+    'reports': () => const BidaReportsScreen(),
+    'bills': () => const BidaBillSearchScreen(),
     'inventory': () => const BidaInventoryScreen(),
     'settings': () => const BidaSettingsScreen(),
   };
@@ -85,7 +105,6 @@ class _KanPosVNBidaShellState extends ConsumerState<KanPosVNBidaShell> {
     final customTabs = auth.employeeAllowedTabs;
     final tabs = _allTabs.where((t) {
       if (auth.isManager) return true;
-      // Tùy chỉnh tab riêng cho nhân viên (Owner check/uncheck trong "Quản Lý NV").
       if (customTabs != null) return customTabs.contains(t.id);
       return EmployeeRolePolicy.isAllowed(
         isManager: false,
@@ -108,22 +127,24 @@ class _KanPosVNBidaShellState extends ConsumerState<KanPosVNBidaShell> {
       ),
       body: Row(
         children: [
-          NavigationRail(
-            selectedIndex: safeIndex,
-            onDestinationSelected: (index) {
-              setState(() {
-                _selectedIndex = index;
-              });
-            },
-            labelType: NavigationRailLabelType.all,
-            scrollable: true,
-            destinations: [
-              for (final t in tabs)
-                NavigationRailDestination(
-                  icon: Icon(t.icon),
-                  label: Text(t.label),
-                ),
-            ],
+          SingleChildScrollView(
+            scrollDirection: Axis.vertical,
+            child: NavigationRail(
+              selectedIndex: safeIndex,
+              onDestinationSelected: (index) {
+                setState(() {
+                  _selectedIndex = index;
+                });
+              },
+              labelType: NavigationRailLabelType.all,
+              destinations: [
+                for (final t in tabs)
+                  NavigationRailDestination(
+                    icon: Icon(t.icon),
+                    label: Text(t.label),
+                  ),
+              ],
+            ),
           ),
           const VerticalDivider(thickness: 1, width: 1),
           Expanded(

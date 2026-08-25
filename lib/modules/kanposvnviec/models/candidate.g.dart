@@ -57,48 +57,68 @@ const ViecCandidateSchema = CollectionSchema(
       name: r'desiredSalary',
       type: IsarType.double,
     ),
-    r'fullName': PropertySchema(
+    r'experienceYears': PropertySchema(
       id: 8,
+      name: r'experienceYears',
+      type: IsarType.long,
+    ),
+    r'fullName': PropertySchema(
+      id: 9,
       name: r'fullName',
       type: IsarType.string,
     ),
     r'gender': PropertySchema(
-      id: 9,
+      id: 10,
       name: r'gender',
       type: IsarType.string,
     ),
+    r'hasCar': PropertySchema(
+      id: 11,
+      name: r'hasCar',
+      type: IsarType.bool,
+    ),
+    r'hasDrivingLicense': PropertySchema(
+      id: 12,
+      name: r'hasDrivingLicense',
+      type: IsarType.bool,
+    ),
+    r'hasMotorbike': PropertySchema(
+      id: 13,
+      name: r'hasMotorbike',
+      type: IsarType.bool,
+    ),
     r'isSynced': PropertySchema(
-      id: 10,
+      id: 14,
       name: r'isSynced',
       type: IsarType.bool,
     ),
     r'lat': PropertySchema(
-      id: 11,
+      id: 15,
       name: r'lat',
       type: IsarType.double,
     ),
     r'lng': PropertySchema(
-      id: 12,
+      id: 16,
       name: r'lng',
       type: IsarType.double,
     ),
     r'phone': PropertySchema(
-      id: 13,
+      id: 17,
       name: r'phone',
       type: IsarType.string,
     ),
     r'status': PropertySchema(
-      id: 14,
+      id: 18,
       name: r'status',
       type: IsarType.string,
     ),
     r'updatedAt': PropertySchema(
-      id: 15,
+      id: 19,
       name: r'updatedAt',
       type: IsarType.dateTime,
     ),
     r'workRadiusKm': PropertySchema(
-      id: 16,
+      id: 20,
       name: r'workRadiusKm',
       type: IsarType.double,
     )
@@ -168,15 +188,19 @@ void _viecCandidateSerialize(
   writer.writeDateTime(offsets[5], object.dateOfBirth);
   writer.writeDateTime(offsets[6], object.deletedAt);
   writer.writeDouble(offsets[7], object.desiredSalary);
-  writer.writeString(offsets[8], object.fullName);
-  writer.writeString(offsets[9], object.gender);
-  writer.writeBool(offsets[10], object.isSynced);
-  writer.writeDouble(offsets[11], object.lat);
-  writer.writeDouble(offsets[12], object.lng);
-  writer.writeString(offsets[13], object.phone);
-  writer.writeString(offsets[14], object.status);
-  writer.writeDateTime(offsets[15], object.updatedAt);
-  writer.writeDouble(offsets[16], object.workRadiusKm);
+  writer.writeLong(offsets[8], object.experienceYears);
+  writer.writeString(offsets[9], object.fullName);
+  writer.writeString(offsets[10], object.gender);
+  writer.writeBool(offsets[11], object.hasCar);
+  writer.writeBool(offsets[12], object.hasDrivingLicense);
+  writer.writeBool(offsets[13], object.hasMotorbike);
+  writer.writeBool(offsets[14], object.isSynced);
+  writer.writeDouble(offsets[15], object.lat);
+  writer.writeDouble(offsets[16], object.lng);
+  writer.writeString(offsets[17], object.phone);
+  writer.writeString(offsets[18], object.status);
+  writer.writeDateTime(offsets[19], object.updatedAt);
+  writer.writeDouble(offsets[20], object.workRadiusKm);
 }
 
 ViecCandidate _viecCandidateDeserialize(
@@ -194,16 +218,20 @@ ViecCandidate _viecCandidateDeserialize(
   object.dateOfBirth = reader.readDateTimeOrNull(offsets[5]);
   object.deletedAt = reader.readDateTimeOrNull(offsets[6]);
   object.desiredSalary = reader.readDouble(offsets[7]);
-  object.fullName = reader.readString(offsets[8]);
-  object.gender = reader.readString(offsets[9]);
-  object.isSynced = reader.readBool(offsets[10]);
+  object.experienceYears = reader.readLong(offsets[8]);
+  object.fullName = reader.readString(offsets[9]);
+  object.gender = reader.readString(offsets[10]);
+  object.hasCar = reader.readBool(offsets[11]);
+  object.hasDrivingLicense = reader.readBool(offsets[12]);
+  object.hasMotorbike = reader.readBool(offsets[13]);
+  object.isSynced = reader.readBool(offsets[14]);
   object.isarId = id;
-  object.lat = reader.readDoubleOrNull(offsets[11]);
-  object.lng = reader.readDoubleOrNull(offsets[12]);
-  object.phone = reader.readString(offsets[13]);
-  object.status = reader.readString(offsets[14]);
-  object.updatedAt = reader.readDateTime(offsets[15]);
-  object.workRadiusKm = reader.readDouble(offsets[16]);
+  object.lat = reader.readDoubleOrNull(offsets[15]);
+  object.lng = reader.readDoubleOrNull(offsets[16]);
+  object.phone = reader.readString(offsets[17]);
+  object.status = reader.readString(offsets[18]);
+  object.updatedAt = reader.readDateTime(offsets[19]);
+  object.workRadiusKm = reader.readDouble(offsets[20]);
   return object;
 }
 
@@ -231,22 +259,30 @@ P _viecCandidateDeserializeProp<P>(
     case 7:
       return (reader.readDouble(offset)) as P;
     case 8:
-      return (reader.readString(offset)) as P;
+      return (reader.readLong(offset)) as P;
     case 9:
       return (reader.readString(offset)) as P;
     case 10:
-      return (reader.readBool(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 11:
-      return (reader.readDoubleOrNull(offset)) as P;
+      return (reader.readBool(offset)) as P;
     case 12:
-      return (reader.readDoubleOrNull(offset)) as P;
+      return (reader.readBool(offset)) as P;
     case 13:
-      return (reader.readString(offset)) as P;
+      return (reader.readBool(offset)) as P;
     case 14:
-      return (reader.readString(offset)) as P;
+      return (reader.readBool(offset)) as P;
     case 15:
-      return (reader.readDateTime(offset)) as P;
+      return (reader.readDoubleOrNull(offset)) as P;
     case 16:
+      return (reader.readDoubleOrNull(offset)) as P;
+    case 17:
+      return (reader.readString(offset)) as P;
+    case 18:
+      return (reader.readString(offset)) as P;
+    case 19:
+      return (reader.readDateTime(offset)) as P;
+    case 20:
       return (reader.readDouble(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -1352,6 +1388,62 @@ extension ViecCandidateQueryFilter
   }
 
   QueryBuilder<ViecCandidate, ViecCandidate, QAfterFilterCondition>
+      experienceYearsEqualTo(int value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'experienceYears',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<ViecCandidate, ViecCandidate, QAfterFilterCondition>
+      experienceYearsGreaterThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'experienceYears',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<ViecCandidate, ViecCandidate, QAfterFilterCondition>
+      experienceYearsLessThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'experienceYears',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<ViecCandidate, ViecCandidate, QAfterFilterCondition>
+      experienceYearsBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'experienceYears',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<ViecCandidate, ViecCandidate, QAfterFilterCondition>
       fullNameEqualTo(
     String value, {
     bool caseSensitive = true,
@@ -1619,6 +1711,36 @@ extension ViecCandidateQueryFilter
       return query.addFilterCondition(FilterCondition.greaterThan(
         property: r'gender',
         value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<ViecCandidate, ViecCandidate, QAfterFilterCondition>
+      hasCarEqualTo(bool value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'hasCar',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<ViecCandidate, ViecCandidate, QAfterFilterCondition>
+      hasDrivingLicenseEqualTo(bool value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'hasDrivingLicense',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<ViecCandidate, ViecCandidate, QAfterFilterCondition>
+      hasMotorbikeEqualTo(bool value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'hasMotorbike',
+        value: value,
       ));
     });
   }
@@ -2344,6 +2466,20 @@ extension ViecCandidateQuerySortBy
     });
   }
 
+  QueryBuilder<ViecCandidate, ViecCandidate, QAfterSortBy>
+      sortByExperienceYears() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'experienceYears', Sort.asc);
+    });
+  }
+
+  QueryBuilder<ViecCandidate, ViecCandidate, QAfterSortBy>
+      sortByExperienceYearsDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'experienceYears', Sort.desc);
+    });
+  }
+
   QueryBuilder<ViecCandidate, ViecCandidate, QAfterSortBy> sortByFullName() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'fullName', Sort.asc);
@@ -2366,6 +2502,46 @@ extension ViecCandidateQuerySortBy
   QueryBuilder<ViecCandidate, ViecCandidate, QAfterSortBy> sortByGenderDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'gender', Sort.desc);
+    });
+  }
+
+  QueryBuilder<ViecCandidate, ViecCandidate, QAfterSortBy> sortByHasCar() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'hasCar', Sort.asc);
+    });
+  }
+
+  QueryBuilder<ViecCandidate, ViecCandidate, QAfterSortBy> sortByHasCarDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'hasCar', Sort.desc);
+    });
+  }
+
+  QueryBuilder<ViecCandidate, ViecCandidate, QAfterSortBy>
+      sortByHasDrivingLicense() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'hasDrivingLicense', Sort.asc);
+    });
+  }
+
+  QueryBuilder<ViecCandidate, ViecCandidate, QAfterSortBy>
+      sortByHasDrivingLicenseDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'hasDrivingLicense', Sort.desc);
+    });
+  }
+
+  QueryBuilder<ViecCandidate, ViecCandidate, QAfterSortBy>
+      sortByHasMotorbike() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'hasMotorbike', Sort.asc);
+    });
+  }
+
+  QueryBuilder<ViecCandidate, ViecCandidate, QAfterSortBy>
+      sortByHasMotorbikeDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'hasMotorbike', Sort.desc);
     });
   }
 
@@ -2550,6 +2726,20 @@ extension ViecCandidateQuerySortThenBy
     });
   }
 
+  QueryBuilder<ViecCandidate, ViecCandidate, QAfterSortBy>
+      thenByExperienceYears() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'experienceYears', Sort.asc);
+    });
+  }
+
+  QueryBuilder<ViecCandidate, ViecCandidate, QAfterSortBy>
+      thenByExperienceYearsDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'experienceYears', Sort.desc);
+    });
+  }
+
   QueryBuilder<ViecCandidate, ViecCandidate, QAfterSortBy> thenByFullName() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'fullName', Sort.asc);
@@ -2572,6 +2762,46 @@ extension ViecCandidateQuerySortThenBy
   QueryBuilder<ViecCandidate, ViecCandidate, QAfterSortBy> thenByGenderDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'gender', Sort.desc);
+    });
+  }
+
+  QueryBuilder<ViecCandidate, ViecCandidate, QAfterSortBy> thenByHasCar() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'hasCar', Sort.asc);
+    });
+  }
+
+  QueryBuilder<ViecCandidate, ViecCandidate, QAfterSortBy> thenByHasCarDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'hasCar', Sort.desc);
+    });
+  }
+
+  QueryBuilder<ViecCandidate, ViecCandidate, QAfterSortBy>
+      thenByHasDrivingLicense() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'hasDrivingLicense', Sort.asc);
+    });
+  }
+
+  QueryBuilder<ViecCandidate, ViecCandidate, QAfterSortBy>
+      thenByHasDrivingLicenseDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'hasDrivingLicense', Sort.desc);
+    });
+  }
+
+  QueryBuilder<ViecCandidate, ViecCandidate, QAfterSortBy>
+      thenByHasMotorbike() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'hasMotorbike', Sort.asc);
+    });
+  }
+
+  QueryBuilder<ViecCandidate, ViecCandidate, QAfterSortBy>
+      thenByHasMotorbikeDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'hasMotorbike', Sort.desc);
     });
   }
 
@@ -2732,6 +2962,13 @@ extension ViecCandidateQueryWhereDistinct
     });
   }
 
+  QueryBuilder<ViecCandidate, ViecCandidate, QDistinct>
+      distinctByExperienceYears() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'experienceYears');
+    });
+  }
+
   QueryBuilder<ViecCandidate, ViecCandidate, QDistinct> distinctByFullName(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
@@ -2743,6 +2980,26 @@ extension ViecCandidateQueryWhereDistinct
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'gender', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<ViecCandidate, ViecCandidate, QDistinct> distinctByHasCar() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'hasCar');
+    });
+  }
+
+  QueryBuilder<ViecCandidate, ViecCandidate, QDistinct>
+      distinctByHasDrivingLicense() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'hasDrivingLicense');
+    });
+  }
+
+  QueryBuilder<ViecCandidate, ViecCandidate, QDistinct>
+      distinctByHasMotorbike() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'hasMotorbike');
     });
   }
 
@@ -2851,6 +3108,12 @@ extension ViecCandidateQueryProperty
     });
   }
 
+  QueryBuilder<ViecCandidate, int, QQueryOperations> experienceYearsProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'experienceYears');
+    });
+  }
+
   QueryBuilder<ViecCandidate, String, QQueryOperations> fullNameProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'fullName');
@@ -2860,6 +3123,25 @@ extension ViecCandidateQueryProperty
   QueryBuilder<ViecCandidate, String, QQueryOperations> genderProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'gender');
+    });
+  }
+
+  QueryBuilder<ViecCandidate, bool, QQueryOperations> hasCarProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'hasCar');
+    });
+  }
+
+  QueryBuilder<ViecCandidate, bool, QQueryOperations>
+      hasDrivingLicenseProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'hasDrivingLicense');
+    });
+  }
+
+  QueryBuilder<ViecCandidate, bool, QQueryOperations> hasMotorbikeProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'hasMotorbike');
     });
   }
 

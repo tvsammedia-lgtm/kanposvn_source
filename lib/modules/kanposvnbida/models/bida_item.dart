@@ -6,7 +6,10 @@ enum BidaItemCategory {
   DRINK('Nước uống'),
   FOOD('Đồ ăn'),
   TOBACCO('Thuốc lá'),
-  OTHER('Khác');
+  OTHER('Khác'),
+  BEER('Bia'),
+  TOWEL('Khăn lạnh'),
+  ICE('Đá');
 
   final String label;
   const BidaItemCategory(this.label);
@@ -26,12 +29,15 @@ class BidaItem {
   String itemId = '';
 
   String name = '';
-  
+
   @enumerated
   BidaItemCategory category = BidaItemCategory.DRINK;
 
   double price = 0.0;
-  
+
+  /// Giá vốn / giá nhập trung bình — dùng tính báo cáo lãi lỗ.
+  double costPrice = 0.0;
+
   // Basic inventory
   int stock = 0;
 }

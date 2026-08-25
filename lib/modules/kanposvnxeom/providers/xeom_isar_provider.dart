@@ -7,6 +7,7 @@ import '../models/vehicle.dart';
 import '../models/customer.dart';
 import '../models/booking.dart';
 import '../models/payment.dart';
+import '../models/ops_models.dart';
 
 final xeOmIsarProvider = Provider<Isar>((ref) {
   throw UnimplementedError('xeOmIsarProvider must be overridden');
@@ -25,6 +26,9 @@ class XeOmDatabaseSetup {
         XeOmCustomerSchema,
         XeOmBookingSchema,
         XeOmPaymentSchema,
+        XeOmTariffSchema,
+        XeOmPromotionSchema,
+        XeOmExpenseSchema,
       ],
       directory: dir.path,
       name: name,

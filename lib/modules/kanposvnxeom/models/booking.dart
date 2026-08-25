@@ -28,7 +28,15 @@ class XeOmBooking {
   
   double? distanceKm; // Khoảng cách
   double? price; // Giá tiền
-  
+
+  /// §11-14. Chi tiết giá: cước gốc + phụ phí (sân bay/cao điểm/lễ) - giảm giá.
+  double baseFare = 0;
+  double surcharge = 0; // Phụ phí sân bay + cao điểm + lễ
+  double discount = 0; // Tiền giảm từ khuyến mãi
+
+  /// §15. Công nợ còn lại nếu thanh toán method = debt.
+  double debtAmount = 0;
+
   String? requiredVehicleType; // Khách yêu cầu loại xe gì
   
   @enumerated

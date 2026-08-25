@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
 import '../../core/app_theme.dart';
 import '../../core/widgets.dart';
 import '../../models/employee.dart';
@@ -168,7 +169,7 @@ class _SalaryEntryScreenState extends ConsumerState<SalaryEntryScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Đã lưu thông tin lương thành công')),
       );
-      Navigator.pop(context);
+      context.pop();
     }
   }
 

@@ -17,51 +17,56 @@ const VideoCallHistorySchema = CollectionSchema(
   name: r'VideoCallHistory',
   id: -4568617125064063857,
   properties: {
-    r'callerUuid': PropertySchema(
+    r'answeredAt': PropertySchema(
       id: 0,
+      name: r'answeredAt',
+      type: IsarType.dateTime,
+    ),
+    r'callerUuid': PropertySchema(
+      id: 1,
       name: r'callerUuid',
       type: IsarType.string,
     ),
     r'durationSeconds': PropertySchema(
-      id: 1,
+      id: 2,
       name: r'durationSeconds',
       type: IsarType.long,
     ),
     r'endedAt': PropertySchema(
-      id: 2,
+      id: 3,
       name: r'endedAt',
       type: IsarType.dateTime,
     ),
     r'receiverUuid': PropertySchema(
-      id: 3,
+      id: 4,
       name: r'receiverUuid',
       type: IsarType.string,
     ),
     r'startedAt': PropertySchema(
-      id: 4,
+      id: 5,
       name: r'startedAt',
       type: IsarType.dateTime,
     ),
     r'status': PropertySchema(
-      id: 5,
+      id: 6,
       name: r'status',
       type: IsarType.byte,
       enumMap: _VideoCallHistorystatusEnumValueMap,
     ),
     r'syncStatus': PropertySchema(
-      id: 6,
+      id: 7,
       name: r'syncStatus',
       type: IsarType.byte,
       enumMap: _VideoCallHistorysyncStatusEnumValueMap,
     ),
     r'type': PropertySchema(
-      id: 7,
+      id: 8,
       name: r'type',
       type: IsarType.byte,
       enumMap: _VideoCallHistorytypeEnumValueMap,
     ),
     r'uuid': PropertySchema(
-      id: 8,
+      id: 9,
       name: r'uuid',
       type: IsarType.string,
     )
@@ -127,15 +132,16 @@ void _videoCallHistorySerialize(
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
-  writer.writeString(offsets[0], object.callerUuid);
-  writer.writeLong(offsets[1], object.durationSeconds);
-  writer.writeDateTime(offsets[2], object.endedAt);
-  writer.writeString(offsets[3], object.receiverUuid);
-  writer.writeDateTime(offsets[4], object.startedAt);
-  writer.writeByte(offsets[5], object.status.index);
-  writer.writeByte(offsets[6], object.syncStatus.index);
-  writer.writeByte(offsets[7], object.type.index);
-  writer.writeString(offsets[8], object.uuid);
+  writer.writeDateTime(offsets[0], object.answeredAt);
+  writer.writeString(offsets[1], object.callerUuid);
+  writer.writeLong(offsets[2], object.durationSeconds);
+  writer.writeDateTime(offsets[3], object.endedAt);
+  writer.writeString(offsets[4], object.receiverUuid);
+  writer.writeDateTime(offsets[5], object.startedAt);
+  writer.writeByte(offsets[6], object.status.index);
+  writer.writeByte(offsets[7], object.syncStatus.index);
+  writer.writeByte(offsets[8], object.type.index);
+  writer.writeString(offsets[9], object.uuid);
 }
 
 VideoCallHistory _videoCallHistoryDeserialize(
@@ -145,22 +151,23 @@ VideoCallHistory _videoCallHistoryDeserialize(
   Map<Type, List<int>> allOffsets,
 ) {
   final object = VideoCallHistory();
-  object.callerUuid = reader.readStringOrNull(offsets[0]);
-  object.durationSeconds = reader.readLongOrNull(offsets[1]);
-  object.endedAt = reader.readDateTimeOrNull(offsets[2]);
+  object.answeredAt = reader.readDateTimeOrNull(offsets[0]);
+  object.callerUuid = reader.readStringOrNull(offsets[1]);
+  object.durationSeconds = reader.readLongOrNull(offsets[2]);
+  object.endedAt = reader.readDateTimeOrNull(offsets[3]);
   object.id = id;
-  object.receiverUuid = reader.readStringOrNull(offsets[3]);
-  object.startedAt = reader.readDateTimeOrNull(offsets[4]);
+  object.receiverUuid = reader.readStringOrNull(offsets[4]);
+  object.startedAt = reader.readDateTimeOrNull(offsets[5]);
   object.status =
-      _VideoCallHistorystatusValueEnumMap[reader.readByteOrNull(offsets[5])] ??
+      _VideoCallHistorystatusValueEnumMap[reader.readByteOrNull(offsets[6])] ??
           CallHistoryStatus.completed;
   object.syncStatus = _VideoCallHistorysyncStatusValueEnumMap[
-          reader.readByteOrNull(offsets[6])] ??
+          reader.readByteOrNull(offsets[7])] ??
       SyncStatus.synced;
   object.type =
-      _VideoCallHistorytypeValueEnumMap[reader.readByteOrNull(offsets[7])] ??
+      _VideoCallHistorytypeValueEnumMap[reader.readByteOrNull(offsets[8])] ??
           CallType.voice;
-  object.uuid = reader.readStringOrNull(offsets[8]);
+  object.uuid = reader.readStringOrNull(offsets[9]);
   return object;
 }
 
@@ -172,28 +179,30 @@ P _videoCallHistoryDeserializeProp<P>(
 ) {
   switch (propertyId) {
     case 0:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readDateTimeOrNull(offset)) as P;
     case 1:
-      return (reader.readLongOrNull(offset)) as P;
-    case 2:
-      return (reader.readDateTimeOrNull(offset)) as P;
-    case 3:
       return (reader.readStringOrNull(offset)) as P;
-    case 4:
+    case 2:
+      return (reader.readLongOrNull(offset)) as P;
+    case 3:
       return (reader.readDateTimeOrNull(offset)) as P;
+    case 4:
+      return (reader.readStringOrNull(offset)) as P;
     case 5:
+      return (reader.readDateTimeOrNull(offset)) as P;
+    case 6:
       return (_VideoCallHistorystatusValueEnumMap[
               reader.readByteOrNull(offset)] ??
           CallHistoryStatus.completed) as P;
-    case 6:
+    case 7:
       return (_VideoCallHistorysyncStatusValueEnumMap[
               reader.readByteOrNull(offset)] ??
           SyncStatus.synced) as P;
-    case 7:
+    case 8:
       return (_VideoCallHistorytypeValueEnumMap[
               reader.readByteOrNull(offset)] ??
           CallType.voice) as P;
-    case 8:
+    case 9:
       return (reader.readStringOrNull(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -447,6 +456,80 @@ extension VideoCallHistoryQueryWhere
 
 extension VideoCallHistoryQueryFilter
     on QueryBuilder<VideoCallHistory, VideoCallHistory, QFilterCondition> {
+  QueryBuilder<VideoCallHistory, VideoCallHistory, QAfterFilterCondition>
+      answeredAtIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'answeredAt',
+      ));
+    });
+  }
+
+  QueryBuilder<VideoCallHistory, VideoCallHistory, QAfterFilterCondition>
+      answeredAtIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'answeredAt',
+      ));
+    });
+  }
+
+  QueryBuilder<VideoCallHistory, VideoCallHistory, QAfterFilterCondition>
+      answeredAtEqualTo(DateTime? value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'answeredAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<VideoCallHistory, VideoCallHistory, QAfterFilterCondition>
+      answeredAtGreaterThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'answeredAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<VideoCallHistory, VideoCallHistory, QAfterFilterCondition>
+      answeredAtLessThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'answeredAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<VideoCallHistory, VideoCallHistory, QAfterFilterCondition>
+      answeredAtBetween(
+    DateTime? lower,
+    DateTime? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'answeredAt',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
   QueryBuilder<VideoCallHistory, VideoCallHistory, QAfterFilterCondition>
       callerUuidIsNull() {
     return QueryBuilder.apply(this, (query) {
@@ -1365,6 +1448,20 @@ extension VideoCallHistoryQueryLinks
 extension VideoCallHistoryQuerySortBy
     on QueryBuilder<VideoCallHistory, VideoCallHistory, QSortBy> {
   QueryBuilder<VideoCallHistory, VideoCallHistory, QAfterSortBy>
+      sortByAnsweredAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'answeredAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<VideoCallHistory, VideoCallHistory, QAfterSortBy>
+      sortByAnsweredAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'answeredAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<VideoCallHistory, VideoCallHistory, QAfterSortBy>
       sortByCallerUuid() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'callerUuid', Sort.asc);
@@ -1491,6 +1588,20 @@ extension VideoCallHistoryQuerySortBy
 
 extension VideoCallHistoryQuerySortThenBy
     on QueryBuilder<VideoCallHistory, VideoCallHistory, QSortThenBy> {
+  QueryBuilder<VideoCallHistory, VideoCallHistory, QAfterSortBy>
+      thenByAnsweredAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'answeredAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<VideoCallHistory, VideoCallHistory, QAfterSortBy>
+      thenByAnsweredAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'answeredAt', Sort.desc);
+    });
+  }
+
   QueryBuilder<VideoCallHistory, VideoCallHistory, QAfterSortBy>
       thenByCallerUuid() {
     return QueryBuilder.apply(this, (query) {
@@ -1632,6 +1743,13 @@ extension VideoCallHistoryQuerySortThenBy
 extension VideoCallHistoryQueryWhereDistinct
     on QueryBuilder<VideoCallHistory, VideoCallHistory, QDistinct> {
   QueryBuilder<VideoCallHistory, VideoCallHistory, QDistinct>
+      distinctByAnsweredAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'answeredAt');
+    });
+  }
+
+  QueryBuilder<VideoCallHistory, VideoCallHistory, QDistinct>
       distinctByCallerUuid({bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'callerUuid', caseSensitive: caseSensitive);
@@ -1699,6 +1817,13 @@ extension VideoCallHistoryQueryProperty
   QueryBuilder<VideoCallHistory, int, QQueryOperations> idProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'id');
+    });
+  }
+
+  QueryBuilder<VideoCallHistory, DateTime?, QQueryOperations>
+      answeredAtProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'answeredAt');
     });
   }
 

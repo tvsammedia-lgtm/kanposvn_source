@@ -21,7 +21,25 @@ class BookingLocal {
   String? seatNumber;
   
   double? commission; // Hoa hồng
-  
+
+  // §10+§12. Tách giá & định danh.
+  String? providerBookingId;
+  String? ticketNumber;   // Số vé điện tử
+  String? idempotencyKey; // §27 chống tạo trùng booking/payment
+
+  double supplierPrice = 0; // Giá nhập từ provider (gồm thuế)
+  double serviceFee = 0;    // Phí dịch vụ trung tâm
+  double discountAmount = 0;
+  String promoCode = '';
+  double profit = 0;
+
+  double paidAmount = 0;
+  double remainingAmount = 0;
+
+  DateTime? expiresAt; // Hết hạn giữ chỗ
+  String agentId = ''; // Đại lý/nhân viên bán (trống = B2C)
+  String contactEmail = '';
+
   bool needsSync = true;
   bool isDeleted = false;
   DateTime? updatedAt;
@@ -33,8 +51,16 @@ class BookingLocal {
 }
 
 enum BookingAirStatus {
-  draft,            // Mới nháp
+  draft,            // Mới nhập
   pendingPayment,   // Đang chờ thanh toán
   confirmed,        // Đã xác nhận/Xuất vé
-  cancelled         // Đã hủy
+  cancelled,        // Đã hủy
+  // §8. Trạng thái đầy đủ theo đặc tả.
+  held,             // Giữ chỗ tạm (có expires_at)
+  paid,             // Đã thanh toán đủ, chờ xuất vé
+  ticketed,         // Đã xuất vé điện tử
+  cancelRequested,  // Yêu cầu hủy đang xử lý
+  expired,          // Hết thời gian giữ chỗ
+  failed,           // Lỗi đặt/Thanh toán lỗi
+  refunded          // Đã hoàn tiền
 }

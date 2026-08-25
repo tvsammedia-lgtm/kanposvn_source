@@ -5,6 +5,7 @@ import '../../core/providers.dart';
 import '../../core/app_theme.dart';
 import '../../core/widgets.dart';
 import '../../models/payroll.dart';
+import 'payslip_pdf.dart';
 
 class PayrollScreen extends ConsumerStatefulWidget {
   const PayrollScreen({super.key});
@@ -56,16 +57,16 @@ class _PayrollScreenState extends ConsumerState<PayrollScreen> {
                       onPressed: _isCalculating ? null : () async {
                         final confirmed = await showDialog<bool>(
                           context: context,
-                          builder: (_) => AlertDialog(
+                          builder: (ctx) => AlertDialog(
                             title: const Text('Tính lương tự động'),
                             content: Text(
                                 'Tính lương tháng ${selectedMonth.month}/${selectedMonth.year} cho tất cả nhân viên?\n\nDữ liệu sẽ được tính từ bảng chấm công.'),
                             actions: [
                               TextButton(
-                                  onPressed: () => Navigator.pop(context, false),
+                                  onPressed: () => Navigator.pop(ctx, false),
                                   child: const Text('Hủy')),
                               ElevatedButton(
-                                onPressed: () => Navigator.pop(context, true),
+                                onPressed: () => Navigator.pop(ctx, true),
                                 child: const Text('Tính lương'),
                               ),
         ],
@@ -109,6 +110,14 @@ class _PayrollScreenState extends ConsumerState<PayrollScreen> {
                   onPressed: () => context.go('/payroll/entry'),
                   icon: const Icon(Icons.edit, size: 18),
                   label: const Text('Nhập lương'),
+                ),
+                const SizedBox(width: 12),
+                OutlinedButton.icon(
+                  onPressed: payrollAsync.value?.isEmpty ?? true
+                      ? null
+                      : () => printAllPayslips(payrollAsync.value!),
+                  icon: const Icon(Icons.print, size: 18),
+                  label: const Text('In phiếu lương'),
                 ),
               ],
             ),
@@ -292,10 +301,20 @@ class _PayrollScreenState extends ConsumerState<PayrollScreen> {
                                             color: statusColor),
                                       ),
                                       DataCell(
-                                        IconButton(
-                                          icon: const Icon(Icons.edit, size: 18),
-                                          color: AppTheme.textSecondary,
-                                          onPressed: () => context.go('/payroll/edit/${p.id}'),
+                                        Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            IconButton(
+                                              icon: const Icon(Icons.print, size: 18),
+                                              color: AppTheme.textSecondary,
+                                              onPressed: () => printPayslip(p),
+                                            ),
+                                            IconButton(
+                                              icon: const Icon(Icons.edit, size: 18),
+                                              color: AppTheme.textSecondary,
+                                              onPressed: () => context.go('/payroll/edit/${p.id}'),
+                                            ),
+                                          ],
                                         ),
                                       ),
                                     ],

@@ -28,7 +28,27 @@ class RideBooking {
   double distanceKm = 0.0;
   double estimatedPrice = 0.0;
   double finalPrice = 0.0;
-  
+
+  /// §14+§30. Chi tiết giá: hệ số giá động + phụ phí + khuyến mãi.
+  double surgeMultiplier = 1.0; // Mưa/cao điểm/lễ/tắc đường
+  double surcharge = 0; // Phụ phí cầu đường + sân bay
+  double discount = 0; // Tiền giảm từ voucher/khuyến mãi
+  String? promotionCode;
+
+  /// §15. cash | wallet
+  String paymentMethod = 'cash';
+
+  /// Hoa hồng nền tảng + phần tài xế nhận sau khi hoàn thành.
+  double commission = 0.0;
+  double driverEarnings = 0.0;
+
+  /// Ghép chuyến: nhóm chuyến chia sẻ (§12).
+  String? sharedGroupUuid;
+
+  /// Taxi doanh nghiệp (§43-GĐ4): tài khoản công ty gánh công nợ.
+  String? corporateUuid;
+  String paymentMethodCorp = ''; // mô tả hình thức DN nếu có
+
   @enumerated
   VehicleType requestedVehicleType = VehicleType.motorBike;
   
@@ -41,6 +61,7 @@ class RideBooking {
   DateTime? acceptedAt;
   DateTime? pickupAt;
   DateTime? completedAt;
+  DateTime? updatedAt;
   
   @enumerated
   SyncStatus syncStatus = SyncStatus.pending; // Quan trọng cho Offline Mode

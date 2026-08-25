@@ -32,44 +32,74 @@ const BidaInventoryTxSchema = CollectionSchema(
       name: r'deviceId',
       type: IsarType.string,
     ),
-    r'isSynced': PropertySchema(
+    r'discountAmount': PropertySchema(
       id: 3,
+      name: r'discountAmount',
+      type: IsarType.double,
+    ),
+    r'invoiceNo': PropertySchema(
+      id: 4,
+      name: r'invoiceNo',
+      type: IsarType.string,
+    ),
+    r'isSynced': PropertySchema(
+      id: 5,
       name: r'isSynced',
       type: IsarType.bool,
     ),
     r'itemId': PropertySchema(
-      id: 4,
+      id: 6,
       name: r'itemId',
       type: IsarType.string,
     ),
     r'itemName': PropertySchema(
-      id: 5,
+      id: 7,
       name: r'itemName',
       type: IsarType.string,
     ),
     r'note': PropertySchema(
-      id: 6,
+      id: 8,
       name: r'note',
       type: IsarType.string,
     ),
     r'quantity': PropertySchema(
-      id: 7,
+      id: 9,
       name: r'quantity',
       type: IsarType.long,
     ),
+    r'supplierId': PropertySchema(
+      id: 10,
+      name: r'supplierId',
+      type: IsarType.string,
+    ),
+    r'supplierName': PropertySchema(
+      id: 11,
+      name: r'supplierName',
+      type: IsarType.string,
+    ),
     r'type': PropertySchema(
-      id: 8,
+      id: 12,
       name: r'type',
       type: IsarType.byte,
       enumMap: _BidaInventoryTxtypeEnumValueMap,
     ),
+    r'unitPrice': PropertySchema(
+      id: 13,
+      name: r'unitPrice',
+      type: IsarType.double,
+    ),
     r'updatedAt': PropertySchema(
-      id: 9,
+      id: 14,
       name: r'updatedAt',
       type: IsarType.dateTime,
     ),
+    r'vatPercent': PropertySchema(
+      id: 15,
+      name: r'vatPercent',
+      type: IsarType.double,
+    ),
     r'version': PropertySchema(
-      id: 10,
+      id: 16,
       name: r'version',
       type: IsarType.long,
     )
@@ -109,9 +139,12 @@ int _bidaInventoryTxEstimateSize(
 ) {
   var bytesCount = offsets.last;
   bytesCount += 3 + object.deviceId.length * 3;
+  bytesCount += 3 + object.invoiceNo.length * 3;
   bytesCount += 3 + object.itemId.length * 3;
   bytesCount += 3 + object.itemName.length * 3;
   bytesCount += 3 + object.note.length * 3;
+  bytesCount += 3 + object.supplierId.length * 3;
+  bytesCount += 3 + object.supplierName.length * 3;
   return bytesCount;
 }
 
@@ -124,14 +157,20 @@ void _bidaInventoryTxSerialize(
   writer.writeDateTime(offsets[0], object.createdAt);
   writer.writeDateTime(offsets[1], object.deletedAt);
   writer.writeString(offsets[2], object.deviceId);
-  writer.writeBool(offsets[3], object.isSynced);
-  writer.writeString(offsets[4], object.itemId);
-  writer.writeString(offsets[5], object.itemName);
-  writer.writeString(offsets[6], object.note);
-  writer.writeLong(offsets[7], object.quantity);
-  writer.writeByte(offsets[8], object.type.index);
-  writer.writeDateTime(offsets[9], object.updatedAt);
-  writer.writeLong(offsets[10], object.version);
+  writer.writeDouble(offsets[3], object.discountAmount);
+  writer.writeString(offsets[4], object.invoiceNo);
+  writer.writeBool(offsets[5], object.isSynced);
+  writer.writeString(offsets[6], object.itemId);
+  writer.writeString(offsets[7], object.itemName);
+  writer.writeString(offsets[8], object.note);
+  writer.writeLong(offsets[9], object.quantity);
+  writer.writeString(offsets[10], object.supplierId);
+  writer.writeString(offsets[11], object.supplierName);
+  writer.writeByte(offsets[12], object.type.index);
+  writer.writeDouble(offsets[13], object.unitPrice);
+  writer.writeDateTime(offsets[14], object.updatedAt);
+  writer.writeDouble(offsets[15], object.vatPercent);
+  writer.writeLong(offsets[16], object.version);
 }
 
 BidaInventoryTx _bidaInventoryTxDeserialize(
@@ -144,17 +183,23 @@ BidaInventoryTx _bidaInventoryTxDeserialize(
   object.createdAt = reader.readDateTime(offsets[0]);
   object.deletedAt = reader.readDateTimeOrNull(offsets[1]);
   object.deviceId = reader.readString(offsets[2]);
+  object.discountAmount = reader.readDouble(offsets[3]);
   object.id = id;
-  object.isSynced = reader.readBool(offsets[3]);
-  object.itemId = reader.readString(offsets[4]);
-  object.itemName = reader.readString(offsets[5]);
-  object.note = reader.readString(offsets[6]);
-  object.quantity = reader.readLong(offsets[7]);
+  object.invoiceNo = reader.readString(offsets[4]);
+  object.isSynced = reader.readBool(offsets[5]);
+  object.itemId = reader.readString(offsets[6]);
+  object.itemName = reader.readString(offsets[7]);
+  object.note = reader.readString(offsets[8]);
+  object.quantity = reader.readLong(offsets[9]);
+  object.supplierId = reader.readString(offsets[10]);
+  object.supplierName = reader.readString(offsets[11]);
   object.type =
-      _BidaInventoryTxtypeValueEnumMap[reader.readByteOrNull(offsets[8])] ??
+      _BidaInventoryTxtypeValueEnumMap[reader.readByteOrNull(offsets[12])] ??
           BidaInventoryTxType.IMPORT;
-  object.updatedAt = reader.readDateTime(offsets[9]);
-  object.version = reader.readLong(offsets[10]);
+  object.unitPrice = reader.readDouble(offsets[13]);
+  object.updatedAt = reader.readDateTime(offsets[14]);
+  object.vatPercent = reader.readDouble(offsets[15]);
+  object.version = reader.readLong(offsets[16]);
   return object;
 }
 
@@ -172,21 +217,33 @@ P _bidaInventoryTxDeserializeProp<P>(
     case 2:
       return (reader.readString(offset)) as P;
     case 3:
-      return (reader.readBool(offset)) as P;
+      return (reader.readDouble(offset)) as P;
     case 4:
       return (reader.readString(offset)) as P;
     case 5:
-      return (reader.readString(offset)) as P;
+      return (reader.readBool(offset)) as P;
     case 6:
       return (reader.readString(offset)) as P;
     case 7:
-      return (reader.readLong(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 8:
+      return (reader.readString(offset)) as P;
+    case 9:
+      return (reader.readLong(offset)) as P;
+    case 10:
+      return (reader.readString(offset)) as P;
+    case 11:
+      return (reader.readString(offset)) as P;
+    case 12:
       return (_BidaInventoryTxtypeValueEnumMap[reader.readByteOrNull(offset)] ??
           BidaInventoryTxType.IMPORT) as P;
-    case 9:
+    case 13:
+      return (reader.readDouble(offset)) as P;
+    case 14:
       return (reader.readDateTime(offset)) as P;
-    case 10:
+    case 15:
+      return (reader.readDouble(offset)) as P;
+    case 16:
       return (reader.readLong(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -665,6 +722,72 @@ extension BidaInventoryTxQueryFilter
   }
 
   QueryBuilder<BidaInventoryTx, BidaInventoryTx, QAfterFilterCondition>
+      discountAmountEqualTo(
+    double value, {
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'discountAmount',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<BidaInventoryTx, BidaInventoryTx, QAfterFilterCondition>
+      discountAmountGreaterThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'discountAmount',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<BidaInventoryTx, BidaInventoryTx, QAfterFilterCondition>
+      discountAmountLessThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'discountAmount',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<BidaInventoryTx, BidaInventoryTx, QAfterFilterCondition>
+      discountAmountBetween(
+    double lower,
+    double upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'discountAmount',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<BidaInventoryTx, BidaInventoryTx, QAfterFilterCondition>
       idEqualTo(Id value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
@@ -716,6 +839,142 @@ extension BidaInventoryTxQueryFilter
         includeLower: includeLower,
         upper: upper,
         includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<BidaInventoryTx, BidaInventoryTx, QAfterFilterCondition>
+      invoiceNoEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'invoiceNo',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BidaInventoryTx, BidaInventoryTx, QAfterFilterCondition>
+      invoiceNoGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'invoiceNo',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BidaInventoryTx, BidaInventoryTx, QAfterFilterCondition>
+      invoiceNoLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'invoiceNo',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BidaInventoryTx, BidaInventoryTx, QAfterFilterCondition>
+      invoiceNoBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'invoiceNo',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BidaInventoryTx, BidaInventoryTx, QAfterFilterCondition>
+      invoiceNoStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'invoiceNo',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BidaInventoryTx, BidaInventoryTx, QAfterFilterCondition>
+      invoiceNoEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'invoiceNo',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BidaInventoryTx, BidaInventoryTx, QAfterFilterCondition>
+      invoiceNoContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'invoiceNo',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BidaInventoryTx, BidaInventoryTx, QAfterFilterCondition>
+      invoiceNoMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'invoiceNo',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BidaInventoryTx, BidaInventoryTx, QAfterFilterCondition>
+      invoiceNoIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'invoiceNo',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<BidaInventoryTx, BidaInventoryTx, QAfterFilterCondition>
+      invoiceNoIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'invoiceNo',
+        value: '',
       ));
     });
   }
@@ -1195,6 +1454,278 @@ extension BidaInventoryTxQueryFilter
   }
 
   QueryBuilder<BidaInventoryTx, BidaInventoryTx, QAfterFilterCondition>
+      supplierIdEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'supplierId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BidaInventoryTx, BidaInventoryTx, QAfterFilterCondition>
+      supplierIdGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'supplierId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BidaInventoryTx, BidaInventoryTx, QAfterFilterCondition>
+      supplierIdLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'supplierId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BidaInventoryTx, BidaInventoryTx, QAfterFilterCondition>
+      supplierIdBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'supplierId',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BidaInventoryTx, BidaInventoryTx, QAfterFilterCondition>
+      supplierIdStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'supplierId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BidaInventoryTx, BidaInventoryTx, QAfterFilterCondition>
+      supplierIdEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'supplierId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BidaInventoryTx, BidaInventoryTx, QAfterFilterCondition>
+      supplierIdContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'supplierId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BidaInventoryTx, BidaInventoryTx, QAfterFilterCondition>
+      supplierIdMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'supplierId',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BidaInventoryTx, BidaInventoryTx, QAfterFilterCondition>
+      supplierIdIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'supplierId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<BidaInventoryTx, BidaInventoryTx, QAfterFilterCondition>
+      supplierIdIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'supplierId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<BidaInventoryTx, BidaInventoryTx, QAfterFilterCondition>
+      supplierNameEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'supplierName',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BidaInventoryTx, BidaInventoryTx, QAfterFilterCondition>
+      supplierNameGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'supplierName',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BidaInventoryTx, BidaInventoryTx, QAfterFilterCondition>
+      supplierNameLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'supplierName',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BidaInventoryTx, BidaInventoryTx, QAfterFilterCondition>
+      supplierNameBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'supplierName',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BidaInventoryTx, BidaInventoryTx, QAfterFilterCondition>
+      supplierNameStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'supplierName',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BidaInventoryTx, BidaInventoryTx, QAfterFilterCondition>
+      supplierNameEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'supplierName',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BidaInventoryTx, BidaInventoryTx, QAfterFilterCondition>
+      supplierNameContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'supplierName',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BidaInventoryTx, BidaInventoryTx, QAfterFilterCondition>
+      supplierNameMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'supplierName',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BidaInventoryTx, BidaInventoryTx, QAfterFilterCondition>
+      supplierNameIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'supplierName',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<BidaInventoryTx, BidaInventoryTx, QAfterFilterCondition>
+      supplierNameIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'supplierName',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<BidaInventoryTx, BidaInventoryTx, QAfterFilterCondition>
       typeEqualTo(BidaInventoryTxType value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
@@ -1251,6 +1782,72 @@ extension BidaInventoryTxQueryFilter
   }
 
   QueryBuilder<BidaInventoryTx, BidaInventoryTx, QAfterFilterCondition>
+      unitPriceEqualTo(
+    double value, {
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'unitPrice',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<BidaInventoryTx, BidaInventoryTx, QAfterFilterCondition>
+      unitPriceGreaterThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'unitPrice',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<BidaInventoryTx, BidaInventoryTx, QAfterFilterCondition>
+      unitPriceLessThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'unitPrice',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<BidaInventoryTx, BidaInventoryTx, QAfterFilterCondition>
+      unitPriceBetween(
+    double lower,
+    double upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'unitPrice',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<BidaInventoryTx, BidaInventoryTx, QAfterFilterCondition>
       updatedAtEqualTo(DateTime value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
@@ -1302,6 +1899,72 @@ extension BidaInventoryTxQueryFilter
         includeLower: includeLower,
         upper: upper,
         includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<BidaInventoryTx, BidaInventoryTx, QAfterFilterCondition>
+      vatPercentEqualTo(
+    double value, {
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'vatPercent',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<BidaInventoryTx, BidaInventoryTx, QAfterFilterCondition>
+      vatPercentGreaterThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'vatPercent',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<BidaInventoryTx, BidaInventoryTx, QAfterFilterCondition>
+      vatPercentLessThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'vatPercent',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<BidaInventoryTx, BidaInventoryTx, QAfterFilterCondition>
+      vatPercentBetween(
+    double lower,
+    double upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'vatPercent',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        epsilon: epsilon,
       ));
     });
   }
@@ -1414,6 +2077,34 @@ extension BidaInventoryTxQuerySortBy
   }
 
   QueryBuilder<BidaInventoryTx, BidaInventoryTx, QAfterSortBy>
+      sortByDiscountAmount() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'discountAmount', Sort.asc);
+    });
+  }
+
+  QueryBuilder<BidaInventoryTx, BidaInventoryTx, QAfterSortBy>
+      sortByDiscountAmountDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'discountAmount', Sort.desc);
+    });
+  }
+
+  QueryBuilder<BidaInventoryTx, BidaInventoryTx, QAfterSortBy>
+      sortByInvoiceNo() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'invoiceNo', Sort.asc);
+    });
+  }
+
+  QueryBuilder<BidaInventoryTx, BidaInventoryTx, QAfterSortBy>
+      sortByInvoiceNoDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'invoiceNo', Sort.desc);
+    });
+  }
+
+  QueryBuilder<BidaInventoryTx, BidaInventoryTx, QAfterSortBy>
       sortByIsSynced() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'isSynced', Sort.asc);
@@ -1481,6 +2172,34 @@ extension BidaInventoryTxQuerySortBy
     });
   }
 
+  QueryBuilder<BidaInventoryTx, BidaInventoryTx, QAfterSortBy>
+      sortBySupplierId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'supplierId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<BidaInventoryTx, BidaInventoryTx, QAfterSortBy>
+      sortBySupplierIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'supplierId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<BidaInventoryTx, BidaInventoryTx, QAfterSortBy>
+      sortBySupplierName() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'supplierName', Sort.asc);
+    });
+  }
+
+  QueryBuilder<BidaInventoryTx, BidaInventoryTx, QAfterSortBy>
+      sortBySupplierNameDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'supplierName', Sort.desc);
+    });
+  }
+
   QueryBuilder<BidaInventoryTx, BidaInventoryTx, QAfterSortBy> sortByType() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'type', Sort.asc);
@@ -1495,6 +2214,20 @@ extension BidaInventoryTxQuerySortBy
   }
 
   QueryBuilder<BidaInventoryTx, BidaInventoryTx, QAfterSortBy>
+      sortByUnitPrice() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'unitPrice', Sort.asc);
+    });
+  }
+
+  QueryBuilder<BidaInventoryTx, BidaInventoryTx, QAfterSortBy>
+      sortByUnitPriceDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'unitPrice', Sort.desc);
+    });
+  }
+
+  QueryBuilder<BidaInventoryTx, BidaInventoryTx, QAfterSortBy>
       sortByUpdatedAt() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'updatedAt', Sort.asc);
@@ -1505,6 +2238,20 @@ extension BidaInventoryTxQuerySortBy
       sortByUpdatedAtDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'updatedAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<BidaInventoryTx, BidaInventoryTx, QAfterSortBy>
+      sortByVatPercent() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'vatPercent', Sort.asc);
+    });
+  }
+
+  QueryBuilder<BidaInventoryTx, BidaInventoryTx, QAfterSortBy>
+      sortByVatPercentDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'vatPercent', Sort.desc);
     });
   }
 
@@ -1566,6 +2313,20 @@ extension BidaInventoryTxQuerySortThenBy
     });
   }
 
+  QueryBuilder<BidaInventoryTx, BidaInventoryTx, QAfterSortBy>
+      thenByDiscountAmount() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'discountAmount', Sort.asc);
+    });
+  }
+
+  QueryBuilder<BidaInventoryTx, BidaInventoryTx, QAfterSortBy>
+      thenByDiscountAmountDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'discountAmount', Sort.desc);
+    });
+  }
+
   QueryBuilder<BidaInventoryTx, BidaInventoryTx, QAfterSortBy> thenById() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'id', Sort.asc);
@@ -1575,6 +2336,20 @@ extension BidaInventoryTxQuerySortThenBy
   QueryBuilder<BidaInventoryTx, BidaInventoryTx, QAfterSortBy> thenByIdDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'id', Sort.desc);
+    });
+  }
+
+  QueryBuilder<BidaInventoryTx, BidaInventoryTx, QAfterSortBy>
+      thenByInvoiceNo() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'invoiceNo', Sort.asc);
+    });
+  }
+
+  QueryBuilder<BidaInventoryTx, BidaInventoryTx, QAfterSortBy>
+      thenByInvoiceNoDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'invoiceNo', Sort.desc);
     });
   }
 
@@ -1646,6 +2421,34 @@ extension BidaInventoryTxQuerySortThenBy
     });
   }
 
+  QueryBuilder<BidaInventoryTx, BidaInventoryTx, QAfterSortBy>
+      thenBySupplierId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'supplierId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<BidaInventoryTx, BidaInventoryTx, QAfterSortBy>
+      thenBySupplierIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'supplierId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<BidaInventoryTx, BidaInventoryTx, QAfterSortBy>
+      thenBySupplierName() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'supplierName', Sort.asc);
+    });
+  }
+
+  QueryBuilder<BidaInventoryTx, BidaInventoryTx, QAfterSortBy>
+      thenBySupplierNameDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'supplierName', Sort.desc);
+    });
+  }
+
   QueryBuilder<BidaInventoryTx, BidaInventoryTx, QAfterSortBy> thenByType() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'type', Sort.asc);
@@ -1660,6 +2463,20 @@ extension BidaInventoryTxQuerySortThenBy
   }
 
   QueryBuilder<BidaInventoryTx, BidaInventoryTx, QAfterSortBy>
+      thenByUnitPrice() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'unitPrice', Sort.asc);
+    });
+  }
+
+  QueryBuilder<BidaInventoryTx, BidaInventoryTx, QAfterSortBy>
+      thenByUnitPriceDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'unitPrice', Sort.desc);
+    });
+  }
+
+  QueryBuilder<BidaInventoryTx, BidaInventoryTx, QAfterSortBy>
       thenByUpdatedAt() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'updatedAt', Sort.asc);
@@ -1670,6 +2487,20 @@ extension BidaInventoryTxQuerySortThenBy
       thenByUpdatedAtDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'updatedAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<BidaInventoryTx, BidaInventoryTx, QAfterSortBy>
+      thenByVatPercent() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'vatPercent', Sort.asc);
+    });
+  }
+
+  QueryBuilder<BidaInventoryTx, BidaInventoryTx, QAfterSortBy>
+      thenByVatPercentDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'vatPercent', Sort.desc);
     });
   }
 
@@ -1711,6 +2542,20 @@ extension BidaInventoryTxQueryWhereDistinct
   }
 
   QueryBuilder<BidaInventoryTx, BidaInventoryTx, QDistinct>
+      distinctByDiscountAmount() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'discountAmount');
+    });
+  }
+
+  QueryBuilder<BidaInventoryTx, BidaInventoryTx, QDistinct> distinctByInvoiceNo(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'invoiceNo', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<BidaInventoryTx, BidaInventoryTx, QDistinct>
       distinctByIsSynced() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'isSynced');
@@ -1745,6 +2590,20 @@ extension BidaInventoryTxQueryWhereDistinct
     });
   }
 
+  QueryBuilder<BidaInventoryTx, BidaInventoryTx, QDistinct>
+      distinctBySupplierId({bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'supplierId', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<BidaInventoryTx, BidaInventoryTx, QDistinct>
+      distinctBySupplierName({bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'supplierName', caseSensitive: caseSensitive);
+    });
+  }
+
   QueryBuilder<BidaInventoryTx, BidaInventoryTx, QDistinct> distinctByType() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'type');
@@ -1752,9 +2611,23 @@ extension BidaInventoryTxQueryWhereDistinct
   }
 
   QueryBuilder<BidaInventoryTx, BidaInventoryTx, QDistinct>
+      distinctByUnitPrice() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'unitPrice');
+    });
+  }
+
+  QueryBuilder<BidaInventoryTx, BidaInventoryTx, QDistinct>
       distinctByUpdatedAt() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'updatedAt');
+    });
+  }
+
+  QueryBuilder<BidaInventoryTx, BidaInventoryTx, QDistinct>
+      distinctByVatPercent() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'vatPercent');
     });
   }
 
@@ -1794,6 +2667,19 @@ extension BidaInventoryTxQueryProperty
     });
   }
 
+  QueryBuilder<BidaInventoryTx, double, QQueryOperations>
+      discountAmountProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'discountAmount');
+    });
+  }
+
+  QueryBuilder<BidaInventoryTx, String, QQueryOperations> invoiceNoProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'invoiceNo');
+    });
+  }
+
   QueryBuilder<BidaInventoryTx, bool, QQueryOperations> isSyncedProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'isSynced');
@@ -1824,6 +2710,19 @@ extension BidaInventoryTxQueryProperty
     });
   }
 
+  QueryBuilder<BidaInventoryTx, String, QQueryOperations> supplierIdProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'supplierId');
+    });
+  }
+
+  QueryBuilder<BidaInventoryTx, String, QQueryOperations>
+      supplierNameProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'supplierName');
+    });
+  }
+
   QueryBuilder<BidaInventoryTx, BidaInventoryTxType, QQueryOperations>
       typeProperty() {
     return QueryBuilder.apply(this, (query) {
@@ -1831,10 +2730,22 @@ extension BidaInventoryTxQueryProperty
     });
   }
 
+  QueryBuilder<BidaInventoryTx, double, QQueryOperations> unitPriceProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'unitPrice');
+    });
+  }
+
   QueryBuilder<BidaInventoryTx, DateTime, QQueryOperations>
       updatedAtProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'updatedAt');
+    });
+  }
+
+  QueryBuilder<BidaInventoryTx, double, QQueryOperations> vatPercentProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'vatPercent');
     });
   }
 

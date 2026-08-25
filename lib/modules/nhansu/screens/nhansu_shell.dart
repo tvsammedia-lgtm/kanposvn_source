@@ -7,6 +7,7 @@ import 'nhansu_employee_screen.dart';
 import 'nhansu_attendance_screen.dart';
 import 'nhansu_payroll_screen.dart';
 import 'nhansu_reports_screen.dart';
+import 'nhansu_accounting_screen.dart';
 
 class NhanSuShell extends ConsumerWidget {
   const NhanSuShell({super.key});
@@ -19,6 +20,7 @@ class NhanSuShell extends ConsumerWidget {
       NavItem(icon: Icons.calendar_month_rounded, label: 'attendance'.tr),
       NavItem(icon: Icons.payments_rounded, label: 'payroll'.tr),
       NavItem(icon: Icons.assessment_rounded, label: 'reports'.tr),
+      NavItem(icon: Icons.account_balance_rounded, label: 'accounting'.tr),
     ];
 
     final screens = [
@@ -27,6 +29,7 @@ class NhanSuShell extends ConsumerWidget {
       const NhanSuAttendanceScreen(),
       const NhanSuPayrollScreen(),
       const NhanSuReportsScreen(),
+      const NhanSuAccountingScreen(),
     ];
 
     return AppShell(

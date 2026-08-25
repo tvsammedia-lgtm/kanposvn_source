@@ -107,22 +107,24 @@ class _KanPosVNBanvevantaiShellState extends ConsumerState<KanPosVNBanvevantaiSh
       ),
       body: Row(
         children: [
-          NavigationRail(
-            selectedIndex: safeIndex,
-            onDestinationSelected: (index) {
-              setState(() {
-                _selectedIndex = index;
-              });
-            },
-            labelType: NavigationRailLabelType.all,
-            scrollable: true,
-            destinations: [
-              for (final t in tabs)
-                NavigationRailDestination(
-                  icon: Icon(t.icon),
-                  label: Text(t.label),
-                ),
-            ],
+          SingleChildScrollView(
+            scrollDirection: Axis.vertical,
+            child: NavigationRail(
+              selectedIndex: safeIndex,
+              onDestinationSelected: (index) {
+                setState(() {
+                  _selectedIndex = index;
+                });
+              },
+              labelType: NavigationRailLabelType.all,
+              destinations: [
+                for (final t in tabs)
+                  NavigationRailDestination(
+                    icon: Icon(t.icon),
+                    label: Text(t.label),
+                  ),
+              ],
+            ),
           ),
           const VerticalDivider(thickness: 1, width: 1),
           Expanded(

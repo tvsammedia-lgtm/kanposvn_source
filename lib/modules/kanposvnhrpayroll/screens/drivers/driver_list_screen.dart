@@ -126,15 +126,15 @@ class _DriverListScreenState extends ConsumerState<DriverListScreen> {
                     onDelete: () async {
                       final ok = await showDialog<bool>(
                         context: context,
-                        builder: (_) => AlertDialog(
+                        builder: (ctx) => AlertDialog(
                           title: const Text('Xóa tài xế'),
                           content: Text('Xóa ${filtered[i].fullName}?'),
                           actions: [
                             TextButton(
-                                onPressed: () => Navigator.pop(context, false),
+                                onPressed: () => Navigator.pop(ctx, false),
                                 child: const Text('Hủy')),
                             ElevatedButton(
-                              onPressed: () => Navigator.pop(context, true),
+                              onPressed: () => Navigator.pop(ctx, true),
                               style: ElevatedButton.styleFrom(
                                   backgroundColor: AppTheme.danger),
                               child: const Text('Xóa'),

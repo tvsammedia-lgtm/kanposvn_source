@@ -107,159 +107,194 @@ const PayrollSchema = CollectionSchema(
       name: r'employeeName',
       type: IsarType.string,
     ),
-    r'fuelSavingBonus': PropertySchema(
+    r'employerBhtn': PropertySchema(
       id: 18,
+      name: r'employerBhtn',
+      type: IsarType.double,
+    ),
+    r'employerBhxh': PropertySchema(
+      id: 19,
+      name: r'employerBhxh',
+      type: IsarType.double,
+    ),
+    r'employerBhyt': PropertySchema(
+      id: 20,
+      name: r'employerBhyt',
+      type: IsarType.double,
+    ),
+    r'fuelSavingBonus': PropertySchema(
+      id: 21,
       name: r'fuelSavingBonus',
       type: IsarType.double,
     ),
     r'grossSalary': PropertySchema(
-      id: 19,
+      id: 22,
       name: r'grossSalary',
       type: IsarType.double,
     ),
     r'healthInsurance': PropertySchema(
-      id: 20,
+      id: 23,
       name: r'healthInsurance',
       type: IsarType.double,
     ),
     r'isDriver': PropertySchema(
-      id: 21,
+      id: 24,
       name: r'isDriver',
       type: IsarType.bool,
     ),
+    r'journalRef': PropertySchema(
+      id: 25,
+      name: r'journalRef',
+      type: IsarType.string,
+    ),
     r'kmSalary': PropertySchema(
-      id: 22,
+      id: 26,
       name: r'kmSalary',
       type: IsarType.double,
     ),
     r'kpiBonus': PropertySchema(
-      id: 23,
+      id: 27,
       name: r'kpiBonus',
       type: IsarType.double,
     ),
     r'lastSyncAt': PropertySchema(
-      id: 24,
+      id: 28,
       name: r'lastSyncAt',
       type: IsarType.dateTime,
     ),
     r'month': PropertySchema(
-      id: 25,
+      id: 29,
       name: r'month',
       type: IsarType.long,
     ),
     r'monthlyBonus': PropertySchema(
-      id: 26,
+      id: 30,
       name: r'monthlyBonus',
       type: IsarType.double,
     ),
     r'needsSync': PropertySchema(
-      id: 27,
+      id: 31,
       name: r'needsSync',
       type: IsarType.bool,
     ),
     r'netSalary': PropertySchema(
-      id: 28,
+      id: 32,
       name: r'netSalary',
       type: IsarType.double,
     ),
     r'notes': PropertySchema(
-      id: 29,
+      id: 33,
       name: r'notes',
       type: IsarType.string,
     ),
     r'otherBonus': PropertySchema(
-      id: 30,
+      id: 34,
       name: r'otherBonus',
       type: IsarType.double,
     ),
     r'otherDeduction': PropertySchema(
-      id: 31,
+      id: 35,
       name: r'otherDeduction',
       type: IsarType.double,
     ),
     r'otherPenalty': PropertySchema(
-      id: 32,
+      id: 36,
       name: r'otherPenalty',
       type: IsarType.double,
     ),
     r'overtimeSalary': PropertySchema(
-      id: 33,
+      id: 37,
       name: r'overtimeSalary',
       type: IsarType.double,
     ),
     r'paidDate': PropertySchema(
-      id: 34,
+      id: 38,
       name: r'paidDate',
       type: IsarType.dateTime,
     ),
+    r'paymentMethod': PropertySchema(
+      id: 39,
+      name: r'paymentMethod',
+      type: IsarType.string,
+    ),
     r'personalIncomeTax': PropertySchema(
-      id: 35,
+      id: 40,
       name: r'personalIncomeTax',
       type: IsarType.double,
     ),
     r'position': PropertySchema(
-      id: 36,
+      id: 41,
       name: r'position',
       type: IsarType.string,
     ),
     r'remoteId': PropertySchema(
-      id: 37,
+      id: 42,
       name: r'remoteId',
       type: IsarType.string,
     ),
     r'revenueSalary': PropertySchema(
-      id: 38,
+      id: 43,
       name: r'revenueSalary',
       type: IsarType.double,
     ),
     r'safetyBonus': PropertySchema(
-      id: 39,
+      id: 44,
       name: r'safetyBonus',
       type: IsarType.double,
     ),
     r'socialInsurance': PropertySchema(
-      id: 40,
+      id: 45,
       name: r'socialInsurance',
       type: IsarType.double,
     ),
     r'status': PropertySchema(
-      id: 41,
+      id: 46,
       name: r'status',
       type: IsarType.string,
       enumMap: _PayrollstatusEnumValueMap,
     ),
     r'totalDeductions': PropertySchema(
-      id: 42,
+      id: 47,
       name: r'totalDeductions',
       type: IsarType.double,
     ),
+    r'totalEmployerCost': PropertySchema(
+      id: 48,
+      name: r'totalEmployerCost',
+      type: IsarType.double,
+    ),
     r'tripSalary': PropertySchema(
-      id: 43,
+      id: 49,
       name: r'tripSalary',
       type: IsarType.double,
     ),
     r'unemploymentInsurance': PropertySchema(
-      id: 44,
+      id: 50,
       name: r'unemploymentInsurance',
       type: IsarType.double,
     ),
+    r'unionFee': PropertySchema(
+      id: 51,
+      name: r'unionFee',
+      type: IsarType.double,
+    ),
     r'updatedAt': PropertySchema(
-      id: 45,
+      id: 52,
       name: r'updatedAt',
       type: IsarType.dateTime,
     ),
     r'violationPenalty': PropertySchema(
-      id: 46,
+      id: 53,
       name: r'violationPenalty',
       type: IsarType.double,
     ),
     r'workingDays': PropertySchema(
-      id: 47,
+      id: 54,
       name: r'workingDays',
       type: IsarType.double,
     ),
     r'year': PropertySchema(
-      id: 48,
+      id: 55,
       name: r'year',
       type: IsarType.long,
     )
@@ -288,7 +323,19 @@ int _payrollEstimateSize(
   bytesCount += 3 + object.employeeCode.length * 3;
   bytesCount += 3 + object.employeeName.length * 3;
   {
+    final value = object.journalRef;
+    if (value != null) {
+      bytesCount += 3 + value.length * 3;
+    }
+  }
+  {
     final value = object.notes;
+    if (value != null) {
+      bytesCount += 3 + value.length * 3;
+    }
+  }
+  {
+    final value = object.paymentMethod;
     if (value != null) {
       bytesCount += 3 + value.length * 3;
     }
@@ -328,37 +375,44 @@ void _payrollSerialize(
   writer.writeString(offsets[15], object.employeeCode);
   writer.writeLong(offsets[16], object.employeeId);
   writer.writeString(offsets[17], object.employeeName);
-  writer.writeDouble(offsets[18], object.fuelSavingBonus);
-  writer.writeDouble(offsets[19], object.grossSalary);
-  writer.writeDouble(offsets[20], object.healthInsurance);
-  writer.writeBool(offsets[21], object.isDriver);
-  writer.writeDouble(offsets[22], object.kmSalary);
-  writer.writeDouble(offsets[23], object.kpiBonus);
-  writer.writeDateTime(offsets[24], object.lastSyncAt);
-  writer.writeLong(offsets[25], object.month);
-  writer.writeDouble(offsets[26], object.monthlyBonus);
-  writer.writeBool(offsets[27], object.needsSync);
-  writer.writeDouble(offsets[28], object.netSalary);
-  writer.writeString(offsets[29], object.notes);
-  writer.writeDouble(offsets[30], object.otherBonus);
-  writer.writeDouble(offsets[31], object.otherDeduction);
-  writer.writeDouble(offsets[32], object.otherPenalty);
-  writer.writeDouble(offsets[33], object.overtimeSalary);
-  writer.writeDateTime(offsets[34], object.paidDate);
-  writer.writeDouble(offsets[35], object.personalIncomeTax);
-  writer.writeString(offsets[36], object.position);
-  writer.writeString(offsets[37], object.remoteId);
-  writer.writeDouble(offsets[38], object.revenueSalary);
-  writer.writeDouble(offsets[39], object.safetyBonus);
-  writer.writeDouble(offsets[40], object.socialInsurance);
-  writer.writeString(offsets[41], object.status.name);
-  writer.writeDouble(offsets[42], object.totalDeductions);
-  writer.writeDouble(offsets[43], object.tripSalary);
-  writer.writeDouble(offsets[44], object.unemploymentInsurance);
-  writer.writeDateTime(offsets[45], object.updatedAt);
-  writer.writeDouble(offsets[46], object.violationPenalty);
-  writer.writeDouble(offsets[47], object.workingDays);
-  writer.writeLong(offsets[48], object.year);
+  writer.writeDouble(offsets[18], object.employerBhtn);
+  writer.writeDouble(offsets[19], object.employerBhxh);
+  writer.writeDouble(offsets[20], object.employerBhyt);
+  writer.writeDouble(offsets[21], object.fuelSavingBonus);
+  writer.writeDouble(offsets[22], object.grossSalary);
+  writer.writeDouble(offsets[23], object.healthInsurance);
+  writer.writeBool(offsets[24], object.isDriver);
+  writer.writeString(offsets[25], object.journalRef);
+  writer.writeDouble(offsets[26], object.kmSalary);
+  writer.writeDouble(offsets[27], object.kpiBonus);
+  writer.writeDateTime(offsets[28], object.lastSyncAt);
+  writer.writeLong(offsets[29], object.month);
+  writer.writeDouble(offsets[30], object.monthlyBonus);
+  writer.writeBool(offsets[31], object.needsSync);
+  writer.writeDouble(offsets[32], object.netSalary);
+  writer.writeString(offsets[33], object.notes);
+  writer.writeDouble(offsets[34], object.otherBonus);
+  writer.writeDouble(offsets[35], object.otherDeduction);
+  writer.writeDouble(offsets[36], object.otherPenalty);
+  writer.writeDouble(offsets[37], object.overtimeSalary);
+  writer.writeDateTime(offsets[38], object.paidDate);
+  writer.writeString(offsets[39], object.paymentMethod);
+  writer.writeDouble(offsets[40], object.personalIncomeTax);
+  writer.writeString(offsets[41], object.position);
+  writer.writeString(offsets[42], object.remoteId);
+  writer.writeDouble(offsets[43], object.revenueSalary);
+  writer.writeDouble(offsets[44], object.safetyBonus);
+  writer.writeDouble(offsets[45], object.socialInsurance);
+  writer.writeString(offsets[46], object.status.name);
+  writer.writeDouble(offsets[47], object.totalDeductions);
+  writer.writeDouble(offsets[48], object.totalEmployerCost);
+  writer.writeDouble(offsets[49], object.tripSalary);
+  writer.writeDouble(offsets[50], object.unemploymentInsurance);
+  writer.writeDouble(offsets[51], object.unionFee);
+  writer.writeDateTime(offsets[52], object.updatedAt);
+  writer.writeDouble(offsets[53], object.violationPenalty);
+  writer.writeDouble(offsets[54], object.workingDays);
+  writer.writeLong(offsets[55], object.year);
 }
 
 Payroll _payrollDeserialize(
@@ -386,40 +440,47 @@ Payroll _payrollDeserialize(
   object.employeeCode = reader.readString(offsets[15]);
   object.employeeId = reader.readLong(offsets[16]);
   object.employeeName = reader.readString(offsets[17]);
-  object.fuelSavingBonus = reader.readDouble(offsets[18]);
-  object.grossSalary = reader.readDouble(offsets[19]);
-  object.healthInsurance = reader.readDouble(offsets[20]);
+  object.employerBhtn = reader.readDouble(offsets[18]);
+  object.employerBhxh = reader.readDouble(offsets[19]);
+  object.employerBhyt = reader.readDouble(offsets[20]);
+  object.fuelSavingBonus = reader.readDouble(offsets[21]);
+  object.grossSalary = reader.readDouble(offsets[22]);
+  object.healthInsurance = reader.readDouble(offsets[23]);
   object.id = id;
-  object.isDriver = reader.readBool(offsets[21]);
-  object.kmSalary = reader.readDouble(offsets[22]);
-  object.kpiBonus = reader.readDouble(offsets[23]);
-  object.lastSyncAt = reader.readDateTimeOrNull(offsets[24]);
-  object.month = reader.readLong(offsets[25]);
-  object.monthlyBonus = reader.readDouble(offsets[26]);
-  object.needsSync = reader.readBool(offsets[27]);
-  object.netSalary = reader.readDouble(offsets[28]);
-  object.notes = reader.readStringOrNull(offsets[29]);
-  object.otherBonus = reader.readDouble(offsets[30]);
-  object.otherDeduction = reader.readDouble(offsets[31]);
-  object.otherPenalty = reader.readDouble(offsets[32]);
-  object.overtimeSalary = reader.readDouble(offsets[33]);
-  object.paidDate = reader.readDateTimeOrNull(offsets[34]);
-  object.personalIncomeTax = reader.readDouble(offsets[35]);
-  object.position = reader.readString(offsets[36]);
-  object.remoteId = reader.readStringOrNull(offsets[37]);
-  object.revenueSalary = reader.readDouble(offsets[38]);
-  object.safetyBonus = reader.readDouble(offsets[39]);
-  object.socialInsurance = reader.readDouble(offsets[40]);
+  object.isDriver = reader.readBool(offsets[24]);
+  object.journalRef = reader.readStringOrNull(offsets[25]);
+  object.kmSalary = reader.readDouble(offsets[26]);
+  object.kpiBonus = reader.readDouble(offsets[27]);
+  object.lastSyncAt = reader.readDateTimeOrNull(offsets[28]);
+  object.month = reader.readLong(offsets[29]);
+  object.monthlyBonus = reader.readDouble(offsets[30]);
+  object.needsSync = reader.readBool(offsets[31]);
+  object.netSalary = reader.readDouble(offsets[32]);
+  object.notes = reader.readStringOrNull(offsets[33]);
+  object.otherBonus = reader.readDouble(offsets[34]);
+  object.otherDeduction = reader.readDouble(offsets[35]);
+  object.otherPenalty = reader.readDouble(offsets[36]);
+  object.overtimeSalary = reader.readDouble(offsets[37]);
+  object.paidDate = reader.readDateTimeOrNull(offsets[38]);
+  object.paymentMethod = reader.readStringOrNull(offsets[39]);
+  object.personalIncomeTax = reader.readDouble(offsets[40]);
+  object.position = reader.readString(offsets[41]);
+  object.remoteId = reader.readStringOrNull(offsets[42]);
+  object.revenueSalary = reader.readDouble(offsets[43]);
+  object.safetyBonus = reader.readDouble(offsets[44]);
+  object.socialInsurance = reader.readDouble(offsets[45]);
   object.status =
-      _PayrollstatusValueEnumMap[reader.readStringOrNull(offsets[41])] ??
+      _PayrollstatusValueEnumMap[reader.readStringOrNull(offsets[46])] ??
           PayrollStatus.draft;
-  object.totalDeductions = reader.readDouble(offsets[42]);
-  object.tripSalary = reader.readDouble(offsets[43]);
-  object.unemploymentInsurance = reader.readDouble(offsets[44]);
-  object.updatedAt = reader.readDateTime(offsets[45]);
-  object.violationPenalty = reader.readDouble(offsets[46]);
-  object.workingDays = reader.readDouble(offsets[47]);
-  object.year = reader.readLong(offsets[48]);
+  object.totalDeductions = reader.readDouble(offsets[47]);
+  object.totalEmployerCost = reader.readDouble(offsets[48]);
+  object.tripSalary = reader.readDouble(offsets[49]);
+  object.unemploymentInsurance = reader.readDouble(offsets[50]);
+  object.unionFee = reader.readDouble(offsets[51]);
+  object.updatedAt = reader.readDateTime(offsets[52]);
+  object.violationPenalty = reader.readDouble(offsets[53]);
+  object.workingDays = reader.readDouble(offsets[54]);
+  object.year = reader.readLong(offsets[55]);
   return object;
 }
 
@@ -473,61 +534,75 @@ P _payrollDeserializeProp<P>(
     case 20:
       return (reader.readDouble(offset)) as P;
     case 21:
-      return (reader.readBool(offset)) as P;
+      return (reader.readDouble(offset)) as P;
     case 22:
       return (reader.readDouble(offset)) as P;
     case 23:
       return (reader.readDouble(offset)) as P;
     case 24:
-      return (reader.readDateTimeOrNull(offset)) as P;
+      return (reader.readBool(offset)) as P;
     case 25:
-      return (reader.readLong(offset)) as P;
+      return (reader.readStringOrNull(offset)) as P;
     case 26:
       return (reader.readDouble(offset)) as P;
     case 27:
-      return (reader.readBool(offset)) as P;
-    case 28:
       return (reader.readDouble(offset)) as P;
+    case 28:
+      return (reader.readDateTimeOrNull(offset)) as P;
     case 29:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readLong(offset)) as P;
     case 30:
       return (reader.readDouble(offset)) as P;
     case 31:
-      return (reader.readDouble(offset)) as P;
+      return (reader.readBool(offset)) as P;
     case 32:
       return (reader.readDouble(offset)) as P;
     case 33:
-      return (reader.readDouble(offset)) as P;
+      return (reader.readStringOrNull(offset)) as P;
     case 34:
-      return (reader.readDateTimeOrNull(offset)) as P;
+      return (reader.readDouble(offset)) as P;
     case 35:
       return (reader.readDouble(offset)) as P;
     case 36:
-      return (reader.readString(offset)) as P;
+      return (reader.readDouble(offset)) as P;
     case 37:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readDouble(offset)) as P;
     case 38:
-      return (reader.readDouble(offset)) as P;
+      return (reader.readDateTimeOrNull(offset)) as P;
     case 39:
-      return (reader.readDouble(offset)) as P;
+      return (reader.readStringOrNull(offset)) as P;
     case 40:
       return (reader.readDouble(offset)) as P;
     case 41:
-      return (_PayrollstatusValueEnumMap[reader.readStringOrNull(offset)] ??
-          PayrollStatus.draft) as P;
+      return (reader.readString(offset)) as P;
     case 42:
-      return (reader.readDouble(offset)) as P;
+      return (reader.readStringOrNull(offset)) as P;
     case 43:
       return (reader.readDouble(offset)) as P;
     case 44:
       return (reader.readDouble(offset)) as P;
     case 45:
-      return (reader.readDateTime(offset)) as P;
-    case 46:
       return (reader.readDouble(offset)) as P;
+    case 46:
+      return (_PayrollstatusValueEnumMap[reader.readStringOrNull(offset)] ??
+          PayrollStatus.draft) as P;
     case 47:
       return (reader.readDouble(offset)) as P;
     case 48:
+      return (reader.readDouble(offset)) as P;
+    case 49:
+      return (reader.readDouble(offset)) as P;
+    case 50:
+      return (reader.readDouble(offset)) as P;
+    case 51:
+      return (reader.readDouble(offset)) as P;
+    case 52:
+      return (reader.readDateTime(offset)) as P;
+    case 53:
+      return (reader.readDouble(offset)) as P;
+    case 54:
+      return (reader.readDouble(offset)) as P;
+    case 55:
       return (reader.readLong(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -1957,6 +2032,192 @@ extension PayrollQueryFilter
     });
   }
 
+  QueryBuilder<Payroll, Payroll, QAfterFilterCondition> employerBhtnEqualTo(
+    double value, {
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'employerBhtn',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<Payroll, Payroll, QAfterFilterCondition> employerBhtnGreaterThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'employerBhtn',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<Payroll, Payroll, QAfterFilterCondition> employerBhtnLessThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'employerBhtn',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<Payroll, Payroll, QAfterFilterCondition> employerBhtnBetween(
+    double lower,
+    double upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'employerBhtn',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<Payroll, Payroll, QAfterFilterCondition> employerBhxhEqualTo(
+    double value, {
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'employerBhxh',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<Payroll, Payroll, QAfterFilterCondition> employerBhxhGreaterThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'employerBhxh',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<Payroll, Payroll, QAfterFilterCondition> employerBhxhLessThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'employerBhxh',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<Payroll, Payroll, QAfterFilterCondition> employerBhxhBetween(
+    double lower,
+    double upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'employerBhxh',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<Payroll, Payroll, QAfterFilterCondition> employerBhytEqualTo(
+    double value, {
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'employerBhyt',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<Payroll, Payroll, QAfterFilterCondition> employerBhytGreaterThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'employerBhyt',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<Payroll, Payroll, QAfterFilterCondition> employerBhytLessThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'employerBhyt',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<Payroll, Payroll, QAfterFilterCondition> employerBhytBetween(
+    double lower,
+    double upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'employerBhyt',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
   QueryBuilder<Payroll, Payroll, QAfterFilterCondition> fuelSavingBonusEqualTo(
     double value, {
     double epsilon = Query.epsilon,
@@ -2203,6 +2464,152 @@ extension PayrollQueryFilter
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'isDriver',
         value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Payroll, Payroll, QAfterFilterCondition> journalRefIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'journalRef',
+      ));
+    });
+  }
+
+  QueryBuilder<Payroll, Payroll, QAfterFilterCondition> journalRefIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'journalRef',
+      ));
+    });
+  }
+
+  QueryBuilder<Payroll, Payroll, QAfterFilterCondition> journalRefEqualTo(
+    String? value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'journalRef',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Payroll, Payroll, QAfterFilterCondition> journalRefGreaterThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'journalRef',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Payroll, Payroll, QAfterFilterCondition> journalRefLessThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'journalRef',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Payroll, Payroll, QAfterFilterCondition> journalRefBetween(
+    String? lower,
+    String? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'journalRef',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Payroll, Payroll, QAfterFilterCondition> journalRefStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'journalRef',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Payroll, Payroll, QAfterFilterCondition> journalRefEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'journalRef',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Payroll, Payroll, QAfterFilterCondition> journalRefContains(
+      String value,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'journalRef',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Payroll, Payroll, QAfterFilterCondition> journalRefMatches(
+      String pattern,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'journalRef',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Payroll, Payroll, QAfterFilterCondition> journalRefIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'journalRef',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<Payroll, Payroll, QAfterFilterCondition> journalRefIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'journalRef',
+        value: '',
       ));
     });
   }
@@ -3052,6 +3459,155 @@ extension PayrollQueryFilter
     });
   }
 
+  QueryBuilder<Payroll, Payroll, QAfterFilterCondition> paymentMethodIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'paymentMethod',
+      ));
+    });
+  }
+
+  QueryBuilder<Payroll, Payroll, QAfterFilterCondition>
+      paymentMethodIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'paymentMethod',
+      ));
+    });
+  }
+
+  QueryBuilder<Payroll, Payroll, QAfterFilterCondition> paymentMethodEqualTo(
+    String? value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'paymentMethod',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Payroll, Payroll, QAfterFilterCondition>
+      paymentMethodGreaterThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'paymentMethod',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Payroll, Payroll, QAfterFilterCondition> paymentMethodLessThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'paymentMethod',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Payroll, Payroll, QAfterFilterCondition> paymentMethodBetween(
+    String? lower,
+    String? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'paymentMethod',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Payroll, Payroll, QAfterFilterCondition> paymentMethodStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'paymentMethod',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Payroll, Payroll, QAfterFilterCondition> paymentMethodEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'paymentMethod',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Payroll, Payroll, QAfterFilterCondition> paymentMethodContains(
+      String value,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'paymentMethod',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Payroll, Payroll, QAfterFilterCondition> paymentMethodMatches(
+      String pattern,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'paymentMethod',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Payroll, Payroll, QAfterFilterCondition> paymentMethodIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'paymentMethod',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<Payroll, Payroll, QAfterFilterCondition>
+      paymentMethodIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'paymentMethod',
+        value: '',
+      ));
+    });
+  }
+
   QueryBuilder<Payroll, Payroll, QAfterFilterCondition>
       personalIncomeTaxEqualTo(
     double value, {
@@ -3775,6 +4331,72 @@ extension PayrollQueryFilter
     });
   }
 
+  QueryBuilder<Payroll, Payroll, QAfterFilterCondition>
+      totalEmployerCostEqualTo(
+    double value, {
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'totalEmployerCost',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<Payroll, Payroll, QAfterFilterCondition>
+      totalEmployerCostGreaterThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'totalEmployerCost',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<Payroll, Payroll, QAfterFilterCondition>
+      totalEmployerCostLessThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'totalEmployerCost',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<Payroll, Payroll, QAfterFilterCondition>
+      totalEmployerCostBetween(
+    double lower,
+    double upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'totalEmployerCost',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
   QueryBuilder<Payroll, Payroll, QAfterFilterCondition> tripSalaryEqualTo(
     double value, {
     double epsilon = Query.epsilon,
@@ -3894,6 +4516,68 @@ extension PayrollQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.between(
         property: r'unemploymentInsurance',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<Payroll, Payroll, QAfterFilterCondition> unionFeeEqualTo(
+    double value, {
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'unionFee',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<Payroll, Payroll, QAfterFilterCondition> unionFeeGreaterThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'unionFee',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<Payroll, Payroll, QAfterFilterCondition> unionFeeLessThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'unionFee',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<Payroll, Payroll, QAfterFilterCondition> unionFeeBetween(
+    double lower,
+    double upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'unionFee',
         lower: lower,
         includeLower: includeLower,
         upper: upper,
@@ -4358,6 +5042,42 @@ extension PayrollQuerySortBy on QueryBuilder<Payroll, Payroll, QSortBy> {
     });
   }
 
+  QueryBuilder<Payroll, Payroll, QAfterSortBy> sortByEmployerBhtn() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'employerBhtn', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Payroll, Payroll, QAfterSortBy> sortByEmployerBhtnDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'employerBhtn', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Payroll, Payroll, QAfterSortBy> sortByEmployerBhxh() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'employerBhxh', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Payroll, Payroll, QAfterSortBy> sortByEmployerBhxhDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'employerBhxh', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Payroll, Payroll, QAfterSortBy> sortByEmployerBhyt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'employerBhyt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Payroll, Payroll, QAfterSortBy> sortByEmployerBhytDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'employerBhyt', Sort.desc);
+    });
+  }
+
   QueryBuilder<Payroll, Payroll, QAfterSortBy> sortByFuelSavingBonus() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'fuelSavingBonus', Sort.asc);
@@ -4403,6 +5123,18 @@ extension PayrollQuerySortBy on QueryBuilder<Payroll, Payroll, QSortBy> {
   QueryBuilder<Payroll, Payroll, QAfterSortBy> sortByIsDriverDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'isDriver', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Payroll, Payroll, QAfterSortBy> sortByJournalRef() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'journalRef', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Payroll, Payroll, QAfterSortBy> sortByJournalRefDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'journalRef', Sort.desc);
     });
   }
 
@@ -4562,6 +5294,18 @@ extension PayrollQuerySortBy on QueryBuilder<Payroll, Payroll, QSortBy> {
     });
   }
 
+  QueryBuilder<Payroll, Payroll, QAfterSortBy> sortByPaymentMethod() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'paymentMethod', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Payroll, Payroll, QAfterSortBy> sortByPaymentMethodDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'paymentMethod', Sort.desc);
+    });
+  }
+
   QueryBuilder<Payroll, Payroll, QAfterSortBy> sortByPersonalIncomeTax() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'personalIncomeTax', Sort.asc);
@@ -4658,6 +5402,18 @@ extension PayrollQuerySortBy on QueryBuilder<Payroll, Payroll, QSortBy> {
     });
   }
 
+  QueryBuilder<Payroll, Payroll, QAfterSortBy> sortByTotalEmployerCost() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'totalEmployerCost', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Payroll, Payroll, QAfterSortBy> sortByTotalEmployerCostDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'totalEmployerCost', Sort.desc);
+    });
+  }
+
   QueryBuilder<Payroll, Payroll, QAfterSortBy> sortByTripSalary() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'tripSalary', Sort.asc);
@@ -4680,6 +5436,18 @@ extension PayrollQuerySortBy on QueryBuilder<Payroll, Payroll, QSortBy> {
       sortByUnemploymentInsuranceDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'unemploymentInsurance', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Payroll, Payroll, QAfterSortBy> sortByUnionFee() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'unionFee', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Payroll, Payroll, QAfterSortBy> sortByUnionFeeDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'unionFee', Sort.desc);
     });
   }
 
@@ -4950,6 +5718,42 @@ extension PayrollQuerySortThenBy
     });
   }
 
+  QueryBuilder<Payroll, Payroll, QAfterSortBy> thenByEmployerBhtn() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'employerBhtn', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Payroll, Payroll, QAfterSortBy> thenByEmployerBhtnDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'employerBhtn', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Payroll, Payroll, QAfterSortBy> thenByEmployerBhxh() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'employerBhxh', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Payroll, Payroll, QAfterSortBy> thenByEmployerBhxhDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'employerBhxh', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Payroll, Payroll, QAfterSortBy> thenByEmployerBhyt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'employerBhyt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Payroll, Payroll, QAfterSortBy> thenByEmployerBhytDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'employerBhyt', Sort.desc);
+    });
+  }
+
   QueryBuilder<Payroll, Payroll, QAfterSortBy> thenByFuelSavingBonus() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'fuelSavingBonus', Sort.asc);
@@ -5007,6 +5811,18 @@ extension PayrollQuerySortThenBy
   QueryBuilder<Payroll, Payroll, QAfterSortBy> thenByIsDriverDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'isDriver', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Payroll, Payroll, QAfterSortBy> thenByJournalRef() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'journalRef', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Payroll, Payroll, QAfterSortBy> thenByJournalRefDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'journalRef', Sort.desc);
     });
   }
 
@@ -5166,6 +5982,18 @@ extension PayrollQuerySortThenBy
     });
   }
 
+  QueryBuilder<Payroll, Payroll, QAfterSortBy> thenByPaymentMethod() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'paymentMethod', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Payroll, Payroll, QAfterSortBy> thenByPaymentMethodDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'paymentMethod', Sort.desc);
+    });
+  }
+
   QueryBuilder<Payroll, Payroll, QAfterSortBy> thenByPersonalIncomeTax() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'personalIncomeTax', Sort.asc);
@@ -5262,6 +6090,18 @@ extension PayrollQuerySortThenBy
     });
   }
 
+  QueryBuilder<Payroll, Payroll, QAfterSortBy> thenByTotalEmployerCost() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'totalEmployerCost', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Payroll, Payroll, QAfterSortBy> thenByTotalEmployerCostDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'totalEmployerCost', Sort.desc);
+    });
+  }
+
   QueryBuilder<Payroll, Payroll, QAfterSortBy> thenByTripSalary() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'tripSalary', Sort.asc);
@@ -5284,6 +6124,18 @@ extension PayrollQuerySortThenBy
       thenByUnemploymentInsuranceDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'unemploymentInsurance', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Payroll, Payroll, QAfterSortBy> thenByUnionFee() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'unionFee', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Payroll, Payroll, QAfterSortBy> thenByUnionFeeDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'unionFee', Sort.desc);
     });
   }
 
@@ -5449,6 +6301,24 @@ extension PayrollQueryWhereDistinct
     });
   }
 
+  QueryBuilder<Payroll, Payroll, QDistinct> distinctByEmployerBhtn() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'employerBhtn');
+    });
+  }
+
+  QueryBuilder<Payroll, Payroll, QDistinct> distinctByEmployerBhxh() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'employerBhxh');
+    });
+  }
+
+  QueryBuilder<Payroll, Payroll, QDistinct> distinctByEmployerBhyt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'employerBhyt');
+    });
+  }
+
   QueryBuilder<Payroll, Payroll, QDistinct> distinctByFuelSavingBonus() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'fuelSavingBonus');
@@ -5470,6 +6340,13 @@ extension PayrollQueryWhereDistinct
   QueryBuilder<Payroll, Payroll, QDistinct> distinctByIsDriver() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'isDriver');
+    });
+  }
+
+  QueryBuilder<Payroll, Payroll, QDistinct> distinctByJournalRef(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'journalRef', caseSensitive: caseSensitive);
     });
   }
 
@@ -5552,6 +6429,14 @@ extension PayrollQueryWhereDistinct
     });
   }
 
+  QueryBuilder<Payroll, Payroll, QDistinct> distinctByPaymentMethod(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'paymentMethod',
+          caseSensitive: caseSensitive);
+    });
+  }
+
   QueryBuilder<Payroll, Payroll, QDistinct> distinctByPersonalIncomeTax() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'personalIncomeTax');
@@ -5603,6 +6488,12 @@ extension PayrollQueryWhereDistinct
     });
   }
 
+  QueryBuilder<Payroll, Payroll, QDistinct> distinctByTotalEmployerCost() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'totalEmployerCost');
+    });
+  }
+
   QueryBuilder<Payroll, Payroll, QDistinct> distinctByTripSalary() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'tripSalary');
@@ -5612,6 +6503,12 @@ extension PayrollQueryWhereDistinct
   QueryBuilder<Payroll, Payroll, QDistinct> distinctByUnemploymentInsurance() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'unemploymentInsurance');
+    });
+  }
+
+  QueryBuilder<Payroll, Payroll, QDistinct> distinctByUnionFee() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'unionFee');
     });
   }
 
@@ -5756,6 +6653,24 @@ extension PayrollQueryProperty
     });
   }
 
+  QueryBuilder<Payroll, double, QQueryOperations> employerBhtnProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'employerBhtn');
+    });
+  }
+
+  QueryBuilder<Payroll, double, QQueryOperations> employerBhxhProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'employerBhxh');
+    });
+  }
+
+  QueryBuilder<Payroll, double, QQueryOperations> employerBhytProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'employerBhyt');
+    });
+  }
+
   QueryBuilder<Payroll, double, QQueryOperations> fuelSavingBonusProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'fuelSavingBonus');
@@ -5777,6 +6692,12 @@ extension PayrollQueryProperty
   QueryBuilder<Payroll, bool, QQueryOperations> isDriverProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'isDriver');
+    });
+  }
+
+  QueryBuilder<Payroll, String?, QQueryOperations> journalRefProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'journalRef');
     });
   }
 
@@ -5858,6 +6779,12 @@ extension PayrollQueryProperty
     });
   }
 
+  QueryBuilder<Payroll, String?, QQueryOperations> paymentMethodProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'paymentMethod');
+    });
+  }
+
   QueryBuilder<Payroll, double, QQueryOperations> personalIncomeTaxProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'personalIncomeTax');
@@ -5906,6 +6833,12 @@ extension PayrollQueryProperty
     });
   }
 
+  QueryBuilder<Payroll, double, QQueryOperations> totalEmployerCostProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'totalEmployerCost');
+    });
+  }
+
   QueryBuilder<Payroll, double, QQueryOperations> tripSalaryProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'tripSalary');
@@ -5916,6 +6849,12 @@ extension PayrollQueryProperty
       unemploymentInsuranceProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'unemploymentInsurance');
+    });
+  }
+
+  QueryBuilder<Payroll, double, QQueryOperations> unionFeeProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'unionFee');
     });
   }
 

@@ -47,35 +47,40 @@ const VideoCallUserSchema = CollectionSchema(
       name: r'lastSeen',
       type: IsarType.dateTime,
     ),
-    r'phone': PropertySchema(
+    r'passwordHash': PropertySchema(
       id: 6,
+      name: r'passwordHash',
+      type: IsarType.string,
+    ),
+    r'phone': PropertySchema(
+      id: 7,
       name: r'phone',
       type: IsarType.string,
     ),
     r'status': PropertySchema(
-      id: 7,
+      id: 8,
       name: r'status',
       type: IsarType.byte,
       enumMap: _VideoCallUserstatusEnumValueMap,
     ),
     r'syncStatus': PropertySchema(
-      id: 8,
+      id: 9,
       name: r'syncStatus',
       type: IsarType.byte,
       enumMap: _VideoCallUsersyncStatusEnumValueMap,
     ),
     r'updatedAt': PropertySchema(
-      id: 9,
+      id: 10,
       name: r'updatedAt',
       type: IsarType.dateTime,
     ),
     r'username': PropertySchema(
-      id: 10,
+      id: 11,
       name: r'username',
       type: IsarType.string,
     ),
     r'uuid': PropertySchema(
-      id: 11,
+      id: 12,
       name: r'uuid',
       type: IsarType.string,
     )
@@ -152,6 +157,12 @@ int _videoCallUserEstimateSize(
     }
   }
   {
+    final value = object.passwordHash;
+    if (value != null) {
+      bytesCount += 3 + value.length * 3;
+    }
+  }
+  {
     final value = object.phone;
     if (value != null) {
       bytesCount += 3 + value.length * 3;
@@ -184,12 +195,13 @@ void _videoCallUserSerialize(
   writer.writeString(offsets[3], object.displayName);
   writer.writeString(offsets[4], object.email);
   writer.writeDateTime(offsets[5], object.lastSeen);
-  writer.writeString(offsets[6], object.phone);
-  writer.writeByte(offsets[7], object.status.index);
-  writer.writeByte(offsets[8], object.syncStatus.index);
-  writer.writeDateTime(offsets[9], object.updatedAt);
-  writer.writeString(offsets[10], object.username);
-  writer.writeString(offsets[11], object.uuid);
+  writer.writeString(offsets[6], object.passwordHash);
+  writer.writeString(offsets[7], object.phone);
+  writer.writeByte(offsets[8], object.status.index);
+  writer.writeByte(offsets[9], object.syncStatus.index);
+  writer.writeDateTime(offsets[10], object.updatedAt);
+  writer.writeString(offsets[11], object.username);
+  writer.writeString(offsets[12], object.uuid);
 }
 
 VideoCallUser _videoCallUserDeserialize(
@@ -206,16 +218,17 @@ VideoCallUser _videoCallUserDeserialize(
   object.email = reader.readStringOrNull(offsets[4]);
   object.id = id;
   object.lastSeen = reader.readDateTimeOrNull(offsets[5]);
-  object.phone = reader.readStringOrNull(offsets[6]);
+  object.passwordHash = reader.readStringOrNull(offsets[6]);
+  object.phone = reader.readStringOrNull(offsets[7]);
   object.status =
-      _VideoCallUserstatusValueEnumMap[reader.readByteOrNull(offsets[7])] ??
+      _VideoCallUserstatusValueEnumMap[reader.readByteOrNull(offsets[8])] ??
           UserStatus.online;
   object.syncStatus =
-      _VideoCallUsersyncStatusValueEnumMap[reader.readByteOrNull(offsets[8])] ??
+      _VideoCallUsersyncStatusValueEnumMap[reader.readByteOrNull(offsets[9])] ??
           SyncStatus.synced;
-  object.updatedAt = reader.readDateTimeOrNull(offsets[9]);
-  object.username = reader.readStringOrNull(offsets[10]);
-  object.uuid = reader.readStringOrNull(offsets[11]);
+  object.updatedAt = reader.readDateTimeOrNull(offsets[10]);
+  object.username = reader.readStringOrNull(offsets[11]);
+  object.uuid = reader.readStringOrNull(offsets[12]);
   return object;
 }
 
@@ -241,17 +254,19 @@ P _videoCallUserDeserializeProp<P>(
     case 6:
       return (reader.readStringOrNull(offset)) as P;
     case 7:
+      return (reader.readStringOrNull(offset)) as P;
+    case 8:
       return (_VideoCallUserstatusValueEnumMap[reader.readByteOrNull(offset)] ??
           UserStatus.online) as P;
-    case 8:
+    case 9:
       return (_VideoCallUsersyncStatusValueEnumMap[
               reader.readByteOrNull(offset)] ??
           SyncStatus.synced) as P;
-    case 9:
-      return (reader.readDateTimeOrNull(offset)) as P;
     case 10:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readDateTimeOrNull(offset)) as P;
     case 11:
+      return (reader.readStringOrNull(offset)) as P;
+    case 12:
       return (reader.readStringOrNull(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -1433,6 +1448,160 @@ extension VideoCallUserQueryFilter
   }
 
   QueryBuilder<VideoCallUser, VideoCallUser, QAfterFilterCondition>
+      passwordHashIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'passwordHash',
+      ));
+    });
+  }
+
+  QueryBuilder<VideoCallUser, VideoCallUser, QAfterFilterCondition>
+      passwordHashIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'passwordHash',
+      ));
+    });
+  }
+
+  QueryBuilder<VideoCallUser, VideoCallUser, QAfterFilterCondition>
+      passwordHashEqualTo(
+    String? value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'passwordHash',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<VideoCallUser, VideoCallUser, QAfterFilterCondition>
+      passwordHashGreaterThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'passwordHash',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<VideoCallUser, VideoCallUser, QAfterFilterCondition>
+      passwordHashLessThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'passwordHash',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<VideoCallUser, VideoCallUser, QAfterFilterCondition>
+      passwordHashBetween(
+    String? lower,
+    String? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'passwordHash',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<VideoCallUser, VideoCallUser, QAfterFilterCondition>
+      passwordHashStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'passwordHash',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<VideoCallUser, VideoCallUser, QAfterFilterCondition>
+      passwordHashEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'passwordHash',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<VideoCallUser, VideoCallUser, QAfterFilterCondition>
+      passwordHashContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'passwordHash',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<VideoCallUser, VideoCallUser, QAfterFilterCondition>
+      passwordHashMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'passwordHash',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<VideoCallUser, VideoCallUser, QAfterFilterCondition>
+      passwordHashIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'passwordHash',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<VideoCallUser, VideoCallUser, QAfterFilterCondition>
+      passwordHashIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'passwordHash',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<VideoCallUser, VideoCallUser, QAfterFilterCondition>
       phoneIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNull(
@@ -2164,6 +2333,20 @@ extension VideoCallUserQuerySortBy
     });
   }
 
+  QueryBuilder<VideoCallUser, VideoCallUser, QAfterSortBy>
+      sortByPasswordHash() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'passwordHash', Sort.asc);
+    });
+  }
+
+  QueryBuilder<VideoCallUser, VideoCallUser, QAfterSortBy>
+      sortByPasswordHashDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'passwordHash', Sort.desc);
+    });
+  }
+
   QueryBuilder<VideoCallUser, VideoCallUser, QAfterSortBy> sortByPhone() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'phone', Sort.asc);
@@ -2330,6 +2513,20 @@ extension VideoCallUserQuerySortThenBy
     });
   }
 
+  QueryBuilder<VideoCallUser, VideoCallUser, QAfterSortBy>
+      thenByPasswordHash() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'passwordHash', Sort.asc);
+    });
+  }
+
+  QueryBuilder<VideoCallUser, VideoCallUser, QAfterSortBy>
+      thenByPasswordHashDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'passwordHash', Sort.desc);
+    });
+  }
+
   QueryBuilder<VideoCallUser, VideoCallUser, QAfterSortBy> thenByPhone() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'phone', Sort.asc);
@@ -2448,6 +2645,13 @@ extension VideoCallUserQueryWhereDistinct
     });
   }
 
+  QueryBuilder<VideoCallUser, VideoCallUser, QDistinct> distinctByPasswordHash(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'passwordHash', caseSensitive: caseSensitive);
+    });
+  }
+
   QueryBuilder<VideoCallUser, VideoCallUser, QDistinct> distinctByPhone(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
@@ -2529,6 +2733,13 @@ extension VideoCallUserQueryProperty
   QueryBuilder<VideoCallUser, DateTime?, QQueryOperations> lastSeenProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'lastSeen');
+    });
+  }
+
+  QueryBuilder<VideoCallUser, String?, QQueryOperations>
+      passwordHashProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'passwordHash');
     });
   }
 

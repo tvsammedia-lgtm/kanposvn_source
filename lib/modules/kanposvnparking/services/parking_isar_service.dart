@@ -8,6 +8,9 @@ import '../models/monthly_ticket.dart';
 import '../models/rental.dart';
 import '../models/camera.dart';
 import '../models/parking_sync.dart';
+import '../models/parking_customer.dart';
+import '../models/parking_finance.dart';
+import '../models/parking_tariff.dart';
 
 class ParkingIsarService {
   late Future<Isar> db;
@@ -31,6 +34,9 @@ class ParkingIsarService {
         ParkingCameraSchema,
         ParkingSyncQueueSchema,
         ParkingSyncConfigSchema,
+        ParkingCustomerSchema,
+        ParkingFinanceTxSchema,
+        ParkingTariffSchema,
       ],
       inspector: true,
       directory: dir.path,

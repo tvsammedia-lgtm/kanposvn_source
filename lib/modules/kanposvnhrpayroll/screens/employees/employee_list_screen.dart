@@ -207,15 +207,15 @@ class _EmployeeListScreenState extends ConsumerState<EmployeeListScreen>
   Future<void> _confirmDelete(Employee emp) async {
     final ok = await showDialog<bool>(
       context: context,
-      builder: (_) => AlertDialog(
+      builder: (ctx) => AlertDialog(
         title: const Text('Xác nhận xóa'),
         content: Text('Bạn có chắc muốn xóa nhân viên ${emp.fullName}?'),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(context, false),
+              onPressed: () => Navigator.pop(ctx, false),
               child: const Text('Hủy')),
           ElevatedButton(
-            onPressed: () => Navigator.pop(context, true),
+            onPressed: () => Navigator.pop(ctx, true),
             style: ElevatedButton.styleFrom(backgroundColor: AppTheme.danger),
             child: const Text('Xóa'),
           ),

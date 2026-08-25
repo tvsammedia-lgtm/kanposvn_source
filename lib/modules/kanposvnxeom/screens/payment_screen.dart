@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../models/booking.dart' hide PaymentMethod;
+import '../models/booking.dart';
 import '../models/payment.dart';
 import '../providers/payment_provider.dart';
 

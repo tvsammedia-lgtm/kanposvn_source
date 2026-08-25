@@ -9,6 +9,7 @@ import '../models/job_match.dart';
 import '../models/contract.dart';
 import '../models/payment.dart';
 import '../models/viec_sync.dart';
+import '../models/viec_ops_models.dart';
 
 class ViecIsarService {
   late Future<Isar> db;
@@ -33,6 +34,11 @@ class ViecIsarService {
         ViecPaymentSchema,
         ViecSyncQueueSchema,
         ViecSyncConfigSchema,
+        ViecWorkSessionSchema,
+        ViecFinanceTxSchema,
+        ViecRatingSchema,
+        ViecNotificationSchema,
+        ViecAuditLogSchema,
       ],
       inspector: true,
       directory: dir.path,

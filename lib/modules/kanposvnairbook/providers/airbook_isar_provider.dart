@@ -5,6 +5,7 @@ import 'package:path_provider/path_provider.dart';
 import '../models/flight_offer.dart';
 import '../models/booking.dart';
 import '../models/sync_queue.dart';
+import '../models/airbook_ops_models.dart';
 
 final airbookIsarProvider = Provider<Isar>((ref) {
   throw UnimplementedError('airbookIsarProvider must be overridden in main');
@@ -21,6 +22,10 @@ class AirbookDatabaseSetup {
         FlightOfferSchema,
         BookingLocalSchema,
         SyncQueueLocalSchema,
+        AirPassengerSchema,
+        AirPaymentSchema,
+        AirPromotionSchema,
+        AirAuditLogSchema,
       ],
       directory: dir.path,
       name: name,

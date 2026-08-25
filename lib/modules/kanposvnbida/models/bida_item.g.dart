@@ -23,48 +23,53 @@ const BidaItemSchema = CollectionSchema(
       type: IsarType.byte,
       enumMap: _BidaItemcategoryEnumValueMap,
     ),
-    r'deletedAt': PropertySchema(
+    r'costPrice': PropertySchema(
       id: 1,
+      name: r'costPrice',
+      type: IsarType.double,
+    ),
+    r'deletedAt': PropertySchema(
+      id: 2,
       name: r'deletedAt',
       type: IsarType.dateTime,
     ),
     r'deviceId': PropertySchema(
-      id: 2,
+      id: 3,
       name: r'deviceId',
       type: IsarType.string,
     ),
     r'isSynced': PropertySchema(
-      id: 3,
+      id: 4,
       name: r'isSynced',
       type: IsarType.bool,
     ),
     r'itemId': PropertySchema(
-      id: 4,
+      id: 5,
       name: r'itemId',
       type: IsarType.string,
     ),
     r'name': PropertySchema(
-      id: 5,
+      id: 6,
       name: r'name',
       type: IsarType.string,
     ),
     r'price': PropertySchema(
-      id: 6,
+      id: 7,
       name: r'price',
       type: IsarType.double,
     ),
     r'stock': PropertySchema(
-      id: 7,
+      id: 8,
       name: r'stock',
       type: IsarType.long,
     ),
     r'updatedAt': PropertySchema(
-      id: 8,
+      id: 9,
       name: r'updatedAt',
       type: IsarType.dateTime,
     ),
     r'version': PropertySchema(
-      id: 9,
+      id: 10,
       name: r'version',
       type: IsarType.long,
     )
@@ -116,15 +121,16 @@ void _bidaItemSerialize(
   Map<Type, List<int>> allOffsets,
 ) {
   writer.writeByte(offsets[0], object.category.index);
-  writer.writeDateTime(offsets[1], object.deletedAt);
-  writer.writeString(offsets[2], object.deviceId);
-  writer.writeBool(offsets[3], object.isSynced);
-  writer.writeString(offsets[4], object.itemId);
-  writer.writeString(offsets[5], object.name);
-  writer.writeDouble(offsets[6], object.price);
-  writer.writeLong(offsets[7], object.stock);
-  writer.writeDateTime(offsets[8], object.updatedAt);
-  writer.writeLong(offsets[9], object.version);
+  writer.writeDouble(offsets[1], object.costPrice);
+  writer.writeDateTime(offsets[2], object.deletedAt);
+  writer.writeString(offsets[3], object.deviceId);
+  writer.writeBool(offsets[4], object.isSynced);
+  writer.writeString(offsets[5], object.itemId);
+  writer.writeString(offsets[6], object.name);
+  writer.writeDouble(offsets[7], object.price);
+  writer.writeLong(offsets[8], object.stock);
+  writer.writeDateTime(offsets[9], object.updatedAt);
+  writer.writeLong(offsets[10], object.version);
 }
 
 BidaItem _bidaItemDeserialize(
@@ -137,16 +143,17 @@ BidaItem _bidaItemDeserialize(
   object.category =
       _BidaItemcategoryValueEnumMap[reader.readByteOrNull(offsets[0])] ??
           BidaItemCategory.DRINK;
-  object.deletedAt = reader.readDateTimeOrNull(offsets[1]);
-  object.deviceId = reader.readString(offsets[2]);
+  object.costPrice = reader.readDouble(offsets[1]);
+  object.deletedAt = reader.readDateTimeOrNull(offsets[2]);
+  object.deviceId = reader.readString(offsets[3]);
   object.id = id;
-  object.isSynced = reader.readBool(offsets[3]);
-  object.itemId = reader.readString(offsets[4]);
-  object.name = reader.readString(offsets[5]);
-  object.price = reader.readDouble(offsets[6]);
-  object.stock = reader.readLong(offsets[7]);
-  object.updatedAt = reader.readDateTime(offsets[8]);
-  object.version = reader.readLong(offsets[9]);
+  object.isSynced = reader.readBool(offsets[4]);
+  object.itemId = reader.readString(offsets[5]);
+  object.name = reader.readString(offsets[6]);
+  object.price = reader.readDouble(offsets[7]);
+  object.stock = reader.readLong(offsets[8]);
+  object.updatedAt = reader.readDateTime(offsets[9]);
+  object.version = reader.readLong(offsets[10]);
   return object;
 }
 
@@ -161,22 +168,24 @@ P _bidaItemDeserializeProp<P>(
       return (_BidaItemcategoryValueEnumMap[reader.readByteOrNull(offset)] ??
           BidaItemCategory.DRINK) as P;
     case 1:
-      return (reader.readDateTimeOrNull(offset)) as P;
+      return (reader.readDouble(offset)) as P;
     case 2:
-      return (reader.readString(offset)) as P;
+      return (reader.readDateTimeOrNull(offset)) as P;
     case 3:
-      return (reader.readBool(offset)) as P;
-    case 4:
       return (reader.readString(offset)) as P;
+    case 4:
+      return (reader.readBool(offset)) as P;
     case 5:
       return (reader.readString(offset)) as P;
     case 6:
-      return (reader.readDouble(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 7:
-      return (reader.readLong(offset)) as P;
+      return (reader.readDouble(offset)) as P;
     case 8:
-      return (reader.readDateTime(offset)) as P;
+      return (reader.readLong(offset)) as P;
     case 9:
+      return (reader.readDateTime(offset)) as P;
+    case 10:
       return (reader.readLong(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -188,12 +197,18 @@ const _BidaItemcategoryEnumValueMap = {
   'FOOD': 1,
   'TOBACCO': 2,
   'OTHER': 3,
+  'BEER': 4,
+  'TOWEL': 5,
+  'ICE': 6,
 };
 const _BidaItemcategoryValueEnumMap = {
   0: BidaItemCategory.DRINK,
   1: BidaItemCategory.FOOD,
   2: BidaItemCategory.TOBACCO,
   3: BidaItemCategory.OTHER,
+  4: BidaItemCategory.BEER,
+  5: BidaItemCategory.TOWEL,
+  6: BidaItemCategory.ICE,
 };
 
 Id _bidaItemGetId(BidaItem object) {
@@ -433,6 +448,68 @@ extension BidaItemQueryFilter
         includeLower: includeLower,
         upper: upper,
         includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<BidaItem, BidaItem, QAfterFilterCondition> costPriceEqualTo(
+    double value, {
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'costPrice',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<BidaItem, BidaItem, QAfterFilterCondition> costPriceGreaterThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'costPrice',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<BidaItem, BidaItem, QAfterFilterCondition> costPriceLessThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'costPrice',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<BidaItem, BidaItem, QAfterFilterCondition> costPriceBetween(
+    double lower,
+    double upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'costPrice',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        epsilon: epsilon,
       ));
     });
   }
@@ -1199,6 +1276,18 @@ extension BidaItemQuerySortBy on QueryBuilder<BidaItem, BidaItem, QSortBy> {
     });
   }
 
+  QueryBuilder<BidaItem, BidaItem, QAfterSortBy> sortByCostPrice() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'costPrice', Sort.asc);
+    });
+  }
+
+  QueryBuilder<BidaItem, BidaItem, QAfterSortBy> sortByCostPriceDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'costPrice', Sort.desc);
+    });
+  }
+
   QueryBuilder<BidaItem, BidaItem, QAfterSortBy> sortByDeletedAt() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'deletedAt', Sort.asc);
@@ -1319,6 +1408,18 @@ extension BidaItemQuerySortThenBy
   QueryBuilder<BidaItem, BidaItem, QAfterSortBy> thenByCategoryDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'category', Sort.desc);
+    });
+  }
+
+  QueryBuilder<BidaItem, BidaItem, QAfterSortBy> thenByCostPrice() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'costPrice', Sort.asc);
+    });
+  }
+
+  QueryBuilder<BidaItem, BidaItem, QAfterSortBy> thenByCostPriceDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'costPrice', Sort.desc);
     });
   }
 
@@ -1451,6 +1552,12 @@ extension BidaItemQueryWhereDistinct
     });
   }
 
+  QueryBuilder<BidaItem, BidaItem, QDistinct> distinctByCostPrice() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'costPrice');
+    });
+  }
+
   QueryBuilder<BidaItem, BidaItem, QDistinct> distinctByDeletedAt() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'deletedAt');
@@ -1521,6 +1628,12 @@ extension BidaItemQueryProperty
       categoryProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'category');
+    });
+  }
+
+  QueryBuilder<BidaItem, double, QQueryOperations> costPriceProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'costPrice');
     });
   }
 

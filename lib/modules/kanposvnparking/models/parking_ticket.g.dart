@@ -82,38 +82,43 @@ const ParkingTicketSchema = CollectionSchema(
       name: r'licensePlate',
       type: IsarType.string,
     ),
-    r'paymentMethod': PropertySchema(
+    r'monthlyTicketId': PropertySchema(
       id: 13,
+      name: r'monthlyTicketId',
+      type: IsarType.string,
+    ),
+    r'paymentMethod': PropertySchema(
+      id: 14,
       name: r'paymentMethod',
       type: IsarType.string,
     ),
     r'paymentStatus': PropertySchema(
-      id: 14,
+      id: 15,
       name: r'paymentStatus',
       type: IsarType.string,
     ),
     r'rfidCard': PropertySchema(
-      id: 15,
+      id: 16,
       name: r'rfidCard',
       type: IsarType.string,
     ),
     r'status': PropertySchema(
-      id: 16,
+      id: 17,
       name: r'status',
       type: IsarType.string,
     ),
     r'ticketId': PropertySchema(
-      id: 17,
+      id: 18,
       name: r'ticketId',
       type: IsarType.string,
     ),
     r'updatedAt': PropertySchema(
-      id: 18,
+      id: 19,
       name: r'updatedAt',
       type: IsarType.dateTime,
     ),
     r'vehicleId': PropertySchema(
-      id: 19,
+      id: 20,
       name: r'vehicleId',
       type: IsarType.string,
     )
@@ -161,6 +166,7 @@ int _parkingTicketEstimateSize(
   bytesCount += 3 + object.checkOutImageFront.length * 3;
   bytesCount += 3 + object.checkOutStaffId.length * 3;
   bytesCount += 3 + object.licensePlate.length * 3;
+  bytesCount += 3 + object.monthlyTicketId.length * 3;
   bytesCount += 3 + object.paymentMethod.length * 3;
   bytesCount += 3 + object.paymentStatus.length * 3;
   bytesCount += 3 + object.rfidCard.length * 3;
@@ -189,13 +195,14 @@ void _parkingTicketSerialize(
   writer.writeDouble(offsets[10], object.feeAmount);
   writer.writeBool(offsets[11], object.isSynced);
   writer.writeString(offsets[12], object.licensePlate);
-  writer.writeString(offsets[13], object.paymentMethod);
-  writer.writeString(offsets[14], object.paymentStatus);
-  writer.writeString(offsets[15], object.rfidCard);
-  writer.writeString(offsets[16], object.status);
-  writer.writeString(offsets[17], object.ticketId);
-  writer.writeDateTime(offsets[18], object.updatedAt);
-  writer.writeString(offsets[19], object.vehicleId);
+  writer.writeString(offsets[13], object.monthlyTicketId);
+  writer.writeString(offsets[14], object.paymentMethod);
+  writer.writeString(offsets[15], object.paymentStatus);
+  writer.writeString(offsets[16], object.rfidCard);
+  writer.writeString(offsets[17], object.status);
+  writer.writeString(offsets[18], object.ticketId);
+  writer.writeDateTime(offsets[19], object.updatedAt);
+  writer.writeString(offsets[20], object.vehicleId);
 }
 
 ParkingTicket _parkingTicketDeserialize(
@@ -219,13 +226,14 @@ ParkingTicket _parkingTicketDeserialize(
   object.isSynced = reader.readBool(offsets[11]);
   object.isarId = id;
   object.licensePlate = reader.readString(offsets[12]);
-  object.paymentMethod = reader.readString(offsets[13]);
-  object.paymentStatus = reader.readString(offsets[14]);
-  object.rfidCard = reader.readString(offsets[15]);
-  object.status = reader.readString(offsets[16]);
-  object.ticketId = reader.readString(offsets[17]);
-  object.updatedAt = reader.readDateTime(offsets[18]);
-  object.vehicleId = reader.readString(offsets[19]);
+  object.monthlyTicketId = reader.readString(offsets[13]);
+  object.paymentMethod = reader.readString(offsets[14]);
+  object.paymentStatus = reader.readString(offsets[15]);
+  object.rfidCard = reader.readString(offsets[16]);
+  object.status = reader.readString(offsets[17]);
+  object.ticketId = reader.readString(offsets[18]);
+  object.updatedAt = reader.readDateTime(offsets[19]);
+  object.vehicleId = reader.readString(offsets[20]);
   return object;
 }
 
@@ -273,8 +281,10 @@ P _parkingTicketDeserializeProp<P>(
     case 17:
       return (reader.readString(offset)) as P;
     case 18:
-      return (reader.readDateTime(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 19:
+      return (reader.readDateTime(offset)) as P;
+    case 20:
       return (reader.readString(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -1963,6 +1973,142 @@ extension ParkingTicketQueryFilter
   }
 
   QueryBuilder<ParkingTicket, ParkingTicket, QAfterFilterCondition>
+      monthlyTicketIdEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'monthlyTicketId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<ParkingTicket, ParkingTicket, QAfterFilterCondition>
+      monthlyTicketIdGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'monthlyTicketId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<ParkingTicket, ParkingTicket, QAfterFilterCondition>
+      monthlyTicketIdLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'monthlyTicketId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<ParkingTicket, ParkingTicket, QAfterFilterCondition>
+      monthlyTicketIdBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'monthlyTicketId',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<ParkingTicket, ParkingTicket, QAfterFilterCondition>
+      monthlyTicketIdStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'monthlyTicketId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<ParkingTicket, ParkingTicket, QAfterFilterCondition>
+      monthlyTicketIdEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'monthlyTicketId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<ParkingTicket, ParkingTicket, QAfterFilterCondition>
+      monthlyTicketIdContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'monthlyTicketId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<ParkingTicket, ParkingTicket, QAfterFilterCondition>
+      monthlyTicketIdMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'monthlyTicketId',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<ParkingTicket, ParkingTicket, QAfterFilterCondition>
+      monthlyTicketIdIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'monthlyTicketId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<ParkingTicket, ParkingTicket, QAfterFilterCondition>
+      monthlyTicketIdIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'monthlyTicketId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<ParkingTicket, ParkingTicket, QAfterFilterCondition>
       paymentMethodEqualTo(
     String value, {
     bool caseSensitive = true,
@@ -3023,6 +3169,20 @@ extension ParkingTicketQuerySortBy
   }
 
   QueryBuilder<ParkingTicket, ParkingTicket, QAfterSortBy>
+      sortByMonthlyTicketId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'monthlyTicketId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<ParkingTicket, ParkingTicket, QAfterSortBy>
+      sortByMonthlyTicketIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'monthlyTicketId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<ParkingTicket, ParkingTicket, QAfterSortBy>
       sortByPaymentMethod() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'paymentMethod', Sort.asc);
@@ -3309,6 +3469,20 @@ extension ParkingTicketQuerySortThenBy
   }
 
   QueryBuilder<ParkingTicket, ParkingTicket, QAfterSortBy>
+      thenByMonthlyTicketId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'monthlyTicketId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<ParkingTicket, ParkingTicket, QAfterSortBy>
+      thenByMonthlyTicketIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'monthlyTicketId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<ParkingTicket, ParkingTicket, QAfterSortBy>
       thenByPaymentMethod() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'paymentMethod', Sort.asc);
@@ -3500,6 +3674,14 @@ extension ParkingTicketQueryWhereDistinct
     });
   }
 
+  QueryBuilder<ParkingTicket, ParkingTicket, QDistinct>
+      distinctByMonthlyTicketId({bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'monthlyTicketId',
+          caseSensitive: caseSensitive);
+    });
+  }
+
   QueryBuilder<ParkingTicket, ParkingTicket, QDistinct> distinctByPaymentMethod(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
@@ -3644,6 +3826,13 @@ extension ParkingTicketQueryProperty
   QueryBuilder<ParkingTicket, String, QQueryOperations> licensePlateProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'licensePlate');
+    });
+  }
+
+  QueryBuilder<ParkingTicket, String, QQueryOperations>
+      monthlyTicketIdProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'monthlyTicketId');
     });
   }
 

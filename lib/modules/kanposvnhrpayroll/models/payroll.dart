@@ -64,16 +64,27 @@ class Payroll {
   double advanceDeduction = 0;   // Tạm ứng
   double otherDeduction = 0;
 
+  // Employer insurance (NSDL đóng)
+  double employerBhxh = 0;       // BHXH NSDL 17.5%
+  double employerBhyt = 0;       // BHYT NSDL 3%
+  double employerBhtn = 0;       // BHTN NSDL 1%
+  double unionFee = 0;           // Kinh phí công đoàn 2%
+
   // Summary
   double grossSalary = 0;        // Tổng thu nhập
-  double totalDeductions = 0;    // Tổng khấu trừ
+  double totalDeductions = 0;    // Tổng khấu trừ NLĐ
+  double totalEmployerCost = 0;  // Tổng chi phí NSDL
   double netSalary = 0;          // Thực lĩnh
 
   @Enumerated(EnumType.name)
   PayrollStatus status = PayrollStatus.draft;
 
-  String? notes;
+  // Accounting
+  String? journalRef;            // Số hạch toán liên kết
+  String? paymentMethod;         // cash / bank / transfer
   DateTime? paidDate;
+
+  String? notes;
 
   // Sync
   String? remoteId;

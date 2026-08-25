@@ -22,83 +22,108 @@ const ViecJobPostingSchema = CollectionSchema(
       name: r'address',
       type: IsarType.string,
     ),
-    r'categoryId': PropertySchema(
+    r'ageMax': PropertySchema(
       id: 1,
+      name: r'ageMax',
+      type: IsarType.long,
+    ),
+    r'ageMin': PropertySchema(
+      id: 2,
+      name: r'ageMin',
+      type: IsarType.long,
+    ),
+    r'categoryId': PropertySchema(
+      id: 3,
       name: r'categoryId',
       type: IsarType.string,
     ),
     r'createdAt': PropertySchema(
-      id: 2,
+      id: 4,
       name: r'createdAt',
       type: IsarType.dateTime,
     ),
     r'description': PropertySchema(
-      id: 3,
+      id: 5,
       name: r'description',
       type: IsarType.string,
     ),
     r'employerId': PropertySchema(
-      id: 4,
+      id: 6,
       name: r'employerId',
       type: IsarType.string,
     ),
     r'endDate': PropertySchema(
-      id: 5,
+      id: 7,
       name: r'endDate',
       type: IsarType.dateTime,
     ),
+    r'filledCount': PropertySchema(
+      id: 8,
+      name: r'filledCount',
+      type: IsarType.long,
+    ),
     r'isSynced': PropertySchema(
-      id: 6,
+      id: 9,
       name: r'isSynced',
       type: IsarType.bool,
     ),
     r'jobId': PropertySchema(
-      id: 7,
+      id: 10,
       name: r'jobId',
       type: IsarType.string,
     ),
     r'lat': PropertySchema(
-      id: 8,
+      id: 11,
       name: r'lat',
       type: IsarType.double,
     ),
     r'lng': PropertySchema(
-      id: 9,
+      id: 12,
       name: r'lng',
       type: IsarType.double,
     ),
+    r'minExperienceYears': PropertySchema(
+      id: 13,
+      name: r'minExperienceYears',
+      type: IsarType.long,
+    ),
     r'quantity': PropertySchema(
-      id: 10,
+      id: 14,
       name: r'quantity',
       type: IsarType.long,
     ),
+    r'requiredGender': PropertySchema(
+      id: 15,
+      name: r'requiredGender',
+      type: IsarType.string,
+    ),
     r'salary': PropertySchema(
-      id: 11,
+      id: 16,
       name: r'salary',
       type: IsarType.double,
     ),
     r'salaryType': PropertySchema(
-      id: 12,
+      id: 17,
       name: r'salaryType',
       type: IsarType.string,
     ),
     r'startDate': PropertySchema(
-      id: 13,
+      id: 18,
       name: r'startDate',
       type: IsarType.dateTime,
     ),
     r'status': PropertySchema(
-      id: 14,
+      id: 19,
       name: r'status',
       type: IsarType.string,
     ),
     r'title': PropertySchema(
-      id: 15,
+      id: 20,
       name: r'title',
       type: IsarType.string,
     ),
     r'updatedAt': PropertySchema(
-      id: 16,
+      id: 21,
       name: r'updatedAt',
       type: IsarType.dateTime,
     )
@@ -142,6 +167,7 @@ int _viecJobPostingEstimateSize(
   bytesCount += 3 + object.description.length * 3;
   bytesCount += 3 + object.employerId.length * 3;
   bytesCount += 3 + object.jobId.length * 3;
+  bytesCount += 3 + object.requiredGender.length * 3;
   bytesCount += 3 + object.salaryType.length * 3;
   bytesCount += 3 + object.status.length * 3;
   bytesCount += 3 + object.title.length * 3;
@@ -155,22 +181,27 @@ void _viecJobPostingSerialize(
   Map<Type, List<int>> allOffsets,
 ) {
   writer.writeString(offsets[0], object.address);
-  writer.writeString(offsets[1], object.categoryId);
-  writer.writeDateTime(offsets[2], object.createdAt);
-  writer.writeString(offsets[3], object.description);
-  writer.writeString(offsets[4], object.employerId);
-  writer.writeDateTime(offsets[5], object.endDate);
-  writer.writeBool(offsets[6], object.isSynced);
-  writer.writeString(offsets[7], object.jobId);
-  writer.writeDouble(offsets[8], object.lat);
-  writer.writeDouble(offsets[9], object.lng);
-  writer.writeLong(offsets[10], object.quantity);
-  writer.writeDouble(offsets[11], object.salary);
-  writer.writeString(offsets[12], object.salaryType);
-  writer.writeDateTime(offsets[13], object.startDate);
-  writer.writeString(offsets[14], object.status);
-  writer.writeString(offsets[15], object.title);
-  writer.writeDateTime(offsets[16], object.updatedAt);
+  writer.writeLong(offsets[1], object.ageMax);
+  writer.writeLong(offsets[2], object.ageMin);
+  writer.writeString(offsets[3], object.categoryId);
+  writer.writeDateTime(offsets[4], object.createdAt);
+  writer.writeString(offsets[5], object.description);
+  writer.writeString(offsets[6], object.employerId);
+  writer.writeDateTime(offsets[7], object.endDate);
+  writer.writeLong(offsets[8], object.filledCount);
+  writer.writeBool(offsets[9], object.isSynced);
+  writer.writeString(offsets[10], object.jobId);
+  writer.writeDouble(offsets[11], object.lat);
+  writer.writeDouble(offsets[12], object.lng);
+  writer.writeLong(offsets[13], object.minExperienceYears);
+  writer.writeLong(offsets[14], object.quantity);
+  writer.writeString(offsets[15], object.requiredGender);
+  writer.writeDouble(offsets[16], object.salary);
+  writer.writeString(offsets[17], object.salaryType);
+  writer.writeDateTime(offsets[18], object.startDate);
+  writer.writeString(offsets[19], object.status);
+  writer.writeString(offsets[20], object.title);
+  writer.writeDateTime(offsets[21], object.updatedAt);
 }
 
 ViecJobPosting _viecJobPostingDeserialize(
@@ -181,23 +212,28 @@ ViecJobPosting _viecJobPostingDeserialize(
 ) {
   final object = ViecJobPosting();
   object.address = reader.readString(offsets[0]);
-  object.categoryId = reader.readString(offsets[1]);
-  object.createdAt = reader.readDateTime(offsets[2]);
-  object.description = reader.readString(offsets[3]);
-  object.employerId = reader.readString(offsets[4]);
-  object.endDate = reader.readDateTimeOrNull(offsets[5]);
-  object.isSynced = reader.readBool(offsets[6]);
+  object.ageMax = reader.readLong(offsets[1]);
+  object.ageMin = reader.readLong(offsets[2]);
+  object.categoryId = reader.readString(offsets[3]);
+  object.createdAt = reader.readDateTime(offsets[4]);
+  object.description = reader.readString(offsets[5]);
+  object.employerId = reader.readString(offsets[6]);
+  object.endDate = reader.readDateTimeOrNull(offsets[7]);
+  object.filledCount = reader.readLong(offsets[8]);
+  object.isSynced = reader.readBool(offsets[9]);
   object.isarId = id;
-  object.jobId = reader.readString(offsets[7]);
-  object.lat = reader.readDoubleOrNull(offsets[8]);
-  object.lng = reader.readDoubleOrNull(offsets[9]);
-  object.quantity = reader.readLong(offsets[10]);
-  object.salary = reader.readDouble(offsets[11]);
-  object.salaryType = reader.readString(offsets[12]);
-  object.startDate = reader.readDateTime(offsets[13]);
-  object.status = reader.readString(offsets[14]);
-  object.title = reader.readString(offsets[15]);
-  object.updatedAt = reader.readDateTime(offsets[16]);
+  object.jobId = reader.readString(offsets[10]);
+  object.lat = reader.readDoubleOrNull(offsets[11]);
+  object.lng = reader.readDoubleOrNull(offsets[12]);
+  object.minExperienceYears = reader.readLong(offsets[13]);
+  object.quantity = reader.readLong(offsets[14]);
+  object.requiredGender = reader.readString(offsets[15]);
+  object.salary = reader.readDouble(offsets[16]);
+  object.salaryType = reader.readString(offsets[17]);
+  object.startDate = reader.readDateTime(offsets[18]);
+  object.status = reader.readString(offsets[19]);
+  object.title = reader.readString(offsets[20]);
+  object.updatedAt = reader.readDateTime(offsets[21]);
   return object;
 }
 
@@ -211,36 +247,46 @@ P _viecJobPostingDeserializeProp<P>(
     case 0:
       return (reader.readString(offset)) as P;
     case 1:
-      return (reader.readString(offset)) as P;
+      return (reader.readLong(offset)) as P;
     case 2:
-      return (reader.readDateTime(offset)) as P;
+      return (reader.readLong(offset)) as P;
     case 3:
       return (reader.readString(offset)) as P;
     case 4:
-      return (reader.readString(offset)) as P;
-    case 5:
-      return (reader.readDateTimeOrNull(offset)) as P;
-    case 6:
-      return (reader.readBool(offset)) as P;
-    case 7:
-      return (reader.readString(offset)) as P;
-    case 8:
-      return (reader.readDoubleOrNull(offset)) as P;
-    case 9:
-      return (reader.readDoubleOrNull(offset)) as P;
-    case 10:
-      return (reader.readLong(offset)) as P;
-    case 11:
-      return (reader.readDouble(offset)) as P;
-    case 12:
-      return (reader.readString(offset)) as P;
-    case 13:
       return (reader.readDateTime(offset)) as P;
-    case 14:
+    case 5:
       return (reader.readString(offset)) as P;
+    case 6:
+      return (reader.readString(offset)) as P;
+    case 7:
+      return (reader.readDateTimeOrNull(offset)) as P;
+    case 8:
+      return (reader.readLong(offset)) as P;
+    case 9:
+      return (reader.readBool(offset)) as P;
+    case 10:
+      return (reader.readString(offset)) as P;
+    case 11:
+      return (reader.readDoubleOrNull(offset)) as P;
+    case 12:
+      return (reader.readDoubleOrNull(offset)) as P;
+    case 13:
+      return (reader.readLong(offset)) as P;
+    case 14:
+      return (reader.readLong(offset)) as P;
     case 15:
       return (reader.readString(offset)) as P;
     case 16:
+      return (reader.readDouble(offset)) as P;
+    case 17:
+      return (reader.readString(offset)) as P;
+    case 18:
+      return (reader.readDateTime(offset)) as P;
+    case 19:
+      return (reader.readString(offset)) as P;
+    case 20:
+      return (reader.readString(offset)) as P;
+    case 21:
       return (reader.readDateTime(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -573,6 +619,118 @@ extension ViecJobPostingQueryFilter
       return query.addFilterCondition(FilterCondition.greaterThan(
         property: r'address',
         value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<ViecJobPosting, ViecJobPosting, QAfterFilterCondition>
+      ageMaxEqualTo(int value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'ageMax',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<ViecJobPosting, ViecJobPosting, QAfterFilterCondition>
+      ageMaxGreaterThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'ageMax',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<ViecJobPosting, ViecJobPosting, QAfterFilterCondition>
+      ageMaxLessThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'ageMax',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<ViecJobPosting, ViecJobPosting, QAfterFilterCondition>
+      ageMaxBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'ageMax',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<ViecJobPosting, ViecJobPosting, QAfterFilterCondition>
+      ageMinEqualTo(int value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'ageMin',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<ViecJobPosting, ViecJobPosting, QAfterFilterCondition>
+      ageMinGreaterThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'ageMin',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<ViecJobPosting, ViecJobPosting, QAfterFilterCondition>
+      ageMinLessThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'ageMin',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<ViecJobPosting, ViecJobPosting, QAfterFilterCondition>
+      ageMinBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'ageMin',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
       ));
     });
   }
@@ -1116,6 +1274,62 @@ extension ViecJobPostingQueryFilter
   }
 
   QueryBuilder<ViecJobPosting, ViecJobPosting, QAfterFilterCondition>
+      filledCountEqualTo(int value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'filledCount',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<ViecJobPosting, ViecJobPosting, QAfterFilterCondition>
+      filledCountGreaterThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'filledCount',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<ViecJobPosting, ViecJobPosting, QAfterFilterCondition>
+      filledCountLessThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'filledCount',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<ViecJobPosting, ViecJobPosting, QAfterFilterCondition>
+      filledCountBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'filledCount',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<ViecJobPosting, ViecJobPosting, QAfterFilterCondition>
       isSyncedEqualTo(bool value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
@@ -1486,6 +1700,62 @@ extension ViecJobPostingQueryFilter
   }
 
   QueryBuilder<ViecJobPosting, ViecJobPosting, QAfterFilterCondition>
+      minExperienceYearsEqualTo(int value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'minExperienceYears',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<ViecJobPosting, ViecJobPosting, QAfterFilterCondition>
+      minExperienceYearsGreaterThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'minExperienceYears',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<ViecJobPosting, ViecJobPosting, QAfterFilterCondition>
+      minExperienceYearsLessThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'minExperienceYears',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<ViecJobPosting, ViecJobPosting, QAfterFilterCondition>
+      minExperienceYearsBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'minExperienceYears',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<ViecJobPosting, ViecJobPosting, QAfterFilterCondition>
       quantityEqualTo(int value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
@@ -1537,6 +1807,142 @@ extension ViecJobPostingQueryFilter
         includeLower: includeLower,
         upper: upper,
         includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<ViecJobPosting, ViecJobPosting, QAfterFilterCondition>
+      requiredGenderEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'requiredGender',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<ViecJobPosting, ViecJobPosting, QAfterFilterCondition>
+      requiredGenderGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'requiredGender',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<ViecJobPosting, ViecJobPosting, QAfterFilterCondition>
+      requiredGenderLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'requiredGender',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<ViecJobPosting, ViecJobPosting, QAfterFilterCondition>
+      requiredGenderBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'requiredGender',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<ViecJobPosting, ViecJobPosting, QAfterFilterCondition>
+      requiredGenderStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'requiredGender',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<ViecJobPosting, ViecJobPosting, QAfterFilterCondition>
+      requiredGenderEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'requiredGender',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<ViecJobPosting, ViecJobPosting, QAfterFilterCondition>
+      requiredGenderContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'requiredGender',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<ViecJobPosting, ViecJobPosting, QAfterFilterCondition>
+      requiredGenderMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'requiredGender',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<ViecJobPosting, ViecJobPosting, QAfterFilterCondition>
+      requiredGenderIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'requiredGender',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<ViecJobPosting, ViecJobPosting, QAfterFilterCondition>
+      requiredGenderIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'requiredGender',
+        value: '',
       ));
     });
   }
@@ -2149,6 +2555,32 @@ extension ViecJobPostingQuerySortBy
     });
   }
 
+  QueryBuilder<ViecJobPosting, ViecJobPosting, QAfterSortBy> sortByAgeMax() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'ageMax', Sort.asc);
+    });
+  }
+
+  QueryBuilder<ViecJobPosting, ViecJobPosting, QAfterSortBy>
+      sortByAgeMaxDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'ageMax', Sort.desc);
+    });
+  }
+
+  QueryBuilder<ViecJobPosting, ViecJobPosting, QAfterSortBy> sortByAgeMin() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'ageMin', Sort.asc);
+    });
+  }
+
+  QueryBuilder<ViecJobPosting, ViecJobPosting, QAfterSortBy>
+      sortByAgeMinDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'ageMin', Sort.desc);
+    });
+  }
+
   QueryBuilder<ViecJobPosting, ViecJobPosting, QAfterSortBy>
       sortByCategoryId() {
     return QueryBuilder.apply(this, (query) {
@@ -2217,6 +2649,20 @@ extension ViecJobPostingQuerySortBy
     });
   }
 
+  QueryBuilder<ViecJobPosting, ViecJobPosting, QAfterSortBy>
+      sortByFilledCount() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'filledCount', Sort.asc);
+    });
+  }
+
+  QueryBuilder<ViecJobPosting, ViecJobPosting, QAfterSortBy>
+      sortByFilledCountDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'filledCount', Sort.desc);
+    });
+  }
+
   QueryBuilder<ViecJobPosting, ViecJobPosting, QAfterSortBy> sortByIsSynced() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'isSynced', Sort.asc);
@@ -2266,6 +2712,20 @@ extension ViecJobPostingQuerySortBy
     });
   }
 
+  QueryBuilder<ViecJobPosting, ViecJobPosting, QAfterSortBy>
+      sortByMinExperienceYears() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'minExperienceYears', Sort.asc);
+    });
+  }
+
+  QueryBuilder<ViecJobPosting, ViecJobPosting, QAfterSortBy>
+      sortByMinExperienceYearsDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'minExperienceYears', Sort.desc);
+    });
+  }
+
   QueryBuilder<ViecJobPosting, ViecJobPosting, QAfterSortBy> sortByQuantity() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'quantity', Sort.asc);
@@ -2276,6 +2736,20 @@ extension ViecJobPostingQuerySortBy
       sortByQuantityDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'quantity', Sort.desc);
+    });
+  }
+
+  QueryBuilder<ViecJobPosting, ViecJobPosting, QAfterSortBy>
+      sortByRequiredGender() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'requiredGender', Sort.asc);
+    });
+  }
+
+  QueryBuilder<ViecJobPosting, ViecJobPosting, QAfterSortBy>
+      sortByRequiredGenderDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'requiredGender', Sort.desc);
     });
   }
 
@@ -2373,6 +2847,32 @@ extension ViecJobPostingQuerySortThenBy
     });
   }
 
+  QueryBuilder<ViecJobPosting, ViecJobPosting, QAfterSortBy> thenByAgeMax() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'ageMax', Sort.asc);
+    });
+  }
+
+  QueryBuilder<ViecJobPosting, ViecJobPosting, QAfterSortBy>
+      thenByAgeMaxDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'ageMax', Sort.desc);
+    });
+  }
+
+  QueryBuilder<ViecJobPosting, ViecJobPosting, QAfterSortBy> thenByAgeMin() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'ageMin', Sort.asc);
+    });
+  }
+
+  QueryBuilder<ViecJobPosting, ViecJobPosting, QAfterSortBy>
+      thenByAgeMinDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'ageMin', Sort.desc);
+    });
+  }
+
   QueryBuilder<ViecJobPosting, ViecJobPosting, QAfterSortBy>
       thenByCategoryId() {
     return QueryBuilder.apply(this, (query) {
@@ -2441,6 +2941,20 @@ extension ViecJobPostingQuerySortThenBy
     });
   }
 
+  QueryBuilder<ViecJobPosting, ViecJobPosting, QAfterSortBy>
+      thenByFilledCount() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'filledCount', Sort.asc);
+    });
+  }
+
+  QueryBuilder<ViecJobPosting, ViecJobPosting, QAfterSortBy>
+      thenByFilledCountDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'filledCount', Sort.desc);
+    });
+  }
+
   QueryBuilder<ViecJobPosting, ViecJobPosting, QAfterSortBy> thenByIsSynced() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'isSynced', Sort.asc);
@@ -2503,6 +3017,20 @@ extension ViecJobPostingQuerySortThenBy
     });
   }
 
+  QueryBuilder<ViecJobPosting, ViecJobPosting, QAfterSortBy>
+      thenByMinExperienceYears() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'minExperienceYears', Sort.asc);
+    });
+  }
+
+  QueryBuilder<ViecJobPosting, ViecJobPosting, QAfterSortBy>
+      thenByMinExperienceYearsDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'minExperienceYears', Sort.desc);
+    });
+  }
+
   QueryBuilder<ViecJobPosting, ViecJobPosting, QAfterSortBy> thenByQuantity() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'quantity', Sort.asc);
@@ -2513,6 +3041,20 @@ extension ViecJobPostingQuerySortThenBy
       thenByQuantityDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'quantity', Sort.desc);
+    });
+  }
+
+  QueryBuilder<ViecJobPosting, ViecJobPosting, QAfterSortBy>
+      thenByRequiredGender() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'requiredGender', Sort.asc);
+    });
+  }
+
+  QueryBuilder<ViecJobPosting, ViecJobPosting, QAfterSortBy>
+      thenByRequiredGenderDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'requiredGender', Sort.desc);
     });
   }
 
@@ -2604,6 +3146,18 @@ extension ViecJobPostingQueryWhereDistinct
     });
   }
 
+  QueryBuilder<ViecJobPosting, ViecJobPosting, QDistinct> distinctByAgeMax() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'ageMax');
+    });
+  }
+
+  QueryBuilder<ViecJobPosting, ViecJobPosting, QDistinct> distinctByAgeMin() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'ageMin');
+    });
+  }
+
   QueryBuilder<ViecJobPosting, ViecJobPosting, QDistinct> distinctByCategoryId(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
@@ -2638,6 +3192,13 @@ extension ViecJobPostingQueryWhereDistinct
     });
   }
 
+  QueryBuilder<ViecJobPosting, ViecJobPosting, QDistinct>
+      distinctByFilledCount() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'filledCount');
+    });
+  }
+
   QueryBuilder<ViecJobPosting, ViecJobPosting, QDistinct> distinctByIsSynced() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'isSynced');
@@ -2663,9 +3224,24 @@ extension ViecJobPostingQueryWhereDistinct
     });
   }
 
+  QueryBuilder<ViecJobPosting, ViecJobPosting, QDistinct>
+      distinctByMinExperienceYears() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'minExperienceYears');
+    });
+  }
+
   QueryBuilder<ViecJobPosting, ViecJobPosting, QDistinct> distinctByQuantity() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'quantity');
+    });
+  }
+
+  QueryBuilder<ViecJobPosting, ViecJobPosting, QDistinct>
+      distinctByRequiredGender({bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'requiredGender',
+          caseSensitive: caseSensitive);
     });
   }
 
@@ -2725,6 +3301,18 @@ extension ViecJobPostingQueryProperty
     });
   }
 
+  QueryBuilder<ViecJobPosting, int, QQueryOperations> ageMaxProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'ageMax');
+    });
+  }
+
+  QueryBuilder<ViecJobPosting, int, QQueryOperations> ageMinProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'ageMin');
+    });
+  }
+
   QueryBuilder<ViecJobPosting, String, QQueryOperations> categoryIdProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'categoryId');
@@ -2755,6 +3343,12 @@ extension ViecJobPostingQueryProperty
     });
   }
 
+  QueryBuilder<ViecJobPosting, int, QQueryOperations> filledCountProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'filledCount');
+    });
+  }
+
   QueryBuilder<ViecJobPosting, bool, QQueryOperations> isSyncedProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'isSynced');
@@ -2779,9 +3373,23 @@ extension ViecJobPostingQueryProperty
     });
   }
 
+  QueryBuilder<ViecJobPosting, int, QQueryOperations>
+      minExperienceYearsProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'minExperienceYears');
+    });
+  }
+
   QueryBuilder<ViecJobPosting, int, QQueryOperations> quantityProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'quantity');
+    });
+  }
+
+  QueryBuilder<ViecJobPosting, String, QQueryOperations>
+      requiredGenderProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'requiredGender');
     });
   }
 

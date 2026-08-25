@@ -17,145 +17,165 @@ const XeOmBookingSchema = CollectionSchema(
   name: r'XeOmBooking',
   id: 1642420598242766149,
   properties: {
-    r'bookingCode': PropertySchema(
+    r'baseFare': PropertySchema(
       id: 0,
+      name: r'baseFare',
+      type: IsarType.double,
+    ),
+    r'bookingCode': PropertySchema(
+      id: 1,
       name: r'bookingCode',
       type: IsarType.string,
     ),
     r'completedAt': PropertySchema(
-      id: 1,
+      id: 2,
       name: r'completedAt',
       type: IsarType.dateTime,
     ),
     r'createdAt': PropertySchema(
-      id: 2,
+      id: 3,
       name: r'createdAt',
       type: IsarType.dateTime,
     ),
     r'customerName': PropertySchema(
-      id: 3,
+      id: 4,
       name: r'customerName',
       type: IsarType.string,
     ),
     r'customerPhone': PropertySchema(
-      id: 4,
+      id: 5,
       name: r'customerPhone',
       type: IsarType.string,
     ),
     r'customerUuid': PropertySchema(
-      id: 5,
+      id: 6,
       name: r'customerUuid',
       type: IsarType.string,
     ),
+    r'debtAmount': PropertySchema(
+      id: 7,
+      name: r'debtAmount',
+      type: IsarType.double,
+    ),
+    r'discount': PropertySchema(
+      id: 8,
+      name: r'discount',
+      type: IsarType.double,
+    ),
     r'distanceKm': PropertySchema(
-      id: 6,
+      id: 9,
       name: r'distanceKm',
       type: IsarType.double,
     ),
     r'driverUuid': PropertySchema(
-      id: 7,
+      id: 10,
       name: r'driverUuid',
       type: IsarType.string,
     ),
     r'dropoffAddress': PropertySchema(
-      id: 8,
+      id: 11,
       name: r'dropoffAddress',
       type: IsarType.string,
     ),
     r'dropoffLat': PropertySchema(
-      id: 9,
+      id: 12,
       name: r'dropoffLat',
       type: IsarType.double,
     ),
     r'dropoffLng': PropertySchema(
-      id: 10,
+      id: 13,
       name: r'dropoffLng',
       type: IsarType.double,
     ),
     r'isDeleted': PropertySchema(
-      id: 11,
+      id: 14,
       name: r'isDeleted',
       type: IsarType.bool,
     ),
     r'isPaid': PropertySchema(
-      id: 12,
+      id: 15,
       name: r'isPaid',
       type: IsarType.bool,
     ),
     r'notes': PropertySchema(
-      id: 13,
+      id: 16,
       name: r'notes',
       type: IsarType.string,
     ),
     r'paymentMethod': PropertySchema(
-      id: 14,
+      id: 17,
       name: r'paymentMethod',
       type: IsarType.byte,
       enumMap: _XeOmBookingpaymentMethodEnumValueMap,
     ),
     r'pickedUpAt': PropertySchema(
-      id: 15,
+      id: 18,
       name: r'pickedUpAt',
       type: IsarType.dateTime,
     ),
     r'pickupAddress': PropertySchema(
-      id: 16,
+      id: 19,
       name: r'pickupAddress',
       type: IsarType.string,
     ),
     r'pickupLat': PropertySchema(
-      id: 17,
+      id: 20,
       name: r'pickupLat',
       type: IsarType.double,
     ),
     r'pickupLng': PropertySchema(
-      id: 18,
+      id: 21,
       name: r'pickupLng',
       type: IsarType.double,
     ),
     r'price': PropertySchema(
-      id: 19,
+      id: 22,
       name: r'price',
       type: IsarType.double,
     ),
     r'promotionCode': PropertySchema(
-      id: 20,
+      id: 23,
       name: r'promotionCode',
       type: IsarType.string,
     ),
     r'requiredVehicleType': PropertySchema(
-      id: 21,
+      id: 24,
       name: r'requiredVehicleType',
       type: IsarType.string,
     ),
     r'scheduledAt': PropertySchema(
-      id: 22,
+      id: 25,
       name: r'scheduledAt',
       type: IsarType.dateTime,
     ),
     r'status': PropertySchema(
-      id: 23,
+      id: 26,
       name: r'status',
       type: IsarType.byte,
       enumMap: _XeOmBookingstatusEnumValueMap,
     ),
+    r'surcharge': PropertySchema(
+      id: 27,
+      name: r'surcharge',
+      type: IsarType.double,
+    ),
     r'syncVersion': PropertySchema(
-      id: 24,
+      id: 28,
       name: r'syncVersion',
       type: IsarType.long,
     ),
     r'updatedAt': PropertySchema(
-      id: 25,
+      id: 29,
       name: r'updatedAt',
       type: IsarType.dateTime,
     ),
     r'uuid': PropertySchema(
-      id: 26,
+      id: 30,
       name: r'uuid',
       type: IsarType.string,
     ),
     r'vehicleUuid': PropertySchema(
-      id: 27,
+      id: 31,
       name: r'vehicleUuid',
       type: IsarType.string,
     )
@@ -275,34 +295,38 @@ void _xeOmBookingSerialize(
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
-  writer.writeString(offsets[0], object.bookingCode);
-  writer.writeDateTime(offsets[1], object.completedAt);
-  writer.writeDateTime(offsets[2], object.createdAt);
-  writer.writeString(offsets[3], object.customerName);
-  writer.writeString(offsets[4], object.customerPhone);
-  writer.writeString(offsets[5], object.customerUuid);
-  writer.writeDouble(offsets[6], object.distanceKm);
-  writer.writeString(offsets[7], object.driverUuid);
-  writer.writeString(offsets[8], object.dropoffAddress);
-  writer.writeDouble(offsets[9], object.dropoffLat);
-  writer.writeDouble(offsets[10], object.dropoffLng);
-  writer.writeBool(offsets[11], object.isDeleted);
-  writer.writeBool(offsets[12], object.isPaid);
-  writer.writeString(offsets[13], object.notes);
-  writer.writeByte(offsets[14], object.paymentMethod.index);
-  writer.writeDateTime(offsets[15], object.pickedUpAt);
-  writer.writeString(offsets[16], object.pickupAddress);
-  writer.writeDouble(offsets[17], object.pickupLat);
-  writer.writeDouble(offsets[18], object.pickupLng);
-  writer.writeDouble(offsets[19], object.price);
-  writer.writeString(offsets[20], object.promotionCode);
-  writer.writeString(offsets[21], object.requiredVehicleType);
-  writer.writeDateTime(offsets[22], object.scheduledAt);
-  writer.writeByte(offsets[23], object.status.index);
-  writer.writeLong(offsets[24], object.syncVersion);
-  writer.writeDateTime(offsets[25], object.updatedAt);
-  writer.writeString(offsets[26], object.uuid);
-  writer.writeString(offsets[27], object.vehicleUuid);
+  writer.writeDouble(offsets[0], object.baseFare);
+  writer.writeString(offsets[1], object.bookingCode);
+  writer.writeDateTime(offsets[2], object.completedAt);
+  writer.writeDateTime(offsets[3], object.createdAt);
+  writer.writeString(offsets[4], object.customerName);
+  writer.writeString(offsets[5], object.customerPhone);
+  writer.writeString(offsets[6], object.customerUuid);
+  writer.writeDouble(offsets[7], object.debtAmount);
+  writer.writeDouble(offsets[8], object.discount);
+  writer.writeDouble(offsets[9], object.distanceKm);
+  writer.writeString(offsets[10], object.driverUuid);
+  writer.writeString(offsets[11], object.dropoffAddress);
+  writer.writeDouble(offsets[12], object.dropoffLat);
+  writer.writeDouble(offsets[13], object.dropoffLng);
+  writer.writeBool(offsets[14], object.isDeleted);
+  writer.writeBool(offsets[15], object.isPaid);
+  writer.writeString(offsets[16], object.notes);
+  writer.writeByte(offsets[17], object.paymentMethod.index);
+  writer.writeDateTime(offsets[18], object.pickedUpAt);
+  writer.writeString(offsets[19], object.pickupAddress);
+  writer.writeDouble(offsets[20], object.pickupLat);
+  writer.writeDouble(offsets[21], object.pickupLng);
+  writer.writeDouble(offsets[22], object.price);
+  writer.writeString(offsets[23], object.promotionCode);
+  writer.writeString(offsets[24], object.requiredVehicleType);
+  writer.writeDateTime(offsets[25], object.scheduledAt);
+  writer.writeByte(offsets[26], object.status.index);
+  writer.writeDouble(offsets[27], object.surcharge);
+  writer.writeLong(offsets[28], object.syncVersion);
+  writer.writeDateTime(offsets[29], object.updatedAt);
+  writer.writeString(offsets[30], object.uuid);
+  writer.writeString(offsets[31], object.vehicleUuid);
 }
 
 XeOmBooking _xeOmBookingDeserialize(
@@ -312,39 +336,43 @@ XeOmBooking _xeOmBookingDeserialize(
   Map<Type, List<int>> allOffsets,
 ) {
   final object = XeOmBooking();
-  object.bookingCode = reader.readStringOrNull(offsets[0]);
-  object.completedAt = reader.readDateTimeOrNull(offsets[1]);
-  object.createdAt = reader.readDateTimeOrNull(offsets[2]);
-  object.customerName = reader.readStringOrNull(offsets[3]);
-  object.customerPhone = reader.readStringOrNull(offsets[4]);
-  object.customerUuid = reader.readStringOrNull(offsets[5]);
-  object.distanceKm = reader.readDoubleOrNull(offsets[6]);
-  object.driverUuid = reader.readStringOrNull(offsets[7]);
-  object.dropoffAddress = reader.readStringOrNull(offsets[8]);
-  object.dropoffLat = reader.readDoubleOrNull(offsets[9]);
-  object.dropoffLng = reader.readDoubleOrNull(offsets[10]);
+  object.baseFare = reader.readDouble(offsets[0]);
+  object.bookingCode = reader.readStringOrNull(offsets[1]);
+  object.completedAt = reader.readDateTimeOrNull(offsets[2]);
+  object.createdAt = reader.readDateTimeOrNull(offsets[3]);
+  object.customerName = reader.readStringOrNull(offsets[4]);
+  object.customerPhone = reader.readStringOrNull(offsets[5]);
+  object.customerUuid = reader.readStringOrNull(offsets[6]);
+  object.debtAmount = reader.readDouble(offsets[7]);
+  object.discount = reader.readDouble(offsets[8]);
+  object.distanceKm = reader.readDoubleOrNull(offsets[9]);
+  object.driverUuid = reader.readStringOrNull(offsets[10]);
+  object.dropoffAddress = reader.readStringOrNull(offsets[11]);
+  object.dropoffLat = reader.readDoubleOrNull(offsets[12]);
+  object.dropoffLng = reader.readDoubleOrNull(offsets[13]);
   object.id = id;
-  object.isDeleted = reader.readBool(offsets[11]);
-  object.isPaid = reader.readBool(offsets[12]);
-  object.notes = reader.readStringOrNull(offsets[13]);
+  object.isDeleted = reader.readBool(offsets[14]);
+  object.isPaid = reader.readBool(offsets[15]);
+  object.notes = reader.readStringOrNull(offsets[16]);
   object.paymentMethod = _XeOmBookingpaymentMethodValueEnumMap[
-          reader.readByteOrNull(offsets[14])] ??
+          reader.readByteOrNull(offsets[17])] ??
       PaymentMethod.cash;
-  object.pickedUpAt = reader.readDateTimeOrNull(offsets[15]);
-  object.pickupAddress = reader.readStringOrNull(offsets[16]);
-  object.pickupLat = reader.readDoubleOrNull(offsets[17]);
-  object.pickupLng = reader.readDoubleOrNull(offsets[18]);
-  object.price = reader.readDoubleOrNull(offsets[19]);
-  object.promotionCode = reader.readStringOrNull(offsets[20]);
-  object.requiredVehicleType = reader.readStringOrNull(offsets[21]);
-  object.scheduledAt = reader.readDateTimeOrNull(offsets[22]);
+  object.pickedUpAt = reader.readDateTimeOrNull(offsets[18]);
+  object.pickupAddress = reader.readStringOrNull(offsets[19]);
+  object.pickupLat = reader.readDoubleOrNull(offsets[20]);
+  object.pickupLng = reader.readDoubleOrNull(offsets[21]);
+  object.price = reader.readDoubleOrNull(offsets[22]);
+  object.promotionCode = reader.readStringOrNull(offsets[23]);
+  object.requiredVehicleType = reader.readStringOrNull(offsets[24]);
+  object.scheduledAt = reader.readDateTimeOrNull(offsets[25]);
   object.status =
-      _XeOmBookingstatusValueEnumMap[reader.readByteOrNull(offsets[23])] ??
+      _XeOmBookingstatusValueEnumMap[reader.readByteOrNull(offsets[26])] ??
           BookingStatus.newBooking;
-  object.syncVersion = reader.readLong(offsets[24]);
-  object.updatedAt = reader.readDateTimeOrNull(offsets[25]);
-  object.uuid = reader.readStringOrNull(offsets[26]);
-  object.vehicleUuid = reader.readStringOrNull(offsets[27]);
+  object.surcharge = reader.readDouble(offsets[27]);
+  object.syncVersion = reader.readLong(offsets[28]);
+  object.updatedAt = reader.readDateTimeOrNull(offsets[29]);
+  object.uuid = reader.readStringOrNull(offsets[30]);
+  object.vehicleUuid = reader.readStringOrNull(offsets[31]);
   return object;
 }
 
@@ -356,63 +384,71 @@ P _xeOmBookingDeserializeProp<P>(
 ) {
   switch (propertyId) {
     case 0:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readDouble(offset)) as P;
     case 1:
-      return (reader.readDateTimeOrNull(offset)) as P;
+      return (reader.readStringOrNull(offset)) as P;
     case 2:
       return (reader.readDateTimeOrNull(offset)) as P;
     case 3:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readDateTimeOrNull(offset)) as P;
     case 4:
       return (reader.readStringOrNull(offset)) as P;
     case 5:
       return (reader.readStringOrNull(offset)) as P;
     case 6:
-      return (reader.readDoubleOrNull(offset)) as P;
+      return (reader.readStringOrNull(offset)) as P;
     case 7:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readDouble(offset)) as P;
     case 8:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readDouble(offset)) as P;
     case 9:
       return (reader.readDoubleOrNull(offset)) as P;
     case 10:
-      return (reader.readDoubleOrNull(offset)) as P;
-    case 11:
-      return (reader.readBool(offset)) as P;
-    case 12:
-      return (reader.readBool(offset)) as P;
-    case 13:
       return (reader.readStringOrNull(offset)) as P;
+    case 11:
+      return (reader.readStringOrNull(offset)) as P;
+    case 12:
+      return (reader.readDoubleOrNull(offset)) as P;
+    case 13:
+      return (reader.readDoubleOrNull(offset)) as P;
     case 14:
-      return (_XeOmBookingpaymentMethodValueEnumMap[
-              reader.readByteOrNull(offset)] ??
-          PaymentMethod.cash) as P;
+      return (reader.readBool(offset)) as P;
     case 15:
-      return (reader.readDateTimeOrNull(offset)) as P;
+      return (reader.readBool(offset)) as P;
     case 16:
       return (reader.readStringOrNull(offset)) as P;
     case 17:
-      return (reader.readDoubleOrNull(offset)) as P;
+      return (_XeOmBookingpaymentMethodValueEnumMap[
+              reader.readByteOrNull(offset)] ??
+          PaymentMethod.cash) as P;
     case 18:
-      return (reader.readDoubleOrNull(offset)) as P;
-    case 19:
-      return (reader.readDoubleOrNull(offset)) as P;
-    case 20:
-      return (reader.readStringOrNull(offset)) as P;
-    case 21:
-      return (reader.readStringOrNull(offset)) as P;
-    case 22:
       return (reader.readDateTimeOrNull(offset)) as P;
+    case 19:
+      return (reader.readStringOrNull(offset)) as P;
+    case 20:
+      return (reader.readDoubleOrNull(offset)) as P;
+    case 21:
+      return (reader.readDoubleOrNull(offset)) as P;
+    case 22:
+      return (reader.readDoubleOrNull(offset)) as P;
     case 23:
-      return (_XeOmBookingstatusValueEnumMap[reader.readByteOrNull(offset)] ??
-          BookingStatus.newBooking) as P;
+      return (reader.readStringOrNull(offset)) as P;
     case 24:
-      return (reader.readLong(offset)) as P;
+      return (reader.readStringOrNull(offset)) as P;
     case 25:
       return (reader.readDateTimeOrNull(offset)) as P;
     case 26:
-      return (reader.readStringOrNull(offset)) as P;
+      return (_XeOmBookingstatusValueEnumMap[reader.readByteOrNull(offset)] ??
+          BookingStatus.newBooking) as P;
     case 27:
+      return (reader.readDouble(offset)) as P;
+    case 28:
+      return (reader.readLong(offset)) as P;
+    case 29:
+      return (reader.readDateTimeOrNull(offset)) as P;
+    case 30:
+      return (reader.readStringOrNull(offset)) as P;
+    case 31:
       return (reader.readStringOrNull(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -671,6 +707,70 @@ extension XeOmBookingQueryWhere
 
 extension XeOmBookingQueryFilter
     on QueryBuilder<XeOmBooking, XeOmBooking, QFilterCondition> {
+  QueryBuilder<XeOmBooking, XeOmBooking, QAfterFilterCondition> baseFareEqualTo(
+    double value, {
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'baseFare',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<XeOmBooking, XeOmBooking, QAfterFilterCondition>
+      baseFareGreaterThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'baseFare',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<XeOmBooking, XeOmBooking, QAfterFilterCondition>
+      baseFareLessThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'baseFare',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<XeOmBooking, XeOmBooking, QAfterFilterCondition> baseFareBetween(
+    double lower,
+    double upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'baseFare',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
   QueryBuilder<XeOmBooking, XeOmBooking, QAfterFilterCondition>
       bookingCodeIsNull() {
     return QueryBuilder.apply(this, (query) {
@@ -1431,6 +1531,136 @@ extension XeOmBookingQueryFilter
       return query.addFilterCondition(FilterCondition.greaterThan(
         property: r'customerUuid',
         value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<XeOmBooking, XeOmBooking, QAfterFilterCondition>
+      debtAmountEqualTo(
+    double value, {
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'debtAmount',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<XeOmBooking, XeOmBooking, QAfterFilterCondition>
+      debtAmountGreaterThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'debtAmount',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<XeOmBooking, XeOmBooking, QAfterFilterCondition>
+      debtAmountLessThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'debtAmount',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<XeOmBooking, XeOmBooking, QAfterFilterCondition>
+      debtAmountBetween(
+    double lower,
+    double upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'debtAmount',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<XeOmBooking, XeOmBooking, QAfterFilterCondition> discountEqualTo(
+    double value, {
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'discount',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<XeOmBooking, XeOmBooking, QAfterFilterCondition>
+      discountGreaterThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'discount',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<XeOmBooking, XeOmBooking, QAfterFilterCondition>
+      discountLessThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'discount',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<XeOmBooking, XeOmBooking, QAfterFilterCondition> discountBetween(
+    double lower,
+    double upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'discount',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        epsilon: epsilon,
       ));
     });
   }
@@ -3186,6 +3416,72 @@ extension XeOmBookingQueryFilter
   }
 
   QueryBuilder<XeOmBooking, XeOmBooking, QAfterFilterCondition>
+      surchargeEqualTo(
+    double value, {
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'surcharge',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<XeOmBooking, XeOmBooking, QAfterFilterCondition>
+      surchargeGreaterThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'surcharge',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<XeOmBooking, XeOmBooking, QAfterFilterCondition>
+      surchargeLessThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'surcharge',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<XeOmBooking, XeOmBooking, QAfterFilterCondition>
+      surchargeBetween(
+    double lower,
+    double upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'surcharge',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<XeOmBooking, XeOmBooking, QAfterFilterCondition>
       syncVersionEqualTo(int value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
@@ -3626,6 +3922,18 @@ extension XeOmBookingQueryLinks
 
 extension XeOmBookingQuerySortBy
     on QueryBuilder<XeOmBooking, XeOmBooking, QSortBy> {
+  QueryBuilder<XeOmBooking, XeOmBooking, QAfterSortBy> sortByBaseFare() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'baseFare', Sort.asc);
+    });
+  }
+
+  QueryBuilder<XeOmBooking, XeOmBooking, QAfterSortBy> sortByBaseFareDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'baseFare', Sort.desc);
+    });
+  }
+
   QueryBuilder<XeOmBooking, XeOmBooking, QAfterSortBy> sortByBookingCode() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'bookingCode', Sort.asc);
@@ -3698,6 +4006,30 @@ extension XeOmBookingQuerySortBy
       sortByCustomerUuidDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'customerUuid', Sort.desc);
+    });
+  }
+
+  QueryBuilder<XeOmBooking, XeOmBooking, QAfterSortBy> sortByDebtAmount() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'debtAmount', Sort.asc);
+    });
+  }
+
+  QueryBuilder<XeOmBooking, XeOmBooking, QAfterSortBy> sortByDebtAmountDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'debtAmount', Sort.desc);
+    });
+  }
+
+  QueryBuilder<XeOmBooking, XeOmBooking, QAfterSortBy> sortByDiscount() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'discount', Sort.asc);
+    });
+  }
+
+  QueryBuilder<XeOmBooking, XeOmBooking, QAfterSortBy> sortByDiscountDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'discount', Sort.desc);
     });
   }
 
@@ -3923,6 +4255,18 @@ extension XeOmBookingQuerySortBy
     });
   }
 
+  QueryBuilder<XeOmBooking, XeOmBooking, QAfterSortBy> sortBySurcharge() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'surcharge', Sort.asc);
+    });
+  }
+
+  QueryBuilder<XeOmBooking, XeOmBooking, QAfterSortBy> sortBySurchargeDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'surcharge', Sort.desc);
+    });
+  }
+
   QueryBuilder<XeOmBooking, XeOmBooking, QAfterSortBy> sortBySyncVersion() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'syncVersion', Sort.asc);
@@ -3974,6 +4318,18 @@ extension XeOmBookingQuerySortBy
 
 extension XeOmBookingQuerySortThenBy
     on QueryBuilder<XeOmBooking, XeOmBooking, QSortThenBy> {
+  QueryBuilder<XeOmBooking, XeOmBooking, QAfterSortBy> thenByBaseFare() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'baseFare', Sort.asc);
+    });
+  }
+
+  QueryBuilder<XeOmBooking, XeOmBooking, QAfterSortBy> thenByBaseFareDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'baseFare', Sort.desc);
+    });
+  }
+
   QueryBuilder<XeOmBooking, XeOmBooking, QAfterSortBy> thenByBookingCode() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'bookingCode', Sort.asc);
@@ -4046,6 +4402,30 @@ extension XeOmBookingQuerySortThenBy
       thenByCustomerUuidDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'customerUuid', Sort.desc);
+    });
+  }
+
+  QueryBuilder<XeOmBooking, XeOmBooking, QAfterSortBy> thenByDebtAmount() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'debtAmount', Sort.asc);
+    });
+  }
+
+  QueryBuilder<XeOmBooking, XeOmBooking, QAfterSortBy> thenByDebtAmountDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'debtAmount', Sort.desc);
+    });
+  }
+
+  QueryBuilder<XeOmBooking, XeOmBooking, QAfterSortBy> thenByDiscount() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'discount', Sort.asc);
+    });
+  }
+
+  QueryBuilder<XeOmBooking, XeOmBooking, QAfterSortBy> thenByDiscountDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'discount', Sort.desc);
     });
   }
 
@@ -4283,6 +4663,18 @@ extension XeOmBookingQuerySortThenBy
     });
   }
 
+  QueryBuilder<XeOmBooking, XeOmBooking, QAfterSortBy> thenBySurcharge() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'surcharge', Sort.asc);
+    });
+  }
+
+  QueryBuilder<XeOmBooking, XeOmBooking, QAfterSortBy> thenBySurchargeDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'surcharge', Sort.desc);
+    });
+  }
+
   QueryBuilder<XeOmBooking, XeOmBooking, QAfterSortBy> thenBySyncVersion() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'syncVersion', Sort.asc);
@@ -4334,6 +4726,12 @@ extension XeOmBookingQuerySortThenBy
 
 extension XeOmBookingQueryWhereDistinct
     on QueryBuilder<XeOmBooking, XeOmBooking, QDistinct> {
+  QueryBuilder<XeOmBooking, XeOmBooking, QDistinct> distinctByBaseFare() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'baseFare');
+    });
+  }
+
   QueryBuilder<XeOmBooking, XeOmBooking, QDistinct> distinctByBookingCode(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
@@ -4372,6 +4770,18 @@ extension XeOmBookingQueryWhereDistinct
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'customerUuid', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<XeOmBooking, XeOmBooking, QDistinct> distinctByDebtAmount() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'debtAmount');
+    });
+  }
+
+  QueryBuilder<XeOmBooking, XeOmBooking, QDistinct> distinctByDiscount() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'discount');
     });
   }
 
@@ -4493,6 +4903,12 @@ extension XeOmBookingQueryWhereDistinct
     });
   }
 
+  QueryBuilder<XeOmBooking, XeOmBooking, QDistinct> distinctBySurcharge() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'surcharge');
+    });
+  }
+
   QueryBuilder<XeOmBooking, XeOmBooking, QDistinct> distinctBySyncVersion() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'syncVersion');
@@ -4525,6 +4941,12 @@ extension XeOmBookingQueryProperty
   QueryBuilder<XeOmBooking, int, QQueryOperations> idProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'id');
+    });
+  }
+
+  QueryBuilder<XeOmBooking, double, QQueryOperations> baseFareProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'baseFare');
     });
   }
 
@@ -4561,6 +4983,18 @@ extension XeOmBookingQueryProperty
   QueryBuilder<XeOmBooking, String?, QQueryOperations> customerUuidProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'customerUuid');
+    });
+  }
+
+  QueryBuilder<XeOmBooking, double, QQueryOperations> debtAmountProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'debtAmount');
+    });
+  }
+
+  QueryBuilder<XeOmBooking, double, QQueryOperations> discountProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'discount');
     });
   }
 
@@ -4672,6 +5106,12 @@ extension XeOmBookingQueryProperty
   QueryBuilder<XeOmBooking, BookingStatus, QQueryOperations> statusProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'status');
+    });
+  }
+
+  QueryBuilder<XeOmBooking, double, QQueryOperations> surchargeProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'surcharge');
     });
   }
 

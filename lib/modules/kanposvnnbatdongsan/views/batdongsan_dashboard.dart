@@ -145,23 +145,25 @@ class _BatDongSanDashboardState extends ConsumerState<BatDongSanDashboard> {
           Expanded(
             child: Row(
               children: [
-                NavigationRail(
-                  selectedIndex: safeIndex,
-                  onDestinationSelected: (index) =>
-                      setState(() => _selectedIndex = index),
-                  labelType: NavigationRailLabelType.all,
-                  scrollable: true,
-                  selectedIconTheme:
-                      const IconThemeData(color: Color(0xFF0284C7)),
-                  selectedLabelTextStyle: const TextStyle(
-                      color: Color(0xFF0284C7), fontWeight: FontWeight.bold),
-                  destinations: [
-                    for (final t in tabs)
-                      NavigationRailDestination(
-                        icon: Icon(t.icon),
-                        label: Text(t.label),
-                      ),
-                  ],
+                SingleChildScrollView(
+                  scrollDirection: Axis.vertical,
+                  child: NavigationRail(
+                    selectedIndex: safeIndex,
+                    onDestinationSelected: (index) =>
+                        setState(() => _selectedIndex = index),
+                    labelType: NavigationRailLabelType.all,
+                    selectedIconTheme:
+                        const IconThemeData(color: Color(0xFF0284C7)),
+                    selectedLabelTextStyle: const TextStyle(
+                        color: Color(0xFF0284C7), fontWeight: FontWeight.bold),
+                    destinations: [
+                      for (final t in tabs)
+                        NavigationRailDestination(
+                          icon: Icon(t.icon),
+                          label: Text(t.label),
+                        ),
+                    ],
+                  ),
                 ),
                 const VerticalDivider(thickness: 1, width: 1),
                 Expanded(child: tabs[safeIndex].screen),

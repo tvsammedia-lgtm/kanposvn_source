@@ -272,6 +272,7 @@ const _XeOmPaymentmethodEnumValueMap = {
   'zaloPay': 3,
   'vnpay': 4,
   'bankTransfer': 5,
+  'debt': 6,
 };
 const _XeOmPaymentmethodValueEnumMap = {
   0: PaymentMethod.cash,
@@ -280,6 +281,7 @@ const _XeOmPaymentmethodValueEnumMap = {
   3: PaymentMethod.zaloPay,
   4: PaymentMethod.vnpay,
   5: PaymentMethod.bankTransfer,
+  6: PaymentMethod.debt,
 };
 const _XeOmPaymentstatusEnumValueMap = {
   'pending': 0,

@@ -9,6 +9,10 @@ import '../models/leave_request.dart';
 import '../models/payroll.dart';
 import '../models/trip.dart';
 import '../models/vehicle.dart';
+import '../models/account.dart';
+import '../models/accounting_entry.dart';
+import '../models/payslip.dart';
+import '../models/account_default.dart';
 import '../services/payroll_calculator_service.dart';
 
 /// Bộ dữ liệu mẫu module HR Payroll — Công ty vận tải hàng hóa
@@ -519,5 +523,263 @@ class HrPayrollSeedData {
       p.paidDate = DateTime(lastMonth.year, lastMonth.month + 1, 5);
     }
     await isar.writeTxn(() => isar.payrolls.putAll(lastMonthPayrolls));
+
+    // ══════════════════ CHART OF ACCOUNTS TT133 (từ HOA/MISA SME 2023) ══════════════════
+    // Các tài khoản liên quan HR/Payroll theo TT133.
+    final accounts = <Account>[
+      _acct('111', 'Tiền mặt', 'Cash in hand', 1, null, true, AccountCategoryKind.balanceSheet),
+      _acct('1111', 'Tiền Việt Nam', 'Vietnam dong', 2, 1, false, AccountCategoryKind.balanceSheet),
+      _acct('112', 'Tiền gửi Ngân hàng', 'Cash in bank', 1, null, true, AccountCategoryKind.balanceSheet),
+      _acct('1121', 'Tiền Việt Nam', 'Vietnam dong', 2, 2, false, AccountCategoryKind.balanceSheet),
+      _acct('131', 'Phải thu của khách hàng', 'Accounts receivable', 1, null, false, AccountCategoryKind.offBalanceSheet),
+      _acct('141', 'Tạm ứng', 'Advances', 1, null, false, AccountCategoryKind.balanceSheet),
+      _acct('333', 'Thuế và các khoản phải nộp NS', 'Taxes payable', 1, null, true, AccountCategoryKind.offBalanceSheet),
+      _acct('3335', 'Thuế thu nhập cá nhân', 'PIT payable', 2, 3, false, AccountCategoryKind.offBalanceSheet),
+      _acct('334', 'Phải trả người lao động', 'Payable to employees', 1, null, false, AccountCategoryKind.offBalanceSheet),
+      _acct('338', 'Phải trả, phải nộp khác', 'Other payable', 1, null, true, AccountCategoryKind.offBalanceSheet),
+      _acct('3382', 'Kinh phí công đoàn', 'Trade union fees', 2, 8, false, AccountCategoryKind.offBalanceSheet),
+      _acct('3383', 'Bảo hiểm xã hội', 'Social insurance', 2, 8, false, AccountCategoryKind.offBalanceSheet),
+      _acct('3384', 'Bảo hiểm y tế', 'Health insurance', 2, 8, false, AccountCategoryKind.offBalanceSheet),
+      _acct('3385', 'Bảo hiểm thất nghiệp', 'Unemployment insurance', 2, 8, false, AccountCategoryKind.offBalanceSheet),
+      _acct('353', 'Quỹ khen thưởng, phúc lợi', 'Bonus & welfare funds', 1, null, true, AccountCategoryKind.offBalanceSheet),
+      _acct('3531', 'Quỹ khen thưởng', 'Bonus fund', 2, 15, false, AccountCategoryKind.offBalanceSheet),
+      _acct('3532', 'Quỹ phúc lợi', 'Welfare fund', 2, 15, false, AccountCategoryKind.offBalanceSheet),
+      _acct('642', 'Chi phí quản lý DN', 'General & admin expenses', 1, null, true, AccountCategoryKind.offBalanceSheet),
+      _acct('6422', 'Chi phí quản lý DN', 'G&A expenses', 2, 17, false, AccountCategoryKind.offBalanceSheet),
+    ];
+    await isar.writeTxn(() => isar.accounts.putAll(accounts));
+
+    // ══════════════════ BÚT TOÁN KẾ TOÁN THÁNG TRƯỚC ══════════════════
+    if (lastMonthPayrolls.isNotEmpty) {
+      // 1. Bút toán hạch toán lương
+      final salaryEntry = PayrollCalculatorService.buildSalaryJournalEntry(
+        year: lastMonth.year,
+        month: lastMonth.month,
+        payrolls: lastMonthPayrolls,
+        sequenceNo: 1,
+      );
+      await isar.writeTxn(() => isar.accountingEntrys.put(salaryEntry));
+
+      final salaryLines = PayrollCalculatorService.buildSalaryEntryLines(
+        journalID: salaryEntry.journalID,
+        payrolls: lastMonthPayrolls,
+      );
+      await isar.writeTxn(() => isar.accountingEntryLines.putAll(salaryLines));
+
+      // Đánh dấu đã hạch toán
+      salaryEntry.status = EntryStatus.posted;
+      salaryEntry.approvedBy = 'Lý Thu Phượng';
+      await isar.writeTxn(() => isar.accountingEntrys.put(salaryEntry));
+
+      // 2. Bút toán thuế TNCN
+      final pitEntry = PayrollCalculatorService.buildPitJournalEntry(
+        year: lastMonth.year,
+        month: lastMonth.month,
+        payrolls: lastMonthPayrolls,
+        sequenceNo: 2,
+      );
+      pitEntry.status = EntryStatus.posted;
+      pitEntry.approvedBy = 'Lý Thu Phượng';
+      await isar.writeTxn(() => isar.accountingEntrys.put(pitEntry));
+
+      final pitLines = [
+        AccountingEntryLine()
+          ..journalID = pitEntry.journalID
+          ..lineOrder = 1
+          ..debitAccountNumber = '334'
+          ..creditAccountNumber = ''
+          ..amount = lastMonthPayrolls.fold<double>(0, (s, p) => s + p.personalIncomeTax)
+          ..description = 'Khấu trừ TNCN - Dr 334',
+        AccountingEntryLine()
+          ..journalID = pitEntry.journalID
+          ..lineOrder = 2
+          ..debitAccountNumber = ''
+          ..creditAccountNumber = '3335'
+          ..amount = lastMonthPayrolls.fold<double>(0, (s, p) => s + p.personalIncomeTax)
+          ..description = 'Thuế TNCN - Cr 3335',
+      ];
+      await isar.writeTxn(() => isar.accountingEntryLines.putAll(pitLines));
+
+      // 3. Bút toán chi lương
+      final paymentEntry = PayrollCalculatorService.buildPaymentJournalEntry(
+        year: lastMonth.year,
+        month: lastMonth.month,
+        payrolls: lastMonthPayrolls,
+        sequenceNo: 3,
+      );
+      paymentEntry.status = EntryStatus.posted;
+      paymentEntry.paidDate = DateTime(lastMonth.year, lastMonth.month + 1, 10);
+      paymentEntry.approvedBy = 'Trần Quốc Bảo';
+      await isar.writeTxn(() => isar.accountingEntrys.put(paymentEntry));
+
+      final paymentLines = [
+        AccountingEntryLine()
+          ..journalID = paymentEntry.journalID
+          ..lineOrder = 1
+          ..debitAccountNumber = '334'
+          ..creditAccountNumber = ''
+          ..amount = lastMonthPayrolls.fold<double>(0, (s, p) => s + p.netSalary)
+          ..description = 'Chi lương NLĐ - Dr 334',
+        AccountingEntryLine()
+          ..journalID = paymentEntry.journalID
+          ..lineOrder = 2
+          ..debitAccountNumber = ''
+          ..creditAccountNumber = '112'
+          ..amount = lastMonthPayrolls.fold<double>(0, (s, p) => s + p.netSalary)
+          ..description = 'Tiền gửi ngân hàng - Cr 112',
+      ];
+      await isar.writeTxn(() => isar.accountingEntryLines.putAll(paymentLines));
+    }
+
+    // ══════════════════ BÚT TOÁN KẾ TOÁN THÁNG NÀY ══════════════════
+    final thisMonthPayrolls = await PayrollCalculatorService.instance
+        .calculateMonthlyPayrollFor(thisMonth.year, thisMonth.month, isar);
+    final thisMonthValid =
+        thisMonthPayrolls.where((p) => p.netSalary > 0).toList();
+    if (thisMonthValid.isNotEmpty) {
+      await isar.writeTxn(() => isar.payrolls.putAll(thisMonthValid));
+
+      // 1. Bút toán hạch toán lương
+      final salaryEntry2 = PayrollCalculatorService.buildSalaryJournalEntry(
+        year: thisMonth.year,
+        month: thisMonth.month,
+        payrolls: thisMonthValid,
+        sequenceNo: 1,
+      );
+      salaryEntry2.status = EntryStatus.posted;
+      salaryEntry2.approvedBy = 'Lý Thu Phượng';
+      await isar.writeTxn(() => isar.accountingEntrys.put(salaryEntry2));
+
+      final salaryLines2 = PayrollCalculatorService.buildSalaryEntryLines(
+        journalID: salaryEntry2.journalID,
+        payrolls: thisMonthValid,
+      );
+      await isar.writeTxn(() => isar.accountingEntryLines.putAll(salaryLines2));
+
+      // 2. Bút toán thuế TNCN
+      final pitEntry2 = PayrollCalculatorService.buildPitJournalEntry(
+        year: thisMonth.year,
+        month: thisMonth.month,
+        payrolls: thisMonthValid,
+        sequenceNo: 2,
+      );
+      pitEntry2.status = EntryStatus.posted;
+      pitEntry2.approvedBy = 'Lý Thu Phượng';
+      await isar.writeTxn(() => isar.accountingEntrys.put(pitEntry2));
+
+      final pitLines2 = [
+        AccountingEntryLine()
+          ..journalID = pitEntry2.journalID
+          ..lineOrder = 1
+          ..debitAccountNumber = '334'
+          ..creditAccountNumber = ''
+          ..amount = thisMonthValid.fold<double>(0, (s, p) => s + p.personalIncomeTax)
+          ..description = 'Khấu trừ TNCN - Dr 334',
+        AccountingEntryLine()
+          ..journalID = pitEntry2.journalID
+          ..lineOrder = 2
+          ..debitAccountNumber = ''
+          ..creditAccountNumber = '3335'
+          ..amount = thisMonthValid.fold<double>(0, (s, p) => s + p.personalIncomeTax)
+          ..description = 'Thuế TNCN - Cr 3335',
+      ];
+      await isar.writeTxn(() => isar.accountingEntryLines.putAll(pitLines2));
+
+      // 3. Bút toán chi lương
+      final paymentEntry2 = PayrollCalculatorService.buildPaymentJournalEntry(
+        year: thisMonth.year,
+        month: thisMonth.month,
+        payrolls: thisMonthValid,
+        sequenceNo: 3,
+      );
+      paymentEntry2.status = EntryStatus.posted;
+      paymentEntry2.paidDate = DateTime(thisMonth.year, thisMonth.month + 1, 10);
+      paymentEntry2.approvedBy = 'Trần Quốc Bảo';
+      await isar.writeTxn(() => isar.accountingEntrys.put(paymentEntry2));
+
+      final paymentLines2 = [
+        AccountingEntryLine()
+          ..journalID = paymentEntry2.journalID
+          ..lineOrder = 1
+          ..debitAccountNumber = '334'
+          ..creditAccountNumber = ''
+          ..amount = thisMonthValid.fold<double>(0, (s, p) => s + p.netSalary)
+          ..description = 'Chi lương NLĐ - Dr 334',
+        AccountingEntryLine()
+          ..journalID = paymentEntry2.journalID
+          ..lineOrder = 2
+          ..debitAccountNumber = ''
+          ..creditAccountNumber = '112'
+          ..amount = thisMonthValid.fold<double>(0, (s, p) => s + p.netSalary)
+          ..description = 'Tiền gửi ngân hàng - Cr 112',
+      ];
+      await isar.writeTxn(() => isar.accountingEntryLines.putAll(paymentLines2));
+
+      // Phiếu lương tháng này
+      final slips2 = thisMonthValid
+          .map((p) => PayrollCalculatorService.generatePayslip(p))
+          .toList();
+      await isar.writeTxn(() => isar.payslips.putAll(slips2));
+    }
+
+    // ══════════════════ ACCOUNT DEFAULTS (tài khoản mặc định theo RefType) ══════════════════
+    final defaults = <AccountDefault>[
+      _acctDef(4010, 'Nghiệp vụ khác (GLVoucher)', 'GLVoucher', '6422', '334'),
+      _acctDef(1111, 'Chi tiền mặt - lương', 'CAPayment', '334', '111'),
+      _acctDef(1121, 'Chi ngân hàng - lương', 'BAWithDraw', '334', '112'),
+      _acctDef(1411, 'Tạm ứng lương', 'GLVoucher', '141', '334'),
+      _acctDef(33351, 'Thuế TNCN - hạch toán', 'GLVoucher', '334', '3335'),
+      _acctDef(33831, 'BHXH NSDL - hạch toán', 'GLVoucher', '6422', '3383'),
+      _acctDef(33841, 'BHYT NSDL - hạch toán', 'GLVoucher', '6422', '3384'),
+      _acctDef(33851, 'BHTN NSDL - hạch toán', 'GLVoucher', '6422', '3385'),
+      _acctDef(33821, 'Công đoàn - hạch toán', 'GLVoucher', '6422', '3382'),
+      _acctDef(64221, 'Chi phí lương - PASalaryExpense', 'PASalaryExpense', '6422', '334'),
+      _acctDef(64222, 'Chi phí BCNLĐ - PASalaryExpense', 'PASalaryExpense', '6422', '3383'),
+    ];
+    await isar.writeTxn(() => isar.accountDefaults.putAll(defaults));
+
+    // ══════════════════ PHIẾU LƯƠNG ══════════════════
+    final slips = lastMonthPayrolls
+        .map((p) => PayrollCalculatorService.generatePayslip(p))
+        .toList();
+    await isar.writeTxn(() => isar.payslips.putAll(slips));
   }
+
+  /// Helper tạo tài khoản kế toán TT133.
+  static Account _acct(
+    String number,
+    String name,
+    String? english,
+    int grade,
+    int? parentId,
+    bool isParent,
+    AccountCategoryKind kind,
+  ) =>
+      Account()
+        ..accountNumber = number
+        ..accountName = name
+        ..accountNameEnglish = english
+        ..grade = grade
+        ..parentId = parentId
+        ..isParent = isParent
+        ..accountCategoryKind = kind
+        ..createdAt = DateTime(2024, 1, 1)
+        ..updatedAt = DateTime(2024, 1, 1);
+
+  /// Helper tạo tài khoản mặc định.
+  static AccountDefault _acctDef(
+    int refType,
+    String name,
+    String voucherType,
+    String debit,
+    String credit,
+  ) =>
+      AccountDefault()
+        ..refType = refType
+        ..refTypeName = name
+        ..voucherType = voucherType
+        ..defaultDebitAccount = debit
+        ..defaultCreditAccount = credit
+        ..createdAt = DateTime(2024, 1, 1)
+        ..updatedAt = DateTime(2024, 1, 1);
 }

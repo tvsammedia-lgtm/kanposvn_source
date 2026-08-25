@@ -332,8 +332,11 @@ class _BidaPosScreenState extends ConsumerState<BidaPosScreen> {
                                     children: [
                                       Icon(
                                         item.category == BidaItemCategory.DRINK ? Icons.local_drink
+                                          : item.category == BidaItemCategory.BEER ? Icons.sports_bar
                                           : item.category == BidaItemCategory.FOOD ? Icons.fastfood
                                           : item.category == BidaItemCategory.TOBACCO ? Icons.smoking_rooms
+                                          : item.category == BidaItemCategory.TOWEL ? Icons.clean_hands
+                                          : item.category == BidaItemCategory.ICE ? Icons.ac_unit
                                           : Icons.category,
                                         size: 32, color: Colors.blue,
                                       ),

@@ -15,6 +15,7 @@ class VideoCallUser {
   String? displayName;
   String? phone;
   String? email;
+  String? passwordHash; // §21: chỉ lưu hash, không plaintext
   String? avatarUrl;
   String? bio;
   

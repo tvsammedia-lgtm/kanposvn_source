@@ -83,15 +83,17 @@ class _KanPosVnNhaTro200ShellState extends ConsumerState<KanPosVnNhaTro200Shell>
       ),
       body: Row(
         children: [
-          NavigationRail(
-            selectedIndex: _selectedIndex,
-            onDestinationSelected: (i) => setState(() => _selectedIndex = i),
-            labelType: NavigationRailLabelType.all,
-            scrollable: true,
-            destinations: [
-              for (final t in _tabs)
-                NavigationRailDestination(icon: Icon(t.icon), label: Text(t.label)),
-            ],
+          SingleChildScrollView(
+            scrollDirection: Axis.vertical,
+            child: NavigationRail(
+              selectedIndex: _selectedIndex,
+              onDestinationSelected: (i) => setState(() => _selectedIndex = i),
+              labelType: NavigationRailLabelType.all,
+              destinations: [
+                for (final t in _tabs)
+                  NavigationRailDestination(icon: Icon(t.icon), label: Text(t.label)),
+              ],
+            ),
           ),
           const VerticalDivider(thickness: 1, width: 1),
           Expanded(child: _buildTab(_selectedIndex)),
