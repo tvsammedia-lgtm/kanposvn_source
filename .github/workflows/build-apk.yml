@@ -63,6 +63,10 @@ jobs:
             echo "signed=true" >> "$GITHUB_OUTPUT"
           fi
 
+      - name: Override Gradle JDK for CI
+        run: |
+          sed -i "s|org.gradle.java.home=.*|org.gradle.java.home=$JAVA_HOME|" android/gradle.properties
+
       - name: Build release APK
         run: flutter build apk --release
 
