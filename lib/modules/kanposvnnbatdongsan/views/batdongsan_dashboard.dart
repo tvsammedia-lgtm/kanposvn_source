@@ -16,7 +16,7 @@ import 'broker_list_screen.dart';
 import 'transaction_list_screen.dart';
 import 'batdongsan_match_screen.dart';
 import 'batdongsan_finance_screen.dart';
-import 'batdongsan_sales_report_screen.dart';
+import 'bds_reports_screen.dart';
 import 'batdongsan_settings_screen.dart';
 
 /// Shell module Bất động sản — tab theo PRD kanbatdongsan.md mục 4.
@@ -96,7 +96,7 @@ class _BatDongSanDashboardState extends ConsumerState<BatDongSanDashboard> {
     'transactions': () => const TransactionListScreen(),
     'match': () => const BatDongSanMatchScreen(),
     'finance': () => const BatDongSanFinanceScreen(),
-    'report': () => const BatDongSanSalesReportScreen(),
+    'report': () => const BdsReportsScreen(),
     'settings': () => const BatDongSanSettingsScreen(),
   };
 

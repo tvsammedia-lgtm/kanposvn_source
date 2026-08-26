@@ -15,6 +15,7 @@ import 'vantai_shipment_screen.dart';
 import 'vantai_partners_screen.dart';
 import 'vantai_accounting_screen.dart';
 import 'vantai_settings_screen.dart';
+import 'vantai_reports_screen.dart';
 
 class KanPosVNBanvevantaiShell extends ConsumerStatefulWidget {
   const KanPosVNBanvevantaiShell({super.key});
@@ -76,6 +77,7 @@ class _KanPosVNBanvevantaiShellState extends ConsumerState<KanPosVNBanvevantaiSh
     (id: 'partners', screen: const VantaiPartnersScreen(), icon: Icons.people, label: 'KH & NCC'),
     (id: 'accounting', screen: const VantaiAccountingScreen(), icon: Icons.account_balance_wallet, label: 'Kế Toán'),
     (id: 'settings', screen: const VantaiSettingsScreen(), icon: Icons.settings, label: 'Cài Đặt'),
+    (id: 'report', screen: const VantaiReportsScreen(), icon: Icons.bar_chart, label: 'Báo Cáo'),
   ];
 
   @override

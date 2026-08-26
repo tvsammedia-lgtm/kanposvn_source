@@ -9,7 +9,7 @@ import 'contract_list_screen.dart';
 import 'payment_list_screen.dart';
 import 'utility_screen.dart';
 import 'maintenance_list_screen.dart';
-import 'nhatro_sales_report_screen.dart';
+import 'nhatro_reports_screen.dart';
 import 'nhatro_sync_screen.dart';
 
 class KanPosVnNhaTro200Shell extends ConsumerStatefulWidget {
@@ -60,7 +60,7 @@ class _KanPosVnNhaTro200ShellState extends ConsumerState<KanPosVnNhaTro200Shell>
       case 4: return const PaymentListScreen();
       case 5: return const UtilityScreen();
       case 6: return const MaintenanceListScreen();
-      case 7: return const NhaTroSalesReportScreen();
+      case 7: return const NhatroReportsScreen();
       case 8: return const NhaTroSyncScreen();
       default: return const NhaTroDashboard();
     }

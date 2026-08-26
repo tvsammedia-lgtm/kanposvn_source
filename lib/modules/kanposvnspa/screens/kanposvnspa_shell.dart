@@ -13,7 +13,7 @@ import 'spa_dashboard_screen.dart';
 import 'spa_beds_screen.dart';
 import 'spa_customers_screen.dart';
 import 'spa_inventory_screen.dart';
-import 'spa_sales_report_screen.dart';
+import 'spa_reports_screen.dart';
 import 'spa_settings_screen.dart';
 import 'spa_appointments_screen.dart';
 import 'spa_technicians_screen.dart';
@@ -91,7 +91,7 @@ class _KanPosVNSpaShellState extends ConsumerState<KanPosVNSpaShell> {
     'product_pos': () => const SpaProductPosScreen(),
     'inventory': () => const SpaInventoryScreen(),
     'finance': () => const SpaFinanceScreen(),
-    'report': () => const SpaSalesReportScreen(),
+    'report': () => const SpaReportsScreen(),
     'settings': () => const SpaSettingsScreen(),
   };
 

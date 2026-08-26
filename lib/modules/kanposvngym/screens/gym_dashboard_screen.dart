@@ -11,6 +11,7 @@ import 'gym_trainer_screen.dart';
 import 'gym_plans_screen.dart';
 import 'gym_checkin_screen.dart';
 import 'gym_settings_screen.dart';
+import 'gym_reports_screen.dart';
 import '../../../core/widgets/owner_info_bar.dart';
 
 class GymDashboardScreen extends ConsumerStatefulWidget {
@@ -99,6 +100,14 @@ class _GymDashboardScreenState extends ConsumerState<GymDashboardScreen> {
               onTap: () {
                 Navigator.pop(context);
                 Navigator.push(context, MaterialPageRoute(builder: (_) => const GymCheckInScreen()));
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.bar_chart),
+              title: const Text('Báo cáo'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(context, MaterialPageRoute(builder: (_) => const GymReportsScreen()));
               },
             ),
             const Divider(height: 1),

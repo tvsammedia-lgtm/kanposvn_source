@@ -5,6 +5,7 @@ import '../../../core/widgets/owner_info_bar.dart';
 import 'parking_gate_screen.dart';
 import 'parking_monthly_screen.dart';
 import 'parking_rental_screen.dart';
+import 'parking_reports_screen.dart';
 
 class ParkingDashboardScreen extends ConsumerWidget {
   const ParkingDashboardScreen({super.key});
@@ -48,6 +49,14 @@ class ParkingDashboardScreen extends ConsumerWidget {
               onTap: () {
                 Navigator.pop(context);
                 Navigator.push(context, MaterialPageRoute(builder: (_) => const ParkingRentalScreen()));
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.bar_chart),
+              title: const Text('Báo Cáo'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(context, MaterialPageRoute(builder: (_) => const ParkingReportsScreen()));
               },
             ),
           ],

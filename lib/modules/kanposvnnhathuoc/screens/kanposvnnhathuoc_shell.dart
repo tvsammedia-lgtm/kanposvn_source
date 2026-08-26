@@ -15,6 +15,7 @@ import 'nhathuoc_medicine_screen.dart';
 import 'nhathuoc_supplier_screen.dart';
 import 'nhathuoc_customer_screen.dart';
 import 'nhathuoc_expense_screen.dart';
+import 'nhathuoc_reports_screen.dart';
 import 'nhathuoc_settings_screen.dart';
 
 class KanPosVNNhathuocShell extends ConsumerStatefulWidget {
@@ -68,6 +69,7 @@ class _KanPosVNNhathuocShellState extends ConsumerState<KanPosVNNhathuocShell> {
     'suppliers': (icon: Icons.business, label: 'NCC'),
     'prescription': (icon: Icons.receipt_long, label: 'Toa Mẫu'),
     'expenses': (icon: Icons.account_balance_wallet, label: 'Thu Chi'),
+    'reports': (icon: Icons.bar_chart, label: 'Báo Cáo'),
     'settings': (icon: Icons.settings, label: 'Cài Đặt'),
   };
 
@@ -81,6 +83,7 @@ class _KanPosVNNhathuocShellState extends ConsumerState<KanPosVNNhathuocShell> {
     'suppliers': () => const NhathuocSupplierScreen(),
     'prescription': () => const NhathuocPrescriptionScreen(),
     'expenses': () => const NhathuocExpenseScreen(),
+    'reports': () => const NhathuocReportsScreen(),
     'settings': () => const NhathuocSettingsScreen(),
   };
 

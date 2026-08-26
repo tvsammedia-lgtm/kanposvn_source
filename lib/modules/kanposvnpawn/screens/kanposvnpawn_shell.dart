@@ -13,6 +13,7 @@ import 'pawn/pawn_list_screen.dart';
 import 'customer/customer_list_screen.dart';
 import 'pawn_finance_screen.dart';
 import 'pawn_settings_screen.dart';
+import 'pawn_reports_screen.dart';
 import 'pawn_dashboard_screen.dart';
 
 class KanPosVnPawnShell extends ConsumerStatefulWidget {
@@ -55,6 +56,7 @@ class _KanPosVnPawnShellState extends ConsumerState<KanPosVnPawnShell> {
     'pawn': (icon: Icons.monetization_on, label: 'Hợp Đồng'),
     'customer': (icon: Icons.people, label: 'Khách Hàng'),
     'finance': (icon: Icons.account_balance_wallet, label: 'Thu Chi'),
+    'reports': (icon: Icons.bar_chart, label: 'Báo Cáo'),
     'settings': (icon: Icons.settings, label: 'Cài Đặt'),
   };
 
@@ -63,6 +65,7 @@ class _KanPosVnPawnShellState extends ConsumerState<KanPosVnPawnShell> {
     'pawn': () => const PawnListScreen(),
     'customer': () => const CustomerListScreen(),
     'finance': () => const PawnFinanceScreen(),
+    'reports': () => const PawnReportsScreen(),
     'settings': () => const PawnSettingsScreen(),
   };
 

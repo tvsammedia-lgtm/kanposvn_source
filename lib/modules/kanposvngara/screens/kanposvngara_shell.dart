@@ -12,7 +12,7 @@ import 'gara_inventory_screen.dart';
 import 'gara_finance_screen.dart';
 import 'gara_dashboard_screen.dart';
 import 'gara_ticket_search_screen.dart';
-import 'gara_sales_report_screen.dart';
+import 'gara_reports_screen.dart';
 import 'gara_settings_screen.dart';
 
 class KanPosVNGaraShell extends ConsumerStatefulWidget {
@@ -67,7 +67,7 @@ class _KanPosVNGaraShellState extends ConsumerState<KanPosVNGaraShell> {
     'inventory': () => const GaraInventoryScreen(),
     'finance': () => const GaraFinanceScreen(),
     'search': () => const GaraTicketSearchScreen(),
-    'report': () => const GaraSalesReportScreen(),
+    'report': () => const GaraReportsScreen(),
     'settings': () => const GaraSettingsScreen(),
   };
 

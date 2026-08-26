@@ -15,7 +15,7 @@ import 'bida_dat_ban_screen.dart';
 import 'bida_active_sessions_screen.dart';
 import 'bida_customer_screen.dart';
 import 'bida_finance_screen.dart';
-import 'bida_reports_screen.dart';
+import 'bida_crystal_reports_screen.dart';
 import 'bida_bill_search_screen.dart';
 
 class KanPosVNBidaShell extends ConsumerStatefulWidget {
@@ -78,7 +78,7 @@ class _KanPosVNBidaShellState extends ConsumerState<KanPosVNBidaShell> {
     'customers': () => const BidaCustomerScreen(),
     'dashboard': () => const BidaDashboardScreen(),
     'finance': () => const BidaFinanceScreen(),
-    'reports': () => const BidaReportsScreen(),
+    'reports': () => const BidaCrystalReportsScreen(),
     'bills': () => const BidaBillSearchScreen(),
     'inventory': () => const BidaInventoryScreen(),
     'settings': () => const BidaSettingsScreen(),

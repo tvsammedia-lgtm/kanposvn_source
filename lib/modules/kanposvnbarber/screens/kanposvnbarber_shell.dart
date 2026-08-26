@@ -13,7 +13,7 @@ import 'appointment_list_screen.dart';
 import 'customer_list_screen.dart';
 import 'ai_advisor_screen.dart';
 import 'inventory_screen.dart';
-import 'report_screen.dart';
+import 'barber_reports_screen.dart';
 import 'barber_settings_screen.dart';
 
 class KanPosVnBarberShell extends ConsumerStatefulWidget {
@@ -69,7 +69,7 @@ class _KanPosVnBarberShellState extends ConsumerState<KanPosVnBarberShell> {
     'customers': () => const CustomerListScreen(),
     'ai_advisor': () => const AiAdvisorScreen(),
     'inventory': () => const InventoryScreen(),
-    'reports': () => const ReportScreen(),
+    'reports': () => const BarberReportsScreen(),
     'settings': () => const BarberSettingsScreen(),
   };
 
