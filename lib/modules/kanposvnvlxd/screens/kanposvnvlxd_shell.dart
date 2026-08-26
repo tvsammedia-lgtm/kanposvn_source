@@ -109,6 +109,7 @@ class _KanPosVNVlxdShellState extends ConsumerState<KanPosVNVlxdShell> {
       );
     }).toList();
     final safeIndex = _selectedIndex < tabs.length ? _selectedIndex : 0;
+    final isDesktop = MediaQuery.of(context).size.width > 600;
 
     return Scaffold(
       appBar: AppBar(
@@ -122,33 +123,50 @@ class _KanPosVNVlxdShellState extends ConsumerState<KanPosVNVlxdShell> {
       ),
       body: Row(
         children: [
-          SafeArea(
-            child: SingleChildScrollView(
-              scrollDirection: Axis.vertical,
-              child: NavigationRail(
-                selectedIndex: safeIndex,
-                onDestinationSelected: (index) {
-                  setState(() {
-                    _selectedIndex = index;
-                  });
-                },
-                labelType: NavigationRailLabelType.all,
-                destinations: [
-                  for (final t in tabs)
-                    NavigationRailDestination(
-                      icon: Icon(t.icon),
-                      label: Text(t.label),
-                    ),
-                ],
-              ),
+          if (isDesktop)
+            NavigationRail(
+              scrollable: true,
+              selectedIndex: safeIndex,
+              onDestinationSelected: (index) {
+                setState(() {
+                  _selectedIndex = index;
+                });
+              },
+              labelType: NavigationRailLabelType.all,
+              destinations: [
+                for (final t in tabs)
+                  NavigationRailDestination(
+                    icon: Icon(t.icon),
+                    label: Text(t.label),
+                  ),
+              ],
             ),
-          ),
-          const VerticalDivider(thickness: 1, width: 1),
+          if (isDesktop) const VerticalDivider(thickness: 1, width: 1),
           Expanded(
-            child: tabs[safeIndex].screen,
+            child: ClipRect(child: tabs[safeIndex].screen),
           ),
         ],
       ),
+      bottomNavigationBar: isDesktop
+          ? null
+          : BottomNavigationBar(
+              currentIndex: safeIndex,
+              onTap: (index) {
+                setState(() {
+                  _selectedIndex = index;
+                });
+              },
+              selectedItemColor: const Color(0xFF6366F1),
+              unselectedItemColor: Colors.grey,
+              type: BottomNavigationBarType.fixed,
+              items: [
+                for (final t in tabs)
+                  BottomNavigationBarItem(
+                    icon: Icon(t.icon),
+                    label: t.label,
+                  ),
+              ],
+            ),
     );
   }
 }

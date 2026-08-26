@@ -25,13 +25,7 @@ class _BidaBillSearchScreenState extends ConsumerState<BidaBillSearchScreen> {
   Widget build(BuildContext context) {
     final sessionsAsync = ref.watch(bidaSessionsProvider);
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Tìm hóa đơn'),
-        backgroundColor: const Color(0xFF059669),
-        foregroundColor: Colors.white,
-      ),
-      body: Column(
+    return Column(
         children: [
           Padding(
             padding: const EdgeInsets.all(12),
@@ -144,8 +138,7 @@ class _BidaBillSearchScreenState extends ConsumerState<BidaBillSearchScreen> {
             ),
           ),
         ],
-      ),
-    );
+      );
   }
 
   List<BidaSession> _filter(List<BidaSession> list) {

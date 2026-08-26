@@ -35,14 +35,6 @@ class _BidaFinanceScreenState extends ConsumerState<BidaFinanceScreen> {
     final financeAsync = ref.watch(bidaFinanceProvider);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Thu - Chi (Quỹ tiền mặt)'),
-        backgroundColor: const Color(0xFF059669),
-        foregroundColor: Colors.white,
-        actions: [
-          IconButton(icon: const Icon(Icons.refresh), onPressed: () => ref.read(bidaFinanceProvider.notifier).loadTransactions()),
-        ],
-      ),
       body: Column(
         children: [
           _buildFilterBar(),

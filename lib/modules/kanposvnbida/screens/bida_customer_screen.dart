@@ -24,14 +24,6 @@ class _BidaCustomerScreenState extends ConsumerState<BidaCustomerScreen> {
     final customersAsync = ref.watch(bidaCustomersProvider);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Quản lý Khách hàng'),
-        backgroundColor: const Color(0xFF059669),
-        foregroundColor: Colors.white,
-        actions: [
-          IconButton(icon: const Icon(Icons.refresh), onPressed: () => ref.read(bidaCustomersProvider.notifier).loadCustomers()),
-        ],
-      ),
       body: Column(
         children: [
           Padding(

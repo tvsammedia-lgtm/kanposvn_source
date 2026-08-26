@@ -75,6 +75,8 @@ class _KanPosVnNhaTro200ShellState extends ConsumerState<KanPosVnNhaTro200Shell>
       )));
     }
 
+    final isDesktop = MediaQuery.of(context).size.width > 600;
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color(0xFF475569),
@@ -83,9 +85,9 @@ class _KanPosVnNhaTro200ShellState extends ConsumerState<KanPosVnNhaTro200Shell>
       ),
       body: Row(
         children: [
-          SingleChildScrollView(
-            scrollDirection: Axis.vertical,
-            child: NavigationRail(
+          if (isDesktop)
+            NavigationRail(
+              scrollable: true,
               selectedIndex: _selectedIndex,
               onDestinationSelected: (i) => setState(() => _selectedIndex = i),
               labelType: NavigationRailLabelType.all,
@@ -94,11 +96,26 @@ class _KanPosVnNhaTro200ShellState extends ConsumerState<KanPosVnNhaTro200Shell>
                   NavigationRailDestination(icon: Icon(t.icon), label: Text(t.label)),
               ],
             ),
-          ),
-          const VerticalDivider(thickness: 1, width: 1),
-          Expanded(child: _buildTab(_selectedIndex)),
+          if (isDesktop) const VerticalDivider(thickness: 1, width: 1),
+          Expanded(child: ClipRect(child: _buildTab(_selectedIndex))),
         ],
       ),
+      bottomNavigationBar: isDesktop
+          ? null
+          : BottomNavigationBar(
+              currentIndex: _selectedIndex,
+              onTap: (i) => setState(() => _selectedIndex = i),
+              selectedItemColor: const Color(0xFF475569),
+              unselectedItemColor: Colors.grey,
+              type: BottomNavigationBarType.fixed,
+              items: [
+                for (final t in _tabs)
+                  BottomNavigationBarItem(
+                    icon: Icon(t.icon),
+                    label: t.label,
+                  ),
+              ],
+            ),
     );
   }
 }

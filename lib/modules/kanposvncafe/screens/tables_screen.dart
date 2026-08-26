@@ -103,6 +103,7 @@ class _TablesScreenState extends ConsumerState<TablesScreen> {
             return Column(
               children: [
                 Expanded(
+                  flex: 58,
                   child: ListView.builder(
                     padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
                     itemCount: areas.length,
@@ -129,8 +130,8 @@ class _TablesScreenState extends ConsumerState<TablesScreen> {
                   ),
                 ),
                 const Divider(height: 1),
-                SizedBox(
-                  height: constraints.maxHeight * 0.42,
+                Expanded(
+                  flex: 42,
                   child: _buildOrderDetailPanel(selectedTable, selectedOrder),
                 ),
               ],

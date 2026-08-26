@@ -170,7 +170,7 @@ class AppShell extends ConsumerWidget {
                     ],
                   ),
                 ),
-                Expanded(child: child),
+                Expanded(child: ClipRect(child: child)),
               ],
             ),
           ),

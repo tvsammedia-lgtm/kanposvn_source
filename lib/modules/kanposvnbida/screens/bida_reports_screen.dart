@@ -79,21 +79,14 @@ class _BidaReportsScreenState extends ConsumerState<BidaReportsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Báo cáo'),
-        backgroundColor: const Color(0xFF059669),
-        foregroundColor: Colors.white,
-      ),
-      body: Column(
+    return Column(
         children: [
           _buildFilterBar(),
           _buildReportTypeBar(),
           const Divider(height: 1),
           Expanded(child: _buildReportContent()),
         ],
-      ),
-    );
+      );
   }
 
   Widget _buildFilterBar() {

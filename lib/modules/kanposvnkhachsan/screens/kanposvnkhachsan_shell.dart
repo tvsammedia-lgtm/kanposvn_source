@@ -212,7 +212,7 @@ class _KanPosVNKhachSanShellState extends ConsumerState<KanPosVNKhachSanShell> {
               ],
             ),
           if (isDesktop) const VerticalDivider(thickness: 1, width: 1),
-          Expanded(child: tabs.isNotEmpty ? tabs[safeIndex].screen : const Text('Không có quyền truy cập tab')),
+          Expanded(child: ClipRect(child: tabs.isNotEmpty ? tabs[safeIndex].screen : const Text('Không có quyền truy cập tab'))),
         ],
       ),
       bottomNavigationBar: isDesktop

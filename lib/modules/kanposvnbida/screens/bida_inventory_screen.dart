@@ -78,9 +78,7 @@ class _BidaInventoryScreenState extends ConsumerState<BidaInventoryScreen> {
     final itemsAsync = ref.watch(bidaItemsProvider);
     final txsAsync = ref.watch(bidaInventoryProvider);
 
-    return Scaffold(
-      appBar: AppBar(title: const Text('Quản Lý Kho Hàng Bida')),
-      body: Row(
+    return Row(
         children: [
           // Left: Current Stock
           Expanded(
@@ -179,7 +177,6 @@ class _BidaInventoryScreenState extends ConsumerState<BidaInventoryScreen> {
             ),
           ),
         ],
-      ),
-    );
+      );
   }
 }

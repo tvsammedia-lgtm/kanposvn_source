@@ -27,11 +27,6 @@ class _BidaDatBanScreenState extends ConsumerState<BidaDatBanScreen> {
     final tablesAsync = ref.watch(bidaTablesProvider);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Đặt Bàn'),
-        backgroundColor: const Color(0xFF059669),
-        foregroundColor: Colors.white,
-      ),
       body: Column(
         children: [
           _buildFilterBar(),

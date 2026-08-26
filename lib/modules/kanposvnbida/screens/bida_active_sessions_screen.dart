@@ -16,19 +16,7 @@ class BidaActiveSessionsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final sessionsAsync = ref.watch(bidaSessionsProvider);
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Đang Chơi'),
-        backgroundColor: const Color(0xFF059669),
-        foregroundColor: Colors.white,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: () => ref.read(bidaSessionsProvider.notifier).loadSessions(),
-          ),
-        ],
-      ),
-      body: sessionsAsync.when(
+    return sessionsAsync.when(
         data: (sessions) {
           final active = sessions
               .where((s) => s.status == BidaSessionStatus.OPEN)
@@ -46,8 +34,7 @@ class BidaActiveSessionsScreen extends ConsumerWidget {
         },
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => Center(child: Text('Lỗi: $e')),
-      ),
-    );
+      );
   }
 }
 

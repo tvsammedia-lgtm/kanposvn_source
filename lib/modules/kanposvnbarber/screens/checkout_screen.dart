@@ -19,7 +19,7 @@ class CheckoutScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(title: const Text('Thanh Toán')),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(children: [
           Card(
@@ -44,7 +44,7 @@ class CheckoutScreen extends ConsumerWidget {
             _paymentChip(Icons.qr_code, 'QR Code', false),
             _paymentChip(Icons.credit_card, 'Chuyển khoản', false),
           ]),
-          const Spacer(),
+          const SizedBox(height: 16),
           Row(children: [
             Expanded(
               child: ElevatedButton.icon(

@@ -27,9 +27,7 @@ class BidaDashboardScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final dashboardAsync = ref.watch(bidaDashboardProvider);
 
-    return Scaffold(
-      appBar: AppBar(title: const Text('Báo Cáo Doanh Thu Bida')),
-      body: dashboardAsync.when(
+    return dashboardAsync.when(
         data: (metrics) {
           final timeRev = (metrics['timeRevenue'] ?? 0.0) as double;
           final itemRev = (metrics['itemRevenue'] ?? 0.0) as double;
@@ -40,7 +38,7 @@ class BidaDashboardScreen extends ConsumerWidget {
           final activeTables = (metrics['activeTables'] ?? 0) as int;
           final totalTables = (metrics['totalTables'] ?? 0) as int;
 
-          return Padding(
+          return SingleChildScrollView(
             padding: const EdgeInsets.all(32.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -76,7 +74,6 @@ class BidaDashboardScreen extends ConsumerWidget {
         },
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (err, st) => Center(child: Text('Lỗi: $err')),
-      ),
-    );
+      );
   }
 }

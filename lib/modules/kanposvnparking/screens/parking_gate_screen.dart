@@ -37,7 +37,7 @@ class _ParkingGateScreenState extends ConsumerState<ParkingGateScreen> {
         title: const Text('Trạm Gác - Nhận/Trả Xe'),
         backgroundColor: const Color(0xFF0F766E),
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [

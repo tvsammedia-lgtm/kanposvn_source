@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../core/providers.dart';
-import '../../../core/router/module_selector_screen.dart';
 import '../providers/bida_providers.dart';
 import '../models/bida_table.dart';
 import 'bida_pos_screen.dart';
-import 'bida_sync_screen.dart';
 
 class BidaTablesScreen extends ConsumerWidget {
   const BidaTablesScreen({super.key});
@@ -14,45 +11,21 @@ class BidaTablesScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final tablesAsync = ref.watch(bidaTablesProvider);
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Sơ Đồ Bàn Bida'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.sync),
-            tooltip: 'Đồng bộ',
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const BidaSyncScreen()),
-              );
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.logout),
-            tooltip: 'Thoát',
-            onPressed: () async {
-              await ref.read(authServiceProvider).signOut();
-              ref.read(selectedModuleProvider.notifier).state = null;
-            },
-          ),
-        ],
-      ),
-      body: tablesAsync.when(
+    return tablesAsync.when(
         data: (tables) {
           if (tables.isEmpty) return const Center(child: Text('Chưa có bàn nào.'));
+          final w = MediaQuery.of(context).size.width;
           return GridView.builder(
             padding: const EdgeInsets.all(16),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 6,
-              crossAxisSpacing: 16,
-              mainAxisSpacing: 16,
-              childAspectRatio: 1.2,
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: w > 900 ? 6 : w > 600 ? 4 : 3,
+              crossAxisSpacing: 12,
+              mainAxisSpacing: 12,
+              childAspectRatio: 0.8,
             ),
             itemCount: tables.length,
             itemBuilder: (context, index) {
               final table = tables[index];
-              // III. Màu theo trạng thái bàn.
               final Color color = switch (table.status) {
                 BidaTableStatus.PLAYING => Colors.red[400]!,
                 BidaTableStatus.RESERVED => Colors.purple[400]!,
@@ -94,7 +67,6 @@ class BidaTablesScreen extends ConsumerWidget {
         },
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (err, st) => Center(child: Text('Lỗi: $err')),
-      ),
-    );
+      );
   }
 }

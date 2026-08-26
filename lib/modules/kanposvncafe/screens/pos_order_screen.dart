@@ -356,322 +356,325 @@ class _PosOrderScreenState extends ConsumerState<PosOrderScreen> {
   }
 
   Widget _buildCartPanel(BuildContext context, CafeOrder cart) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final itemListHeight = constraints.maxHeight > 650 ? 260.0 : 180.0;
-
-        return Container(
-          color: Colors.white,
-          padding: const EdgeInsets.all(12),
-          child: SingleChildScrollView(
-            padding: EdgeInsets.only(
-              bottom: MediaQuery.of(context).padding.bottom + 12,
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Cart Header
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Đơn: ${cart.orderCode}',
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
+    return Container(
+      color: Colors.white,
+      child: Column(
+        children: [
+          // Scrollable content area
+          Expanded(
+            child: SingleChildScrollView(
+              padding: EdgeInsets.only(
+                left: 12,
+                right: 12,
+                top: 12,
+                bottom: MediaQuery.of(context).padding.bottom + 12,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Cart Header
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Đơn: ${cart.orderCode}',
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
                           ),
-                        ),
-                        Text(
-                          cart.tableName != null
-                              ? 'Bàn: ${cart.tableName}'
-                              : 'Loại: ${cart.orderType.label}',
-                          style: const TextStyle(
-                            color: Colors.grey,
-                            fontSize: 12,
+                          Text(
+                            cart.tableName != null
+                                ? 'Bàn: ${cart.tableName}'
+                                : 'Loại: ${cart.orderType.label}',
+                            style: const TextStyle(
+                              color: Colors.grey,
+                              fontSize: 12,
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.refresh, color: Colors.grey),
-                      onPressed: () async => await ref
-                          .read(cafePosCartProvider.notifier)
-                          .startNewOrder(),
-                    ),
-                  ],
-                ),
-                const Divider(),
-                // Order Type Selector
-                Row(
-                  children: OrderType.values.map((t) {
-                    final isSel = cart.orderType == t;
-                    return Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 2),
-                        child: ChoiceChip(
-                          labelStyle: TextStyle(
-                            fontSize: 10,
-                            color: isSel ? Colors.white : Colors.black,
-                          ),
-                          selectedColor: const Color(0xFFD97706),
-                          label: Text(t.label),
-                          selected: isSel,
-                          onSelected: (_) {
-                            ref
-                                .read(cafePosCartProvider.notifier)
-                                .setOrderType(t);
-                            if (t == OrderType.mangDi) {
-                              _showTakeAwayInfoDialog(context, cart);
-                            } else if (t == OrderType.giaoHang) {
-                              _showDeliveryInfoDialog(context, cart);
-                            }
-                          },
-                        ),
+                        ],
                       ),
-                    );
-                  }).toList(),
-                ),
-                // Dòng thông tin khách / giao hàng hiện tại
-                if (cart.orderType != OrderType.taiBan &&
-                    (cart.customerPhone.isNotEmpty ||
-                        cart.deliveryPartner != null))
-                  Padding(
-                    padding: const EdgeInsets.only(top: 4),
-                    child: Text(
-                      cart.orderType == OrderType.mangDi
-                          ? 'Mang đi: ${cart.customerName} • ${cart.customerPhone}'
-                          : '${cart.deliveryPartner?.label ?? ''} • ${cart.customerName} • ${cart.customerPhone} • Ship ${cart.shippingFee.round()}đ',
-                      style: const TextStyle(
-                          fontSize: 11,
-                          color: Colors.brown,
-                          fontWeight: FontWeight.w600),
-                    ),
+                      IconButton(
+                        icon: const Icon(Icons.refresh, color: Colors.grey),
+                        onPressed: () async => await ref
+                            .read(cafePosCartProvider.notifier)
+                            .startNewOrder(),
+                      ),
+                    ],
                   ),
-                const SizedBox(height: 8),
-                // Cart Items List
+                  const Divider(),
+                  // Order Type Selector
+                  Row(
+                    children: OrderType.values.map((t) {
+                      final isSel = cart.orderType == t;
+                      return Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 2),
+                          child: ChoiceChip(
+                            labelStyle: TextStyle(
+                              fontSize: 10,
+                              color: isSel ? Colors.white : Colors.black,
+                            ),
+                            selectedColor: const Color(0xFFD97706),
+                            label: Text(t.label),
+                            selected: isSel,
+                            onSelected: (_) {
+                              ref
+                                  .read(cafePosCartProvider.notifier)
+                                  .setOrderType(t);
+                              if (t == OrderType.mangDi) {
+                                _showTakeAwayInfoDialog(context, cart);
+                              } else if (t == OrderType.giaoHang) {
+                                _showDeliveryInfoDialog(context, cart);
+                              }
+                            },
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                  // Dòng thông tin khách / giao hàng hiện tại
+                  if (cart.orderType != OrderType.taiBan &&
+                      (cart.customerPhone.isNotEmpty ||
+                          cart.deliveryPartner != null))
+                    Padding(
+                      padding: const EdgeInsets.only(top: 4),
+                      child: Text(
+                        cart.orderType == OrderType.mangDi
+                            ? 'Mang đi: ${cart.customerName} • ${cart.customerPhone}'
+                            : '${cart.deliveryPartner?.label ?? ''} • ${cart.customerName} • ${cart.customerPhone} • Ship ${cart.shippingFee.round()}đ',
+                        style: const TextStyle(
+                            fontSize: 11,
+                            color: Colors.brown,
+                            fontWeight: FontWeight.w600),
+                      ),
+                    ),
+                  const SizedBox(height: 8),
+                  // Cart Items List
+                  if (cart.items.isEmpty)
+                    const SizedBox(
+                      height: 80,
+                      child: Center(
+                        child: Text(
+                          'Chưa có món nào trong đơn',
+                          style: TextStyle(color: Colors.grey),
+                        ),
+                      ),
+                    )
+                  else
+                    ListView.separated(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: cart.items.length,
+                      separatorBuilder: (_, __) => const Divider(height: 1),
+                      itemBuilder: (ctx, i) {
+                        final item = cart.items[i];
+                        return ListTile(
+                          dense: true,
+                          contentPadding: EdgeInsets.zero,
+                          title: Text(
+                            '${item.menuItemName} (Size ${item.selectedSize.name})',
+                          ),
+                          subtitle: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              if (item.selectedToppings.isNotEmpty)
+                                Text(
+                                  '+ Topping: ${item.selectedToppings.map((t) => t.name).join(", ")}',
+                                  style: const TextStyle(
+                                    fontSize: 10,
+                                    color: Colors.brown,
+                                  ),
+                                ),
+                              if (item.note.isNotEmpty)
+                                Text(
+                                  'Ghi chú: ${item.note}',
+                                  style: const TextStyle(
+                                    fontSize: 10,
+                                    color: Colors.blueGrey,
+                                  ),
+                                ),
+                            ],
+                          ),
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              IconButton(
+                                icon: const Icon(Icons.remove, size: 14),
+                                onPressed: () async => await ref
+                                    .read(cafePosCartProvider.notifier)
+                                    .updateQuantity(i, -1),
+                              ),
+                              Text(
+                                '${item.quantity}',
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.add, size: 14),
+                                onPressed: () async => await ref
+                                    .read(cafePosCartProvider.notifier)
+                                    .updateQuantity(i, 1),
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                currencyFormatter.format(item.totalPrice),
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                  const Divider(),
+                  // Order Summary
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text('Tạm tính:'),
+                      Text(
+                        currencyFormatter.format(cart.subtotal),
+                        style: const TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text('Giảm giá / Voucher:'),
+                      Text(
+                        '-${currencyFormatter.format(cart.totalDiscount)}',
+                        style: const TextStyle(color: Colors.red),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        'TỔNG THANH TOÁN:',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15,
+                        ),
+                      ),
+                      Text(
+                        currencyFormatter.format(cart.grandTotal),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                          color: Color(0xFFD97706),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+          // Fixed bottom buttons — always visible, never overflow
+          Container(
+            padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
+            decoration: const BoxDecoration(
+              border: Border(top: BorderSide(color: Colors.grey, width: 0.3)),
+            ),
+            child: Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
                 SizedBox(
-                  height: itemListHeight,
-                  child: cart.items.isEmpty
-                      ? const Center(
-                          child: Text(
-                            'Chưa có món nào trong đơn',
-                            style: TextStyle(color: Colors.grey),
-                          ),
-                        )
-                      : ListView.separated(
-                          itemCount: cart.items.length,
-                          separatorBuilder: (_, __) => const Divider(height: 1),
-                          itemBuilder: (ctx, i) {
-                            final item = cart.items[i];
-                            return ListTile(
-                              dense: true,
-                              contentPadding: EdgeInsets.zero,
-                              title: Text(
-                                '${item.menuItemName} (Size ${item.selectedSize.name})',
-                              ),
-                              subtitle: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  if (item.selectedToppings.isNotEmpty)
-                                    Text(
-                                      '+ Topping: ${item.selectedToppings.map((t) => t.name).join(", ")}',
-                                      style: const TextStyle(
-                                        fontSize: 10,
-                                        color: Colors.brown,
-                                      ),
-                                    ),
-                                  if (item.note.isNotEmpty)
-                                    Text(
-                                      'Ghi chú: ${item.note}',
-                                      style: const TextStyle(
-                                        fontSize: 10,
-                                        color: Colors.blueGrey,
-                                      ),
-                                    ),
-                                ],
-                              ),
-                              trailing: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  IconButton(
-                                    icon: const Icon(Icons.remove, size: 14),
-                                    onPressed: () async => await ref
-                                        .read(cafePosCartProvider.notifier)
-                                        .updateQuantity(i, -1),
-                                  ),
-                                  Text(
-                                    '${item.quantity}',
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  IconButton(
-                                    icon: const Icon(Icons.add, size: 14),
-                                    onPressed: () async => await ref
-                                        .read(cafePosCartProvider.notifier)
-                                        .updateQuantity(i, 1),
-                                  ),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    currencyFormatter.format(item.totalPrice),
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 12,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            );
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    icon: const Icon(Icons.print, size: 18),
+                    label: const Text('In Tạm Tính'),
+                    onPressed: cart.items.isEmpty
+                        ? null
+                        : () {
+                            _showPrintBillPreview(context, cart);
                           },
-                        ),
+                  ),
                 ),
-                const Divider(),
-                // Order Summary
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text('Tạm tính:'),
-                    Text(
-                      currencyFormatter.format(cart.subtotal),
-                      style: const TextStyle(fontWeight: FontWeight.w600),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.orange,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
                     ),
-                  ],
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text('Giảm giá / Voucher:'),
-                    Text(
-                      '-${currencyFormatter.format(cart.totalDiscount)}',
-                      style: const TextStyle(color: Colors.red),
+                    icon: const Icon(Icons.print, size: 18, color: Colors.white),
+                    label: const Text(
+                      'In 80mm',
+                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
                     ),
-                  ],
+                    onPressed: cart.items.isEmpty
+                        ? null
+                        : () => _completePayment(
+                              context,
+                              cart,
+                              ReceiptPrintMode.thermal80,
+                            ),
+                  ),
                 ),
-                const SizedBox(height: 4),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      'TỔNG THANH TOÁN:',
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                    ),
+                    icon: const Icon(
+                      Icons.picture_as_pdf,
+                      size: 18,
+                      color: Colors.white,
+                    ),
+                    label: const Text(
+                      'In PDF',
+                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                    ),
+                    onPressed: cart.items.isEmpty
+                        ? null
+                        : () => _completePayment(
+                              context,
+                              cart,
+                              ReceiptPrintMode.pdf,
+                            ),
+                  ),
+                ),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFD97706),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                    ),
+                    icon: const Icon(Icons.payment, color: Colors.white),
+                    label: const Text(
+                      'Thanh Toán',
                       style: TextStyle(
+                        color: Colors.white,
                         fontWeight: FontWeight.bold,
-                        fontSize: 15,
                       ),
                     ),
-                    Text(
-                      currencyFormatter.format(cart.grandTotal),
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18,
-                        color: Color(0xFFD97706),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                // Action Buttons: Tạm Tính / In Bill & Thanh Toán
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: [
-                    SizedBox(
-                      width: constraints.maxWidth >= 420
-                          ? (constraints.maxWidth / 4) - 8
-                          : double.infinity,
-                      child: OutlinedButton.icon(
-                        icon: const Icon(Icons.print, size: 18),
-                        label: const Text('In Tạm Tính'),
-                        onPressed: cart.items.isEmpty
-                            ? null
-                            : () {
-                                _showPrintBillPreview(context, cart);
-                              },
-                      ),
-                    ),
-                    SizedBox(
-                      width: constraints.maxWidth >= 420
-                          ? (constraints.maxWidth / 4) - 8
-                          : double.infinity,
-                      child: ElevatedButton.icon(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.orange,
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                        ),
-                        icon: const Icon(Icons.print, size: 18, color: Colors.white),
-                        label: const Text(
-                          'In 80mm',
-                          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                        ),
-                        onPressed: cart.items.isEmpty
-                            ? null
-                            : () => _completePayment(
-                                  context,
-                                  cart,
-                                  ReceiptPrintMode.thermal80,
-                                ),
-                      ),
-                    ),
-                    SizedBox(
-                      width: constraints.maxWidth >= 420
-                          ? (constraints.maxWidth / 4) - 8
-                          : double.infinity,
-                      child: ElevatedButton.icon(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.red,
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                        ),
-                        icon: const Icon(
-                          Icons.picture_as_pdf,
-                          size: 18,
-                          color: Colors.white,
-                        ),
-                        label: const Text(
-                          'In PDF',
-                          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                        ),
-                        onPressed: cart.items.isEmpty
-                            ? null
-                            : () => _completePayment(
-                                  context,
-                                  cart,
-                                  ReceiptPrintMode.pdf,
-                                ),
-                      ),
-                    ),
-                    SizedBox(
-                      width: constraints.maxWidth >= 420
-                          ? (constraints.maxWidth / 4) - 8
-                          : double.infinity,
-                      child: ElevatedButton.icon(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFFD97706),
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                        ),
-                        icon: const Icon(Icons.payment, color: Colors.white),
-                        label: const Text(
-                          'Thanh Toán',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        onPressed: cart.items.isEmpty
-                            ? null
-                            : () {
-                                _showPaymentDialog(context, cart);
-                              },
-                      ),
-                    ),
-                  ],
+                    onPressed: cart.items.isEmpty
+                        ? null
+                        : () {
+                            _showPaymentDialog(context, cart);
+                          },
+                  ),
                 ),
               ],
             ),
           ),
-        );
-      },
+        ],
+      ),
     );
   }
 

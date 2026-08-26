@@ -289,7 +289,7 @@ class _KanPosVNCafeShellState extends ConsumerState<KanPosVNCafeShell> {
                 ],
               ),
           if (isDesktop) const VerticalDivider(thickness: 1, width: 1),
-          Expanded(child: tabs[safeIndex].screen),
+          Expanded(child: ClipRect(child: tabs[safeIndex].screen)),
         ],
       ),
       bottomNavigationBar: isDesktop

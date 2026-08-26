@@ -94,6 +94,7 @@ class _KanPosVNBanvevantaiShellState extends ConsumerState<KanPosVNBanvevantaiSh
             ))
         .toList();
     final safeIndex = _selectedIndex < tabs.length ? _selectedIndex : 0;
+    final isDesktop = MediaQuery.of(context).size.width > 600;
 
     return Scaffold(
       appBar: AppBar(
@@ -107,9 +108,9 @@ class _KanPosVNBanvevantaiShellState extends ConsumerState<KanPosVNBanvevantaiSh
       ),
       body: Row(
         children: [
-          SingleChildScrollView(
-            scrollDirection: Axis.vertical,
-            child: NavigationRail(
+          if (isDesktop)
+            NavigationRail(
+              scrollable: true,
               selectedIndex: safeIndex,
               onDestinationSelected: (index) {
                 setState(() {
@@ -125,13 +126,32 @@ class _KanPosVNBanvevantaiShellState extends ConsumerState<KanPosVNBanvevantaiSh
                   ),
               ],
             ),
-          ),
-          const VerticalDivider(thickness: 1, width: 1),
+          if (isDesktop) const VerticalDivider(thickness: 1, width: 1),
           Expanded(
-            child: tabs[safeIndex].screen,
+            child: ClipRect(child: tabs[safeIndex].screen),
           ),
         ],
       ),
+      bottomNavigationBar: isDesktop
+          ? null
+          : BottomNavigationBar(
+              currentIndex: safeIndex,
+              onTap: (index) {
+                setState(() {
+                  _selectedIndex = index;
+                });
+              },
+              selectedItemColor: const Color(0xFF0891B2),
+              unselectedItemColor: Colors.grey,
+              type: BottomNavigationBarType.fixed,
+              items: [
+                for (final t in tabs)
+                  BottomNavigationBarItem(
+                    icon: Icon(t.icon),
+                    label: t.label,
+                  ),
+              ],
+            ),
     );
   }
 }
