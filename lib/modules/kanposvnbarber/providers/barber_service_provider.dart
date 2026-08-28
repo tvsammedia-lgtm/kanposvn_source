@@ -13,6 +13,7 @@ import '../models/barber_product.dart';
 import '../models/barber_expense.dart';
 import '../models/barber_inventory_transaction.dart';
 import '../models/barber_supplier.dart';
+import '../models/barber_ai_result.dart';
 
 import '../services/barber_db_service.dart';
 import '../services/barber_ai_service.dart';
@@ -38,6 +39,7 @@ final barberIsarProvider = FutureProvider<Isar>((ref) async {
       BarberExpenseSchema,
       BarberInventoryTransactionSchema,
       BarberSupplierSchema,
+      BarberAiResultSchema,
     ],
     directory: dir.path,
     name: dbName,
@@ -50,7 +52,7 @@ final barberDbServiceProvider = FutureProvider<BarberDbService>((ref) async {
 });
 
 final barberAiServiceProvider = Provider<BarberAiService>((ref) {
-  return BarberAiService(apiKey: 'dummy_api_key');
+  return BarberAiService();
 });
 
 final barberSyncServiceProvider = Provider<BarberSyncService>((ref) {

@@ -7,6 +7,7 @@ import '../../../core/printer/printer_actions.dart';
 import '../../../core/printer/receipt_data.dart';
 import '../../../core/printer/receipt_print_mode.dart';
 import '../models/hotel_checkin_checkout.dart';
+import '../../../core/utils/formatters.dart';
 import '../providers/hotel_providers.dart';
 import '../services/hotel_receipt_builder.dart';
 
@@ -59,7 +60,7 @@ class _HotelBillSearchScreenState extends ConsumerState<HotelBillSearchScreen> {
       orElse: () => <ReceiptItem>[],
     );
     final gross = (checkIn.roomTotalCharge) + (checkIn.serviceTotalCharge);
-    final prePaid = (checkIn.prePaid).clamp(0.0, double.infinity);
+    final prePaid = safeDouble(checkIn.prePaid);
     final receipt = await buildHotelReceiptData(
       gross: gross,
       discount: checkIn.discount,
@@ -186,11 +187,12 @@ class _HotelBillSearchScreenState extends ConsumerState<HotelBillSearchScreen> {
                           children: [
                             Text(
                               _currency.format(
-                                (c.roomTotalCharge +
-                                        c.serviceTotalCharge -
-                                        c.discount -
-                                        (c.prePaid).clamp(0.0, double.infinity))
-                                    .clamp(0.0, double.infinity),
+                                safeDouble(
+                                  c.roomTotalCharge +
+                                      c.serviceTotalCharge -
+                                      c.discount -
+                                      safeDouble(c.prePaid),
+                                ),
                               ),
                               style: const TextStyle(fontWeight: FontWeight.bold),
                             ),

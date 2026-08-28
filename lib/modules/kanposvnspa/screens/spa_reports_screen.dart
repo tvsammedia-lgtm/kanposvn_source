@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/auth/auth_service.dart';
-import '../../kanposvncafe/models/cafe_report_models.dart';
-import '../../kanposvncafe/widgets/crystal_report_widgets.dart';
+import '../../../core/reports/crystal_report_models.dart';
+import '../../../core/reports/crystal_report_widgets.dart';
 import '../providers/spa_providers.dart';
 import '../services/spa_report_service.dart';
 

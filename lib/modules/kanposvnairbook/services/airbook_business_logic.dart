@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:isar/isar.dart';
+import '../../../core/utils/formatters.dart';
 import '../models/airbook_ops_models.dart';
 import '../models/booking.dart';
 import '../models/flight_offer.dart';
@@ -205,9 +206,7 @@ class AirBookBusinessLogic {
 
     final supplier = repriced.supplier * paxCount;
     final serviceFee = serviceFeePerPax * paxCount + markupPerPax * paxCount;
-    final selling = (supplier + serviceFee - discount)
-        .clamp(0.0, double.infinity)
-        .toDouble();
+    final selling = safeDouble(supplier + serviceFee - discount);
     final commissionCost = selling * 0.05; // hoa hồng chi trả đại lý 5%
     final profit = selling - supplier - commissionCost;
 

@@ -1,4 +1,5 @@
 import 'package:isar/isar.dart';
+import '../../../core/utils/formatters.dart';
 import '../models/bida_table.dart';
 import '../models/bida_item.dart';
 import '../models/bida_session.dart';
@@ -334,9 +335,7 @@ class BidaBusinessLogic {
     final itemCost = session.orderLines.fold(0.0, (s, l) => s + l.total);
     final deposit = session.deposit;
     final safeDiscount = discount.clamp(0, timeCost + itemCost).toDouble();
-    final grandTotal = (timeCost + itemCost - safeDiscount)
-        .clamp(0.0, double.infinity)
-        .toDouble();
+    final grandTotal = safeDouble(timeCost + itemCost - safeDiscount);
     final available = cashReceived + deposit;
     var paidNow = available.clamp(0.0, grandTotal).toDouble();
     var debtAdded = 0.0;

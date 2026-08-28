@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/hotel_checkin_checkout.dart';
 import '../models/hotel_room.dart';
 import '../models/hotel_service.dart';
+import '../../../core/utils/formatters.dart';
 import '../providers/hotel_providers.dart';
 import '../services/hotel_billing_service.dart';
 import '../services/hotel_receipt_builder.dart';
@@ -346,8 +347,8 @@ class _RoomPosScreenState extends ConsumerState<RoomPosScreen> {
 
     // Tính toán thanh toán: amountDue = (phòng + dịch vụ) − giảm giá − đã cọc.
     final gross = roomCharge + serviceTotal;
-    final prePaid = (widget.checkIn.prePaid).clamp(0.0, double.infinity);
-    final amountDue = (gross - discount - prePaid).clamp(0.0, double.infinity);
+    final prePaid = safeDouble(widget.checkIn.prePaid);
+    final amountDue = safeDouble(gross - discount - prePaid);
     final received = (cashReceived ?? amountDue);
 
     await ref.read(hotelCheckInsProvider.notifier).checkout(
@@ -430,8 +431,8 @@ class _RoomPosScreenState extends ConsumerState<RoomPosScreen> {
 
     final discount = double.tryParse(discountController.text) ?? 0;
     final gross = roomCharge + serviceTotal;
-    final prePaid = (widget.checkIn.prePaid).clamp(0.0, double.infinity);
-    final amountDue = (gross - discount - prePaid).clamp(0.0, double.infinity);
+    final prePaid = safeDouble(widget.checkIn.prePaid);
+    final amountDue = safeDouble(gross - discount - prePaid);
 
     // Bước thanh toán: ghi nhận phương thức + số tiền khách đưa để in hóa đơn
     // có đủ dòng "Khách đưa / Tiền thừa".

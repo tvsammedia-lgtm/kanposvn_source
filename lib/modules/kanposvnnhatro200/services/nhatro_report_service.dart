@@ -6,7 +6,7 @@ import '../models/room.dart';
 import '../models/tenant.dart';
 import '../models/contract.dart';
 import '../models/asset.dart';
-import '../../kanposvncafe/models/cafe_report_models.dart';
+import '../../../core/reports/crystal_report_models.dart';
 
 class NhatroReportService {
   final Isar _isar;

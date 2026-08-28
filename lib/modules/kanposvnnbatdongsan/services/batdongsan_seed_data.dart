@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:uuid/uuid.dart';
 import '../models/floor_fee.dart';
 import '../models/property.dart';
@@ -18,13 +19,16 @@ class BatDongSanSeedData {
 
   static Future<void> seedIfEmpty() async {
     final isar = await KanBatDongSanIsarDB.getInstance();
+    await Future.delayed(Duration.zero);
     final propertyCount = await isar.propertys.count();
-    if (propertyCount > 0) return;
+    if (propertyCount > 0) {
+      debugPrint('BDS-DEBUG: seed skip (count=$propertyCount)');
+      return;
+    }
+    debugPrint('BDS-DEBUG: seed START (fresh db)');
 
     final uuid = const Uuid();
-
-    await isar.writeTxn(() async {
-      final now = DateTime.now();
+    final now = DateTime.now();
 
       // ================= MÔI GIÓI =================
       final brokers = [
@@ -95,7 +99,10 @@ class BatDongSanSeedData {
           ..status = BrokerStatus.suspended
           ..updatedAt = now,
       ];
-      await isar.brokers.putAll(brokers);
+      await isar.writeTxn(() async {
+        await isar.brokers.putAll(brokers);
+      });
+      debugPrint('BDS-DEBUG: seed brokers done');
 
       // ================= NGƯỜI BÁN =================
       final sellers = [
@@ -146,7 +153,10 @@ class BatDongSanSeedData {
           ..type = CustomerType.seller
           ..updatedAt = now,
       ];
-      await isar.customers.putAll(sellers);
+      await isar.writeTxn(() async {
+        await isar.customers.putAll(sellers);
+      });
+      debugPrint('BDS-DEBUG: seed sellers done');
 
       // ================= KHÁCH MUA =================
       final buyers = [
@@ -256,7 +266,10 @@ class BatDongSanSeedData {
           ..demandDirection = 'Đông'
           ..updatedAt = now,
       ];
-      await isar.customers.putAll(buyers);
+      await isar.writeTxn(() async {
+        await isar.customers.putAll(buyers);
+      });
+      debugPrint('BDS-DEBUG: seed buyers done');
 
       // ================= BẤT ĐỘNG SẢN (12 - đủ 4 nhóm §8) =================
       final properties = [
@@ -559,7 +572,10 @@ class BatDongSanSeedData {
           ..status = PropertyStatus.available
           ..updatedAt = now,
       ];
-      await isar.propertys.putAll(properties);
+      await isar.writeTxn(() async {
+        await isar.propertys.putAll(properties);
+      });
+      debugPrint('BDS-DEBUG: seed properties done');
 
       // ================= GIAO DỊCH (13 - đủ 5 trạng thái §12) =================
       TransactionRecord tx(
@@ -642,7 +658,10 @@ class BatDongSanSeedData {
             rate: 50, bonus: 0.020, deduction: 0.010,
             notes: 'Hôm nay khách đặt cọc 1.2 tỷ văn phòng Lê Lợi'),
       ];
-      await isar.transactionRecords.putAll(transactions);
+      await isar.writeTxn(() async {
+        await isar.transactionRecords.putAll(transactions);
+      });
+      debugPrint('BDS-DEBUG: seed transactions done');
 
       // ================= PHÍ SÀN (§14) =================
       FloorFee fee(String code, int daysAgo, FloorFeeType type, double amount,
@@ -679,7 +698,14 @@ class BatDongSanSeedData {
         fee('PFS0010', 0, FloorFeeType.other, 0.006,
             gd: 'GD0013', notes: 'Chi phí công chứng hôm nay'),
       ];
-      await isar.floorFees.putAll(fees);
-    });
+      await isar.writeTxn(() async {
+        await isar.floorFees.putAll(fees);
+      });
+      debugPrint('BDS-DEBUG: seed fees done');
+
+      debugPrint('BDS-DEBUG: seed verify START');
+      final verify = await isar.propertys.count();
+      debugPrint('BDS-DEBUG: seed verify DONE count=$verify');
+      debugPrint('BDS-DEBUG: seed END');
   }
 }

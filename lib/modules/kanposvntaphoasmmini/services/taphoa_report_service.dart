@@ -3,7 +3,7 @@ import '../models/inventory.dart';
 import '../models/invoice.dart';
 import '../models/partner.dart';
 import '../models/product.dart';
-import '../models/taphoa_report_models.dart';
+import '../../../core/reports/crystal_report_models.dart';
 import 'taphoa_isar_service.dart';
 
 /// Xây dựng các báo cáo (mô phỏng báo cáo Crystal .rpt của KANVLXD_ONE)
@@ -1265,6 +1265,77 @@ class TapHoaReportService {
       ],
       signature: const [
         ReportSignatureItem('Nhân viên ca', '(Ký, họ tên)'),
+        ReportSignatureItem('Kế toán trưởng', '(Ký, họ tên)'),
+        ReportSignatureItem('Giám đốc', '(Ký, họ tên)'),
+      ],
+    );
+  }
+
+  // ---------------------------------------------------------------------------
+  // BÁO CÁO LÃI LỖ
+  // ---------------------------------------------------------------------------
+  Future<CrystalReportModel> buildProfitLoss({
+    required DateTime from,
+    required DateTime to,
+  }) async {
+    final invoices = await _allInvoices();
+    final inRangeInvoices = invoices.where((i) => _inRange(i.createdAt, from, to));
+
+    double revenue = 0;
+    for (final i in inRangeInvoices) {
+      if (i.status == 'COMPLETED') {
+        revenue += i.finalAmount;
+      }
+    }
+
+    // Giá vốn hàng bán (Tạm tính bằng 0 nếu chưa có hệ thống tính giá vốn chuẩn)
+    double cogs = 0;
+    
+    final grossProfit = revenue - cogs;
+
+    final cashTxs = await _allCash();
+    final inRangeCashTxs = cashTxs.where((t) => _inRange(t.timestamp, from, to));
+    
+    double expenses = 0;
+    for (final t in inRangeCashTxs) {
+      if (t.type == 'EXPENSE') {
+        expenses += t.amount;
+      }
+    }
+
+    final netProfit = grossProfit - expenses;
+
+    final flex = [42, 20];
+    final rows = <ReportRow>[
+      const ReportRow([ReportCell('=== DOANH THU & GIÁ VỐN ===', isBold: true), ReportCell('')]),
+      ReportRow([const ReportCell('  1. Doanh thu bán hàng'), ReportCell(formatMoney(revenue), align: ReportCellAlign.right)]),
+      ReportRow([const ReportCell('  2. Giá vốn hàng bán (Tạm tính)'), ReportCell(formatMoney(cogs), align: ReportCellAlign.right)]),
+      ReportRow([const ReportCell('Lợi nhuận gộp (1 - 2)', isBold: true), ReportCell(formatMoney(grossProfit), align: ReportCellAlign.right, isBold: true)]),
+      const ReportRow([ReportCell(''), ReportCell('')]),
+      const ReportRow([ReportCell('=== CHI PHÍ HOẠT ĐỘNG ===', isBold: true), ReportCell('')]),
+      ReportRow([const ReportCell('  3. Tổng chi phí trong kỳ'), ReportCell(formatMoney(expenses), align: ReportCellAlign.right)]),
+      const ReportRow([ReportCell(''), ReportCell('')]),
+      const ReportRow([ReportCell('=== KẾT QUẢ KINH DOANH ===', isBold: true), ReportCell('')]),
+      ReportRow([const ReportCell('Lợi nhuận ròng', isBold: true), ReportCell(formatMoney(netProfit), align: ReportCellAlign.right, isBold: true)]),
+    ];
+
+    return CrystalReportModel(
+      formLine: _formS03a,
+      unitName: _unitName,
+      unitAddress: 'Địa chỉ: $_kAddress',
+      taxCode: 'Mã số thuế: $_kTax',
+      title: 'BÁO CÁO LÃI LỖ',
+      subtitleLines: ['Từ ngày ${formatDate(from)} đến ngày ${formatDate(to)}'],
+      columnFlex: flex,
+      headerRows: const [
+        [ReportHeaderCell('Chỉ tiêu', align: ReportCellAlign.left), ReportHeaderCell('Số tiền (VND)')],
+      ],
+      rows: rows,
+      totalRows: [
+        ReportRow([const ReportCell('LỢI NHUẬN RÒNG', isBold: true), ReportCell(formatMoney(netProfit), align: ReportCellAlign.right, isBold: true)]),
+      ],
+      signature: const [
+        ReportSignatureItem('Người lập biểu', '(Ký, họ tên)'),
         ReportSignatureItem('Kế toán trưởng', '(Ký, họ tên)'),
         ReportSignatureItem('Giám đốc', '(Ký, họ tên)'),
       ],

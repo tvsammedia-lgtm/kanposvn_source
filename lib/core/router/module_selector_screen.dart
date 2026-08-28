@@ -9,6 +9,13 @@ import 'branch_selector_screen.dart';
 
 final selectedModuleProvider = StateProvider<AppModule?>((ref) => null);
 
+// Đánh dấu đang chọn module thủ công trên ModuleSelectorScreen. _AutoSelectWrapper
+// dựa vào flag này để KHÔNG thay ModuleSelectorScreen bằng spinner "Đang tải dữ liệu..."
+// (và không bật fallback 3s chọn lại) trong lúc _selectModule đang chờ nạp dữ liệu —
+// nếu thay thì State của selector bị dispose và bàn chọn module hiện lại như mới,
+// buộc user phải bấm 2 lần.
+final moduleSelectingProvider = StateProvider<bool>((ref) => false);
+
 class ModuleSelectorScreen extends ConsumerStatefulWidget {
   const ModuleSelectorScreen({super.key});
 
@@ -110,6 +117,8 @@ class _ModuleSelectorScreenState extends ConsumerState<ModuleSelectorScreen> {
       }
 
       setState(() => _loadingModule = module);
+      ref.read(moduleSelectingProvider.notifier).state = true;
+      debugPrint('LOGIN-DEBUG: selector tap $module isStoreUser=${auth.isStoreUser} storeId=${auth.storeId}');
 
       // Nạp dữ liệu TRƯỚC khi switchModule: giữ màn hình chọn module còn sống,
       // hiện tiến trình rõ ràng và lỗi vẫn hiển thị được thay vì treo "Đang xác thực...".
@@ -118,8 +127,10 @@ class _ModuleSelectorScreenState extends ConsumerState<ModuleSelectorScreen> {
       } else {
         await db.init(module: module);
       }
+      debugPrint('LOGIN-DEBUG: selector init done');
 
       await auth.switchModule(module);
+      debugPrint('LOGIN-DEBUG: selector switchModule done');
 
       if (module.appCode == 'kanposvncafe' || module.appCode == 'nhansu') {
         ref.read(syncEngineProvider).triggerSync();
@@ -129,16 +140,22 @@ class _ModuleSelectorScreenState extends ConsumerState<ModuleSelectorScreen> {
       // cấp quyền) thì vào màn hình chọn chi nhánh trước, KHÔNG vào shell ngay.
       // Module không có chi nhánh (cửa hàng đăng ký Web/Zalo cũ) → vào thẳng.
       final branches = await auth.fetchBranches(module.appCode);
+      debugPrint('LOGIN-DEBUG: selector fetchBranches count=${branches.length}');
       if (branches.isNotEmpty) {
         ref.read(branchSelectorModuleProvider.notifier).state = module;
+        ref.read(moduleSelectingProvider.notifier).state = false;
         if (mounted) setState(() => _loadingModule = null);
         return;
       }
 
       // Đặt selectedModule không phụ thuộc context (màn hình có thể đã bị thay thế).
       ref.read(selectedModuleProvider.notifier).state = module;
+      ref.read(moduleSelectingProvider.notifier).state = false;
+      debugPrint('LOGIN-DEBUG: selector set selectedModule=${module.appCode} done');
       if (mounted) setState(() => _loadingModule = null);
-    } catch (e) {
+    } catch (e, st) {
+      ref.read(moduleSelectingProvider.notifier).state = false;
+      debugPrint('LOGIN-DEBUG: selector CATCH e=$e\n$st');
       if (!mounted) return;
       setState(() => _loadingModule = null);
       ScaffoldMessenger.of(context).showSnackBar(

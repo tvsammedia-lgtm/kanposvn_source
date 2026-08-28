@@ -5,7 +5,7 @@ import '../models/membership_plan.dart';
 import '../models/check_in.dart';
 import '../models/asset.dart';
 import '../services/gym_isar_service.dart';
-import '../../kanposvncafe/models/cafe_report_models.dart';
+import '../../../core/reports/crystal_report_models.dart';
 
 class GymReportService {
   final GymIsarService _isarService;

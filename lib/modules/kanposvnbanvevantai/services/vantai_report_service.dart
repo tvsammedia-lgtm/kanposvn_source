@@ -1,5 +1,5 @@
 import 'package:isar/isar.dart';
-import '../../kanposvncafe/models/cafe_report_models.dart';
+import '../../../core/reports/crystal_report_models.dart';
 import '../models/vantai_ticket.dart';
 import '../models/vantai_route.dart';
 import '../models/vantai_vehicle.dart';

@@ -5,10 +5,10 @@ import 'package:isar/isar.dart';
 import '../../../core/auth/auth_service.dart';
 import '../models/partner.dart';
 import '../models/product.dart';
-import '../models/taphoa_report_models.dart';
+import '../../../core/reports/crystal_report_models.dart';
 import '../providers/taphoa_providers.dart';
 import '../services/taphoa_report_service.dart';
-import '../widgets/crystal_report_widgets.dart';
+import '../../../core/reports/crystal_report_widgets.dart';
 
 /// Màn hình Báo Cáo gồm 2 tab:
 /// - "Tổng quan": thống kê nhanh doanh thu, thu/chi, phương thức thanh toán...
@@ -37,6 +37,8 @@ class _TapHoaReportScreenState extends ConsumerState<TapHoaReportScreen> {
   static const _reports = [
     _ReportDescriptor('cash_book', 'Sổ quỹ tiền mặt',
         Icons.account_balance_wallet, _ReportGroup.cash),
+    _ReportDescriptor('profit_loss', 'Báo cáo lãi lỗ',
+        Icons.assessment, _ReportGroup.cash),
     _ReportDescriptor('receipt', 'Báo cáo phiếu thu',
         Icons.assignment_return, _ReportGroup.cash),
     _ReportDescriptor('payment', 'Báo cáo phiếu chi',
@@ -125,6 +127,9 @@ class _TapHoaReportScreenState extends ConsumerState<TapHoaReportScreen> {
       switch (_selectedId) {
         case 'cash_book':
           result = await service.buildCashBook(from: from, to: to);
+          break;
+        case 'profit_loss':
+          result = await service.buildProfitLoss(from: from, to: to);
           break;
         case 'receipt':
           result = await service.buildReceiptPayment(from: from, to: to, isReceipt: true);

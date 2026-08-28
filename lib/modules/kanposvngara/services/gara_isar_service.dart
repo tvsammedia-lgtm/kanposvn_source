@@ -24,7 +24,22 @@ class GaraIsarService {
     // In a real app we'd use path_provider
     final dir = Directory.systemTemp.createTempSync('gara_db');
     
-    return await Isar.open(
+    try {
+      return await _open(dir.path);
+    } on IsarError catch (e) {
+      if (e.message.toLowerCase().contains('schema')) {
+        final oldDir = Directory('${dir.path}/gara_db.isar');
+        if (oldDir.existsSync()) {
+          oldDir.renameSync('${dir.path}/gara_db_backup_${DateTime.now().millisecondsSinceEpoch}.isar');
+        }
+        return await _open(dir.path);
+      }
+      rethrow;
+    }
+  }
+
+  Future<Isar> _open(String dirPath) {
+    return Isar.open(
       [
         GaraCustomerSchema,
         GaraVehicleSchema,
@@ -37,7 +52,7 @@ class GaraIsarService {
         GaraInventoryDetailSchema,
         GaraFinanceTransactionSchema,
       ],
-      directory: dir.path,
+      directory: dirPath,
       name: 'gara_db',
     );
   }

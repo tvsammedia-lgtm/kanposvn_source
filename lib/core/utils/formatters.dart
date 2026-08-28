@@ -1,5 +1,8 @@
 import 'package:intl/intl.dart';
 
+/// Chuyển double an toàn: NaN / Infinity → 0.0.
+double safeDouble(double v) => v.isFinite ? v : 0.0;
+
 class AppFormatters {
   static final NumberFormat _currencyFormatter = NumberFormat.currency(
     locale: 'vi_VN', symbol: 'đ', decimalDigits: 0,

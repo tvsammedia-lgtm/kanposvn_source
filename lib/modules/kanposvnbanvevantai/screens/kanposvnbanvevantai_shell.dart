@@ -35,23 +35,27 @@ class _KanPosVNBanvevantaiShellState extends ConsumerState<KanPosVNBanvevantaiSh
   }
 
   Future<void> _initData() async {
-    final isarService = ref.read(vantaiIsarServiceProvider);
-    await VantaiSeedData.seedIfEmpty(isarService);
-    if (!mounted) return;
-    ref.read(vantaiRoutesProvider.notifier).loadRoutes();
-    ref.read(vantaiVehiclesProvider.notifier).loadVehicles();
-    ref.read(vantaiDriversProvider.notifier).loadDrivers();
-    ref.read(vantaiCustomersProvider.notifier).loadCustomers();
-    ref.read(vantaiSuppliersProvider.notifier).loadSuppliers();
-    ref.read(vantaiTicketsProvider.notifier).loadTickets();
-    ref.read(vantaiTripsProvider.notifier).loadTrips();
-    ref.read(vantaiShipmentsProvider.notifier).loadShipments();
-    ref.read(vantaiExpensesProvider.notifier).loadExpenses();
-    ref.read(vantaiCashTxProvider.notifier).loadTx();
-    ref.read(vantaiDashboardProvider.notifier).loadDashboard();
-    setState(() {
-      _isInit = true;
-    });
+    try {
+      final isarService = ref.read(vantaiIsarServiceProvider);
+      await VantaiSeedData.seedIfEmpty(isarService);
+      if (!mounted) return;
+      ref.read(vantaiRoutesProvider.notifier).loadRoutes();
+      ref.read(vantaiVehiclesProvider.notifier).loadVehicles();
+      ref.read(vantaiDriversProvider.notifier).loadDrivers();
+      ref.read(vantaiCustomersProvider.notifier).loadCustomers();
+      ref.read(vantaiSuppliersProvider.notifier).loadSuppliers();
+      ref.read(vantaiTicketsProvider.notifier).loadTickets();
+      ref.read(vantaiTripsProvider.notifier).loadTrips();
+      ref.read(vantaiShipmentsProvider.notifier).loadShipments();
+      ref.read(vantaiExpensesProvider.notifier).loadExpenses();
+      ref.read(vantaiCashTxProvider.notifier).loadTx();
+      ref.read(vantaiDashboardProvider.notifier).loadDashboard();
+    } catch (_) {}
+    if (mounted) {
+      setState(() {
+        _isInit = true;
+      });
+    }
   }
 
   static final Map<String, Set<String>> _roleTabs = {
@@ -95,8 +99,20 @@ class _KanPosVNBanvevantaiShellState extends ConsumerState<KanPosVNBanvevantaiSh
               roleTabs: _roleTabs,
             ))
         .toList();
-    final safeIndex = _selectedIndex < tabs.length ? _selectedIndex : 0;
+    final safeIndex = tabs.isNotEmpty ? (_selectedIndex < tabs.length ? _selectedIndex : 0) : 0;
     final isDesktop = MediaQuery.of(context).size.width > 600;
+
+    if (tabs.isEmpty) {
+      return Scaffold(
+        appBar: AppBar(
+          backgroundColor: auth.currentModule?.color ?? const Color(0xFF0891B2),
+          foregroundColor: Colors.white,
+          title: const Text('KanPosVN - Vận Tải & Vé',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+        ),
+        body: const Center(child: Text('Không có quyền truy cập tab nào.\nLiên hệ quản trị viên để được cấp quyền.', textAlign: TextAlign.center)),
+      );
+    }
 
     return Scaffold(
       appBar: AppBar(

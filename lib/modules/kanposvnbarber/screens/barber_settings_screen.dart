@@ -14,7 +14,7 @@ final Map<String, Set<String>> _barberRoleTabs = {
       const {'pos', 'appointments', 'booking_calendar', 'customers', 'reports'},
   EmployeeRoles.sale: const {
     'dashboard', 'pos', 'booking_calendar', 'appointments', 'customers',
-    'ai_advisor', 'reports'
+    'ai_advisor', 'ai_results', 'reports'
   },
   EmployeeRoles.warehouse: const {'inventory', 'pos'},
   EmployeeRoles.accountant: const {
@@ -32,6 +32,7 @@ const List<(String, String)> _barberTabOptions = [
   ('appointments', 'Lịch Hẹn'),
   ('customers', 'Khách Hàng'),
   ('ai_advisor', 'AI Tư Vấn'),
+  ('ai_results', 'Hình Kết Quả AI'),
   ('inventory', 'Kho Hàng'),
   ('reports', 'Báo Cáo'),
   ('employees', 'Quản Lý NV'),

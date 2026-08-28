@@ -1,11 +1,23 @@
+import 'package:flutter/foundation.dart';
 import 'package:isar/isar.dart';
 import '../models/property.dart';
 import 'isar_db.dart';
 
 class PropertyRepository {
   Future<List<BdsProperty>> getAllProperties() async {
+    debugPrint('BDS-DEBUG: props findAll START');
     final isar = await KanBatDongSanIsarDB.getInstance();
-    return await isar.propertys.where().findAll();
+    try {
+      final r = await isar.propertys
+          .where()
+          .findAll()
+          .timeout(const Duration(seconds: 2));
+      debugPrint('BDS-DEBUG: props findAll DONE n=${r.length}');
+      return r;
+    } catch (e, st) {
+      debugPrint('BDS-DEBUG: props findAll ERROR/TIMEOUT $e\n$st');
+      return <BdsProperty>[];
+    }
   }
 
   Future<void> saveProperty(BdsProperty property) async {

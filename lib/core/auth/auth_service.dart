@@ -198,6 +198,7 @@ class AuthService extends ChangeNotifier {
     notifyListeners();
     try {
       final url = '${ApiConfig.baseUrl}/api/auth/login';
+      debugPrint('LOGIN-DEBUG: POST $url module=$module');
       final body = <String, dynamic>{'password': password};
       if (identifier.contains('@')) {
         body['email'] = identifier.trim();
@@ -212,7 +213,7 @@ class AuthService extends ChangeNotifier {
             body: jsonEncode(body),
           )
           .timeout(ApiConfig.timeout);
-      // login status: ${response.statusCode}
+      debugPrint('LOGIN-DEBUG: auth/login status=${response.statusCode}');
       final bodyStr = utf8.decode(response.bodyBytes);
       final data = jsonDecode(bodyStr);
       if (response.statusCode == 200) {
@@ -248,18 +249,22 @@ class AuthService extends ChangeNotifier {
         _isLoading = false;
         notifyListeners();
         unawaited(refreshBranchInfo());
+        debugPrint(
+            'LOGIN-DEBUG: signIn OK storeId=$_storeId appCode=$_storeAppCode permissions=${_permissions.length} storeModules=${_storeModules.map((m) => m.appCode).toList()} accessible=${accessibleModules.map((m) => m.appCode).toList()}');
         return true;
       } else {
         _errorMessage =
             data['error'] ??
             data['message'] ??
             'Đăng nhập thất bại (${response.statusCode})';
+        debugPrint('LOGIN-DEBUG: signIn FAIL status=${response.statusCode} error=$_errorMessage');
         _isLoading = false;
         notifyListeners();
         return false;
       }
-    } catch (e) {
+    } catch (e, st) {
       // ignore login error
+      debugPrint('LOGIN-DEBUG: signIn CATCH e=$e\n$st');
       _errorMessage =
           'Không thể kết nối Admin Web. Vui lòng kiểm tra kết nối mạng hoặc liên hệ Admin.';
       _isLoading = false;

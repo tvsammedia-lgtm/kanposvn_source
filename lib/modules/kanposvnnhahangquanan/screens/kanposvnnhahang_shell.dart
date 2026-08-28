@@ -37,27 +37,30 @@ class _KanPosVNRestaurantShellState extends ConsumerState<KanPosVNRestaurantShel
   }
 
   Future<void> _initData() async {
-    final isarService = ref.read(restaurantIsarServiceProvider);
-    await RestaurantSeedData.seedIfEmpty(isarService);
-    ref.read(restaurantTablesProvider.notifier).loadTables();
-    ref.read(restaurantMenuProvider.notifier).loadMenu();
-    ref.read(restaurantOrdersProvider.notifier).loadOrders();
-    ref.read(restaurantDashboardProvider.notifier).loadDashboard();
-    
-    // Phase 2
-    ref.read(restaurantIngredientsProvider.notifier).loadIngredients();
-    ref.read(restaurantInventoryTxProvider.notifier).loadTransactions();
+    try {
+      final isarService = ref.read(restaurantIsarServiceProvider);
+      await RestaurantSeedData.seedIfEmpty(isarService);
+      ref.read(restaurantTablesProvider.notifier).loadTables();
+      ref.read(restaurantMenuProvider.notifier).loadMenu();
+      ref.read(restaurantOrdersProvider.notifier).loadOrders();
+      ref.read(restaurantDashboardProvider.notifier).loadDashboard();
 
-    // Phase 3: đặt bàn, khách hàng, NCC, chi phí, khuyến mãi
-    ref.read(restaurantReservationsProvider.notifier).load();
-    ref.read(restaurantCustomersProvider.notifier).loadCustomers();
-    ref.read(restaurantSuppliersProvider.notifier).loadSuppliers();
-    ref.read(restaurantExpensesProvider.notifier).loadExpenses();
-    ref.read(restaurantPromotionsProvider.notifier).load();
+      // Phase 2
+      ref.read(restaurantIngredientsProvider.notifier).loadIngredients();
+      ref.read(restaurantInventoryTxProvider.notifier).loadTransactions();
 
-    setState(() {
-      _isInit = true;
-    });
+      // Phase 3: đặt bàn, khách hàng, NCC, chi phí, khuyến mãi
+      ref.read(restaurantReservationsProvider.notifier).load();
+      ref.read(restaurantCustomersProvider.notifier).loadCustomers();
+      ref.read(restaurantSuppliersProvider.notifier).loadSuppliers();
+      ref.read(restaurantExpensesProvider.notifier).loadExpenses();
+      ref.read(restaurantPromotionsProvider.notifier).load();
+    } catch (_) {}
+    if (mounted) {
+      setState(() {
+        _isInit = true;
+      });
+    }
   }
 
   static final Map<String, Set<String>> _roleTabs = {
@@ -135,8 +138,17 @@ class _KanPosVNRestaurantShellState extends ConsumerState<KanPosVNRestaurantShel
         roleTabs: _roleTabs,
       );
     }).toList();
-    final safeIndex = _selectedIndex < tabs.length ? _selectedIndex : 0;
+    final safeIndex = tabs.isNotEmpty ? (_selectedIndex < tabs.length ? _selectedIndex : 0) : 0;
     final isDesktop = MediaQuery.of(context).size.width > 600;
+
+    if (tabs.isEmpty) {
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text('Quản lý Nhà hàng Quán ăn'),
+        ),
+        body: const Center(child: Text('Không có quyền truy cập tab nào.\nLiên hệ quản trị viên để được cấp quyền.', textAlign: TextAlign.center)),
+      );
+    }
 
     return Scaffold(
       appBar: AppBar(

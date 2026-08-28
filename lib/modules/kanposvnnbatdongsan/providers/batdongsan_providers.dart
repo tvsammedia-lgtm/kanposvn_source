@@ -1,4 +1,7 @@
+import 'dart:isolate';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:isar/isar.dart';
 import '../repositories/isar_db.dart';
 import '../repositories/property_repository.dart';
@@ -90,20 +93,87 @@ final floorFeesProvider = FutureProvider<List<FloorFee>>((ref) async {
     ..sort((a, b) => (b.feeDate ?? DateTime(0)).compareTo(a.feeDate ?? DateTime(0)));
 });
 
+// ================= BUNDLE (tránh deadlock truy vấn Isar song song) =================
+
+/// Gói dữ liệu dashboard đọc trong 1 readTxn duy nhất (tuần tự),
+/// tránh chạy nhiều isar.x.where().findAll() đồng thời gây treo trên Windows.
+class BdsDashboardBundle {
+  final List<BdsProperty> properties;
+  final List<Customer> customers;
+  final List<TransactionRecord> transactions;
+  final List<Broker> brokers;
+  final List<FloorFee> floorFees;
+
+  const BdsDashboardBundle({
+    required this.properties,
+    required this.customers,
+    required this.transactions,
+    required this.brokers,
+    required this.floorFees,
+  });
+}
+
+final bdsBundleProvider = FutureProvider<BdsDashboardBundle>((ref) async {
+  debugPrint('BDS-DEBUG: bundle START');
+  // Pass directory path to Isolate
+  final dir = await getApplicationDocumentsDirectory();
+  final dbPath = dir.path;
+
+  // Run in a separate isolate to prevent Isar FFI from blocking the main thread on Windows
+  final bundle = await Isolate.run(() {
+    final isar = Isar.getInstance('kanbatdongsan_v2') ?? Isar.openSync(
+      [
+        BdsPropertySchema,
+        CustomerSchema,
+        TransactionRecordSchema,
+        BrokerSchema,
+        FloorFeeSchema
+      ],
+      directory: dbPath,
+      name: 'kanbatdongsan_v2',
+    );
+
+    final properties = isar.propertys.where().findAllSync();
+    final customers = isar.customers.where().findAllSync();
+    final transactions = isar.transactionRecords.where().findAllSync();
+    final brokers = isar.brokers.where().findAllSync();
+    final floorFees = isar.floorFees.where().findAllSync();
+
+    return BdsDashboardBundle(
+      properties: properties.where((p) => p.deletedAt == null).toList(),
+      customers: customers.where((c) => c.deletedAt == null).toList(),
+      transactions: transactions.where((t) => t.deletedAt == null).toList(),
+      brokers: brokers.where((b) => b.deletedAt == null).toList(),
+      floorFees: floorFees.where((f) => f.deletedAt == null).toList(),
+    );
+  }).timeout(const Duration(seconds: 5), onTimeout: () {
+    debugPrint('BDS-DEBUG: bundle Isolate TIMED OUT');
+    return const BdsDashboardBundle(
+      properties: [],
+      customers: [],
+      transactions: [],
+      brokers: [],
+      floorFees: [],
+    );
+  });
+
+  debugPrint('BDS-DEBUG: bundle DONE props=${bundle.properties.length}');
+  return bundle;
+});
+
 // ================= DASHBOARD / BÁO CÁO =================
 
 /// Chỉ số Dashboard theo PRD mục 4.1.
 final dashboardMetricsProvider =
     FutureProvider<Map<String, double>>((ref) async {
-  final props = await ref.watch(propertiesProvider.future);
-  final customers = await ref.watch(customersProvider.future);
-  final txs = await ref.watch(transactionsProvider.future);
-  final fees = await ref.watch(floorFeesProvider.future);
+  debugPrint('BDS-DEBUG: dashboardMetrics START');
+  final bundle = await ref.watch(bdsBundleProvider.future);
+  debugPrint('BDS-DEBUG: dashboardMetrics got bundle');
   return BdsBusinessLogic.dashboardMetrics(
-    properties: props,
-    customers: customers,
-    transactions: txs,
-    fees: fees,
+    properties: bundle.properties,
+    customers: bundle.customers,
+    transactions: bundle.transactions,
+    fees: bundle.floorFees,
   );
 });
 

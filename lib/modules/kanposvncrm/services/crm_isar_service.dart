@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:isar/isar.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -19,7 +20,22 @@ class CrmIsarService {
       return Isar.getInstance('kanposvncrm_db')!;
     }
     final dir = await getApplicationDocumentsDirectory();
-    return await Isar.open(
+    try {
+      return await _open(dir.path);
+    } on IsarError catch (e) {
+      if (e.message.toLowerCase().contains('schema')) {
+        final oldDir = Directory('${dir.path}/kanposvncrm_db.isar');
+        if (oldDir.existsSync()) {
+          oldDir.renameSync('${dir.path}/kanposvncrm_db_backup_${DateTime.now().millisecondsSinceEpoch}.isar');
+        }
+        return await _open(dir.path);
+      }
+      rethrow;
+    }
+  }
+
+  Future<Isar> _open(String dirPath) {
+    return Isar.open(
       [
         CrmCustomerSchema,
         CrmStoreSchema,
@@ -32,7 +48,7 @@ class CrmIsarService {
         CrmErrorLogSchema,
       ],
       inspector: true,
-      directory: dir.path,
+      directory: dirPath,
       name: 'kanposvncrm_db',
     );
   }

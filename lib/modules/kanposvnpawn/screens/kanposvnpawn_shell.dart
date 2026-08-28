@@ -34,14 +34,18 @@ class _KanPosVnPawnShellState extends ConsumerState<KanPosVnPawnShell> {
   }
 
   Future<void> _initData() async {
-    final isarService = ref.read(pawnIsarServiceProvider);
-    await PawnSeedData.seedIfEmpty(isarService);
-    ref.read(pawnProvider.notifier).loadContracts();
-    ref.read(customerProvider.notifier).loadCustomers();
-    ref.read(productProvider.notifier).loadProducts();
-    setState(() {
-      _isInit = true;
-    });
+    try {
+      final isarService = ref.read(pawnIsarServiceProvider);
+      await PawnSeedData.seedIfEmpty(isarService);
+      ref.read(pawnProvider.notifier).loadContracts();
+      ref.read(customerProvider.notifier).loadCustomers();
+      ref.read(productProvider.notifier).loadProducts();
+    } catch (_) {}
+    if (mounted) {
+      setState(() {
+        _isInit = true;
+      });
+    }
   }
 
   static final Map<String, Set<String>> _roleTabs = {
@@ -98,8 +102,20 @@ class _KanPosVnPawnShellState extends ConsumerState<KanPosVnPawnShell> {
         roleTabs: _roleTabs,
       );
     }).toList();
-    final safeIndex = _selectedIndex < tabs.length ? _selectedIndex : 0;
+    final safeIndex = tabs.isNotEmpty ? (_selectedIndex < tabs.length ? _selectedIndex : 0) : 0;
     final isDesktop = MediaQuery.of(context).size.width > 600;
+
+    if (tabs.isEmpty) {
+      return Scaffold(
+        appBar: AppBar(
+          backgroundColor: auth.currentModule?.color ?? const Color(0xFFB45309),
+          foregroundColor: Colors.white,
+          title: const Text('KanPosVN - Cầm Đồ',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+        ),
+        body: const Center(child: Text('Không có quyền truy cập tab nào.\nLiên hệ quản trị viên để được cấp quyền.', textAlign: TextAlign.center)),
+      );
+    }
 
     return Scaffold(
       appBar: AppBar(

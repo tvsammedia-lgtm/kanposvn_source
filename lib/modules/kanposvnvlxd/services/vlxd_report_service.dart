@@ -5,7 +5,7 @@ import '../models/vlxd_inventory.dart';
 import '../models/vlxd_order.dart';
 import '../models/vlxd_partner.dart';
 import '../models/vlxd_product.dart';
-import '../models/vlxd_report_models.dart';
+import '../../../core/reports/crystal_report_models.dart';
 import '../services/vlxd_isar_service.dart';
 
 /// Xây dựng các báo cáo (mô phỏng báo cáo Crystal .rpt của KANVLXD) từ dữ liệu Isar.
@@ -239,6 +239,62 @@ class VlxdReportService {
         ReportSignatureItem('Người lập biểu', '(Ký, họ tên)'),
         ReportSignatureItem('Kế toán trưởng', '(Ký, họ tên)'),
         ReportSignatureItem('Thủ quỹ', '(Ký, họ tên)'),
+        ReportSignatureItem('Giám đốc', '(Ký, họ tên)'),
+      ],
+    );
+  }
+
+  // ---------------------------------------------------------------------------
+  // 1b) TỔNG HỢP QUỸ TIỀN MẶT (rp1111)
+  // ---------------------------------------------------------------------------
+
+  Future<CrystalReportModel> buildCashFundSummary({
+    required DateTime from,
+    required DateTime to,
+  }) async {
+    final all = await _allFinance();
+    final inRange = all.where((t) => _inRange(t.transactionDate, from, to)).toList();
+    
+    final opening = _openingCash(all, from);
+    double totalIn = 0, totalOut = 0;
+    
+    for (final t in inRange) {
+      if (t.type == FinanceTransactionType.RECEIPT) {
+        totalIn += t.amount;
+      } else {
+        totalOut += t.amount;
+      }
+    }
+    
+    final closing = opening + totalIn - totalOut;
+
+    final flex = [6, 42, 20];
+    final rows = <ReportRow>[
+      ReportRow([const ReportCell('1', align: ReportCellAlign.center), const ReportCell('Số dư đầu kỳ', isBold: true), ReportCell(formatMoney(opening), align: ReportCellAlign.right, isBold: true)]),
+      ReportRow([const ReportCell('2', align: ReportCellAlign.center), const ReportCell('Tổng thu trong kỳ', isBold: true), ReportCell(formatMoney(totalIn), align: ReportCellAlign.right, isBold: true)]),
+      ReportRow([const ReportCell('3', align: ReportCellAlign.center), const ReportCell('Tổng chi trong kỳ', isBold: true), ReportCell(formatMoney(totalOut), align: ReportCellAlign.right, isBold: true)]),
+      ReportRow([const ReportCell('4', align: ReportCellAlign.center), const ReportCell('Số dư cuối kỳ (1 + 2 - 3)', isBold: true), ReportCell(formatMoney(closing), align: ReportCellAlign.right, isBold: true)]),
+    ];
+
+    return CrystalReportModel(
+      formLine: _formS03a,
+      unitName: _unitName,
+      unitAddress: 'Địa chỉ: $_kAddress',
+      taxCode: 'Mã số thuế: $_kTax',
+      title: 'BÁO CÁO TỔNG HỢP QUỸ TIỀN MẶT',
+      titleSub: 'Dùng cho hình thức kế toán Nhật ký chung',
+      subtitleLines: ['Từ ngày ${formatDate(from)} đến ngày ${formatDate(to)}'],
+      columnFlex: flex,
+      headerRows: const [
+        [ReportHeaderCell('STT'), ReportHeaderCell('Diễn giải', align: ReportCellAlign.left), ReportHeaderCell('Số tiền (VND)')],
+      ],
+      rows: rows,
+      totalRows: [
+        ReportRow([const ReportCell(''), const ReportCell('TỔNG CỘNG', isBold: true), ReportCell(formatMoney(closing), align: ReportCellAlign.right, isBold: true)]),
+      ],
+      signature: const [
+        ReportSignatureItem('Người lập biểu', '(Ký, họ tên)'),
+        ReportSignatureItem('Kế toán trưởng', '(Ký, họ tên)'),
         ReportSignatureItem('Giám đốc', '(Ký, họ tên)'),
       ],
     );
@@ -1308,6 +1364,83 @@ class VlxdReportService {
       s += t.type == FinanceTransactionType.RECEIPT ? t.amount : -t.amount;
     }
     return s;
+  }
+
+  // ---------------------------------------------------------------------------
+  // 4b) BÁO CÁO LÃI LỖ (rpS10DN)
+  // ---------------------------------------------------------------------------
+
+  Future<CrystalReportModel> buildProfitLoss({
+    required DateTime from,
+    required DateTime to,
+  }) async {
+    final orders = await _allOrders();
+    final details = await _allOrderDetails();
+    final finance = await _allFinance();
+
+    final validOrders = orders.where((o) => o.status != OrderStatus.CANCELLED && _inRange(o.orderDate, from, to)).toList();
+    final orderIds = validOrders.map((o) => o.orderId).toSet();
+    
+    double revenue = 0;
+    for (final o in validOrders) {
+      revenue += o.totalAmount;
+    }
+
+    double cogs = 0;
+    for (final d in details) {
+      if (orderIds.contains(d.order.value?.orderId)) {
+        final p = d.product.value;
+        final cost = p != null ? p.purchasePrice : 0.0;
+        cogs += (cost * d.quantity);
+      }
+    }
+    
+    final grossProfit = revenue - cogs;
+
+    double expenses = 0;
+    for (final f in finance) {
+      if (f.type == FinanceTransactionType.PAYMENT && _inRange(f.transactionDate, from, to)) {
+        expenses += f.amount;
+      }
+    }
+    
+    final netProfit = grossProfit - expenses;
+
+    final flex = [42, 20];
+    final rows = <ReportRow>[
+      const ReportRow([ReportCell('=== DOANH THU & GIÁ VỐN ===', isBold: true), ReportCell('')]),
+      ReportRow([const ReportCell('  1. Doanh thu bán hàng'), ReportCell(formatMoney(revenue), align: ReportCellAlign.right)]),
+      ReportRow([const ReportCell('  2. Giá vốn hàng bán'), ReportCell(formatMoney(cogs), align: ReportCellAlign.right)]),
+      ReportRow([const ReportCell('Lợi nhuận gộp (1 - 2)', isBold: true), ReportCell(formatMoney(grossProfit), align: ReportCellAlign.right, isBold: true)]),
+      const ReportRow([ReportCell(''), ReportCell('')]),
+      const ReportRow([ReportCell('=== CHI PHÍ HOẠT ĐỘNG ===', isBold: true), ReportCell('')]),
+      ReportRow([const ReportCell('  3. Tổng chi phí trong kỳ'), ReportCell(formatMoney(expenses), align: ReportCellAlign.right)]),
+      const ReportRow([ReportCell(''), ReportCell('')]),
+      const ReportRow([ReportCell('=== KẾT QUẢ KINH DOANH ===', isBold: true), ReportCell('')]),
+      ReportRow([const ReportCell('Lợi nhuận ròng', isBold: true), ReportCell(formatMoney(netProfit), align: ReportCellAlign.right, isBold: true)]),
+    ];
+
+    return CrystalReportModel(
+      formLine: _formS03a,
+      unitName: _unitName,
+      unitAddress: 'Địa chỉ: $_kAddress',
+      taxCode: 'Mã số thuế: $_kTax',
+      title: 'BÁO CÁO LÃI LỖ',
+      subtitleLines: ['Từ ngày ${formatDate(from)} đến ngày ${formatDate(to)}'],
+      columnFlex: flex,
+      headerRows: const [
+        [ReportHeaderCell('Chỉ tiêu', align: ReportCellAlign.left), ReportHeaderCell('Số tiền (VND)')],
+      ],
+      rows: rows,
+      totalRows: [
+        ReportRow([const ReportCell('LỢI NHUẬN RÒNG', isBold: true), ReportCell(formatMoney(netProfit), align: ReportCellAlign.right, isBold: true)]),
+      ],
+      signature: const [
+        ReportSignatureItem('Người lập biểu', '(Ký, họ tên)'),
+        ReportSignatureItem('Kế toán trưởng', '(Ký, họ tên)'),
+        ReportSignatureItem('Giám đốc', '(Ký, họ tên)'),
+      ],
+    );
   }
 }
 

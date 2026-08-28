@@ -32,10 +32,15 @@ class _KanPosVNNgaoinguShellState extends ConsumerState<KanPosVNNgaoinguShell> {
   }
 
   Future<void> _initData() async {
-    final db = await NgoaiNguDatabaseSetup.init();
-    await NgoaiNguSeedData.seedIfEmpty(db);
-    if (!mounted) return;
-    setState(() { _isInit = true; });
+    try {
+      final db = await NgoaiNguDatabaseSetup.init();
+      await NgoaiNguSeedData.seedIfEmpty(db);
+    } catch (_) {}
+    if (mounted) {
+      setState(() {
+        _isInit = true;
+      });
+    }
   }
 
   static final Map<String, Set<String>> _roleTabs = {
@@ -70,8 +75,20 @@ class _KanPosVNNgaoinguShellState extends ConsumerState<KanPosVNNgaoinguShell> {
               roleTabs: _roleTabs,
             ))
         .toList();
-    final safeIndex = _selectedIndex < tabs.length ? _selectedIndex : 0;
+    final safeIndex = tabs.isNotEmpty ? (_selectedIndex < tabs.length ? _selectedIndex : 0) : 0;
     final isDesktop = MediaQuery.of(context).size.width > 600;
+
+    if (tabs.isEmpty) {
+      return Scaffold(
+        appBar: AppBar(
+          backgroundColor: const Color(0xFF4F46E5),
+          foregroundColor: Colors.white,
+          title: const Text('KanPosVN - Ngoai Ngu',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+        ),
+        body: const Center(child: Text('Không có quyền truy cập tab nào.\nLiên hệ quản trị viên để được cấp quyền.', textAlign: TextAlign.center)),
+      );
+    }
 
     return Scaffold(
       appBar: AppBar(

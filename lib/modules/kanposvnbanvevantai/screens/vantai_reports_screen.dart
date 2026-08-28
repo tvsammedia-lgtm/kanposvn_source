@@ -3,8 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../services/vantai_report_service.dart';
 import '../providers/vantai_providers.dart';
-import '../../kanposvncafe/widgets/crystal_report_widgets.dart';
-import '../../kanposvncafe/models/cafe_report_models.dart';
+import '../../../core/reports/crystal_report_widgets.dart';
+import '../../../core/reports/crystal_report_models.dart';
 
 class VantaiReportsScreen extends ConsumerStatefulWidget {
   const VantaiReportsScreen({super.key});

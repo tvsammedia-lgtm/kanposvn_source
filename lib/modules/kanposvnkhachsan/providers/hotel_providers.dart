@@ -11,6 +11,7 @@ import '../models/hotel_room.dart';
 import '../models/hotel_booking.dart';
 import '../models/hotel_checkin_checkout.dart';
 import '../models/hotel_service.dart';
+import '../../../core/utils/formatters.dart';
 
 // Services
 final hotelIsarServiceProvider = Provider<HotelIsarService>((ref) {
@@ -297,11 +298,11 @@ class HotelCheckInsNotifier extends StateNotifier<AsyncValue<List<RoomCheckIn>>>
       await db.writeTxn(() async {
         final c = await db.roomCheckIns.get(checkIn.id);
         if (c == null) return;
-        c.roomTotalCharge = roomTotalCharge;
-        c.serviceTotalCharge = serviceTotal;
+        c.roomTotalCharge = safeDouble(roomTotalCharge);
+        c.serviceTotalCharge = safeDouble(serviceTotal);
         c.actualCheckOut = DateTime.now();
-        c.discount = discount;
-        c.finalTotal = (c.roomTotalCharge + c.serviceTotalCharge - discount).clamp(0.0, double.infinity);
+        c.discount = safeDouble(discount);
+        c.finalTotal = safeDouble(c.roomTotalCharge + c.serviceTotalCharge - c.discount);
         c.isCheckedOut = true;
         await db.roomCheckIns.put(c);
 

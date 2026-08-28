@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../models/cafe_report_models.dart';
-
+import 'crystal_report_models.dart';
 /// Bộ widget mô phỏng định dạng báo cáo Crystal Reports (.rpt) của
 /// KANCAFE: tiêu đề, bảng kẻ ô, dòng tổng cộng, khối chữ ký cuối trang.
 

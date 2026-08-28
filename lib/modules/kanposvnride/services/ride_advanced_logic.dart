@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:isar/isar.dart';
+import '../../../core/utils/formatters.dart';
 import '../models/ride_booking.dart';
 import '../models/ride_driver.dart';
 import '../models/ride_ops_models.dart';
@@ -592,7 +593,7 @@ class RideAdvancedLogic {
       {double? amount}) async {
     final pay = amount ?? corp.currentDebt;
     await db.writeTxn(() async {
-      corp.currentDebt = (corp.currentDebt - pay).clamp(0.0, double.infinity);
+      corp.currentDebt = safeDouble(corp.currentDebt - pay);
       await db.rideCorporateAccounts.put(corp);
     });
     await audit(db, 'PAYMENT', corp.corpId,

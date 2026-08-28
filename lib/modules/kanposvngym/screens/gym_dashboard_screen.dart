@@ -13,6 +13,8 @@ import 'gym_checkin_screen.dart';
 import 'gym_settings_screen.dart';
 import 'gym_reports_screen.dart';
 import '../../../core/widgets/owner_info_bar.dart';
+import '../../../core/widgets/account_switcher_button.dart';
+import '../../../core/router/module_selector_screen.dart';
 
 class GymDashboardScreen extends ConsumerStatefulWidget {
   const GymDashboardScreen({super.key});
@@ -49,10 +51,20 @@ class _GymDashboardScreenState extends ConsumerState<GymDashboardScreen> {
     final revenueAsync = ref.watch(gymRevenueTodayProvider);
     final expiringAsync = ref.watch(gymExpiringCardsProvider(7));
 
-    return Scaffold(
+return Scaffold(
       appBar: AppBar(
         title: const Text('KanGYM - Quản lý Phòng Tập'),
-        backgroundColor: const Color(0xFF1E3A8A), // Blue đậm thể thao
+        backgroundColor: const Color(0xFF1E3A8A),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          tooltip: 'Quay lại màn hình chọn module',
+          onPressed: () {
+            ref.read(selectedModuleProvider.notifier).state = null;
+          },
+        ),
+        actions: const [
+          AccountSwitcherButton(foregroundColor: Colors.white),
+        ],
       ),
       drawer: Drawer(
         child: ListView(

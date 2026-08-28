@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/auth/auth_service.dart';
-import '../models/cafe_report_models.dart';
+import '../../../core/reports/crystal_report_models.dart';
 import '../providers/cafe_providers.dart';
 import '../services/cafe_report_service.dart';
-import '../widgets/crystal_report_widgets.dart';
+import '../../../core/reports/crystal_report_widgets.dart';
 
 /// Tab "Báo cáo chung" — mô phỏng các báo cáo Crystal (.rpt) của KANCAFE:
 /// quỹ tiền mặt (rp1111 / rp1111_Detail), sơ đồ tầng bàn,
@@ -34,6 +34,8 @@ class _CafeReportsScreenState extends ConsumerState<CafeReportsScreen> {
         Icons.account_balance_wallet, _ReportGroup.cash),
     _ReportDescriptor('cash_detail', 'Sổ quỹ tiền mặt (chi tiết)',
         Icons.menu_book, _ReportGroup.cash),
+    _ReportDescriptor('profit_loss', 'Báo cáo lãi lỗ',
+        Icons.assessment, _ReportGroup.cash),
     _ReportDescriptor('floor', 'Sơ đồ tầng bàn',
         Icons.grid_view, _ReportGroup.cafe),
     _ReportDescriptor('menu_list', 'Danh mục món ăn',
@@ -93,6 +95,9 @@ class _CafeReportsScreenState extends ConsumerState<CafeReportsScreen> {
           break;
         case 'cash_detail':
           result = service.buildCashFundDetail(from: from, to: to);
+          break;
+        case 'profit_loss':
+          result = service.buildProfitLoss(from: from, to: to);
           break;
         case 'floor':
           result = service.buildTableFloorReport();

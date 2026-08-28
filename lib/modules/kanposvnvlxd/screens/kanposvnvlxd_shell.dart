@@ -35,12 +35,18 @@ class _KanPosVNVlxdShellState extends ConsumerState<KanPosVNVlxdShell> {
   }
 
   Future<void> _initData() async {
-    final isarService = ref.read(vlxdIsarServiceProvider);
-    await VlxdSeedData.seedIfEmpty(isarService);
-    ref.read(vlxdProductsProvider.notifier).loadProducts();
-    setState(() {
-      _isInit = true;
-    });
+    try {
+      final isarService = ref.read(vlxdIsarServiceProvider);
+      await VlxdSeedData.seedIfEmpty(isarService);
+      ref.read(vlxdProductsProvider.notifier).loadProducts();
+    } catch (_) {
+      // DB schema mismatch hoặc lỗi khác → vẫn cho vào shell (tab sẽ báo lỗi nếu cần)
+    }
+    if (mounted) {
+      setState(() {
+        _isInit = true;
+      });
+    }
   }
 
   static final Map<String, Set<String>> _roleTabs = {
@@ -108,8 +114,20 @@ class _KanPosVNVlxdShellState extends ConsumerState<KanPosVNVlxdShell> {
         roleTabs: _roleTabs,
       );
     }).toList();
-    final safeIndex = _selectedIndex < tabs.length ? _selectedIndex : 0;
+    final safeIndex = tabs.isNotEmpty ? (_selectedIndex < tabs.length ? _selectedIndex : 0) : 0;
     final isDesktop = MediaQuery.of(context).size.width > 600;
+
+    if (tabs.isEmpty) {
+      return Scaffold(
+        appBar: AppBar(
+          backgroundColor: auth.currentModule?.color ?? const Color(0xFF6366F1),
+          foregroundColor: Colors.white,
+          title: const Text('KanPosVN - Vật Liệu Xây Dựng',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+        ),
+        body: const Center(child: Text('Không có quyền truy cập tab nào.\nLiên hệ quản trị viên để được cấp quyền.', textAlign: TextAlign.center)),
+      );
+    }
 
     return Scaffold(
       appBar: AppBar(

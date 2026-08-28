@@ -36,18 +36,24 @@ class _KanPosVNBidaShellState extends ConsumerState<KanPosVNBidaShell> {
   }
 
   Future<void> _initData() async {
-    final isarService = ref.read(bidaIsarServiceProvider);
-    await BidaSeedData.seedIfEmpty(isarService);
-    ref.read(bidaTablesProvider.notifier).loadTables();
-    ref.read(bidaItemsProvider.notifier).loadItems();
-    ref.read(bidaSessionsProvider.notifier).loadSessions();
-    ref.read(bidaDashboardProvider.notifier).loadDashboard();
-    ref.read(bidaCustomersProvider.notifier).loadCustomers();
-    ref.read(bidaReservationsProvider.notifier).loadReservations();
-    ref.read(bidaFinanceProvider.notifier).loadTransactions();
-    setState(() {
-      _isInit = true;
-    });
+    try {
+      final isarService = ref.read(bidaIsarServiceProvider);
+      await BidaSeedData.seedIfEmpty(isarService);
+      ref.read(bidaTablesProvider.notifier).loadTables();
+      ref.read(bidaItemsProvider.notifier).loadItems();
+      ref.read(bidaSessionsProvider.notifier).loadSessions();
+      ref.read(bidaDashboardProvider.notifier).loadDashboard();
+      ref.read(bidaCustomersProvider.notifier).loadCustomers();
+      ref.read(bidaReservationsProvider.notifier).loadReservations();
+      ref.read(bidaFinanceProvider.notifier).loadTransactions();
+    } catch (_) {
+      // DB schema mismatch hoặc lỗi khác → vẫn cho vào shell (tab sẽ báo lỗi nếu cần)
+    }
+    if (mounted) {
+      setState(() {
+        _isInit = true;
+      });
+    }
   }
 
   static final Map<String, Set<String>> _roleTabs = {
@@ -113,8 +119,20 @@ class _KanPosVNBidaShellState extends ConsumerState<KanPosVNBidaShell> {
         roleTabs: _roleTabs,
       );
     }).toList();
-    final safeIndex = _selectedIndex < tabs.length ? _selectedIndex : 0;
+    final safeIndex = tabs.isNotEmpty ? (_selectedIndex < tabs.length ? _selectedIndex : 0) : 0;
     final isDesktop = MediaQuery.of(context).size.width > 600;
+
+    if (tabs.isEmpty) {
+      return Scaffold(
+        appBar: AppBar(
+          backgroundColor: auth.currentModule?.color ?? const Color(0xFF059669),
+          foregroundColor: Colors.white,
+          title: const Text('KanPosVN - Quản Lý Bida',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+        ),
+        body: const Center(child: Text('Không có quyền truy cập tab nào.\nLiên hệ quản trị viên để được cấp quyền.', textAlign: TextAlign.center)),
+      );
+    }
 
     return Scaffold(
       appBar: AppBar(

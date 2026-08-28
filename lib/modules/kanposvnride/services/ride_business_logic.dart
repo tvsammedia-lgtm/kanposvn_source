@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:isar/isar.dart';
+import '../../../core/utils/formatters.dart';
 import '../models/ride_booking.dart';
 import '../models/ride_driver.dart';
 import '../models/ride_ops_models.dart';
@@ -137,7 +138,7 @@ class RideBusinessLogic {
       promoDiscount = promoDiscount.clamp(0.0, subtotal);
     }
 
-    final total = (subtotal - promoDiscount).clamp(0.0, double.infinity);
+    final total = safeDouble(subtotal - promoDiscount);
     return RideFareQuote(
       baseFare: base,
       distanceFare: distanceFare,

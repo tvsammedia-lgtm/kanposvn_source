@@ -1,5 +1,7 @@
 import 'package:intl/intl.dart';
 
+import '../../../core/utils/formatters.dart';
+
 /// Mô hình dữ liệu mô phỏng báo cáo dạng Crystal Reports (KANHOT .rpt).
 ///
 /// Gồm: tiêu đề, các dòng phụ đề, bảng (header nhiều dòng + dữ liệu),
@@ -123,7 +125,7 @@ const String kBlankDash = '.....................................................
 /// Định dạng số tiền VND kiểu kế toán (không có ký hiệu).
 String formatMoney(double value) {
   final f = NumberFormat.currency(locale: 'vi_VN', symbol: '', decimalDigits: 0);
-  final s = f.format(value);
+  final s = f.format(safeDouble(value));
   return s.endsWith(',') ? s.substring(0, s.length - 1) : s;
 }
 

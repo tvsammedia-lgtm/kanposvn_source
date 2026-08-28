@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:isar/isar.dart';
 import 'package:path_provider/path_provider.dart';
 import '../models/bida_table.dart';
@@ -21,7 +23,23 @@ class BidaIsarService {
       return Isar.getInstance('bida_db')!;
     }
     final dir = await getApplicationDocumentsDirectory();
-    return await Isar.open(
+    try {
+      return await _open(dir.path);
+    } on IsarError catch (e) {
+      // Schema thay đổi (VD: thêm field) -> lưu lại DB cũ và mở lại với schema mới
+      if (e.message.toLowerCase().contains('schema')) {
+        final oldDir = Directory('${dir.path}/bida_db.isar');
+        if (oldDir.existsSync()) {
+          oldDir.renameSync('${dir.path}/bida_db_backup_${DateTime.now().millisecondsSinceEpoch}.isar');
+        }
+        return await _open(dir.path);
+      }
+      rethrow;
+    }
+  }
+
+  Future<Isar> _open(String dirPath) {
+    return Isar.open(
       [
         BidaTableSchema,
         BidaItemSchema,
@@ -35,7 +53,7 @@ class BidaIsarService {
         BidaBlockPlanSchema,
         BidaReservationSchema,
       ],
-      directory: dir.path,
+      directory: dirPath,
       name: 'bida_db',
     );
   }

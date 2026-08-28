@@ -36,18 +36,22 @@ class _KanPosVNNhathuocShellState extends ConsumerState<KanPosVNNhathuocShell> {
   }
 
   Future<void> _initData() async {
-    final isarService = ref.read(nhathuocIsarServiceProvider);
-    await NhathuocSeedData.seedIfEmpty(isarService);
-    ref.read(nhathuocMedicinesProvider.notifier).loadMedicines();
-    ref.read(nhathuocPatientsProvider.notifier).loadPatients();
-    ref.read(nhathuocSuppliersProvider.notifier).loadSuppliers();
-    ref.read(nhathuocCustomersProvider.notifier).loadCustomers();
-    ref.read(nhathuocExpensesProvider.notifier).loadExpenses();
-    ref.read(nhathuocPrescriptionTemplatesProvider.notifier).loadTemplates();
-    ref.read(nhathuocFinanceProvider.notifier).calculateMetrics();
-    setState(() {
-      _isInit = true;
-    });
+    try {
+      final isarService = ref.read(nhathuocIsarServiceProvider);
+      await NhathuocSeedData.seedIfEmpty(isarService);
+      ref.read(nhathuocMedicinesProvider.notifier).loadMedicines();
+      ref.read(nhathuocPatientsProvider.notifier).loadPatients();
+      ref.read(nhathuocSuppliersProvider.notifier).loadSuppliers();
+      ref.read(nhathuocCustomersProvider.notifier).loadCustomers();
+      ref.read(nhathuocExpensesProvider.notifier).loadExpenses();
+      ref.read(nhathuocPrescriptionTemplatesProvider.notifier).loadTemplates();
+      ref.read(nhathuocFinanceProvider.notifier).calculateMetrics();
+    } catch (_) {}
+    if (mounted) {
+      setState(() {
+        _isInit = true;
+      });
+    }
   }
 
   static final Map<String, Set<String>> _roleTabs = {
@@ -116,8 +120,20 @@ class _KanPosVNNhathuocShellState extends ConsumerState<KanPosVNNhathuocShell> {
         roleTabs: _roleTabs,
       );
     }).toList();
-    final safeIndex = _selectedIndex < tabs.length ? _selectedIndex : 0;
+    final safeIndex = tabs.isNotEmpty ? (_selectedIndex < tabs.length ? _selectedIndex : 0) : 0;
     final isDesktop = MediaQuery.of(context).size.width > 600;
+
+    if (tabs.isEmpty) {
+      return Scaffold(
+        appBar: AppBar(
+          backgroundColor: auth.currentModule?.color ?? const Color(0xFF10B981),
+          foregroundColor: Colors.white,
+          title: const Text('KanPosVN - Nhà Thuốc',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+        ),
+        body: const Center(child: Text('Không có quyền truy cập tab nào.\nLiên hệ quản trị viên để được cấp quyền.', textAlign: TextAlign.center)),
+      );
+    }
 
     return Scaffold(
       appBar: AppBar(

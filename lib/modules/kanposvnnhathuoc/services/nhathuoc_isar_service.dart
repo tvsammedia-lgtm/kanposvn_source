@@ -24,7 +24,22 @@ class NhathuocIsarService {
     
     final dir = Directory.systemTemp.createTempSync('nhathuoc_db');
     
-    return await Isar.open(
+    try {
+      return await _open(dir.path);
+    } on IsarError catch (e) {
+      if (e.message.toLowerCase().contains('schema')) {
+        final oldDir = Directory('${dir.path}/nhathuoc_db.isar');
+        if (oldDir.existsSync()) {
+          oldDir.renameSync('${dir.path}/nhathuoc_db_backup_${DateTime.now().millisecondsSinceEpoch}.isar');
+        }
+        return await _open(dir.path);
+      }
+      rethrow;
+    }
+  }
+
+  Future<Isar> _open(String dirPath) {
+    return Isar.open(
       [
         NhathuocMedicineSchema,
         NhathuocPatientSchema,
@@ -39,7 +54,7 @@ class NhathuocIsarService {
         NhathuocCustomerSchema,
         NhathuocExpenseSchema,
       ],
-      directory: dir.path,
+      directory: dirPath,
       name: 'nhathuoc_db',
     );
   }

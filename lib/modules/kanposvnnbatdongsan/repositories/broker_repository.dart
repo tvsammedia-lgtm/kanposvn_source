@@ -1,11 +1,23 @@
+import 'package:flutter/foundation.dart';
 import 'package:isar/isar.dart';
 import '../models/broker.dart';
 import 'isar_db.dart';
 
 class BrokerRepository {
   Future<List<Broker>> getAllBrokers() async {
+    debugPrint('BDS-DEBUG: brokers findAll START');
     final isar = await KanBatDongSanIsarDB.getInstance();
-    return await isar.brokers.where().findAll();
+    try {
+      final r = await isar.brokers
+          .where()
+          .findAll()
+          .timeout(const Duration(seconds: 6));
+      debugPrint('BDS-DEBUG: brokers findAll DONE n=${r.length}');
+      return r;
+    } catch (e, st) {
+      debugPrint('BDS-DEBUG: brokers findAll ERROR/TIMEOUT $e\n$st');
+      return <Broker>[];
+    }
   }
 
   Future<void> saveBroker(Broker broker) async {

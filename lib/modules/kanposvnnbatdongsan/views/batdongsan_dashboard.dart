@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:isar/isar.dart';
 
 import '../../../core/auth/employee_auth.dart';
 import '../../../core/auth/employee_role_policy.dart';
@@ -8,6 +9,8 @@ import '../../../core/widgets/owner_info_bar.dart';
 
 import '../../../core/providers.dart';
 import '../providers/batdongsan_providers.dart';
+import '../models/property.dart';
+import '../repositories/isar_db.dart';
 import '../services/batdongsan_seed_data.dart';
 import 'batdongsan_home_screen.dart';
 import 'property_list_screen.dart';
@@ -39,19 +42,23 @@ class _BatDongSanDashboardState extends ConsumerState<BatDongSanDashboard> {
   }
 
   Future<void> _initData() async {
-    await BatDongSanSeedData.seedIfEmpty();
-    ref.invalidate(propertiesProvider);
-    ref.invalidate(transactionsProvider);
-    ref.invalidate(customersProvider);
-    ref.invalidate(buyersProvider);
-    ref.invalidate(sellersProvider);
-    ref.invalidate(brokersProvider);
-    ref.invalidate(floorFeesProvider);
+    debugPrint('BDS-DEBUG: _initData START');
+    try {
+      await BatDongSanSeedData.seedIfEmpty();
+      debugPrint('BDS-DEBUG: _initData seed done');
+      ref.invalidate(bdsBundleProvider);
+      ref.invalidate(dashboardMetricsProvider);
+      debugPrint('BDS-DEBUG: _initData invalidated');
+    } catch (e, st) {
+      // Lỗi mở DB/seed: không treo màn hình trắng, vẫn vào shell với dữ liệu rỗng.
+      debugPrint('BDS-DEBUG: _initData CATCH e=$e\n$st');
+    }
     if (mounted) {
       setState(() {
         _isInit = true;
       });
     }
+    debugPrint('BDS-DEBUG: _initData END');
   }
 
   static final Map<String, Set<String>> _roleTabs = {
@@ -63,7 +70,7 @@ class _BatDongSanDashboardState extends ConsumerState<BatDongSanDashboard> {
       'brokers',
       'transactions',
       'match',
-      'report'
+      'report',
     },
     EmployeeRoles.warehouse: const {'home', 'properties'},
     EmployeeRoles.accountant: const {
@@ -72,7 +79,7 @@ class _BatDongSanDashboardState extends ConsumerState<BatDongSanDashboard> {
       'transactions',
       'brokers',
       'report',
-      'settings'
+      'settings',
     },
   };
 
@@ -101,7 +108,7 @@ class _BatDongSanDashboardState extends ConsumerState<BatDongSanDashboard> {
   };
 
   static final List<({String id, Widget screen, IconData icon, String label})>
-      _allTabs = [
+  _allTabs = [
     for (final e in _tabDefs.entries)
       (
         id: e.key,
@@ -129,46 +136,51 @@ class _BatDongSanDashboardState extends ConsumerState<BatDongSanDashboard> {
         roleTabs: _roleTabs,
       );
     }).toList();
-    final safeIndex = _selectedIndex < tabs.length ? _selectedIndex : 0;
+    final safeIndex = tabs.isNotEmpty
+        ? (_selectedIndex < tabs.length ? _selectedIndex : 0)
+        : 0;
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Quản lý Môi giới Bất động sản'),
-        actions: const [
-          AccountSwitcherButton(),
-        ],
+        actions: const [AccountSwitcherButton()],
       ),
       body: Column(
         children: [
           const OwnerInfoBar(),
           const SizedBox(height: 12),
           Expanded(
-            child: Row(
-              children: [
-                SingleChildScrollView(
-                  scrollDirection: Axis.vertical,
-                  child: NavigationRail(
-                    selectedIndex: safeIndex,
-                    onDestinationSelected: (index) =>
-                        setState(() => _selectedIndex = index),
-                    labelType: NavigationRailLabelType.all,
-                    selectedIconTheme:
-                        const IconThemeData(color: Color(0xFF0284C7)),
-                    selectedLabelTextStyle: const TextStyle(
-                        color: Color(0xFF0284C7), fontWeight: FontWeight.bold),
-                    destinations: [
-                      for (final t in tabs)
-                        NavigationRailDestination(
-                          icon: Icon(t.icon),
-                          label: Text(t.label),
+            child: tabs.isEmpty
+                ? const Center(
+                    child: Text('Bạn chưa được cấp quyền truy cập module này'),
+                  )
+                : Row(
+                    children: [
+                      NavigationRail(
+                        scrollable: true,
+                        selectedIndex: safeIndex,
+                        onDestinationSelected: (index) =>
+                            setState(() => _selectedIndex = index),
+                        labelType: NavigationRailLabelType.all,
+                        selectedIconTheme: const IconThemeData(
+                          color: Color(0xFF0284C7),
                         ),
+                        selectedLabelTextStyle: const TextStyle(
+                          color: Color(0xFF0284C7),
+                          fontWeight: FontWeight.bold,
+                        ),
+                        destinations: [
+                          for (final t in tabs)
+                            NavigationRailDestination(
+                              icon: Icon(t.icon),
+                              label: Text(t.label),
+                            ),
+                        ],
+                      ),
+                      const VerticalDivider(thickness: 1, width: 1),
+                      Expanded(child: ClipRect(child: tabs[safeIndex].screen)),
                     ],
                   ),
-                ),
-                const VerticalDivider(thickness: 1, width: 1),
-                Expanded(child: ClipRect(child: tabs[safeIndex].screen)),
-              ],
-            ),
           ),
         ],
       ),

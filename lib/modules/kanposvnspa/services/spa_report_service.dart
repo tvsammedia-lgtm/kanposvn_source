@@ -1,6 +1,6 @@
 import 'package:intl/intl.dart';
 import 'package:isar/isar.dart';
-import '../../kanposvncafe/models/cafe_report_models.dart';
+import '../../../core/reports/crystal_report_models.dart';
 import '../models/spa_session.dart';
 import '../models/spa_expense.dart';
 import '../models/spa_inventory_models.dart';

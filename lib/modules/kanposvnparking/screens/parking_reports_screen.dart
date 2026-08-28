@@ -3,8 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../services/parking_report_service.dart';
 import '../providers/parking_providers.dart';
-import '../../kanposvncafe/widgets/crystal_report_widgets.dart';
-import '../../kanposvncafe/models/cafe_report_models.dart';
+import '../../../core/reports/crystal_report_widgets.dart';
+import '../../../core/reports/crystal_report_models.dart';
 
 class ParkingReportsScreen extends ConsumerStatefulWidget {
   const ParkingReportsScreen({super.key});

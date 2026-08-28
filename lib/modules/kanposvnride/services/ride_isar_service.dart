@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:isar/isar.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -20,7 +21,22 @@ class RideIsarService {
       return Isar.getInstance('kanposvnride_db')!;
     }
     final dir = await getApplicationDocumentsDirectory();
-    return await Isar.open(
+    try {
+      return await _open(dir.path);
+    } on IsarError catch (e) {
+      if (e.message.toLowerCase().contains('schema')) {
+        final oldDir = Directory('${dir.path}/kanposvnride_db.isar');
+        if (oldDir.existsSync()) {
+          oldDir.renameSync('${dir.path}/kanposvnride_db_backup_${DateTime.now().millisecondsSinceEpoch}.isar');
+        }
+        return await _open(dir.path);
+      }
+      rethrow;
+    }
+  }
+
+  Future<Isar> _open(String dirPath) {
+    return Isar.open(
       [
         RideDriverSchema,
         RideBookingSchema,
@@ -31,7 +47,7 @@ class RideIsarService {
         KanRideSyncConfigSchema,
       ],
       inspector: true,
-      directory: dir.path,
+      directory: dirPath,
       name: 'kanposvnride_db',
     );
   }

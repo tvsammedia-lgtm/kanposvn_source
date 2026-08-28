@@ -11,24 +11,23 @@ class BatDongSanHomeScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final metricsAsync = ref.watch(dashboardMetricsProvider);
-    final txsAsync = ref.watch(transactionsProvider);
-    final propsAsync = ref.watch(propertiesProvider);
-    final customersAsync = ref.watch(customersProvider);
-    final brokersAsync = ref.watch(brokersProvider);
+    final bundleAsync = ref.watch(bdsBundleProvider);
 
     return RefreshIndicator(
       onRefresh: () async {
+        ref.invalidate(bdsBundleProvider);
         ref.invalidate(dashboardMetricsProvider);
-        ref.invalidate(transactionsProvider);
       },
       child: metricsAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => Center(child: Text('Lỗi: $e')),
         data: (m) {
-          final txs = txsAsync.value ?? [];
-          final props = propsAsync.value ?? [];
-          final custs = customersAsync.value ?? [];
-          final brks = brokersAsync.value ?? [];
+          debugPrint('BDS-DEBUG: home data rendered');
+          final bundle = bundleAsync.value;
+          final txs = bundle?.transactions ?? [];
+          final props = bundle?.properties ?? [];
+          final custs = bundle?.customers ?? [];
+          final brks = bundle?.brokers ?? [];
 
           // Giao dịch gần đây (5).
           final recent = txs.take(5).toList();

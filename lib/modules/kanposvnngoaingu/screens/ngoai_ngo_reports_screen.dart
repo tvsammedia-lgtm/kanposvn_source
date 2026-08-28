@@ -3,8 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../services/ngoai_ngo_report_service.dart';
 import '../providers/ngoaingu_isar_provider.dart';
-import '../../kanposvncafe/widgets/crystal_report_widgets.dart';
-import '../../kanposvncafe/models/cafe_report_models.dart';
+import '../../../core/reports/crystal_report_widgets.dart';
+import '../../../core/reports/crystal_report_models.dart';
 
 class NgoaiNguReportsScreen extends ConsumerStatefulWidget {
   const NgoaiNguReportsScreen({super.key});

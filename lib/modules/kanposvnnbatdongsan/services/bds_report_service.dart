@@ -5,7 +5,7 @@ import '../models/customer.dart';
 import '../models/broker.dart';
 import '../models/transaction.dart';
 import '../models/floor_fee.dart';
-import '../../kanposvncafe/models/cafe_report_models.dart';
+import '../../../core/reports/crystal_report_models.dart';
 
 class BdsReportService {
   final Isar _isar;

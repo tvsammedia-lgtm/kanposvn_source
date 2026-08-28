@@ -39,25 +39,28 @@ class _KanPosVNSpaShellState extends ConsumerState<KanPosVNSpaShell> {
   }
 
   Future<void> _initData() async {
-    final isarService = ref.read(spaIsarServiceProvider);
-    await SpaSeedData.seedIfEmpty(isarService);
-    ref.read(spaBedsProvider.notifier).loadBeds();
-    ref.read(spaServicesProvider.notifier).loadServices();
-    ref.read(spaTechsProvider.notifier).loadTechs();
-    ref.read(spaSessionsProvider.notifier).loadSessions();
-    ref.read(spaDashboardProvider.notifier).loadDashboard();
-    // Load Phase 2 providers
-    ref.read(spaCustomersProvider.notifier).loadCustomers();
-    ref.read(spaProductsProvider.notifier).loadProducts();
-    ref.read(spaInventoryProvider.notifier).loadTransactions();
-    // Load Phase 3 providers
-    ref.read(spaAppointmentsProvider.notifier).load();
-    ref.read(spaCombosProvider.notifier).load();
-    ref.read(spaExpensesProvider.notifier).load();
-
-    setState(() {
-      _isInit = true;
-    });
+    try {
+      final isarService = ref.read(spaIsarServiceProvider);
+      await SpaSeedData.seedIfEmpty(isarService);
+      ref.read(spaBedsProvider.notifier).loadBeds();
+      ref.read(spaServicesProvider.notifier).loadServices();
+      ref.read(spaTechsProvider.notifier).loadTechs();
+      ref.read(spaSessionsProvider.notifier).loadSessions();
+      ref.read(spaDashboardProvider.notifier).loadDashboard();
+      // Load Phase 2 providers
+      ref.read(spaCustomersProvider.notifier).loadCustomers();
+      ref.read(spaProductsProvider.notifier).loadProducts();
+      ref.read(spaInventoryProvider.notifier).loadTransactions();
+      // Load Phase 3 providers
+      ref.read(spaAppointmentsProvider.notifier).load();
+      ref.read(spaCombosProvider.notifier).load();
+      ref.read(spaExpensesProvider.notifier).load();
+    } catch (_) {}
+    if (mounted) {
+      setState(() {
+        _isInit = true;
+      });
+    }
   }
 
   static final Map<String, Set<String>> _roleTabs = {
@@ -124,8 +127,17 @@ class _KanPosVNSpaShellState extends ConsumerState<KanPosVNSpaShell> {
         roleTabs: _roleTabs,
       );
     }).toList();
-    final safeIndex = _selectedIndex < tabs.length ? _selectedIndex : 0;
+    final safeIndex = tabs.isNotEmpty ? (_selectedIndex < tabs.length ? _selectedIndex : 0) : 0;
     final isDesktop = MediaQuery.of(context).size.width > 600;
+
+    if (tabs.isEmpty) {
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text('Quản lý Spa'),
+        ),
+        body: const Center(child: Text('Không có quyền truy cập tab nào.\nLiên hệ quản trị viên để được cấp quyền.', textAlign: TextAlign.center)),
+      );
+    }
 
     return Scaffold(
       appBar: AppBar(

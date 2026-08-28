@@ -165,11 +165,14 @@ class _RestaurantReservationsScreenState
       appBar: AppBar(
         title: const Text('Quản Lý Đặt Bàn'),
         actions: [
-          SwitchListTile(
-            title: const Text('Hiện tất cả'),
-            value: _showAll,
-            dense: true,
-            onChanged: (v) => setState(() => _showAll = v),
+          Row(
+            children: [
+              const Text('Hiện tất cả'),
+              Switch(
+                value: _showAll,
+                onChanged: (v) => setState(() => _showAll = v),
+              ),
+            ],
           ),
           Padding(
             padding: const EdgeInsets.only(right: 12),

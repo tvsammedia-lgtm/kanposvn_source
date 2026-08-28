@@ -6,7 +6,7 @@ import 'package:isar/isar.dart';
 import 'package:isar/src/native/isar_core.dart' show initializeCoreBinary;
 import 'package:kanposvn/modules/kanposvntaphoasmmini/models/invoice.dart';
 import 'package:kanposvn/modules/kanposvntaphoasmmini/models/sync_model.dart';
-import 'package:kanposvn/modules/kanposvntaphoasmmini/models/taphoa_report_models.dart';
+import 'package:kanposvn/core/reports/crystal_report_models.dart';
 import 'package:kanposvn/modules/kanposvntaphoasmmini/services/taphoa_isar_service.dart';
 import 'package:kanposvn/modules/kanposvntaphoasmmini/services/taphoa_report_service.dart';
 import 'package:kanposvn/modules/kanposvntaphoasmmini/services/taphoa_seed_data.dart';

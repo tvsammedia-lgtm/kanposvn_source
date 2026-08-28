@@ -27,7 +27,23 @@ class TapHoaIsarService {
       return Isar.getInstance(dbName)!;
     }
     final dir = directory ?? await getApplicationDocumentsDirectory();
-    return await Isar.open(
+    try {
+      return await _open(dir.path, dbName, inspector: directory == null);
+    } on IsarError catch (e) {
+      if (e.message.toLowerCase().contains('schema')) {
+        final oldDir = Directory('${dir.path}/$dbName.isar');
+        if (oldDir.existsSync()) {
+          oldDir.renameSync('${dir.path}/${dbName}_backup_${DateTime.now().millisecondsSinceEpoch}.isar');
+        }
+        return await _open(dir.path, dbName, inspector: directory == null);
+      }
+      rethrow;
+    }
+  }
+
+  Future<Isar> _open(String dirPath, String dbName,
+      {required bool inspector}) {
+    return Isar.open(
       [
         TapHoaCategorySchema,
         TapHoaProductSchema,
@@ -41,8 +57,8 @@ class TapHoaIsarService {
         TapHoaSyncQueueSchema,
         TapHoaSyncConfigSchema,
       ],
-      inspector: directory == null,
-      directory: dir.path,
+      inspector: inspector,
+      directory: dirPath,
       name: dbName,
     );
   }

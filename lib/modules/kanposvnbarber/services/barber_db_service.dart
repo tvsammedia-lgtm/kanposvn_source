@@ -10,6 +10,7 @@ import '../models/barber_hair_style.dart';
 import '../models/barber_expense.dart';
 import '../models/barber_inventory_transaction.dart';
 import '../models/barber_supplier.dart';
+import '../models/barber_ai_result.dart';
 
 class BarberDbService {
   final Isar isar;
@@ -147,6 +148,19 @@ class BarberDbService {
     return await isar.barberInventoryTransactions.where().anyId().findAll();
   }
 
+  // ═══════════════════ AI Results ═══════════════════
+  Future<void> saveAiResult(BarberAiResult result) async {
+    await isar.writeTxn(() async => await isar.barberAiResults.put(result));
+  }
+
+  Future<List<BarberAiResult>> getAiResults() async {
+    return await isar.barberAiResults.where().sortByCreatedAtDesc().findAll();
+  }
+
+  Future<void> deleteAiResult(int isarId) async {
+    await isar.writeTxn(() async => await isar.barberAiResults.delete(isarId));
+  }
+
   // ═══════════════════ Helpers ═══════════════════
   Future<void> deleteAllData() async {
     await isar.writeTxn(() async {
@@ -161,6 +175,7 @@ class BarberDbService {
       await isar.barberExpenses.clear();
       await isar.barberInventoryTransactions.clear();
       await isar.barberSuppliers.clear();
+      await isar.barberAiResults.clear();
     });
   }
 }

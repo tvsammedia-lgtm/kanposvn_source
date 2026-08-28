@@ -3,8 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../services/bds_report_service.dart';
 import '../providers/batdongsan_providers.dart';
-import '../../kanposvncafe/widgets/crystal_report_widgets.dart';
-import '../../kanposvncafe/models/cafe_report_models.dart';
+import '../../../core/reports/crystal_report_widgets.dart';
+import '../../../core/reports/crystal_report_models.dart';
 
 class BdsReportsScreen extends ConsumerStatefulWidget {
   const BdsReportsScreen({super.key});

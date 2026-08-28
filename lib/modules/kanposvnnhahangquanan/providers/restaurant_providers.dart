@@ -33,11 +33,12 @@ class RestaurantTablesNotifier
 
   Future<void> loadTables() async {
     try {
-      state = const AsyncValue.loading();
-      final db = await _isarService.db;
-      final data = await db.restaurantTables.where().findAll();
-      data.sort((a, b) => a.name.compareTo(b.name));
-      state = AsyncValue.data(data);
+      await _isarService.run((db) async {
+        state = const AsyncValue.loading();
+        final data = await db.restaurantTables.where().findAll();
+        data.sort((a, b) => a.name.compareTo(b.name));
+        state = AsyncValue.data(data);
+      });
     } catch (e, st) {
       state = AsyncValue.error(e, st);
     }
@@ -45,10 +46,11 @@ class RestaurantTablesNotifier
 
   Future<void> setTableStatus(
       RestaurantTable table, RestaurantTableStatus status) async {
-    final db = await _isarService.db;
-    await db.writeTxn(() async {
-      table.status = status;
-      await db.restaurantTables.put(table);
+    await _isarService.run((db) async {
+      await db.writeTxn(() async {
+        table.status = status;
+        await db.restaurantTables.put(table);
+      });
     });
     await loadTables();
   }
@@ -70,11 +72,12 @@ class RestaurantMenuNotifier
 
   Future<void> loadMenu() async {
     try {
-      state = const AsyncValue.loading();
-      final db = await _isarService.db;
-      final data = await db.restaurantMenuItems.where().findAll();
-      data.sort((a, b) => a.category.compareTo(b.category));
-      state = AsyncValue.data(data);
+      await _isarService.run((db) async {
+        state = const AsyncValue.loading();
+        final data = await db.restaurantMenuItems.where().findAll();
+        data.sort((a, b) => a.category.compareTo(b.category));
+        state = AsyncValue.data(data);
+      });
     } catch (e, st) {
       state = AsyncValue.error(e, st);
     }
@@ -97,9 +100,10 @@ class RestaurantPromotionsNotifier
 
   Future<void> load() async {
     try {
-      final db = await _isarService.db;
-      final data = await db.restaurantPromotions.where().findAll();
-      state = AsyncValue.data(data.where((p) => p.isActive).toList());
+      await _isarService.run((db) async {
+        final data = await db.restaurantPromotions.where().findAll();
+        state = AsyncValue.data(data.where((p) => p.isActive).toList());
+      });
     } catch (e, st) {
       state = AsyncValue.error(e, st);
     }
@@ -125,14 +129,15 @@ class RestaurantOrdersNotifier
 
   Future<void> loadOrders() async {
     try {
-      state = const AsyncValue.loading();
-      final db = await _isarService.db;
-      final data = await db.restaurantOrders.where().findAll();
-      // Load table links for each order
-      for (var order in data) {
-        await order.table.load();
-      }
-      state = AsyncValue.data(data);
+      await _isarService.run((db) async {
+        state = const AsyncValue.loading();
+        final data = await db.restaurantOrders.where().findAll();
+        // Load table links for each order
+        for (var order in data) {
+          await order.table.load();
+        }
+        state = AsyncValue.data(data);
+      });
     } catch (e, st) {
       state = AsyncValue.error(e, st);
     }
@@ -141,27 +146,28 @@ class RestaurantOrdersNotifier
   /// Lưu order + đồng bộ trạng thái bàn.
   Future<void> updateOrder(RestaurantOrder order) async {
     try {
-      final db = await _isarService.db;
-      await db.writeTxn(() async {
-        RestaurantTable? table = order.table.value;
-        if (table != null) {
-          await db.restaurantTables.put(table);
-          if (order.status == RestaurantOrderStatus.COMPLETED &&
-              table.status != RestaurantTableStatus.CLEANING &&
-              table.status != RestaurantTableStatus.RESERVED) {
-            table.status = RestaurantTableStatus.EMPTY;
-          } else if (order.status == RestaurantOrderStatus.SERVING &&
-              table.status != RestaurantTableStatus.WAITING_PAYMENT &&
-              table.status != RestaurantTableStatus.RESERVED) {
-            table.status = RestaurantTableStatus.SERVING;
+      await _isarService.run((db) async {
+        await db.writeTxn(() async {
+          RestaurantTable? table = order.table.value;
+          if (table != null) {
+            await db.restaurantTables.put(table);
+            if (order.status == RestaurantOrderStatus.COMPLETED &&
+                table.status != RestaurantTableStatus.CLEANING &&
+                table.status != RestaurantTableStatus.RESERVED) {
+              table.status = RestaurantTableStatus.EMPTY;
+            } else if (order.status == RestaurantOrderStatus.SERVING &&
+                table.status != RestaurantTableStatus.WAITING_PAYMENT &&
+                table.status != RestaurantTableStatus.RESERVED) {
+              table.status = RestaurantTableStatus.SERVING;
+            }
+            await db.restaurantTables.put(table);
           }
-          await db.restaurantTables.put(table);
-        }
-        await db.restaurantOrders.put(order);
-        // Bắt buộc lưu link bàn cho order mới tạo (Isar yêu cầu save() link)
-        if (table != null) {
-          await order.table.save();
-        }
+          await db.restaurantOrders.put(order);
+          // Bắt buộc lưu link bàn cho order mới tạo (Isar yêu cầu save() link)
+          if (table != null) {
+            await order.table.save();
+          }
+        });
       });
       await loadOrders();
       ref.read(restaurantTablesProvider.notifier).loadTables();
@@ -174,15 +180,19 @@ class RestaurantOrdersNotifier
   /// Xóa order rác (không có món) khi khách mở bàn rồi bỏ đi.
   Future<void> discardIfEmpty(RestaurantOrder order) async {
     if (order.details.isNotEmpty) return;
-    final db = await _isarService.db;
-    final saved = await db.restaurantOrders
-        .filter()
-        .orderIdEqualTo(order.orderId)
-        .findFirst();
-    if (saved == null) return; // chưa từng lưu xuống DB
-    await db.writeTxn(() async {
-      await db.restaurantOrders.delete(saved.id);
+    final saved = await _isarService.run((db) async {
+      final s = await db.restaurantOrders
+          .filter()
+          .orderIdEqualTo(order.orderId)
+          .findFirst();
+      if (s != null) {
+        await db.writeTxn(() async {
+          await db.restaurantOrders.delete(s.id);
+        });
+      }
+      return s;
     });
+    if (saved == null) return; // chưa từng lưu xuống DB
     await loadOrders();
     ref.read(restaurantTablesProvider.notifier).loadTables();
   }
@@ -195,19 +205,20 @@ class RestaurantOrdersNotifier
         newTableActiveOrder: active, currentOrderId: order.orderId)) {
       return false;
     }
-    final db = await _isarService.db;
-    final oldTable = order.table.value;
-    await db.writeTxn(() async {
-      order.table.value = newTable;
-      await db.restaurantOrders.put(order);
-      await order.table.save();
+    await _isarService.run((isar) async {
+      final oldTable = order.table.value;
+      await isar.writeTxn(() async {
+        order.table.value = newTable;
+        await isar.restaurantOrders.put(order);
+        await order.table.save();
 
-      newTable.status = RestaurantTableStatus.SERVING;
-      await db.restaurantTables.put(newTable);
-      if (oldTable != null && oldTable.id != newTable.id) {
-        oldTable.status = RestaurantTableStatus.EMPTY;
-        await db.restaurantTables.put(oldTable);
-      }
+        newTable.status = RestaurantTableStatus.SERVING;
+        await isar.restaurantTables.put(newTable);
+        if (oldTable != null && oldTable.id != newTable.id) {
+          oldTable.status = RestaurantTableStatus.EMPTY;
+          await isar.restaurantTables.put(oldTable);
+        }
+      });
     });
     await loadOrders();
     ref.read(restaurantTablesProvider.notifier).loadTables();
@@ -217,23 +228,24 @@ class RestaurantOrdersNotifier
   /// XIX. Gộp bàn: gộp toàn bộ món của [source] vào [target], xóa [source].
   Future<void> mergeOrders(
       RestaurantOrder source, RestaurantOrder target) async {
-    final db = await _isarService.db;
-    final sourceTable = source.table.value;
-    await db.writeTxn(() async {
-      RestaurantBusinessLogic.mergeDetails(source: source, target: target);
-      target.totalAmount = RestaurantBusinessLogic.recalculateTotal(target.details);
-      target.discountAmount = 0;
-      target.promotionName = '';
-      await db.restaurantOrders.put(target);
-      final savedSource =
-          await db.restaurantOrders.filter().orderIdEqualTo(source.orderId).findFirst();
-      if (savedSource != null) await db.restaurantOrders.delete(savedSource.id);
-      if (sourceTable != null &&
-          sourceTable.id != target.table.value?.id) {
-        sourceTable.status = RestaurantTableStatus.EMPTY;
-        await db.restaurantTables.put(sourceTable);
-      }
-      await db.restaurantTables.put(target.table.value!);
+    await _isarService.run((db) async {
+      final sourceTable = source.table.value;
+      await db.writeTxn(() async {
+        RestaurantBusinessLogic.mergeDetails(source: source, target: target);
+        target.totalAmount = RestaurantBusinessLogic.recalculateTotal(target.details);
+        target.discountAmount = 0;
+        target.promotionName = '';
+        await db.restaurantOrders.put(target);
+        final savedSource =
+            await db.restaurantOrders.filter().orderIdEqualTo(source.orderId).findFirst();
+        if (savedSource != null) await db.restaurantOrders.delete(savedSource.id);
+        if (sourceTable != null &&
+            sourceTable.id != target.table.value?.id) {
+          sourceTable.status = RestaurantTableStatus.EMPTY;
+          await db.restaurantTables.put(sourceTable);
+        }
+        await db.restaurantTables.put(target.table.value!);
+      });
     });
     await loadOrders();
     ref.read(restaurantTablesProvider.notifier).loadTables();
@@ -247,7 +259,6 @@ class RestaurantOrdersNotifier
         order.details, detailIdsToMove);
     if (kept.isEmpty || moved.isEmpty) return null;
 
-    final db = await _isarService.db;
     final newOrder = RestaurantOrder()
       ..orderId = const Uuid().v4()
       ..createdAt = DateTime.now()
@@ -256,14 +267,16 @@ class RestaurantOrdersNotifier
     newOrder.table.value = order.table.value;
     newOrder.totalAmount = RestaurantBusinessLogic.recalculateTotal(moved);
 
-    await db.writeTxn(() async {
-      order.details = kept;
-      order.totalAmount = RestaurantBusinessLogic.recalculateTotal(kept);
-      order.discountAmount = 0;
-      order.promotionName = '';
-      await db.restaurantOrders.put(order);
-      await db.restaurantOrders.put(newOrder);
-      await newOrder.table.save();
+    await _isarService.run((db) async {
+      await db.writeTxn(() async {
+        order.details = kept;
+        order.totalAmount = RestaurantBusinessLogic.recalculateTotal(kept);
+        order.discountAmount = 0;
+        order.promotionName = '';
+        await db.restaurantOrders.put(order);
+        await db.restaurantOrders.put(newOrder);
+        await newOrder.table.save();
+      });
     });
     await loadOrders();
     ref.read(restaurantDashboardProvider.notifier).loadDashboard();
@@ -271,8 +284,9 @@ class RestaurantOrdersNotifier
   }
 
   Future<RestaurantOrder?> findActiveOrderOnTable(RestaurantTable table) async {
-    final db = await _isarService.db;
-    final all = await db.restaurantOrders.filter().statusEqualTo(RestaurantOrderStatus.SERVING).findAll();
+    final all = await _isarService.run((db) async {
+      return db.restaurantOrders.filter().statusEqualTo(RestaurantOrderStatus.SERVING).findAll();
+    });
     for (final o in all) {
       await o.table.load();
       if (o.table.value?.id == table.id) return o;
@@ -289,39 +303,40 @@ class RestaurantOrdersNotifier
     String promotionName = '',
     RestaurantCustomer? customer,
   }) async {
-    final db = await _isarService.db;
-    await db.writeTxn(() async {
-      order.discountAmount = discountAmount.clamp(0, order.totalAmount);
-      order.promotionName = promotionName;
-      order.payments = List.from(payments);
-      order.status = RestaurantOrderStatus.COMPLETED;
-      order.closedAt = DateTime.now();
+    await _isarService.run((db) async {
+      await db.writeTxn(() async {
+        order.discountAmount = discountAmount.clamp(0, order.totalAmount);
+        order.promotionName = promotionName;
+        order.payments = List.from(payments);
+        order.status = RestaurantOrderStatus.COMPLETED;
+        order.closedAt = DateTime.now();
 
-      if (customer != null) {
-        order.customerId = customer.customerId;
-        order.customerName = customer.name;
-        order.customerPhone = customer.phone;
-        final finalAmount = order.totalAmount - order.discountAmount;
-        order.earnedPoints =
-            RestaurantBusinessLogic.pointsEarnedFor(finalAmount);
-        customer.points += order.earnedPoints;
+        if (customer != null) {
+          order.customerId = customer.customerId;
+          order.customerName = customer.name;
+          order.customerPhone = customer.phone;
+          final finalAmount = order.totalAmount - order.discountAmount;
+          order.earnedPoints =
+              RestaurantBusinessLogic.pointsEarnedFor(finalAmount);
+          customer.points += order.earnedPoints;
 
-        // Thanh toán bằng công nợ -> tăng nợ khách nếu trả thiếu
-        final paidViaDebt = payments
-            .where((p) => p.method == RestaurantPaymentMethod.DEBT)
-            .fold<double>(0, (s, p) => s + p.amount);
-        if (paidViaDebt > 0) {
-          customer.debt += paidViaDebt;
+          // Thanh toán bằng công nợ -> tăng nợ khách nếu trả thiếu
+          final paidViaDebt = payments
+              .where((p) => p.method == RestaurantPaymentMethod.DEBT)
+              .fold<double>(0, (s, p) => s + p.amount);
+          if (paidViaDebt > 0) {
+            customer.debt += paidViaDebt;
+          }
+          await db.restaurantCustomers.put(customer);
         }
-        await db.restaurantCustomers.put(customer);
-      }
-      RestaurantTable? table = order.table.value;
-      if (table != null) {
-        await db.restaurantTables.put(table);
-        table.status = RestaurantTableStatus.EMPTY;
-        await db.restaurantTables.put(table);
-      }
-      await db.restaurantOrders.put(order);
+        RestaurantTable? table = order.table.value;
+        if (table != null) {
+          await db.restaurantTables.put(table);
+          table.status = RestaurantTableStatus.EMPTY;
+          await db.restaurantTables.put(table);
+        }
+        await db.restaurantOrders.put(order);
+      });
     });
     await loadOrders();
     ref.read(restaurantTablesProvider.notifier).loadTables();
@@ -352,9 +367,10 @@ class RestaurantReservationsNotifier
 
   Future<void> load() async {
     try {
-      final db = await _isarService.db;
-      final data = await db.restaurantReservations.where().sortByTime().findAll();
-      state = AsyncValue.data(data);
+      await _isarService.run((db) async {
+        final data = await db.restaurantReservations.where().sortByTime().findAll();
+        state = AsyncValue.data(data);
+      });
     } catch (e, st) {
       state = AsyncValue.error(e, st);
     }
@@ -369,28 +385,29 @@ class RestaurantReservationsNotifier
     double deposit = 0,
     String note = '',
   }) async {
-    final db = await _isarService.db;
-    await db.writeTxn(() async {
-      final res = RestaurantReservation()
-        ..reservationId = const Uuid().v4()
-        ..tableId = table.tableId
-        ..tableName = table.name
-        ..customerName = customerName
-        ..phone = phone
-        ..time = time
-        ..guests = guests
-        ..deposit = deposit
-        ..note = note
-        ..status = RestaurantReservationStatus.BOOKED;
-      await db.restaurantReservations.put(res);
+    await _isarService.run((db) async {
+      await db.writeTxn(() async {
+        final res = RestaurantReservation()
+          ..reservationId = const Uuid().v4()
+          ..tableId = table.tableId
+          ..tableName = table.name
+          ..customerName = customerName
+          ..phone = phone
+          ..time = time
+          ..guests = guests
+          ..deposit = deposit
+          ..note = note
+          ..status = RestaurantReservationStatus.BOOKED;
+        await db.restaurantReservations.put(res);
 
-      // Bàn trống & giờ đặt trong hôm nay -> đánh dấu Đặt trước
-      final now = DateTime.now();
-      final isToday = time.year == now.year && time.month == now.month && time.day == now.day;
-      if (isToday && table.status == RestaurantTableStatus.EMPTY) {
-        table.status = RestaurantTableStatus.RESERVED;
-        await db.restaurantTables.put(table);
-      }
+        // Bàn trống & giờ đặt trong hôm nay -> đánh dấu Đặt trước
+        final now = DateTime.now();
+        final isToday = time.year == now.year && time.month == now.month && time.day == now.day;
+        if (isToday && table.status == RestaurantTableStatus.EMPTY) {
+          table.status = RestaurantTableStatus.RESERVED;
+          await db.restaurantTables.put(table);
+        }
+      });
     });
     await load();
     ref.read(restaurantTablesProvider.notifier).loadTables();
@@ -398,25 +415,26 @@ class RestaurantReservationsNotifier
 
   Future<void> setStatus(
       RestaurantReservation res, RestaurantReservationStatus status) async {
-    final db = await _isarService.db;
-    await db.writeTxn(() async {
-      res.status = status;
-      await db.restaurantReservations.put(res);
-      // Hủy / no-show -> trả bàn về trống nếu vẫn đang RESERVED
-      if (status == RestaurantReservationStatus.CANCELLED ||
-          status == RestaurantReservationStatus.NO_SHOW ||
-          status == RestaurantReservationStatus.SEATED) {
-        final table = await db.restaurantTables
-            .filter()
-            .tableIdEqualTo(res.tableId)
-            .findFirst();
-        if (table != null && table.status == RestaurantTableStatus.RESERVED) {
-          table.status = status == RestaurantReservationStatus.SEATED
-              ? RestaurantTableStatus.SERVING
-              : RestaurantTableStatus.EMPTY;
-          await db.restaurantTables.put(table);
+    await _isarService.run((db) async {
+      await db.writeTxn(() async {
+        res.status = status;
+        await db.restaurantReservations.put(res);
+        // Hủy / no-show -> trả bàn về trống nếu vẫn đang RESERVED
+        if (status == RestaurantReservationStatus.CANCELLED ||
+            status == RestaurantReservationStatus.NO_SHOW ||
+            status == RestaurantReservationStatus.SEATED) {
+          final table = await db.restaurantTables
+              .filter()
+              .tableIdEqualTo(res.tableId)
+              .findFirst();
+          if (table != null && table.status == RestaurantTableStatus.RESERVED) {
+            table.status = status == RestaurantReservationStatus.SEATED
+                ? RestaurantTableStatus.SERVING
+                : RestaurantTableStatus.EMPTY;
+            await db.restaurantTables.put(table);
+          }
         }
-      }
+      });
     });
     await load();
     ref.read(restaurantTablesProvider.notifier).loadTables();
@@ -442,28 +460,31 @@ class RestaurantCustomersNotifier
 
   Future<void> loadCustomers() async {
     try {
-      final db = await _isarService.db;
-      final data = await db.restaurantCustomers.where().findAll();
-      state = AsyncValue.data(data);
+      await _isarService.run((db) async {
+        final data = await db.restaurantCustomers.where().findAll();
+        state = AsyncValue.data(data);
+      });
     } catch (e, st) {
       state = AsyncValue.error(e, st);
     }
   }
 
   Future<void> upsert(RestaurantCustomer customer) async {
-    final db = await _isarService.db;
-    await db.writeTxn(() async {
-      await db.restaurantCustomers.put(customer);
+    await _isarService.run((db) async {
+      await db.writeTxn(() async {
+        await db.restaurantCustomers.put(customer);
+      });
     });
     await loadCustomers();
   }
 
   /// Khách trả bớt/trả hết công nợ.
   Future<void> payDebt(RestaurantCustomer customer, double amount) async {
-    final db = await _isarService.db;
-    await db.writeTxn(() async {
-      customer.debt = (customer.debt - amount).clamp(0, double.maxFinite);
-      await db.restaurantCustomers.put(customer);
+    await _isarService.run((db) async {
+      await db.writeTxn(() async {
+        customer.debt = (customer.debt - amount).clamp(0, double.maxFinite);
+        await db.restaurantCustomers.put(customer);
+      });
     });
     await loadCustomers();
   }
@@ -485,27 +506,30 @@ class RestaurantSuppliersNotifier
 
   Future<void> loadSuppliers() async {
     try {
-      final db = await _isarService.db;
-      final data = await db.restaurantSuppliers.where().findAll();
-      state = AsyncValue.data(data);
+      await _isarService.run((db) async {
+        final data = await db.restaurantSuppliers.where().findAll();
+        state = AsyncValue.data(data);
+      });
     } catch (e, st) {
       state = AsyncValue.error(e, st);
     }
   }
 
   Future<void> upsert(RestaurantSupplier supplier) async {
-    final db = await _isarService.db;
-    await db.writeTxn(() async {
-      await db.restaurantSuppliers.put(supplier);
+    await _isarService.run((db) async {
+      await db.writeTxn(() async {
+        await db.restaurantSuppliers.put(supplier);
+      });
     });
     await loadSuppliers();
   }
 
   Future<void> payDebt(RestaurantSupplier supplier, double amount) async {
-    final db = await _isarService.db;
-    await db.writeTxn(() async {
-      supplier.debt = (supplier.debt - amount).clamp(0, double.maxFinite);
-      await db.restaurantSuppliers.put(supplier);
+    await _isarService.run((db) async {
+      await db.writeTxn(() async {
+        supplier.debt = (supplier.debt - amount).clamp(0, double.maxFinite);
+        await db.restaurantSuppliers.put(supplier);
+      });
     });
     await loadSuppliers();
   }
@@ -530,10 +554,11 @@ class RestaurantExpensesNotifier
 
   Future<void> loadExpenses() async {
     try {
-      final db = await _isarService.db;
-      final data =
-          await db.restaurantExpenses.where().sortByCreatedAtDesc().findAll();
-      state = AsyncValue.data(data);
+      await _isarService.run((db) async {
+        final data =
+            await db.restaurantExpenses.where().sortByCreatedAtDesc().findAll();
+        state = AsyncValue.data(data);
+      });
     } catch (e, st) {
       state = AsyncValue.error(e, st);
     }
@@ -541,15 +566,16 @@ class RestaurantExpensesNotifier
 
   Future<void> addExpense(RestaurantExpenseCategory category, double amount,
       String note) async {
-    final db = await _isarService.db;
-    await db.writeTxn(() async {
-      final e = RestaurantExpense()
-        ..expenseId = const Uuid().v4()
-        ..category = category
-        ..amount = amount
-        ..note = note
-        ..createdAt = DateTime.now();
-      await db.restaurantExpenses.put(e);
+    await _isarService.run((db) async {
+      await db.writeTxn(() async {
+        final e = RestaurantExpense()
+          ..expenseId = const Uuid().v4()
+          ..category = category
+          ..amount = amount
+          ..note = note
+          ..createdAt = DateTime.now();
+        await db.restaurantExpenses.put(e);
+      });
     });
     await loadExpenses();
     ref.read(restaurantDashboardProvider.notifier).loadDashboard();
@@ -575,78 +601,79 @@ class RestaurantDashboardNotifier
 
   Future<void> loadDashboard() async {
     try {
-      final db = await _isarService.db;
-      final orders = await db.restaurantOrders.where().findAll();
-      final tables = await db.restaurantTables.where().findAll();
-      final expenses = await db.restaurantExpenses.where().findAll();
-      final customers = await db.restaurantCustomers.where().findAll();
-      final now = DateTime.now();
-      final startToday = DateTime(now.year, now.month, now.day);
-      final startMonth = DateTime(now.year, now.month, 1);
-      final startYear = DateTime(now.year, 1, 1);
+      await _isarService.run((db) async {
+        final orders = await db.restaurantOrders.where().findAll();
+        final tables = await db.restaurantTables.where().findAll();
+        final expenses = await db.restaurantExpenses.where().findAll();
+        final customers = await db.restaurantCustomers.where().findAll();
+        final now = DateTime.now();
+        final startToday = DateTime(now.year, now.month, now.day);
+        final startMonth = DateTime(now.year, now.month, 1);
+        final startYear = DateTime(now.year, 1, 1);
 
-      double revToday = 0, revMonth = 0, revAll = 0;
-      double cashToday = 0, bankToday = 0, debtPaidToday = 0;
-      int completedToday = 0, completedMonth = 0, completedYear = 0;
-      double expenseMonth = 0;
+        double revToday = 0, revMonth = 0, revAll = 0;
+        double cashToday = 0, bankToday = 0, debtPaidToday = 0;
+        int completedToday = 0, completedMonth = 0, completedYear = 0;
+        double expenseMonth = 0;
 
-      for (var o in orders) {
-        if (o.status != RestaurantOrderStatus.COMPLETED) continue;
-        final closed = o.closedAt ?? o.createdAt;
-        if (closed == null) continue;
-        final net = o.totalAmount - o.discountAmount;
-        revAll += net;
-        if (!closed.isBefore(startYear)) completedYear++;
-        if (!closed.isBefore(startMonth)) {
-          revMonth += net;
-          completedMonth++;
-        }
-        if (!closed.isBefore(startToday)) {
-          revToday += net;
-          completedToday++;
-          for (final p in o.payments) {
-            switch (p.method) {
-              case RestaurantPaymentMethod.CASH:
-                cashToday += p.amount;
-                break;
-              case RestaurantPaymentMethod.DEBT:
-                debtPaidToday += p.amount;
-                break;
-              default:
-                bankToday += p.amount;
+        for (var o in orders) {
+          if (o.status != RestaurantOrderStatus.COMPLETED) continue;
+          final closed = o.closedAt ?? o.createdAt;
+          if (closed == null) continue;
+          final net = o.totalAmount - o.discountAmount;
+          revAll += net;
+          if (!closed.isBefore(startYear)) completedYear++;
+          if (!closed.isBefore(startMonth)) {
+            revMonth += net;
+            completedMonth++;
+          }
+          if (!closed.isBefore(startToday)) {
+            revToday += net;
+            completedToday++;
+            for (final p in o.payments) {
+              switch (p.method) {
+                case RestaurantPaymentMethod.CASH:
+                  cashToday += p.amount;
+                  break;
+                case RestaurantPaymentMethod.DEBT:
+                  debtPaidToday += p.amount;
+                  break;
+                default:
+                  bankToday += p.amount;
+              }
             }
           }
         }
-      }
-      for (var e in expenses) {
-        if (!e.createdAt.isBefore(startMonth)) expenseMonth += e.amount;
-      }
+        for (var e in expenses) {
+          if (!e.createdAt.isBefore(startMonth)) expenseMonth += e.amount;
+        }
 
-      final servingCount = tables
-          .where((t) =>
-              t.status == RestaurantTableStatus.SERVING ||
-              t.status == RestaurantTableStatus.WAITING_PAYMENT)
-          .length;
-      final reservedCount =
-          tables.where((t) => t.status == RestaurantTableStatus.RESERVED).length;
-      final totalDebt =
-          customers.fold<double>(0, (s, c) => s + c.debt);
+        final servingCount = tables
+            .where((t) =>
+                t.status == RestaurantTableStatus.SERVING ||
+                t.status == RestaurantTableStatus.WAITING_PAYMENT)
+            .length;
+        final reservedCount =
+            tables.where((t) => t.status == RestaurantTableStatus.RESERVED).length;
+        final totalDebt =
+            customers.fold<double>(0, (s, c) => s + c.debt);
 
-      state = AsyncValue.data({
-        'revenue': revToday,
-        'completedOrders': completedToday,
-        'cashToday': cashToday,
-        'bankToday': bankToday,
-        'debtToday': debtPaidToday,
-        'servingTables': servingCount,
-        'reservedTables': reservedCount,
-        'customerDebt': totalDebt,
-        'revenueMonth': revMonth,
-        'completedMonth': completedMonth,
-        'expenseMonth': expenseMonth,
-        'profitMonth': revMonth - expenseMonth,
-        'completedYear': completedYear,
-        'revenueAll': revAll,
+        state = AsyncValue.data({
+          'revenue': revToday,
+          'completedOrders': completedToday,
+          'cashToday': cashToday,
+          'bankToday': bankToday,
+          'debtToday': debtPaidToday,
+          'servingTables': servingCount,
+          'reservedTables': reservedCount,
+          'customerDebt': totalDebt,
+          'revenueMonth': revMonth,
+          'completedMonth': completedMonth,
+          'expenseMonth': expenseMonth,
+          'profitMonth': revMonth - expenseMonth,
+          'completedYear': completedYear,
+          'revenueAll': revAll,
+        });
       });
     } catch (e, st) {
       state = AsyncValue.error(e, st);

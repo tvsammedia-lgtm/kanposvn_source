@@ -1,4 +1,5 @@
 import 'package:isar/isar.dart';
+import '../../../core/utils/formatters.dart';
 import '../models/booking.dart';
 import '../models/customer.dart';
 import '../models/driver.dart';
@@ -100,7 +101,7 @@ class XeOmBusinessLogic {
       discount = applied.clamp(0.0, promotion.maxDiscount).toDouble();
     }
 
-    final total = (subtotal - discount).clamp(0.0, double.infinity);
+    final total = safeDouble(subtotal - discount);
     return XeOmFareQuote(
       baseFare: base,
       distanceFare: distanceFare,

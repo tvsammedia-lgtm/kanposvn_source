@@ -1,6 +1,6 @@
 import 'package:isar/isar.dart';
 
-import '../../kanposvncafe/models/cafe_report_models.dart';
+import '../../../core/reports/crystal_report_models.dart';
 import '../models/ngoai_ngo_ops.dart';
 import '../models/student.dart';
 import '../models/course_class.dart';

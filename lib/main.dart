@@ -189,6 +189,7 @@ class _AutoSelectWrapperState extends ConsumerState<_AutoSelectWrapper> {
     super.initState();
     _fallbackTimer = Timer(_fallbackDuration, () {
       if (mounted &&
+          !ref.read(moduleSelectingProvider) &&
           ref.read(selectedModuleProvider) == null &&
           ref.read(branchSelectorModuleProvider) == null) {
         setState(() => _showFallback = true);
@@ -209,6 +210,13 @@ class _AutoSelectWrapperState extends ConsumerState<_AutoSelectWrapper> {
       return const ModuleSelectorScreen();
     }
     if (_showFallback) {
+      return const ModuleSelectorScreen();
+    }
+    // Đang chọn module thủ công (người dùng đã bấm card): giữ nguyên
+    // ModuleSelectorScreen để State (loading card, AbsorbPointer) không bị dispose —
+    // nếu đổi sang spinner rồi bật fallback 3s, selector hiện lại như mới và người
+    // dùng phải bấm 2 lần.
+    if (ref.watch(moduleSelectingProvider)) {
       return const ModuleSelectorScreen();
     }
     return const Scaffold(

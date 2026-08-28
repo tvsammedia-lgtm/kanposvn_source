@@ -1,5 +1,5 @@
 import 'package:isar/isar.dart';
-import '../../kanposvncafe/models/cafe_report_models.dart';
+import '../../../core/reports/crystal_report_models.dart';
 import '../models/parking_ticket.dart';
 import '../models/monthly_ticket.dart';
 import '../models/rental.dart';

@@ -49,3 +49,6 @@ app.*.map.json
 # Local debug logs
 /build_output.txt
 /gitstatus.txt
+
+# Native lib staged for the DB probe tests
+/isar.dll

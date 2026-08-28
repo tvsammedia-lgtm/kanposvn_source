@@ -2,6 +2,7 @@ import 'package:intl/intl.dart';
 
 import '../../../core/auth/auth_service.dart';
 import '../../../core/printer/receipt_data.dart';
+import '../../../core/utils/formatters.dart';
 import '../models/hotel_checkin_checkout.dart';
 import '../models/hotel_service.dart';
 
@@ -54,9 +55,9 @@ Future<ReceiptData> buildHotelReceiptData({
   final resolvedShopName = shopName ?? await AuthService.loadSavedStoreName();
   final resolvedShopPhone = shopPhone ?? await AuthService.loadSavedStorePhone();
 
-  final amountDue = (gross - discount - prePaid).clamp(0.0, double.infinity);
+  final amountDue = safeDouble(gross - discount - prePaid);
   final received = (cashReceived ?? amountDue);
-  final change = (received - amountDue).clamp(0.0, double.infinity);
+  final change = safeDouble(received - amountDue);
 
   final orderCode = checkInId.length > 8
       ? checkInId.substring(0, 8)

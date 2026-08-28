@@ -15,10 +15,11 @@ class RestaurantIngredientsNotifier extends StateNotifier<AsyncValue<List<Restau
 
   Future<void> loadIngredients() async {
     try {
-      state = const AsyncValue.loading();
-      final db = await _isarService.db;
-      final data = await db.restaurantIngredients.where().findAll();
-      state = AsyncValue.data(data);
+      await _isarService.run((db) async {
+        state = const AsyncValue.loading();
+        final data = await db.restaurantIngredients.where().findAll();
+        state = AsyncValue.data(data);
+      });
     } catch (e, st) {
       state = AsyncValue.error(e, st);
     }
@@ -38,10 +39,11 @@ class RestaurantInventoryTxNotifier extends StateNotifier<AsyncValue<List<Restau
 
   Future<void> loadTransactions() async {
     try {
-      state = const AsyncValue.loading();
-      final db = await _isarService.db;
-      final data = await db.restaurantInventoryTxs.where().sortByCreatedAtDesc().findAll();
-      state = AsyncValue.data(data);
+      await _isarService.run((db) async {
+        state = const AsyncValue.loading();
+        final data = await db.restaurantInventoryTxs.where().sortByCreatedAtDesc().findAll();
+        state = AsyncValue.data(data);
+      });
     } catch (e, st) {
       state = AsyncValue.error(e, st);
     }
@@ -49,20 +51,21 @@ class RestaurantInventoryTxNotifier extends StateNotifier<AsyncValue<List<Restau
 
   Future<void> addTransaction(RestaurantIngredient ingredient, double quantity, RestaurantInventoryTxType type, String note) async {
     try {
-      final db = await _isarService.db;
-      await db.writeTxn(() async {
-        final tx = RestaurantInventoryTx()
-          ..ingredientId = ingredient.ingredientId
-          ..ingredientName = ingredient.name
-          ..quantity = type == RestaurantInventoryTxType.IMPORT ? quantity : -quantity
-          ..type = type
-          ..note = note
-          ..createdAt = DateTime.now();
+      await _isarService.run((db) async {
+        await db.writeTxn(() async {
+          final tx = RestaurantInventoryTx()
+            ..ingredientId = ingredient.ingredientId
+            ..ingredientName = ingredient.name
+            ..quantity = type == RestaurantInventoryTxType.IMPORT ? quantity : -quantity
+            ..type = type
+            ..note = note
+            ..createdAt = DateTime.now();
 
-        await db.restaurantInventoryTxs.put(tx);
-        
-        ingredient.stock += tx.quantity;
-        await db.restaurantIngredients.put(ingredient);
+          await db.restaurantInventoryTxs.put(tx);
+
+          ingredient.stock += tx.quantity;
+          await db.restaurantIngredients.put(ingredient);
+        });
       });
       await loadTransactions();
       ref.read(restaurantIngredientsProvider.notifier).loadIngredients();
@@ -84,49 +87,50 @@ class RestaurantKitchenNotifier extends StateNotifier<AsyncValue<void>> {
 
   Future<void> updateItemStatus(RestaurantOrder order, int itemIndex, RestaurantOrderItemStatus newStatus) async {
     try {
-      final db = await _isarService.db;
-      final oldStatus = order.details[itemIndex].status;
-      
-      // Update the status in the order
-      order.details[itemIndex].status = newStatus;
-      
-      await db.writeTxn(() async {
-        await db.restaurantOrders.put(order);
+      await _isarService.run((db) async {
+        final oldStatus = order.details[itemIndex].status;
 
-        // If transitioning to DONE, we need to deduct inventory based on Recipe
-        if (newStatus == RestaurantOrderItemStatus.DONE && oldStatus != RestaurantOrderItemStatus.DONE) {
-          final detail = order.details[itemIndex];
-          final qty = detail.quantity;
+        // Update the status in the order
+        order.details[itemIndex].status = newStatus;
 
-          // Tra công thức theo itemId (không theo tên) để tránh trùng tên món.
-          final menuItem = await db.restaurantMenuItems
-              .filter()
-              .itemIdEqualTo(detail.itemId)
-              .findFirst();
-          if (menuItem != null && menuItem.recipe.isNotEmpty) {
-            for (var recipeItem in menuItem.recipe) {
-              final ingredient = await db.restaurantIngredients.filter().ingredientIdEqualTo(recipeItem.ingredientId).findFirst();
-              if (ingredient != null) {
-                final totalDeductQty = recipeItem.quantity * qty;
-                
-                final tx = RestaurantInventoryTx()
-                  ..ingredientId = ingredient.ingredientId
-                  ..ingredientName = ingredient.name
-                  ..quantity = -totalDeductQty
-                  ..type = RestaurantInventoryTxType.AUTO_DEDUCT
-                  ..note = 'Tự động trừ món ${detail.itemName} (Mã HĐ: ${order.orderId.substring(0,5)})'
-                  ..createdAt = DateTime.now();
-                
-                await db.restaurantInventoryTxs.put(tx);
-                
-                ingredient.stock -= totalDeductQty;
-                await db.restaurantIngredients.put(ingredient);
+        await db.writeTxn(() async {
+          await db.restaurantOrders.put(order);
+
+          // If transitioning to DONE, we need to deduct inventory based on Recipe
+          if (newStatus == RestaurantOrderItemStatus.DONE && oldStatus != RestaurantOrderItemStatus.DONE) {
+            final detail = order.details[itemIndex];
+            final qty = detail.quantity;
+
+            // Tra công thức theo itemId (không theo tên) để tránh trùng tên món.
+            final menuItem = await db.restaurantMenuItems
+                .filter()
+                .itemIdEqualTo(detail.itemId)
+                .findFirst();
+            if (menuItem != null && menuItem.recipe.isNotEmpty) {
+              for (var recipeItem in menuItem.recipe) {
+                final ingredient = await db.restaurantIngredients.filter().ingredientIdEqualTo(recipeItem.ingredientId).findFirst();
+                if (ingredient != null) {
+                  final totalDeductQty = recipeItem.quantity * qty;
+
+                  final tx = RestaurantInventoryTx()
+                    ..ingredientId = ingredient.ingredientId
+                    ..ingredientName = ingredient.name
+                    ..quantity = -totalDeductQty
+                    ..type = RestaurantInventoryTxType.AUTO_DEDUCT
+                    ..note = 'Tự động trừ món ${detail.itemName} (Mã HĐ: ${order.orderId.substring(0,5)})'
+                    ..createdAt = DateTime.now();
+
+                  await db.restaurantInventoryTxs.put(tx);
+
+                  ingredient.stock -= totalDeductQty;
+                  await db.restaurantIngredients.put(ingredient);
+                }
               }
             }
           }
-        }
+        });
       });
-      
+
       // Reload providers
       ref.read(restaurantOrdersProvider.notifier).loadOrders();
       if (newStatus == RestaurantOrderItemStatus.DONE) {

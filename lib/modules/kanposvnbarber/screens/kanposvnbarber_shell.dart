@@ -12,6 +12,7 @@ import 'booking_calendar_screen.dart';
 import 'appointment_list_screen.dart';
 import 'customer_list_screen.dart';
 import 'ai_advisor_screen.dart';
+import 'ai_results_screen.dart';
 import 'inventory_screen.dart';
 import 'barber_reports_screen.dart';
 import 'barber_settings_screen.dart';
@@ -35,16 +36,20 @@ class _KanPosVnBarberShellState extends ConsumerState<KanPosVnBarberShell> {
   }
 
   Future<void> _initData() async {
-    final isar = await ref.read(barberIsarProvider.future);
-    await BarberSeedData.seedIfEmpty(isar);
-    setState(() {
-      _isInit = true;
-    });
+    try {
+      final isar = await ref.read(barberIsarProvider.future);
+      await BarberSeedData.seedIfEmpty(isar);
+    } catch (_) {}
+    if (mounted) {
+      setState(() {
+        _isInit = true;
+      });
+    }
   }
 
   static final Map<String, Set<String>> _roleTabs = {
     EmployeeRoles.cashier: const {'pos', 'appointments', 'booking_calendar', 'customers', 'reports'},
-    EmployeeRoles.sale: const {'dashboard', 'pos', 'booking_calendar', 'appointments', 'customers', 'ai_advisor', 'reports'},
+    EmployeeRoles.sale: const {'dashboard', 'pos', 'booking_calendar', 'appointments', 'customers', 'ai_advisor', 'ai_results', 'reports'},
     EmployeeRoles.warehouse: const {'inventory', 'pos'},
     EmployeeRoles.accountant: const {'dashboard', 'pos', 'booking_calendar', 'appointments', 'customers', 'inventory', 'reports', 'settings'},
   };
@@ -56,6 +61,7 @@ class _KanPosVnBarberShellState extends ConsumerState<KanPosVnBarberShell> {
     'appointments': (icon: Icons.calendar_today, label: 'Lịch Hẹn'),
     'customers': (icon: Icons.people, label: 'Khách Hàng'),
     'ai_advisor': (icon: Icons.face, label: 'AI Tư Vấn'),
+    'ai_results': (icon: Icons.photo_library, label: 'Hình Kết Quả AI'),
     'inventory': (icon: Icons.inventory, label: 'Kho Hàng'),
     'reports': (icon: Icons.bar_chart, label: 'Báo Cáo'),
     'settings': (icon: Icons.settings, label: 'Cài Đặt'),
@@ -68,6 +74,7 @@ class _KanPosVnBarberShellState extends ConsumerState<KanPosVnBarberShell> {
     'appointments': () => const AppointmentListScreen(),
     'customers': () => const CustomerListScreen(),
     'ai_advisor': () => const AiAdvisorScreen(),
+    'ai_results': () => const AiResultsScreen(),
     'inventory': () => const InventoryScreen(),
     'reports': () => const BarberReportsScreen(),
     'settings': () => const BarberSettingsScreen(),
@@ -102,8 +109,20 @@ class _KanPosVnBarberShellState extends ConsumerState<KanPosVnBarberShell> {
         roleTabs: _roleTabs,
       );
     }).toList();
-    final safeIndex = _selectedIndex < tabs.length ? _selectedIndex : 0;
+    final safeIndex = tabs.isNotEmpty ? (_selectedIndex < tabs.length ? _selectedIndex : 0) : 0;
     final isDesktop = MediaQuery.of(context).size.width > 600;
+
+    if (tabs.isEmpty) {
+      return Scaffold(
+        appBar: AppBar(
+          backgroundColor: auth.currentModule?.color ?? const Color(0xFF475569),
+          foregroundColor: Colors.white,
+          title: const Text('KanPosVN - Barber Shop',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+        ),
+        body: const Center(child: Text('Không có quyền truy cập tab nào.\nLiên hệ quản trị viên để được cấp quyền.', textAlign: TextAlign.center)),
+      );
+    }
 
     return Scaffold(
       appBar: AppBar(

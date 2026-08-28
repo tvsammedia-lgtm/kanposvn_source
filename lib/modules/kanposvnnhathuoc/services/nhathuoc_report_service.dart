@@ -1,6 +1,6 @@
 import 'package:intl/intl.dart';
 import 'package:isar/isar.dart';
-import '../../kanposvncafe/models/cafe_report_models.dart';
+import '../../../core/reports/crystal_report_models.dart';
 import '../models/nhathuoc_expense.dart';
 import '../models/nhathuoc_medicine.dart';
 import '../models/nhathuoc_order.dart';

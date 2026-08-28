@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:isar/isar.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -23,31 +24,46 @@ class EshopIsarService {
       return Isar.getInstance('kanposvneshop_db')!;
     }
     final dir = await getApplicationDocumentsDirectory();
-    return await Isar.open(
+    try {
+      return await _open(dir.path);
+    } on IsarError catch (e) {
+      if (e.message.toLowerCase().contains('schema')) {
+        final oldDir = Directory('${dir.path}/kanposvneshop_db.isar');
+        if (oldDir.existsSync()) {
+          oldDir.renameSync('${dir.path}/kanposvneshop_db_backup_${DateTime.now().millisecondsSinceEpoch}.isar');
+        }
+        return await _open(dir.path);
+      }
+      rethrow;
+    }
+  }
+
+  Future<Isar> _open(String dirPath) {
+    return Isar.open(
       [
-KanShopStoreSchema,
-KanShopProductSchema,
-KanShopCategorySchema,
-KanShopCartItemSchema,
-KanShopOrderSchema,
-KanShopWalletSchema,
-KanShopSyncQueueSchema,
-KanShopSyncConfigSchema,
-EshopVoucherSchema,
-EshopFlashSaleSchema,
-EshopReviewSchema,
-EshopWishlistItemSchema,
-EshopShopFollowSchema,
-EshopChatMessageSchema,
-EshopWalletTransactionSchema,
-EshopComplaintTicketSchema,
-EshopAffiliateReferralSchema,
-EshopPointEntrySchema,
+        KanShopStoreSchema,
+        KanShopProductSchema,
+        KanShopCategorySchema,
+        KanShopCartItemSchema,
+        KanShopOrderSchema,
+        KanShopWalletSchema,
+        KanShopSyncQueueSchema,
+        KanShopSyncConfigSchema,
+        EshopVoucherSchema,
+        EshopFlashSaleSchema,
+        EshopReviewSchema,
+        EshopWishlistItemSchema,
+        EshopShopFollowSchema,
+        EshopChatMessageSchema,
+        EshopWalletTransactionSchema,
+        EshopComplaintTicketSchema,
+        EshopAffiliateReferralSchema,
+        EshopPointEntrySchema,
         EshopShipmentSchema,
         EshopGpsPingSchema,
       ],
       inspector: true,
-      directory: dir.path,
+      directory: dirPath,
       name: 'kanposvneshop_db',
     );
   }

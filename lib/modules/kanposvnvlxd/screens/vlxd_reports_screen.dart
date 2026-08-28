@@ -5,11 +5,11 @@ import 'package:isar/isar.dart';
 import '../../../core/auth/auth_service.dart';
 import '../models/vlxd_partner.dart';
 import '../models/vlxd_product.dart';
-import '../models/vlxd_report_models.dart';
+import '../../../core/reports/crystal_report_models.dart';
 import '../providers/vlxd_providers.dart';
 import '../services/vlxd_einvoice_settings.dart';
 import '../services/vlxd_report_service.dart';
-import '../widgets/crystal_report_widgets.dart';
+import '../../../core/reports/crystal_report_widgets.dart';
 
 /// Tab "Báo cáo chung" — mô phỏng các báo cáo Crystal (.rpt) của KANVLXD.
 class VlxdReportsScreen extends ConsumerStatefulWidget {
@@ -32,6 +32,8 @@ class _ReportDescriptor {
 
 class _VlxdReportsScreenState extends ConsumerState<VlxdReportsScreen> {
   static const _reports = [
+    _ReportDescriptor('cash_summary', 'Tổng hợp quỹ tiền mặt',
+        Icons.account_balance, _ReportGroup.cash),
     _ReportDescriptor('cash_book', 'Sổ quỹ tiền mặt',
         Icons.account_balance_wallet, _ReportGroup.cash),
     _ReportDescriptor('receipt', 'Báo cáo phiếu thu',
@@ -40,6 +42,8 @@ class _VlxdReportsScreenState extends ConsumerState<VlxdReportsScreen> {
         Icons.assignment_outlined, _ReportGroup.cash),
     _ReportDescriptor('shift', 'Thu - chi theo ca',
         Icons.access_time, _ReportGroup.cash),
+    _ReportDescriptor('profit_loss', 'Báo cáo lãi lỗ',
+        Icons.assessment, _ReportGroup.sales),
     _ReportDescriptor('sales_detail', 'Báo cáo chi tiết bán hàng',
         Icons.receipt_long, _ReportGroup.sales),
     _ReportDescriptor('sales_summary', 'Báo cáo tổng hợp bán hàng',
@@ -119,6 +123,9 @@ class _VlxdReportsScreenState extends ConsumerState<VlxdReportsScreen> {
       final to = _to;
       CrystalReportModel result;
       switch (_selectedId) {
+        case 'cash_summary':
+          result = await service.buildCashFundSummary(from: from, to: to);
+          break;
         case 'cash_book':
           result = await service.buildCashBook(from: from, to: to);
           break;
@@ -130,6 +137,9 @@ class _VlxdReportsScreenState extends ConsumerState<VlxdReportsScreen> {
           break;
         case 'shift':
           result = await service.buildShiftReport(from: from, to: to);
+          break;
+        case 'profit_loss':
+          result = await service.buildProfitLoss(from: from, to: to);
           break;
         case 'sales_detail':
           result = await service.buildSalesDetail(from: from, to: to);
