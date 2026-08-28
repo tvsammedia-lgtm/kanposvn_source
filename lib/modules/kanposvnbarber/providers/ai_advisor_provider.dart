@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart' show debugPrint;
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -59,7 +60,7 @@ class AiAdvisorNotifier extends StateNotifier<AiAdvisorState> {
       // Xóa kết quả AI cũ khi đổi ảnh mới
       state = state.copyWith(imagePath: file.path, recommendedStyles: null, errorMessage: null, previewImagePath: null);
     } catch (e) {
-      print('Could not load asset image: $e');
+      debugPrint('Could not load asset image: $e');
     }
   }
 

@@ -1853,7 +1853,11 @@ class HotelReportService {
 
     for (final t in inRange) {
       final isIn = t.type == CashTransactionType.INCOME;
-      if (isIn) totalIn += t.amount; else totalOut += t.amount;
+      if (isIn) {
+        totalIn += t.amount;
+      } else {
+        totalOut += t.amount;
+      }
       rows.add(ReportRow([
         ReportCell(_shortId(t.transactionId), align: ReportCellAlign.center),
         ReportCell(formatDate(t.createdAt), align: ReportCellAlign.center),
@@ -2201,7 +2205,11 @@ class HotelReportService {
 
     for (final t in inRange) {
       final isIn = t.type == CashTransactionType.INCOME;
-      if (isIn) totalIn += t.amount; else totalOut += t.amount;
+      if (isIn) {
+        totalIn += t.amount;
+      } else {
+        totalOut += t.amount;
+      }
       rows.add(ReportRow([
         ReportCell(formatDate(t.createdAt), align: ReportCellAlign.center),
         ReportCell(_shortId(t.transactionId), align: ReportCellAlign.center),

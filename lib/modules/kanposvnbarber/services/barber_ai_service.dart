@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:typed_data';
+import 'package:flutter/foundation.dart' show debugPrint;
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 
@@ -48,7 +49,7 @@ class BarberAiService {
       
       final url = 'https://image.pollinations.ai/prompt/$encodedPrompt?width=512&height=512&nologo=true&seed=$seed';
       
-      print('Calling Free AI: $url');
+      debugPrint('Calling Free AI: $url');
       final response = await http.get(Uri.parse(url));
       
       if (response.statusCode == 200) {
@@ -63,7 +64,7 @@ class BarberAiService {
         throw Exception('Free AI API Error: ${response.statusCode}');
       }
     } catch (e) {
-      print('AI Error: $e');
+      debugPrint('AI Error: $e');
       throw Exception('Lỗi xử lý ảnh: $e');
     }
   }

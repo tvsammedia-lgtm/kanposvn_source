@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:isar/isar.dart';
 
 import '../../../core/auth/employee_auth.dart';
 import '../../../core/auth/employee_role_policy.dart';
@@ -9,8 +8,6 @@ import '../../../core/widgets/owner_info_bar.dart';
 
 import '../../../core/providers.dart';
 import '../providers/batdongsan_providers.dart';
-import '../models/property.dart';
-import '../repositories/isar_db.dart';
 import '../services/batdongsan_seed_data.dart';
 import 'batdongsan_home_screen.dart';
 import 'property_list_screen.dart';
