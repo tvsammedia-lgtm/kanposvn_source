@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/providers.dart';
 import '../../../../core/router/module_selector_screen.dart';
+import '../../../../core/widgets/account_switcher_button.dart';
 import '../providers/engpic_providers.dart';
 import 'vocabulary_list_screen.dart';
 import 'image_learning_screen.dart';
@@ -26,11 +27,7 @@ class EngpicHomeScreen extends ConsumerWidget {
           onPressed: () => Navigator.pop(context),
         ),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.switch_account),
-            tooltip: 'Chuyển tài khoản',
-            onPressed: () => ref.read(authServiceProvider).signOut(),
-          ),
+          const AccountSwitcherButton(foregroundColor: Colors.white),
           IconButton(
             icon: const Icon(Icons.logout),
             tooltip: 'Thoát về màn hình đăng nhập',

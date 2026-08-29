@@ -4,6 +4,7 @@ import '../models/eshop_product.dart';
 import '../providers/eshop_providers.dart';
 import 'eshop_product_detail_screen.dart';
 import 'eshop_cart_screen.dart';
+import '../../../core/widgets/account_switcher_button.dart';
 import '../../../core/widgets/owner_info_bar.dart';
 
 class EshopDashboardScreen extends ConsumerWidget {
@@ -19,6 +20,7 @@ class EshopDashboardScreen extends ConsumerWidget {
         backgroundColor: const Color(0xFFF97316), // Orange
         foregroundColor: Colors.white,
         actions: [
+          const AccountSwitcherButton(foregroundColor: Colors.white),
           IconButton(
             icon: const Icon(Icons.shopping_cart),
             onPressed: () {

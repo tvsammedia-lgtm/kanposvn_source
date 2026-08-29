@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/providers.dart';
 import '../../../../core/router/module_selector_screen.dart';
+import '../../../../core/widgets/account_switcher_button.dart';
 import '../providers/kanji_providers.dart';
 import 'kanji_library_screen.dart';
 import 'lesson_session_screen.dart';
@@ -37,11 +38,7 @@ class KanjiHomeScreen extends ConsumerWidget {
             onPressed: () => Navigator.push(context,
                 MaterialPageRoute(builder: (_) => const KanjiSettingsScreen())),
           ),
-          IconButton(
-            icon: const Icon(Icons.switch_account),
-            tooltip: 'Chuyển tài khoản',
-            onPressed: () => ref.read(authServiceProvider).signOut(),
-          ),
+          const AccountSwitcherButton(foregroundColor: Colors.white),
           IconButton(
             icon: const Icon(Icons.logout),
             tooltip: 'Thoát về màn hình đăng nhập',

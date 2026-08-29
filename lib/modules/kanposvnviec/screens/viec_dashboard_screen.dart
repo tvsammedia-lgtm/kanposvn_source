@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/viec_providers.dart';
+import '../../../core/widgets/account_switcher_button.dart';
 import '../../../core/widgets/owner_info_bar.dart';
 import 'viec_candidates_screen.dart';
 import 'viec_jobs_screen.dart';
@@ -17,6 +18,9 @@ class ViecDashboardScreen extends ConsumerWidget {
       appBar: AppBar(
         title: const Text('KanViec - Quản lý Việc Làm'),
         backgroundColor: const Color(0xFF6366F1), // Indigo
+        actions: const [
+          AccountSwitcherButton(foregroundColor: Colors.white),
+        ],
       ),
       drawer: Drawer(
         child: ListView(

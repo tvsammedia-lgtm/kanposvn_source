@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../core/providers.dart';
-import '../../../core/router/module_selector_screen.dart';
+import '../../../core/widgets/account_switcher_button.dart';
 import '../providers/crm_providers.dart';
 import '../models/customer.dart';
 import '../../../core/widgets/owner_info_bar.dart';
@@ -27,16 +26,8 @@ class CrmDashboardScreen extends ConsumerWidget {
         title: const Text('KanPosVN CRM'),
         backgroundColor: const Color(0xFFE11D48),
         foregroundColor: Colors.white,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.person),
-            tooltip: 'Đổi tài khoản',
-            onPressed: () async {
-              final auth = ref.read(authServiceProvider);
-              ref.read(selectedModuleProvider.notifier).state = null;
-              await auth.signOut();
-            },
-          ),
+        actions: const [
+          AccountSwitcherButton(foregroundColor: Colors.white),
         ],
       ),
       drawer: Drawer(

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import '../../../../../core/widgets/account_switcher_button.dart';
 import '../controller/sync_controller.dart';
 
 class SyncScreen extends ConsumerWidget {
@@ -13,6 +14,7 @@ class SyncScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Đồng bộ dữ liệu'),
+        actions: const [AccountSwitcherButton()],
       ),
       body: Padding(
         padding: const EdgeInsets.all(24.0),

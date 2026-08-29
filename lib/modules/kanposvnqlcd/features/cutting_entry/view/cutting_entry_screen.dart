@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../../core/providers.dart';
 import '../../../../../core/router/module_selector_screen.dart';
+import '../../../../../core/widgets/account_switcher_button.dart';
 import '../../../domain/models/cut_header_input.dart';
 import '../../../domain/services/ticket_generator_service.dart';
 import '../../auth/controller/auth_controller.dart';
@@ -132,6 +133,7 @@ class _CuttingEntryScreenState extends ConsumerState<CuttingEntryScreen> {
               ref.read(selectedModuleProvider.notifier).state = null;
             },
           ),
+          const AccountSwitcherButton(),
         ],
       ),
       body: Column(

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/parking_providers.dart';
+import '../../../core/widgets/account_switcher_button.dart';
 import '../../../core/widgets/owner_info_bar.dart';
 import 'parking_gate_screen.dart';
 import 'parking_monthly_screen.dart';
@@ -18,6 +19,9 @@ class ParkingDashboardScreen extends ConsumerWidget {
       appBar: AppBar(
         title: const Text('Kan Parking - Quản lý Bãi Xe'),
         backgroundColor: const Color(0xFF0F766E), // Màu Teal đặc trưng bãi xe
+        actions: const [
+          AccountSwitcherButton(foregroundColor: Colors.white),
+        ],
       ),
       drawer: Drawer(
         child: ListView(

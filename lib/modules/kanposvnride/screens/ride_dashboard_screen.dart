@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/ride_providers.dart';
+import '../../../core/widgets/account_switcher_button.dart';
 import '../../../core/widgets/owner_info_bar.dart';
 import '../models/ride_booking.dart';
 import 'ride_booking_screen.dart';
@@ -18,6 +19,9 @@ class RideDashboardScreen extends ConsumerWidget {
         title: const Text('KanRide - Dashboard'),
         backgroundColor: const Color(0xFFFACC15), // Yellow
         foregroundColor: Colors.black,
+        actions: const [
+          AccountSwitcherButton(foregroundColor: Colors.black),
+        ],
       ),
       drawer: Drawer(
         child: ListView(

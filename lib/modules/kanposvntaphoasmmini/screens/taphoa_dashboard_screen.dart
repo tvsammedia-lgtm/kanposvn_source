@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/auth/employee_auth.dart';
 import '../../../core/auth/employee_role_policy.dart';
 import '../../../core/providers.dart';
-import '../../../core/router/module_selector_screen.dart';
+import '../../../core/widgets/account_switcher_button.dart';
 import '../providers/taphoa_providers.dart';
 import '../services/taphoa_isar_service.dart';
 import '../services/taphoa_seed_data.dart';
@@ -185,15 +185,7 @@ class _TapHoaDashboardScreenState extends ConsumerState<TapHoaDashboardScreen> {
             tooltip: 'Đồng bộ dữ liệu',
             onPressed: _sync,
           ),
-          IconButton(
-            icon: const Icon(Icons.person),
-            tooltip: 'Đổi tài khoản',
-            onPressed: () async {
-              final auth = ref.read(authServiceProvider);
-              ref.read(selectedModuleProvider.notifier).state = null;
-              await auth.signOut();
-            },
-          ),
+          const AccountSwitcherButton(foregroundColor: Colors.white),
         ],
       ),
       body: _isInit

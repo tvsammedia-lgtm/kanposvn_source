@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/widgets/account_switcher_button.dart';
 import '../providers/nhatro_providers.dart';
 import '../services/nhatro_seed_data.dart';
 import 'nhatro_dashboard.dart';
@@ -82,6 +83,9 @@ class _KanPosVnNhaTro200ShellState extends ConsumerState<KanPosVnNhaTro200Shell>
         backgroundColor: const Color(0xFF475569),
         foregroundColor: Colors.white,
         title: const Text('KanPosVN - Nhà Trọ', style: TextStyle(fontWeight: FontWeight.bold)),
+        actions: const [
+          AccountSwitcherButton(foregroundColor: Colors.white),
+        ],
       ),
       body: Row(
         children: [

@@ -5,6 +5,7 @@ import '../../../data/models/cut_detail.dart';
 import '../../../data/models/cut_header.dart';
 import '../../../data/models/thong_so.dart';
 import '../../../data/repositories/garment_repository.dart';
+import '../../../../../core/widgets/account_switcher_button.dart';
 
 class TicketSearchScreen extends ConsumerStatefulWidget {
   const TicketSearchScreen({super.key});
@@ -64,7 +65,7 @@ class _TicketSearchScreenState extends ConsumerState<TicketSearchScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Tìm đơn hàng chế tạo')),
+      appBar: AppBar(title: const Text('Tìm đơn hàng chế tạo'), actions: const [AccountSwitcherButton()]),
       body: Column(
         children: [
           Padding(

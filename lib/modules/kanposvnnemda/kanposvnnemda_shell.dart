@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'screens/home_screen.dart';
 import 'services/settings_service.dart';
 import '../../../core/router/module_selector_screen.dart';
-import '../../../core/providers.dart';
+import '../../../core/widgets/account_switcher_button.dart';
 
 class KanPosVNNemdaShell extends ConsumerStatefulWidget {
   const KanPosVNNemdaShell({super.key});
@@ -40,13 +40,7 @@ class _KanPosVNNemdaShellState extends ConsumerState<KanPosVNNemdaShell> {
               ref.read(selectedModuleProvider.notifier).state = null;
             },
           ),
-          IconButton(
-            icon: const Icon(Icons.switch_account),
-            tooltip: 'Chuyển tài khoản',
-            onPressed: () {
-              ref.read(authServiceProvider).signOut();
-            },
-          ),
+          AccountSwitcherButton(foregroundColor: Colors.white),
         ],
       ),
       body: HomeScreen(settings: settings),

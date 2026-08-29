@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../../core/widgets/account_switcher_button.dart';
 import '../../../data/models/user.dart';
 import '../../../data/repositories/user_repository.dart';
 import '../controller/auth_controller.dart';
@@ -89,6 +90,7 @@ class _UserManagementScreenState extends ConsumerState<UserManagementScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Quản lý phân quyền'),
+        actions: const [AccountSwitcherButton()],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showAddEditDialog(),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../../core/widgets/account_switcher_button.dart';
 import '../../auth/controller/auth_controller.dart';
 
 class SettingsScreen extends ConsumerWidget {
@@ -13,6 +14,7 @@ class SettingsScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Cài Đặt'),
+        actions: const [AccountSwitcherButton()],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
