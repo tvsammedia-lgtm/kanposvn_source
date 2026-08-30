@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import '../../core/app_theme.dart';
 import '../../core/providers.dart';
-import '../../core/widgets.dart';
 import '../../models/accounting_entry.dart';
 import '../../models/account.dart';
+import 'gl_journal_entry_screen.dart';
 import 'payslip_screen.dart';
+
+final _selectedTabProvider = StateProvider<int>((ref) => 0);
 
 class AccountingScreen extends ConsumerStatefulWidget {
   const AccountingScreen({super.key});
@@ -15,587 +16,526 @@ class AccountingScreen extends ConsumerStatefulWidget {
   ConsumerState<AccountingScreen> createState() => _AccountingScreenState();
 }
 
-class _AccountingScreenState extends ConsumerState<AccountingScreen>
-    with SingleTickerProviderStateMixin {
-  late final TabController _tabCtrl;
-
-  @override
-  void initState() {
-    super.initState();
-    _tabCtrl = TabController(length: 4, vsync: this);
-  }
-
-  @override
-  void dispose() {
-    _tabCtrl.dispose();
-    super.dispose();
-  }
-
+class _AccountingScreenState extends ConsumerState<AccountingScreen> {
   @override
   Widget build(BuildContext context) {
-    final selected = ref.watch(selectedMonthProvider);
+    final selectedTab = ref.watch(_selectedTabProvider);
 
-    return Column(
-      children: [
-        Container(
-          color: AppTheme.surface,
-          child: Column(
+    return Scaffold(
+      backgroundColor: AppTheme.bg900,
+      body: Column(
+        children: [
+          _buildTopBar(context, ref),
+          _buildTabBar(ref, selectedTab),
+          Expanded(
+            child: [
+              _GlLedgerTab(),
+              _EntryInputTab(),
+              _ChartOfAccountsTab(),
+              const PayslipScreen(),
+            ][selectedTab],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTopBar(BuildContext context, WidgetRef ref) {
+    final selected = ref.watch(selectedMonthProvider);
+    final year = selected.year;
+    final month = selected.month;
+
+    return Container(
+      padding: const EdgeInsets.fromLTRB(20, 20, 20, 12),
+      color: AppTheme.surface,
+      child: Row(
+        children: [
+          Row(
             children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+              IconButton(
+                icon: const Icon(Icons.chevron_left_rounded, size: 20),
+                onPressed: () => ref.read(selectedMonthProvider.notifier).previousMonth(),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: AppTheme.primaryBlue.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  'T${month.toString().padLeft(2, '0')}/$year',
+                  style: const TextStyle(fontWeight: FontWeight.w600, color: AppTheme.primaryBlue),
+                ),
+              ),
+              IconButton(
+                icon: const Icon(Icons.chevron_right_rounded, size: 20),
+                onPressed: () => ref.read(selectedMonthProvider.notifier).nextMonth(),
+              ),
+            ],
+          ),
+          const Spacer(),
+          ElevatedButton.icon(
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => const GlJournalEntryScreen()),
+            ),
+            icon: const Icon(Icons.add_rounded, size: 18),
+            label: const Text('Thêm mới'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppTheme.primaryBlue,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTabBar(WidgetRef ref, int selectedTab) {
+    final tabs = [
+      ('Sổ cái GL', Icons.book_rounded),
+      ('Nhập bút toán', Icons.edit_note_rounded),
+      ('Hệ thống TK', Icons.account_tree_rounded),
+      ('Phiếu lương', Icons.receipt_long_rounded),
+    ];
+
+    return Container(
+      height: 44,
+      color: AppTheme.surface,
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      child: Row(
+        children: tabs.asMap().entries.map((entry) {
+          final i = entry.key;
+          final (label, icon) = entry.value;
+          final isSelected = selectedTab == i;
+
+          return Expanded(
+            child: GestureDetector(
+              onTap: () => ref.read(_selectedTabProvider.notifier).state = i,
+              child: Container(
+                margin: const EdgeInsets.symmetric(horizontal: 2, vertical: 6),
+                decoration: BoxDecoration(
+                  color: isSelected ? AppTheme.primaryBlue.withValues(alpha: 0.1) : Colors.transparent,
+                  borderRadius: BorderRadius.circular(6),
+                ),
                 child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Icon(Icons.account_balance, color: AppTheme.primaryBlue, size: 24),
-                    const SizedBox(width: 10),
-                    const Expanded(
-                      child: Text('Kế toán',
-                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.textPrimary)),
-                    ),
-                    MonthPicker(
-                      year: selected.year,
-                      month: selected.month,
-                      onPrev: () => ref.read(selectedMonthProvider.notifier).previousMonth(),
-                      onNext: () => ref.read(selectedMonthProvider.notifier).nextMonth(),
+                    Icon(icon, size: 14, color: isSelected ? AppTheme.primaryBlue : AppTheme.textMuted),
+                    const SizedBox(width: 4),
+                    Text(
+                      label,
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                        color: isSelected ? AppTheme.primaryBlue : AppTheme.textMuted,
+                      ),
                     ),
                   ],
                 ),
               ),
-              TabBar(
-                controller: _tabCtrl,
-                labelColor: AppTheme.primaryBlue,
-                unselectedLabelColor: AppTheme.textSecondary,
-                indicatorColor: AppTheme.primaryBlue,
-                isScrollable: true,
-                tabs: const [
-                  Tab(text: 'Sổ cái GL'),
-                  Tab(text: 'Nhập bút toán'),
-                  Tab(text: 'Hệ thống TK'),
-                  Tab(text: 'Phiếu lương'),
-                ],
-              ),
-            ],
-          ),
-        ),
-        Expanded(
-          child: TabBarView(
-            controller: _tabCtrl,
-            children: [
-              _GlLedgerTab(),
-              _GlEntryTab(),
-              _ChartOfAccountsTab(),
-              const PayslipScreen(),
-            ],
-          ),
-        ),
-      ],
+            ),
+          );
+        }).toList(),
+      ),
     );
   }
 }
 
-// ═══════════════════ TAB 1: SỔ CÁI GL (HOA STYLE) ═══════════════════
 class _GlLedgerTab extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final selected = ref.watch(selectedMonthProvider);
-    final summaryAsync = ref.watch(accountingSummaryProvider(selected));
     final entriesAsync = ref.watch(entriesByMonthProvider(selected));
 
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          summaryAsync.when(
-            data: (s) => Row(
+    return entriesAsync.when(
+      data: (entries) {
+        if (entries.isEmpty) {
+          return const Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                _summaryCard('Bút toán', '${s['totalEntries']}', Icons.receipt_long, AppTheme.primaryBlue),
-                const SizedBox(width: 8),
-                _summaryCard('Đã HT', '${s['postedEntries']}', Icons.check_circle, AppTheme.success),
-                const SizedBox(width: 8),
-                _summaryCard('Nháp', '${s['draftEntries']}', Icons.edit_note, AppTheme.warning),
-                const SizedBox(width: 8),
-                _summaryCard('Nợ', _fmtMoney(s['totalDebit']), Icons.arrow_downward, AppTheme.danger),
-                const SizedBox(width: 8),
-                _summaryCard('Có', _fmtMoney(s['totalCredit']), Icons.arrow_upward, AppTheme.accent),
+                Icon(Icons.book_outlined, size: 48, color: AppTheme.textMuted),
+                SizedBox(height: 16),
+                Text('Chưa có bút toán',
+                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15, color: AppTheme.textSecondary)),
               ],
             ),
-            loading: () => const SizedBox(height: 60, child: Center(child: CircularProgressIndicator())),
-            error: (e, _) => Text('Lỗi: $e', style: const TextStyle(color: AppTheme.danger)),
-          ),
-          const SizedBox(height: 12),
-          Expanded(
-            child: entriesAsync.when(
-              data: (entries) {
-                if (entries.isEmpty) {
-                  return const Center(
-                    child: Text('Chưa có bút toán tháng này',
-                        style: TextStyle(color: AppTheme.textSecondary)),
-                  );
-                }
-                final grouped = <String, AccountingEntry>{};
-                final journalEntries = <String, List<AccountingEntry>>{};
-                for (final e in entries) {
-                  grouped.putIfAbsent(e.journalID, () => e);
-                  journalEntries.putIfAbsent(e.journalID, () => []).add(e);
-                }
-                return ListView.separated(
-                  itemCount: grouped.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: 6),
-                  itemBuilder: (context, i) {
-                    final journalID = grouped.keys.elementAt(i);
-                    final main = grouped[journalID]!;
-                    return _GlJournalCard(journalID: journalID, entry: main);
-                  },
-                );
-              },
-              loading: () => const Center(child: CircularProgressIndicator()),
-              error: (e, _) => Center(child: Text('Lỗi: $e')),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+          );
+        }
 
-  static Widget _summaryCard(String label, String value, IconData icon, Color color) {
-    return Expanded(
-      child: Card(
-        color: AppTheme.surface,
-        child: Padding(
-          padding: const EdgeInsets.all(8),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Icon(icon, size: 14, color: color),
-                  const SizedBox(width: 4),
-                  Text(label, style: const TextStyle(fontSize: 10, color: AppTheme.textSecondary)),
-                ],
-              ),
-              const SizedBox(height: 2),
-              Text(value, style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: color)),
-            ],
-          ),
-        ),
-      ),
+        final grouped = <String, AccountingEntry>{};
+        for (final e in entries) {
+          grouped[e.journalID] = e;
+        }
+        final sorted = grouped.values.toList()
+          ..sort((a, b) => b.postingDate.compareTo(a.postingDate));
+
+        return ListView.separated(
+          padding: const EdgeInsets.all(16),
+          itemCount: sorted.length,
+          separatorBuilder: (_, __) => const SizedBox(height: 8),
+          itemBuilder: (context, index) => _GlEntryCard(entry: sorted[index]),
+        );
+      },
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (e, _) => Center(child: Text('Lỗi: $e')),
     );
   }
 }
 
-class _GlJournalCard extends ConsumerWidget {
-  final String journalID;
+class _GlEntryCard extends ConsumerStatefulWidget {
   final AccountingEntry entry;
 
-  const _GlJournalCard({required this.journalID, required this.entry});
+  const _GlEntryCard({required this.entry});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final linesAsync = ref.watch(entryLinesProvider(journalID));
-    final isPosted = entry.status == EntryStatus.posted;
-    final color = isPosted ? AppTheme.success : AppTheme.warning;
+  ConsumerState<_GlEntryCard> createState() => _GlEntryCardState();
+}
 
-    return Card(
-      color: AppTheme.surface,
-      child: ExpansionTile(
-        leading: Icon(_entryIcon(entry.entryType), size: 20, color: color),
-        title: Text(entry.voucherNumber,
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppTheme.textPrimary)),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(entry.description ?? '', style: const TextStyle(fontSize: 11, color: AppTheme.textSecondary)),
-            const SizedBox(height: 2),
-            Row(
-              children: [
-                _statusChip(isPosted),
-                const SizedBox(width: 8),
-                Text('Nợ: ${_fmtMoney(entry.totalDebit)} / Có: ${_fmtMoney(entry.totalCredit)}',
-                    style: const TextStyle(fontSize: 11, color: AppTheme.textPrimary)),
-              ],
-            ),
-          ],
-        ),
-        children: [
-          linesAsync.when(
-            data: (lines) {
-              if (lines.isEmpty) {
-                return const Padding(
-                  padding: EdgeInsets.all(16),
-                  child: Text('Không có dòng chi tiết',
-                      style: TextStyle(fontSize: 12, color: AppTheme.textSecondary)),
-                );
-              }
-              final sorted = List<AccountingEntryLine>.from(lines)
-                ..sort((a, b) => a.lineOrder.compareTo(b.lineOrder));
-              return Column(
-                children: [
-                  _headerRow(),
-                  ...sorted.map((l) => _lineRow(l)),
-                  const SizedBox(height: 8),
-                ],
-              );
-            },
-            loading: () => const Padding(
-              padding: EdgeInsets.all(16),
-              child: SizedBox(height: 20, child: CircularProgressIndicator(strokeWidth: 2)),
-            ),
-            error: (e, _) => Padding(
-              padding: const EdgeInsets.all(16),
-              child: Text('Lỗi: $e', style: const TextStyle(color: AppTheme.danger)),
-            ),
-          ),
-        ],
-      ),
-    );
+class _GlEntryCardState extends ConsumerState<_GlEntryCard> {
+  bool _expanded = false;
+
+  String _fmtMoney(double amount) {
+    if (amount >= 1000000000) return '${(amount / 1000000000).toStringAsFixed(1)} tỷ';
+    if (amount >= 1000000) return '${(amount / 1000000).toStringAsFixed(1)} tr';
+    return amount.toStringAsFixed(0);
   }
 
-  static Widget _statusChip(bool isPosted) {
-    final color = isPosted ? AppTheme.success : AppTheme.warning;
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
-      decoration: BoxDecoration(
-        color: color.withAlpha(30),
-        borderRadius: BorderRadius.circular(3),
-      ),
-      child: Text(isPosted ? 'Đã HT' : 'Nháp',
-          style: TextStyle(fontSize: 10, color: color, fontWeight: FontWeight.w600)),
-    );
-  }
-
-  static Widget _headerRow() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-      color: AppTheme.bg800,
-      child: const Row(
-        children: [
-          SizedBox(width: 24, child: Text('#', style: TextStyle(fontSize: 10, color: AppTheme.textSecondary, fontWeight: FontWeight.w600))),
-          SizedBox(width: 8),
-          Expanded(flex: 2, child: Text('TK Nợ', style: TextStyle(fontSize: 10, color: AppTheme.textSecondary, fontWeight: FontWeight.w600))),
-          Expanded(flex: 2, child: Text('TK Có', style: TextStyle(fontSize: 10, color: AppTheme.textSecondary, fontWeight: FontWeight.w600))),
-          Expanded(flex: 3, child: Text('Số tiền', style: TextStyle(fontSize: 10, color: AppTheme.textSecondary, fontWeight: FontWeight.w600))),
-          Expanded(flex: 3, child: Text('Diễn giải', style: TextStyle(fontSize: 10, color: AppTheme.textSecondary, fontWeight: FontWeight.w600))),
-        ],
-      ),
-    );
-  }
-
-  static Widget _lineRow(AccountingEntryLine l) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-      decoration: const BoxDecoration(
-        border: Border(bottom: BorderSide(color: AppTheme.borderColor, width: 0.5)),
-      ),
-      child: Row(
-        children: [
-          SizedBox(
-            width: 24,
-            child: Text('${l.lineOrder}', style: const TextStyle(fontSize: 11, color: AppTheme.textSecondary)),
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            flex: 2,
-            child: Text(l.debitAccountNumber.isEmpty ? '-' : l.debitAccountNumber,
-                style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: l.debitAccountNumber.isEmpty ? AppTheme.textMuted : AppTheme.danger)),
-          ),
-          Expanded(
-            flex: 2,
-            child: Text(l.creditAccountNumber.isEmpty ? '-' : l.creditAccountNumber,
-                style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: l.creditAccountNumber.isEmpty ? AppTheme.textMuted : AppTheme.accent)),
-          ),
-          Expanded(
-            flex: 3,
-            child: Text(_fmtMoney(l.amount), style: const TextStyle(fontSize: 12, color: AppTheme.textPrimary)),
-          ),
-          Expanded(
-            flex: 3,
-            child: Text(l.description ?? '',
-                style: const TextStyle(fontSize: 11, color: AppTheme.textSecondary),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis),
-          ),
-        ],
-      ),
-    );
-  }
-
-  static IconData _entryIcon(EntryType type) {
+  String _entryLabel(EntryType type) {
     switch (type) {
-      case EntryType.salary: return Icons.account_balance_wallet;
-      case EntryType.insurance: return Icons.health_and_safety;
-      case EntryType.pit: return Icons.receipt;
-      case EntryType.payment: return Icons.payments;
-      case EntryType.advance: return Icons.money;
-      case EntryType.bonus: return Icons.card_giftcard;
-      case EntryType.adjustment: return Icons.tune;
-      case EntryType.openingBalance: return Icons.account_balance_wallet_outlined;
-      case EntryType.other: return Icons.receipt_long;
+      case EntryType.salary: return 'LƯƠNG';
+      case EntryType.insurance: return 'BHXH';
+      case EntryType.pit: return 'TNCN';
+      case EntryType.payment: return 'CHI TIỀN';
+      case EntryType.advance: return 'TẠM ỨNG';
+      case EntryType.bonus: return 'THƯỞNG';
+      case EntryType.adjustment: return 'ĐIỀU CHỈNH';
+      case EntryType.openingBalance: return 'SỐ DƯ ĐK';
+      case EntryType.other: return 'KHÁC';
     }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final entry = widget.entry;
+    final linesAsync = ref.watch(entryLinesProvider(entry.journalID));
+
+    return Container(
+      decoration: BoxDecoration(
+        color: AppTheme.surface,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppTheme.borderColor),
+      ),
+      child: Column(
+        children: [
+          InkWell(
+            onTap: () => setState(() => _expanded = !_expanded),
+            borderRadius: BorderRadius.circular(12),
+            child: Padding(
+              padding: const EdgeInsets.all(14),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: AppTheme.primaryBlue.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text(_entryLabel(entry.entryType),
+                            style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: AppTheme.primaryBlue)),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(entry.description ?? '',
+                            style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis),
+                      ),
+                      Icon(_expanded ? Icons.expand_less : Icons.expand_more,
+                          size: 18, color: AppTheme.textMuted),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Text(entry.journalID,
+                          style: const TextStyle(fontSize: 11, color: AppTheme.textMuted)),
+                      const Spacer(),
+                      Text(
+                        'DR: ${_fmtMoney(entry.totalDebit)}',
+                        style: const TextStyle(fontSize: 12, color: AppTheme.success, fontWeight: FontWeight.w600),
+                      ),
+                      const SizedBox(width: 12),
+                      Text(
+                        'CR: ${_fmtMoney(entry.totalCredit)}',
+                        style: const TextStyle(fontSize: 12, color: AppTheme.danger, fontWeight: FontWeight.w600),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+          if (_expanded)
+            Container(
+              decoration: BoxDecoration(
+                color: AppTheme.bg800,
+                borderRadius: const BorderRadius.vertical(bottom: Radius.circular(12)),
+              ),
+              padding: const EdgeInsets.all(12),
+              child: linesAsync.when(
+                data: (lines) {
+                  return Column(
+                    children: lines.map((line) => Padding(
+                      padding: const EdgeInsets.only(bottom: 6),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 6,
+                            height: 6,
+                            decoration: BoxDecoration(
+                              color: line.debitAccountNumber.isNotEmpty ? AppTheme.success : AppTheme.danger,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              line.debitAccountNumber.isNotEmpty 
+                                  ? 'Nợ ${line.debitAccountNumber}' 
+                                  : 'Có ${line.creditAccountNumber}',
+                              style: const TextStyle(fontSize: 12),
+                            ),
+                          ),
+                          if (line.debitAccountNumber.isNotEmpty)
+                            Text(_fmtMoney(line.amount),
+                                style: const TextStyle(fontSize: 12, color: AppTheme.success, fontWeight: FontWeight.w600)),
+                          if (line.creditAccountNumber.isNotEmpty)
+                            Text(_fmtMoney(line.amount),
+                                style: const TextStyle(fontSize: 12, color: AppTheme.danger, fontWeight: FontWeight.w600)),
+                        ],
+                      ),
+                    )).toList(),
+                  );
+                },
+                loading: () => const Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: Center(child: SizedBox(height: 16, width: 16, child: CircularProgressIndicator(strokeWidth: 2))),
+                ),
+                error: (e, _) => Text('Lỗi: $e', style: const TextStyle(fontSize: 12, color: AppTheme.danger)),
+              ),
+            ),
+        ],
+      ),
+    );
   }
 }
 
-// ═══════════════════ TAB 2: NHẬP BÚT TOÁN ═══════════════════
-class _GlEntryTab extends ConsumerWidget {
+class _EntryInputTab extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final selected = ref.watch(selectedMonthProvider);
-
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Tạo bút toán kế toán',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppTheme.textPrimary)),
-          const SizedBox(height: 4),
-          const Text('Chọn loại bút toán hoặc nhập tay theo DR/CR',
-              style: TextStyle(fontSize: 12, color: AppTheme.textSecondary)),
-          const SizedBox(height: 16),
-
-          // Quick action cards
-          _QuickActionRow(
-            actions: [
-              _QuickAction(
-                icon: Icons.account_balance_wallet,
-                label: 'Lương',
-                color: AppTheme.primaryBlue,
-                onTap: () => _openGlEntry(context, EntryType.salary, selected),
+          _QuickActionCard(
+            icon: Icons.calculate_rounded,
+            title: 'Tạo bút toán tự động',
+            subtitle: 'Tạo bút toán lương, thuế từ phiếu lương',
+            color: AppTheme.primaryBlue,
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => const GlJournalEntryScreen(),
               ),
-              _QuickAction(
-                icon: Icons.health_and_safety,
-                label: 'BHXH/BHYT',
-                color: AppTheme.success,
-                onTap: () => _openGlEntry(context, EntryType.insurance, selected),
-              ),
-              _QuickAction(
-                icon: Icons.receipt,
-                label: 'Thuế TNCN',
-                color: AppTheme.warning,
-                onTap: () => _openGlEntry(context, EntryType.pit, selected),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          _QuickActionRow(
-            actions: [
-              _QuickAction(
-                icon: Icons.payments,
-                label: 'Chi tiền',
-                color: AppTheme.accent,
-                onTap: () => _openGlEntry(context, EntryType.payment, selected),
-              ),
-              _QuickAction(
-                icon: Icons.card_giftcard,
-                label: 'Thưởng',
-                color: AppTheme.warning,
-                onTap: () => _openGlEntry(context, EntryType.bonus, selected),
-              ),
-              _QuickAction(
-                icon: Icons.money,
-                label: 'Tạm ứng',
-                color: AppTheme.danger,
-                onTap: () => _openGlEntry(context, EntryType.advance, selected),
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
-
-          // Manual entry button
-          SizedBox(
-            width: double.infinity,
-            child: OutlinedButton.icon(
-              onPressed: () => context.push('/accounting/new-entry'),
-              icon: const Icon(Icons.edit, size: 18),
-              label: const Text('Nhập tay DR/CR'),
             ),
           ),
-          const SizedBox(height: 20),
-
-          // Recent entries
-          const Text('Bút toán gần đây',
-              style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppTheme.textPrimary)),
-          const SizedBox(height: 8),
-          Expanded(
-            child: ref.watch(entriesByMonthProvider(selected)).when(
-              data: (entries) {
-                if (entries.isEmpty) {
-                  return const Center(
-                    child: Text('Chưa có bút toán', style: TextStyle(color: AppTheme.textSecondary)),
-                  );
-                }
-                final recent = entries.take(10).toList();
-                return ListView.separated(
-                  itemCount: recent.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: 4),
-                  itemBuilder: (context, i) => _recentEntryRow(recent[i]),
-                );
-              },
-              loading: () => const Center(child: CircularProgressIndicator()),
-              error: (e, _) => Center(child: Text('Lỗi: $e')),
+          const SizedBox(height: 12),
+          _QuickActionCard(
+            icon: Icons.edit_note_rounded,
+            title: 'Nhập bút toán thủ công',
+            subtitle: 'Tự nhập các tài khoản Nợ/Có',
+            color: AppTheme.success,
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => const GlJournalEntryScreen(),
+              ),
             ),
+          ),
+          const SizedBox(height: 12),
+          _QuickActionCard(
+            icon: Icons.undo_rounded,
+            title: 'Đảo bút toán',
+            subtitle: 'Hủy/đảo bút toán đã ghi sổ',
+            color: AppTheme.warning,
+            onTap: () {},
           ),
         ],
       ),
     );
   }
-
-  void _openGlEntry(BuildContext context, EntryType type, SelectedMonth selected) {
-    context.push('/accounting/gl-entry?type=${type.name}&year=${selected.year}&month=${selected.month}');
-  }
-
-  static Widget _recentEntryRow(AccountingEntry e) {
-    final isPosted = e.status == EntryStatus.posted;
-    final color = isPosted ? AppTheme.success : AppTheme.warning;
-    return Card(
-      color: AppTheme.surface,
-      child: ListTile(
-        dense: true,
-        leading: Icon(_entryIcon(e.entryType), size: 18, color: color),
-        title: Text(e.voucherNumber,
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: AppTheme.textPrimary)),
-        subtitle: Text(e.description ?? '', style: const TextStyle(fontSize: 10, color: AppTheme.textSecondary)),
-        trailing: Text('${_fmtMoney(e.totalDebit)} ₫',
-            style: const TextStyle(fontSize: 11, color: AppTheme.textPrimary)),
-      ),
-    );
-  }
-
-  static IconData _entryIcon(EntryType type) {
-    switch (type) {
-      case EntryType.salary: return Icons.account_balance_wallet;
-      case EntryType.insurance: return Icons.health_and_safety;
-      case EntryType.pit: return Icons.receipt;
-      case EntryType.payment: return Icons.payments;
-      case EntryType.advance: return Icons.money;
-      case EntryType.bonus: return Icons.card_giftcard;
-      case EntryType.adjustment: return Icons.tune;
-      case EntryType.openingBalance: return Icons.account_balance_wallet_outlined;
-      case EntryType.other: return Icons.receipt_long;
-    }
-  }
 }
 
-// ═══════════════════ TAB 3: HỆ THỐNG TÀI KHOẢN ═══════════════════
 class _ChartOfAccountsTab extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final accountsAsync = ref.watch(allAccountsProvider);
 
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text('Hệ thống tài khoản kế toán TT133',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppTheme.textPrimary)),
-          const SizedBox(height: 4),
-          const Text('Tài khoản theo Thông tư 133 / MISA SME 2023',
-              style: TextStyle(fontSize: 12, color: AppTheme.textSecondary)),
-          const SizedBox(height: 12),
-          Expanded(
-            child: accountsAsync.when(
-              data: (accounts) {
-                if (accounts.isEmpty) {
-                  return const Center(
-                    child: Text('Chưa có tài khoản', style: TextStyle(color: AppTheme.textSecondary)),
-                  );
-                }
-                final sorted = List<Account>.from(accounts)..sort((a, b) => a.accountNumber.compareTo(b.accountNumber));
-                return ListView.separated(
-                  itemCount: sorted.length,
-                  separatorBuilder: (_, __) => const Divider(height: 1),
-                  itemBuilder: (context, i) {
-                    final a = sorted[i];
-                    final indent = (a.grade - 1) * 20.0;
-                    final color = a.isParent ? AppTheme.primaryBlue : AppTheme.textPrimary;
-                    return Padding(
-                      padding: EdgeInsets.only(left: indent),
-                      child: ListTile(
-                        dense: true,
-                        leading: Icon(
-                          a.isParent ? Icons.folder : Icons.description,
-                          size: 18,
-                          color: a.isParent ? AppTheme.primaryBlue : AppTheme.textSecondary,
+    return accountsAsync.when(
+      data: (accounts) {
+        if (accounts.isEmpty) {
+          return const Center(child: Text('Chưa có tài khoản'));
+        }
+
+        final grouped = <String, List<Account>>{};
+        for (final a in accounts) {
+          final group = a.accountNumber.substring(0, 1);
+          grouped.putIfAbsent(group, () => []).add(a);
+        }
+
+        final groupLabels = {
+          '1': 'Tài sản (1xxx)',
+          '2': 'Nợ phải thu (2xxx)',
+          '3': 'Nợ phải trả (3xxx)',
+          '4': 'Doanh thu (4xxx)',
+          '5': 'Vốn (5xxx)',
+          '6': 'Chi phí (6xxx)',
+          '7': 'Thuế & Kết quả KD (7xxx)',
+        };
+
+        return ListView.separated(
+          padding: const EdgeInsets.all(16),
+          itemCount: grouped.length,
+          separatorBuilder: (_, __) => const SizedBox(height: 12),
+          itemBuilder: (context, index) {
+            final group = grouped.keys.elementAt(index);
+            final items = grouped[group]!;
+            return Container(
+              decoration: BoxDecoration(
+                color: AppTheme.surface,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: AppTheme.borderColor),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: Text(
+                      groupLabels[group] ?? 'Nhóm $group',
+                      style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13, color: AppTheme.primaryBlue),
+                    ),
+                  ),
+                  const Divider(height: 1),
+                  ...items.map((a) => Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 32,
+                          height: 32,
+                          decoration: BoxDecoration(
+                            color: AppTheme.textMuted.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Center(
+                            child: Text(a.accountNumber.substring(0, 1),
+                                style: const TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w700,
+                                    color: AppTheme.textPrimary)),
+                          ),
                         ),
-                        title: Text('${a.accountNumber} - ${a.accountName}',
-                            style: TextStyle(
-                                fontSize: 13,
-                                fontWeight: a.isParent ? FontWeight.bold : FontWeight.normal,
-                                color: color)),
-                        subtitle: a.accountNameEnglish != null
-                            ? Text(a.accountNameEnglish!, style: const TextStyle(fontSize: 10, color: AppTheme.textSecondary))
-                            : null,
-                        trailing: a.inactive
-                            ? const Icon(Icons.block, size: 16, color: AppTheme.danger)
-                            : null,
-                      ),
-                    );
-                  },
-                );
-              },
-              loading: () => const Center(child: CircularProgressIndicator()),
-              error: (e, _) => Center(child: Text('Lỗi: $e')),
-            ),
-          ),
-        ],
-      ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(a.accountNumber, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 12)),
+                              Text(a.accountName,
+                                  style: const TextStyle(fontSize: 11, color: AppTheme.textSecondary)),
+                            ],
+                          ),
+                        ),
+                        Icon(
+                          a.inactive ? Icons.cancel : Icons.check_circle,
+                          size: 16,
+                          color: a.inactive ? AppTheme.danger : AppTheme.success,
+                        ),
+                      ],
+                    ),
+                  )),
+                ],
+              ),
+            );
+          },
+        );
+      },
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (e, _) => Center(child: Text('Lỗi: $e')),
     );
   }
 }
 
-// ═══════════════════ SHARED ═══════════════════
-String _fmtMoney(double amount) {
-  if (amount >= 1000000000) return '${(amount / 1000000000).toStringAsFixed(1)} tỷ';
-  if (amount >= 1000000) return '${(amount / 1000000).toStringAsFixed(1)} tr';
-  return amount.toStringAsFixed(0);
-}
-
-class _QuickAction {
+class _QuickActionCard extends StatelessWidget {
   final IconData icon;
-  final String label;
+  final String title;
+  final String subtitle;
   final Color color;
   final VoidCallback onTap;
 
-  const _QuickAction({required this.icon, required this.label, required this.color, required this.onTap});
-}
-
-class _QuickActionRow extends StatelessWidget {
-  final List<_QuickAction> actions;
-
-  const _QuickActionRow({required this.actions});
+  const _QuickActionCard({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.color,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: actions.map((a) => Expanded(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 4),
-          child: Card(
-            color: AppTheme.surface,
-            child: InkWell(
-              onTap: a.onTap,
-              borderRadius: BorderRadius.circular(12),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                child: Column(
-                  children: [
-                    Icon(a.icon, size: 24, color: a.color),
-                    const SizedBox(height: 6),
-                    Text(a.label,
-                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: a.color)),
-                  ],
-                ),
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: AppTheme.surface,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: AppTheme.borderColor),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Icon(icon, color: color, size: 22),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title,
+                      style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+                  const SizedBox(height: 2),
+                  Text(subtitle,
+                      style: const TextStyle(fontSize: 11, color: AppTheme.textMuted)),
+                ],
               ),
             ),
-          ),
+            const Icon(Icons.chevron_right_rounded, color: AppTheme.textMuted, size: 20),
+          ],
         ),
-      )).toList(),
+      ),
     );
   }
 }
