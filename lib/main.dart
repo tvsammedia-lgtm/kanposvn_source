@@ -41,6 +41,7 @@ import 'modules/kanposvnhrpayroll/screens/kanposvnhrpayroll_shell.dart';
 import 'modules/kanposvnkanji/kanposvnkanji_shell.dart';
 import 'modules/kanposvnengpic/kanposvnengpic_shell.dart';
 import 'modules/kanposvnnemda/kanposvnnemda_shell.dart';
+import 'modules/kanposvntruyenthong/screens/kanposvntruyenthong_shell.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -298,6 +299,8 @@ class _MainShell extends ConsumerWidget {
         return const KanPosVNEngpicShell();
       case AppModuleType.kanposvnnemda:
         return const KanPosVNNemdaShell();
+      case AppModuleType.kanposvntruyenthong:
+        return const KanPosVNTruyenthongShell();
     }
   }
 

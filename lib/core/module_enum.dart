@@ -28,7 +28,8 @@ enum AppModule {
   kanposvnhrpayroll('KanPosVN HR Payroll (Vận Tải)', Icons.badge, Color(0xFF0EA5E9)),
   kanposvnengpic('KanPosVN EngPic', Icons.image, Color(0xFF10B981)),
   kanposvnkanji('KanPosVN Kanji', Icons.language, Color(0xFF3B82F6)),
-  kanposvnnemda('Chơi Nhau (Ném Đá)', Icons.sports_esports, Color(0xFF7C3AED));
+  kanposvnnemda('Chơi Nhau (Ném Đá)', Icons.sports_esports, Color(0xFF7C3AED)),
+  kanposvntruyenthong('KanPosVN Truyền Thống', Icons.shopping_basket, Color(0xFF16A34A));
 
   final String label;
   final IconData icon;
@@ -65,6 +66,7 @@ enum AppModule {
       case AppModule.kanposvnengpic: return 'kanposvnengpic';
       case AppModule.kanposvnkanji: return 'kanposvnkanji';
       case AppModule.kanposvnnemda: return 'kanposvnnemda';
+      case AppModule.kanposvntruyenthong: return 'kanposvntruyenthong';
     }
   }
 
@@ -98,6 +100,7 @@ enum AppModule {
       case AppModule.kanposvnengpic: return AppModuleType.kanposvnengpic;
       case AppModule.kanposvnkanji: return AppModuleType.kanposvnkanji;
       case AppModule.kanposvnnemda: return AppModuleType.kanposvnnemda;
+      case AppModule.kanposvntruyenthong: return AppModuleType.kanposvntruyenthong;
     }
   }
 
@@ -134,7 +137,8 @@ enum AppModuleType {
   kanposvnhrpayroll('KanPosVN HR Payroll (Vận Tải)', Icons.badge),
   kanposvnengpic('KanPosVN EngPic', Icons.image),
   kanposvnkanji('KanPosVN Kanji', Icons.language),
-  kanposvnnemda('Chơi Nhau (Ném Đá)', Icons.sports_esports);
+  kanposvnnemda('Chơi Nhau (Ném Đá)', Icons.sports_esports),
+  kanposvntruyenthong('Sạp Rau Củ Quả', Icons.shopping_basket);
 
   final String label;
   final IconData icon;
