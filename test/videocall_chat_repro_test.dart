@@ -10,8 +10,6 @@ import 'package:kanposvn/modules/kanposvnvideocall/models/message.dart';
 import 'package:kanposvn/modules/kanposvnvideocall/providers/conversation_provider.dart';
 import 'package:kanposvn/modules/kanposvnvideocall/providers/message_provider.dart';
 import 'package:kanposvn/modules/kanposvnvideocall/providers/videocall_isar_provider.dart';
-import 'package:kanposvn/modules/kanposvnvideocall/screens/chat_screen.dart';
-import 'package:kanposvn/modules/kanposvnvideocall/screens/conversation_list_screen.dart';
 import 'package:kanposvn/modules/kanposvnvideocall/screens/kanposvnvideocall_shell.dart';
 import 'package:kanposvn/modules/kanposvnvideocall/services/videocall_seed_data.dart';
 // ignore: depend_on_referenced_packages

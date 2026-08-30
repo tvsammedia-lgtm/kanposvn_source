@@ -52,3 +52,6 @@ app.*.map.json
 
 # Native lib staged for the DB probe tests
 /isar.dll
+
+# Build artifacts
+kanposvn-windows-x64.zip
