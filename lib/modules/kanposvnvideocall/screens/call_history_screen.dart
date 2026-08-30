@@ -62,6 +62,7 @@ class CallHistoryScreen extends ConsumerWidget {
         error: (err, st) => Center(child: Text('Lỗi: $err')),
       ),
       floatingActionButton: FloatingActionButton(
+        heroTag: 'videocall_fab_call_history',
         onPressed: () {
           ref.read(callHistoryProvider.notifier).addMockCall();
         },

@@ -45,6 +45,7 @@ class ConversationListScreen extends ConsumerWidget {
         error: (err, st) => Center(child: Text('Lỗi: $err')),
       ),
       floatingActionButton: FloatingActionButton(
+        heroTag: 'videocall_fab_conversations',
         onPressed: () {
           // Tạo nhóm chat / Bắt đầu trò chuyện mới
         },

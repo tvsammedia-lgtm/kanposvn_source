@@ -21,8 +21,10 @@ class CallHistoryNotifier extends StateNotifier<AsyncValue<List<VideoCallHistory
     try {
       state = const AsyncValue.loading();
       final histories = await isar.videoCallHistorys.where().sortByStartedAtDesc().findAll();
+      if (!mounted) return;
       state = AsyncValue.data(histories);
     } catch (e, st) {
+      if (!mounted) return;
       state = AsyncValue.error(e, st);
     }
   }
@@ -45,6 +47,7 @@ class CallHistoryNotifier extends StateNotifier<AsyncValue<List<VideoCallHistory
       });
       await loadHistory();
     } catch (e, st) {
+      if (!mounted) return;
       state = AsyncValue.error(e, st);
     }
   }

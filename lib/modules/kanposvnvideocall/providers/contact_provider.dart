@@ -23,8 +23,10 @@ class ContactNotifier extends StateNotifier<AsyncValue<List<VideoCallContact>>> 
     try {
       state = const AsyncValue.loading();
       final contacts = await isar.videoCallContacts.where().findAll();
+      if (!mounted) return;
       state = AsyncValue.data(contacts);
     } catch (e, st) {
+      if (!mounted) return;
       state = AsyncValue.error(e, st);
     }
   }
@@ -43,6 +45,7 @@ class ContactNotifier extends StateNotifier<AsyncValue<List<VideoCallContact>>> 
       });
       await loadContacts();
     } catch (e, st) {
+      if (!mounted) return;
       state = AsyncValue.error(e, st);
     }
   }

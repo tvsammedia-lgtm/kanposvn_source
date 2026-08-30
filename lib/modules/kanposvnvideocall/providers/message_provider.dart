@@ -30,8 +30,10 @@ class MessageNotifier extends StateNotifier<AsyncValue<List<VideoCallMessage>>> 
           .conversationUuidEqualTo(conversationUuid)
           .sortByCreatedAt() // Cũ ở trên, mới ở dưới
           .findAll();
+      if (!mounted) return;
       state = AsyncValue.data(messages);
     } catch (e, st) {
+      if (!mounted) return;
       state = AsyncValue.error(e, st);
     }
   }
@@ -66,6 +68,7 @@ class MessageNotifier extends StateNotifier<AsyncValue<List<VideoCallMessage>>> 
       // Ở đây sẽ trigger logic gọi hàm Sync lên Server thông qua WebSocket / API (Giai đoạn sau)
       
     } catch (e, st) {
+      if (!mounted) return;
       state = AsyncValue.error(e, st);
     }
   }

@@ -24,8 +24,10 @@ class ConversationNotifier extends StateNotifier<AsyncValue<List<VideoCallConver
       state = const AsyncValue.loading();
       // Sắp xếp theo tin nhắn mới nhất
       final convs = await isar.videoCallConversations.where().sortByLastMessageAtDesc().findAll();
+      if (!mounted) return;
       state = AsyncValue.data(convs);
     } catch (e, st) {
+      if (!mounted) return;
       state = AsyncValue.error(e, st);
     }
   }
@@ -44,6 +46,7 @@ class ConversationNotifier extends StateNotifier<AsyncValue<List<VideoCallConver
       });
       await loadConversations();
     } catch (e, st) {
+      if (!mounted) return;
       state = AsyncValue.error(e, st);
     }
   }

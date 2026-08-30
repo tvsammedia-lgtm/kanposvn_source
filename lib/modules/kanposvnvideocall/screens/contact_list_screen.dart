@@ -44,6 +44,7 @@ class ContactListScreen extends ConsumerWidget {
         error: (err, st) => Center(child: Text('Lỗi: $err')),
       ),
       floatingActionButton: FloatingActionButton(
+        heroTag: 'videocall_fab_contacts',
         onPressed: () {
           // Thêm bạn bè (hiện modal / chuyển trang)
         },
