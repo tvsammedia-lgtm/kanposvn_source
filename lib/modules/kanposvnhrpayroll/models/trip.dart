@@ -38,6 +38,19 @@ class Trip {
   double? revenue;
   double? expenses;
 
+  // ─── Thông tin lương chuyến (bảng lương chuyến theo HOA) ────────────────
+  /// Nhóm tải trọng xe thực hiện chuyến (VD: "3.5T", "5T", "8T", "HT").
+  String? capacityBucket;
+
+  /// Mã tuyến / mã chuyến (VD: "HCM", "DN", "GL", "NTG").
+  String? routeCode;
+
+  /// Tên nơi giao hàng (VD: "TP.HCM", "Đồng Nai", "Gia Lai").
+  String? routeName;
+
+  /// Đơn giá lương chuyến của chuyến này (VNĐ) — tra từ TripPrice khi seed.
+  double tripSalaryAmount = 0;
+
   @ignore
   double get profit => (revenue ?? 0) - (expenses ?? 0);
 

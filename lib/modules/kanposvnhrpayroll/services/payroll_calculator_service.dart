@@ -47,6 +47,152 @@ class PayrollCalculatorService {
   static const double personalDeduction = 11000000.0;
   static const double dependentDeduction = 4400000.0;
 
+  // ══════════════════ BẢNG LƯƠNG CHUYẾN (theo HOA / HEO VÀNG) ══════════════════
+  // Đơn giá lương chuyến theo NHÓM TẢI TRỌNG + MÃ TUYẾN.
+  // Format: (capacityBucket, routeCode, routeName, price).
+  // Nguồn: "BẢNG LƯƠNG CHUYẾN T8.xlsx" — sheets BL.3.5T / BL.5T / BL.8T.
+  static const List<({String capacity, String code, String name, int price})>
+      tripPriceTable = [
+    // ── 3.5T ───────────────────────────────────────────────────────────────
+    (capacity: '3.5T', code: 'HCM', name: 'TP.HCM', price: 220000),
+    (capacity: '3.5T', code: 'BD', name: 'Bình Dương', price: 220000),
+    (capacity: '3.5T', code: 'BH', name: 'Biên Hòa', price: 220000),
+    (capacity: '3.5T', code: 'VT', name: 'Vũng Tàu', price: 350000),
+    (capacity: '3.5T', code: 'LA', name: 'Long An', price: 350000),
+    (capacity: '3.5T', code: 'TN', name: 'Tây Ninh', price: 350000),
+    (capacity: '3.5T', code: 'DN', name: 'Đồng Nai', price: 350000),
+    (capacity: '3.5T', code: 'BP', name: 'Bình Phước', price: 350000),
+    (capacity: '3.5T', code: 'CG', name: 'Cần Giờ', price: 350000),
+    (capacity: '3.5T', code: 'DT', name: 'Đồng Tháp', price: 400000),
+    (capacity: '3.5T', code: 'VL', name: 'Vĩnh Long', price: 400000),
+    (capacity: '3.5T', code: 'TG', name: 'Tiền Giang', price: 400000),
+    (capacity: '3.5T', code: 'TV', name: 'Trà Vinh', price: 400000),
+    (capacity: '3.5T', code: 'BT', name: 'Bến Tre', price: 400000),
+    (capacity: '3.5T', code: 'MT', name: 'Mỹ Tho', price: 400000),
+    (capacity: '3.5T', code: 'SD', name: 'Sa Đéc', price: 400000),
+    (capacity: '3.5T', code: 'BTH', name: 'Bình Thuận', price: 500000),
+    (capacity: '3.5T', code: 'CT', name: 'Cần Thơ', price: 500000),
+    (capacity: '3.5T', code: 'HG', name: 'Hậu Giang', price: 500000),
+    (capacity: '3.5T', code: 'AG', name: 'An Giang', price: 500000),
+    (capacity: '3.5T', code: 'ST', name: 'Sóc Trăng', price: 500000),
+    (capacity: '3.5T', code: 'LX', name: 'Long Xuyên', price: 500000),
+    (capacity: '3.5T', code: 'KG', name: 'Kiên Giang', price: 600000),
+    (capacity: '3.5T', code: 'BL', name: 'Bạc Liêu', price: 600000),
+    (capacity: '3.5T', code: 'LD', name: 'Lâm Đồng', price: 600000),
+    (capacity: '3.5T', code: 'CM', name: 'Cà Mau', price: 600000),
+    (capacity: '3.5T', code: 'RG', name: 'Rạch Giá', price: 600000),
+    (capacity: '3.5T', code: 'PQ', name: 'Phú Quốc', price: 650000),
+    (capacity: '3.5T', code: 'DNO', name: 'Đắc Nông', price: 650000),
+    (capacity: '3.5T', code: 'DKL', name: 'Đắk Lắk', price: 650000),
+    (capacity: '3.5T', code: 'NT', name: 'Ninh Thuận', price: 650000),
+    (capacity: '3.5T', code: 'NTG', name: 'Nha Trang', price: 700000),
+    (capacity: '3.5T', code: 'GL', name: 'Gia Lai', price: 750000),
+    (capacity: '3.5T', code: 'KT', name: 'Kon Tum', price: 750000),
+    (capacity: '3.5T', code: 'PY', name: 'Phú Yên', price: 750000),
+    (capacity: '3.5T', code: 'QNH', name: 'Quy Nhơn', price: 950000),
+    (capacity: '3.5T', code: 'QNM', name: 'Quảng Nam', price: 1100000),
+    (capacity: '3.5T', code: 'QNG', name: 'Quảng Ngãi', price: 1100000),
+    (capacity: '3.5T', code: 'DNG', name: 'Đà Nẵng', price: 1150000),
+    (capacity: '3.5T', code: 'HUE', name: 'Huế', price: 1550000),
+    // ── 5T ─────────────────────────────────────────────────────────────────
+    (capacity: '5T', code: 'HCM', name: 'TP.HCM', price: 220000),
+    (capacity: '5T', code: 'BD', name: 'Bình Dương', price: 220000),
+    (capacity: '5T', code: 'BH', name: 'Biên Hòa', price: 220000),
+    (capacity: '5T', code: 'VT', name: 'Vũng Tàu', price: 400000),
+    (capacity: '5T', code: 'LA', name: 'Long An', price: 400000),
+    (capacity: '5T', code: 'TN', name: 'Tây Ninh', price: 400000),
+    (capacity: '5T', code: 'DN', name: 'Đồng Nai', price: 400000),
+    (capacity: '5T', code: 'BP', name: 'Bình Phước', price: 400000),
+    (capacity: '5T', code: 'CG', name: 'Cần Giờ', price: 400000),
+    (capacity: '5T', code: 'DT', name: 'Đồng Tháp', price: 450000),
+    (capacity: '5T', code: 'VL', name: 'Vĩnh Long', price: 450000),
+    (capacity: '5T', code: 'TG', name: 'Tiền Giang', price: 450000),
+    (capacity: '5T', code: 'TV', name: 'Trà Vinh', price: 450000),
+    (capacity: '5T', code: 'BT', name: 'Bến Tre', price: 450000),
+    (capacity: '5T', code: 'MT', name: 'Mỹ Tho', price: 450000),
+    (capacity: '5T', code: 'SD', name: 'Sa Đéc', price: 450000),
+    (capacity: '5T', code: 'BTH', name: 'Bình Thuận', price: 600000),
+    (capacity: '5T', code: 'CT', name: 'Cần Thơ', price: 600000),
+    (capacity: '5T', code: 'HG', name: 'Hậu Giang', price: 600000),
+    (capacity: '5T', code: 'AG', name: 'An Giang', price: 600000),
+    (capacity: '5T', code: 'ST', name: 'Sóc Trăng', price: 600000),
+    (capacity: '5T', code: 'LX', name: 'Long Xuyên', price: 600000),
+    (capacity: '5T', code: 'KG', name: 'Kiên Giang', price: 700000),
+    (capacity: '5T', code: 'BL', name: 'Bạc Liêu', price: 700000),
+    (capacity: '5T', code: 'LD', name: 'Lâm Đồng', price: 700000),
+    (capacity: '5T', code: 'CM', name: 'Cà Mau', price: 700000),
+    (capacity: '5T', code: 'RG', name: 'Rạch Giá', price: 700000),
+    (capacity: '5T', code: 'PQ', name: 'Phú Quốc', price: 750000),
+    (capacity: '5T', code: 'DNO', name: 'Đắc Nông', price: 750000),
+    (capacity: '5T', code: 'DKL', name: 'Đắk Lắk', price: 750000),
+    (capacity: '5T', code: 'NT', name: 'Ninh Thuận', price: 750000),
+    (capacity: '5T', code: 'NTG', name: 'Nha Trang', price: 800000),
+    (capacity: '5T', code: 'GL', name: 'Gia Lai', price: 850000),
+    (capacity: '5T', code: 'KT', name: 'Kon Tum', price: 850000),
+    (capacity: '5T', code: 'PY', name: 'Phú Yên', price: 850000),
+    (capacity: '5T', code: 'QNH', name: 'Quy Nhơn', price: 1050000),
+    (capacity: '5T', code: 'QNM', name: 'Quảng Nam', price: 1200000),
+    (capacity: '5T', code: 'QNG', name: 'Quảng Ngãi', price: 1200000),
+    (capacity: '5T', code: 'DNG', name: 'Đà Nẵng', price: 1250000),
+    (capacity: '5T', code: 'HUE', name: 'Huế', price: 1650000),
+    // ── 8T ─────────────────────────────────────────────────────────────────
+    (capacity: '8T', code: 'HCM', name: 'TP.HCM', price: 300000),
+    (capacity: '8T', code: 'BD', name: 'Bình Dương', price: 300000),
+    (capacity: '8T', code: 'BH', name: 'Biên Hòa', price: 300000),
+    (capacity: '8T', code: 'VT', name: 'Vũng Tàu', price: 400000),
+    (capacity: '8T', code: 'LA', name: 'Long An', price: 400000),
+    (capacity: '8T', code: 'TN', name: 'Tây Ninh', price: 400000),
+    (capacity: '8T', code: 'DN', name: 'Đồng Nai', price: 400000),
+    (capacity: '8T', code: 'BP', name: 'Bình Phước', price: 400000),
+    (capacity: '8T', code: 'CG', name: 'Cần Giờ', price: 400000),
+    (capacity: '8T', code: 'DT', name: 'Đồng Tháp', price: 500000),
+    (capacity: '8T', code: 'VL', name: 'Vĩnh Long', price: 500000),
+    (capacity: '8T', code: 'TG', name: 'Tiền Giang', price: 500000),
+    (capacity: '8T', code: 'TV', name: 'Trà Vinh', price: 500000),
+    (capacity: '8T', code: 'BT', name: 'Bến Tre', price: 500000),
+    (capacity: '8T', code: 'MT', name: 'Mỹ Tho', price: 500000),
+    (capacity: '8T', code: 'SD', name: 'Sa Đéc', price: 500000),
+    (capacity: '8T', code: 'BTH', name: 'Bình Thuận', price: 600000),
+    (capacity: '8T', code: 'CT', name: 'Cần Thơ', price: 600000),
+    (capacity: '8T', code: 'HG', name: 'Hậu Giang', price: 600000),
+    (capacity: '8T', code: 'AG', name: 'An Giang', price: 600000),
+    (capacity: '8T', code: 'ST', name: 'Sóc Trăng', price: 600000),
+    (capacity: '8T', code: 'LX', name: 'Long Xuyên', price: 600000),
+    (capacity: '8T', code: 'KG', name: 'Kiên Giang', price: 700000),
+    (capacity: '8T', code: 'BL', name: 'Bạc Liêu', price: 700000),
+    (capacity: '8T', code: 'LD', name: 'Lâm Đồng', price: 700000),
+    (capacity: '8T', code: 'CM', name: 'Cà Mau', price: 700000),
+    (capacity: '8T', code: 'RG', name: 'Rạch Giá', price: 700000),
+    (capacity: '8T', code: 'PQ', name: 'Phú Quốc', price: 900000),
+    (capacity: '8T', code: 'DNO', name: 'Đắc Nông', price: 700000),
+    (capacity: '8T', code: 'DKL', name: 'Đắk Lắk', price: 700000),
+    (capacity: '8T', code: 'NT', name: 'Ninh Thuận', price: 700000),
+    (capacity: '8T', code: 'NTG', name: 'Nha Trang', price: 900000),
+    (capacity: '8T', code: 'GL', name: 'Gia Lai', price: 1000000),
+    (capacity: '8T', code: 'KT', name: 'Kon Tum', price: 1000000),
+    (capacity: '8T', code: 'PY', name: 'Phú Yên', price: 1000000),
+    (capacity: '8T', code: 'QNH', name: 'Quy Nhơn', price: 1100000),
+    (capacity: '8T', code: 'QNM', name: 'Quảng Nam', price: 1500000),
+    (capacity: '8T', code: 'QNG', name: 'Quảng Ngãi', price: 1500000),
+    (capacity: '8T', code: 'DNG', name: 'Đà Nẵng', price: 1800000),
+    (capacity: '8T', code: 'HUE', name: 'Huế', price: 2000000),
+  ];
+
+  /// Danh sách nhóm tải trọng có trong bảng giá.
+  static const List<String> tripCapacityBuckets = ['3.5T', '5T', '8T'];
+
+  /// Tra đơn giá lương chuyến theo nhóm tải trọng + mã tuyến.
+  /// Trả về null nếu không có dòng giá cho cặp (tải trọng, tuyến) đó.
+  static int? tripPriceFor(String? capacityBucket, String? routeCode) {
+    if (capacityBucket == null || routeCode == null) return null;
+    for (final row in tripPriceTable) {
+      if (row.capacity == capacityBucket && row.code == routeCode) {
+        return row.price;
+      }
+    }
+    return null;
+  }
+
   /// Tính lương cho toàn bộ nhân viên trong tháng (dùng DB của app).
   Future<List<Payroll>> calculateMonthlyPayroll(int year, int month) =>
       calculateMonthlyPayrollFor(year, month, null);
@@ -83,16 +229,15 @@ class PayrollCalculatorService {
             x.violationDate.month == month)
         .fold<double>(0, (s, x) => s + x.penaltyAmount);
 
-    Future<double> revenueOf(int driverEmpId) async {
+    Future<List<Trip>> completedTripsOf(int driverEmpId) async {
       final start = DateTime(year, month, 1);
       final end = DateTime(year, month + 1, 0, 23, 59, 59);
-      final trips = await isar.trips
+      return isar.trips
           .filter()
           .mainDriverIdEqualTo(driverEmpId)
           .tripDateBetween(start, end)
           .statusEqualTo(TripStatus.completed)
           .findAll();
-      return trips.fold<double>(0, (s, t) => s + (t.revenue ?? 0));
     }
 
     final results = <Payroll>[];
@@ -105,7 +250,9 @@ class PayrollCalculatorService {
       final driverCfg = driverByEmpId[empRec.id];
       final att = attendanceByEmpId[empRec.id];
 
-      final monthRevenue = driverCfg != null ? await revenueOf(empRec.id) : 0.0;
+      final driverTrips = driverCfg != null ? await completedTripsOf(empRec.id) : <Trip>[];
+      final monthRevenue =
+          driverTrips.fold<double>(0, (s, t) => s + (t.revenue ?? 0));
 
       final payroll = driverCfg != null
           ? buildDriverPayroll(
@@ -117,6 +264,7 @@ class PayrollCalculatorService {
               bonusTotal: bonusTotal,
               penaltyTotal: penalty,
               monthRevenue: monthRevenue,
+              trips: driverTrips,
             )
           : buildOfficePayroll(
               year: year,
@@ -135,6 +283,12 @@ class PayrollCalculatorService {
 
   /// Lương tài xế: cơ bản + chuyến + km + container + % doanh thu +
   /// phụ cấp + thưởng - phạt - BHXH - thuế TNCN.
+  ///
+  /// Nếu truyền [trips] (danh sách chuyến hoàn thành trong tháng), lương
+  /// chuyến = tổng đơn giá từng chuyến (bảng lương chuyến theo tải trọng +
+  /// tuyến). Nếu không truyền [trips], fallback về
+  /// `totalTrips * driver.salaryPerTrip` để giữ tương thích với cách tính
+  /// cũ (khi không có dữ liệu chuyến chi tiết).
   static Payroll buildDriverPayroll({
     required int year,
     required int month,
@@ -144,6 +298,7 @@ class PayrollCalculatorService {
     double bonusTotal = 0,
     double penaltyTotal = 0,
     double monthRevenue = 0,
+    List<Trip>? trips,
   }) {
     final p = _base(employee, true, year, month);
     p.baseSalary = driver.baseSalary;
@@ -151,7 +306,13 @@ class PayrollCalculatorService {
 
     if (attendance != null) {
       p.actualWorkingDays = attendance.totalTrips.toDouble();
-      p.tripSalary = attendance.totalTrips * driver.salaryPerTrip;
+      if (trips != null && trips.isNotEmpty) {
+        // Lương chuyến theo từng chuyến (bảng lương chuyến HOA).
+        p.tripSalary = trips.fold<double>(
+            0, (s, t) => s + (t.tripSalaryAmount > 0 ? t.tripSalaryAmount : driver.salaryPerTrip));
+      } else {
+        p.tripSalary = attendance.totalTrips * driver.salaryPerTrip;
+      }
       p.kmSalary = attendance.totalKm * driver.salaryPerKm;
       p.containerSalary =
           attendance.totalContainers * driver.salaryPerContainer;

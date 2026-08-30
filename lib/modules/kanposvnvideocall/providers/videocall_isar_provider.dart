@@ -9,17 +9,23 @@ import '../models/message.dart';
 import '../models/call_history.dart';
 import '../models/videocall_ops_models.dart';
 
+Isar? _videoCallIsar;
+
 final videoCallIsarProvider = Provider<Isar>((ref) {
-  throw UnimplementedError('videoCallIsarProvider must be overridden');
+  final isar = _videoCallIsar;
+  if (isar != null) return isar;
+  throw UnimplementedError('Isar is not initialized yet');
 });
 
 class VideoCallDatabaseSetup {
   static Future<Isar> init() async {
-    const name = 'kanposvnvideocall_db';
-    final existing = Isar.getInstance(name);
-    if (existing != null && existing.isOpen) return existing;
+    if (_videoCallIsar != null && _videoCallIsar!.isOpen) return _videoCallIsar!;
+    if (Isar.instanceNames.contains('kanposvnvideocall_db')) {
+      _videoCallIsar = Isar.getInstance('kanposvnvideocall_db')!;
+      return _videoCallIsar!;
+    }
     final dir = await getApplicationDocumentsDirectory();
-    return await Isar.open(
+    final isar = await Isar.open(
       [
         VideoCallUserSchema,
         VideoCallContactSchema,
@@ -31,7 +37,9 @@ class VideoCallDatabaseSetup {
         VideoCallSyncQueueItemSchema,
       ],
       directory: dir.path,
-      name: name,
+      name: 'kanposvnvideocall_db',
     );
+    _videoCallIsar = isar;
+    return isar;
   }
 }

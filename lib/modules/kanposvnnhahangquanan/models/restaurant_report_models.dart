@@ -124,6 +124,7 @@ const String kBlankDash = '.....................................................
 
 /// Định dạng số tiền VND kiểu kế toán (không có ký hiệu).
 String formatMoney(double value) {
+  if (value.isNaN || value.isInfinite) return '0';
   final f = NumberFormat.currency(locale: 'vi_VN', symbol: '', decimalDigits: 0);
   final s = f.format(value);
   return s.endsWith(',') ? s.substring(0, s.length - 1) : s;
@@ -137,6 +138,7 @@ String formatDateTime(DateTime d) => DateFormat('dd/MM/yyyy HH:mm').format(d);
 
 /// Định dạng số lượng (bỏ số 0 thừa).
 String formatQty(double value) {
+  if (value.isNaN || value.isInfinite) return '0';
   if (value == value.roundToDouble()) return value.round().toString();
   return value.toString();
 }
@@ -184,6 +186,7 @@ String _docNhom3(String s, {required bool isFirst}) {
 
 /// Đọc số tiền bằng chữ: 1250000 -> "một triệu hai trăm năm mươi nghìn đồng".
 String moneyToWords(double value) {
+  if (value.isNaN || value.isInfinite) return 'Không đồng';
   final v = value.round();
   if (v == 0) return 'không đồng';
   final negative = v < 0;

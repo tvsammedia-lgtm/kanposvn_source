@@ -19,6 +19,11 @@ import 'report_screen.dart';
 import 'taphoa_settings_screen.dart';
 import '../../../core/widgets/owner_info_bar.dart';
 
+/// Bản ghi chức năng (action card) của module Tạp Hóa Mini.
+typedef TapHoaAction =
+    MapEntry<String,
+        ({String label, IconData icon, Color color, Widget Function() screen})>;
+
 class TapHoaDashboardScreen extends ConsumerStatefulWidget {
   const TapHoaDashboardScreen({super.key});
 
@@ -28,6 +33,7 @@ class TapHoaDashboardScreen extends ConsumerStatefulWidget {
 
 class _TapHoaDashboardScreenState extends ConsumerState<TapHoaDashboardScreen> {
   bool _isInit = false;
+  int _selectedTab = 0;
 
   static final Map<String, Set<String>> _roleTabs = {
     EmployeeRoles.cashier: const {'pos', 'finance', 'debt', 'report'},
@@ -98,8 +104,7 @@ class _TapHoaDashboardScreenState extends ConsumerState<TapHoaDashboardScreen> {
   };
 
   /// Các action card được phép hiển thị theo role/tùy chỉnh của nhân viên.
-  List<MapEntry<String, ({String label, IconData icon, Color color, Widget Function() screen})>>
-      _visibleActions() {
+  List<TapHoaAction> _visibleActions() {
     final auth = ref.watch(authServiceProvider);
     final customTabs = auth.employeeAllowedTabs;
     return _actionDefs.entries.where((e) {
@@ -148,31 +153,33 @@ class _TapHoaDashboardScreenState extends ConsumerState<TapHoaDashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final invoices = ref.watch(tapHoaInvoicesProvider);
-    final products = ref.watch(tapHoaProductsProvider);
-    final inventory = ref.watch(tapHoaInventoryProvider);
-
-    double todayRevenue = 0;
-    int todayOrders = 0;
-    final now = DateTime.now();
-    for (var invoice in invoices) {
-      if (invoice.createdAt.year == now.year &&
-          invoice.createdAt.month == now.month &&
-          invoice.createdAt.day == now.day) {
-        todayRevenue += invoice.finalAmount;
-        todayOrders++;
-      }
-    }
-
-    final lowStock = inventory.where((i) => i.currentStock <= i.minStock).toList();
-    final expiringSoon = products
-        .where((p) =>
-            p.expiryDate != null &&
-            p.expiryDate!.isAfter(now) &&
-            p.expiryDate!.difference(now).inDays <= 30)
-        .toList();
-    final inventoryValue =
-        inventory.fold<double>(0, (s, i) => s + (i.currentStock * i.costPrice));
+    final visibleActions = _visibleActions();
+    final isWide = MediaQuery.of(context).size.width > 600;
+    final tabs = <
+        ({
+          String id,
+          IconData icon,
+          String label,
+          Widget Function() screen,
+        })>[
+      (
+        id: 'dashboard',
+        icon: Icons.dashboard,
+        label: 'Dashboard',
+        screen: () => _buildDashboardBody(
+          isWide: isWide,
+          visibleActions: visibleActions,
+        ),
+      ),
+      for (final e in visibleActions)
+        (
+          id: e.key,
+          icon: e.value.icon,
+          label: e.value.label,
+          screen: e.value.screen,
+        ),
+    ];
+    final safeIndex = _selectedTab < tabs.length ? _selectedTab : 0;
 
     return Scaffold(
       appBar: AppBar(
@@ -188,30 +195,101 @@ class _TapHoaDashboardScreenState extends ConsumerState<TapHoaDashboardScreen> {
           const AccountSwitcherButton(foregroundColor: Colors.white),
         ],
       ),
-      body: _isInit
-          ? SingleChildScrollView(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const OwnerInfoBar(),
-                  const SizedBox(height: 12),
-                  _buildStatsRow(context, todayRevenue, todayOrders, products.length, inventoryValue),
-                  const SizedBox(height: 16),
-                  if (lowStock.isNotEmpty || expiringSoon.isNotEmpty) ...[
-                    _buildWarnings(context, lowStock, expiringSoon),
-                    const SizedBox(height: 16),
+      body: !_isInit
+          ? const Center(child: CircularProgressIndicator())
+          : isWide
+              ? Row(
+                  children: [
+                    NavigationRail(
+                      backgroundColor: const Color(0xFF115E59),
+                      selectedIconTheme:
+                          const IconThemeData(color: Colors.white),
+                      selectedLabelTextStyle: const TextStyle(
+                          color: Colors.white, fontWeight: FontWeight.w600),
+                      unselectedLabelTextStyle:
+                          const TextStyle(color: Colors.white70),
+                      unselectedIconTheme:
+                          const IconThemeData(color: Colors.white70),
+                      indicatorColor: Colors.tealAccent.withOpacity(0.35),
+                      scrollable: true,
+                      selectedIndex: safeIndex,
+                      onDestinationSelected: (index) {
+                        setState(() => _selectedTab = index);
+                      },
+                      labelType: NavigationRailLabelType.all,
+                      destinations: [
+                        for (final t in tabs)
+                          NavigationRailDestination(
+                            icon: Icon(t.icon),
+                            label: Text(t.label),
+                          ),
+                      ],
+                    ),
+                    const VerticalDivider(thickness: 1, width: 1),
+                    Expanded(
+                      child: ClipRect(child: tabs[safeIndex].screen()),
+                    ),
                   ],
-                  const Text(
-                    'Chức năng chính',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 16),
-                  _buildActionGrid(context),
-                ],
-              ),
-            )
-          : const Center(child: CircularProgressIndicator()),
+                )
+              : _buildDashboardBody(
+                  isWide: false,
+                  visibleActions: visibleActions,
+                ),
+    );
+  }
+
+  Widget _buildDashboardBody({
+    required bool isWide,
+    required List<TapHoaAction> visibleActions,
+  }) {
+    final invoices = ref.watch(tapHoaInvoicesProvider);
+    final products = ref.watch(tapHoaProductsProvider);
+    final inventory = ref.watch(tapHoaInventoryProvider);
+
+    double todayRevenue = 0;
+    int todayOrders = 0;
+    final now = DateTime.now();
+    for (final invoice in invoices) {
+      if (invoice.createdAt.year == now.year &&
+          invoice.createdAt.month == now.month &&
+          invoice.createdAt.day == now.day) {
+        todayRevenue += invoice.finalAmount;
+        todayOrders++;
+      }
+    }
+
+    final lowStock =
+        inventory.where((i) => i.currentStock <= i.minStock).toList();
+    final expiringSoon = products
+        .where((p) =>
+            p.expiryDate != null &&
+            p.expiryDate!.isAfter(now) &&
+            p.expiryDate!.difference(now).inDays <= 30)
+        .toList();
+    final inventoryValue =
+        inventory.fold<double>(0, (s, i) => s + (i.currentStock * i.costPrice));
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const OwnerInfoBar(),
+          const SizedBox(height: 12),
+          _buildStatsRow(context, todayRevenue, todayOrders, products.length, inventoryValue),
+          const SizedBox(height: 16),
+          if (lowStock.isNotEmpty || expiringSoon.isNotEmpty) ...[
+            _buildWarnings(context, lowStock, expiringSoon),
+            const SizedBox(height: 16),
+          ],
+          const Text(
+            'Chức năng chính',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 16),
+          _buildActionGrid(context, isWide, visibleActions),
+        ],
+      ),
     );
   }
 
@@ -313,8 +391,7 @@ class _TapHoaDashboardScreenState extends ConsumerState<TapHoaDashboardScreen> {
     );
   }
 
-  Widget _buildActionGrid(BuildContext context) {
-    final actions = _visibleActions();
+  Widget _buildActionGrid(BuildContext context, bool isWide, List<TapHoaAction> visibleActions) {
     return GridView.count(
       crossAxisCount: MediaQuery.of(context).size.width > 900 ? 4 : 2,
       shrinkWrap: true,
@@ -323,13 +400,20 @@ class _TapHoaDashboardScreenState extends ConsumerState<TapHoaDashboardScreen> {
       crossAxisSpacing: 16,
       childAspectRatio: 1.4,
       children: [
-        for (final entry in actions)
+        for (final entry in visibleActions)
           _buildActionCard(
             context,
             title: entry.value.label,
             icon: entry.value.icon,
             color: entry.value.color,
-            onTap: () => _push(context, entry.value.screen()),
+            onTap: () {
+              if (isWide) {
+                final idx = visibleActions.indexWhere((a) => a.key == entry.key);
+                setState(() => _selectedTab = idx + 1);
+              } else {
+                _push(context, entry.value.screen());
+              }
+            },
           ),
       ],
     );

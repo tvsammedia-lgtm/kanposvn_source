@@ -7,17 +7,23 @@ import '../models/booking.dart';
 import '../models/sync_queue.dart';
 import '../models/airbook_ops_models.dart';
 
+Isar? _airbookIsar;
+
 final airbookIsarProvider = Provider<Isar>((ref) {
-  throw UnimplementedError('airbookIsarProvider must be overridden in main');
+  final isar = _airbookIsar;
+  if (isar != null) return isar;
+  throw UnimplementedError('Isar is not initialized yet');
 });
 
 class AirbookDatabaseSetup {
   static Future<Isar> init() async {
-    const name = 'kanposvnairbook_db';
-    final existing = Isar.getInstance(name);
-    if (existing != null && existing.isOpen) return existing;
+    if (_airbookIsar != null && _airbookIsar!.isOpen) return _airbookIsar!;
+    if (Isar.instanceNames.contains('kanposvnairbook_db')) {
+      _airbookIsar = Isar.getInstance('kanposvnairbook_db')!;
+      return _airbookIsar!;
+    }
     final dir = await getApplicationDocumentsDirectory();
-    return await Isar.open(
+    final isar = await Isar.open(
       [
         FlightOfferSchema,
         BookingLocalSchema,
@@ -28,7 +34,9 @@ class AirbookDatabaseSetup {
         AirAuditLogSchema,
       ],
       directory: dir.path,
-      name: name,
+      name: 'kanposvnairbook_db',
     );
+    _airbookIsar = isar;
+    return isar;
   }
 }

@@ -11,17 +11,23 @@ import '../models/ride_transaction.dart';
 import '../models/ride_vehicle_type.dart';
 import '../models/ride_ops_models.dart';
 
+Isar? _rideIsar;
+
 final rideIsarProvider = Provider<Isar>((ref) {
-  throw UnimplementedError('rideIsarProvider must be overridden');
+  final isar = _rideIsar;
+  if (isar != null) return isar;
+  throw UnimplementedError('Isar is not initialized yet');
 });
 
 class RideDatabaseSetup {
   static Future<Isar> init() async {
-    const name = 'kanposvnride_db';
-    final existing = Isar.getInstance(name);
-    if (existing != null && existing.isOpen) return existing;
+    if (_rideIsar != null && _rideIsar!.isOpen) return _rideIsar!;
+    if (Isar.instanceNames.contains('kanposvnride_db')) {
+      _rideIsar = Isar.getInstance('kanposvnride_db')!;
+      return _rideIsar!;
+    }
     final dir = await getApplicationDocumentsDirectory();
-    return await Isar.open(
+    final isar = await Isar.open(
       [
         RideUserSchema,
         RideDriverSchema,
@@ -44,7 +50,9 @@ class RideDatabaseSetup {
         RidePartnerApiKeySchema,
       ],
       directory: dir.path,
-      name: name,
+      name: 'kanposvnride_db',
     );
+    _rideIsar = isar;
+    return isar;
   }
 }

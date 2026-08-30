@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:isar/isar.dart';
 
 import '../../kanposvnhrpayroll/core/app_theme.dart';
 import '../providers/videocall_isar_provider.dart';
@@ -18,7 +17,7 @@ class KanPosVnVideoCallShell extends ConsumerStatefulWidget {
 }
 
 class _KanPosVnVideoCallShellState extends ConsumerState<KanPosVnVideoCallShell> {
-  Isar? _db;
+  bool _ready = false;
   int _tabIndex = 0;
 
   @override
@@ -31,45 +30,41 @@ class _KanPosVnVideoCallShellState extends ConsumerState<KanPosVnVideoCallShell>
     try {
       final db = await VideoCallDatabaseSetup.init();
       await VideoCallSeedData.seedIfEmpty(db);
-      if (mounted) setState(() => _db = db);
+      if (mounted) setState(() => _ready = true);
     } catch (_) {
-      if (mounted) setState(() {});
+      if (mounted) setState(() => _ready = true);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final db = _db;
-    if (db == null) {
+    if (!_ready) {
       return const Scaffold(
         backgroundColor: AppTheme.bg900,
         body: Center(child: CircularProgressIndicator()),
       );
     }
 
-    return ProviderScope(
-      overrides: [videoCallIsarProvider.overrideWithValue(db)],
-      child: Scaffold(
-        backgroundColor: AppTheme.bg900,
-        body: IndexedStack(
-          index: _tabIndex,
-          children: const [
-            ConversationListScreen(),
-            ContactListScreen(),
-            CallHistoryScreen(),
-          ],
-        ),
-        bottomNavigationBar: NavigationBar(
-          selectedIndex: _tabIndex,
-          backgroundColor: AppTheme.surface,
-          indicatorColor: AppTheme.primaryBlue.withValues(alpha: 0.15),
-          onDestinationSelected: (i) => setState(() => _tabIndex = i),
-          destinations: const [
-            NavigationDestination(icon: Icon(Icons.chat_bubble_outline), selectedIcon: Icon(Icons.chat_bubble), label: 'Tin nhắn'),
-            NavigationDestination(icon: Icon(Icons.contacts_outlined), selectedIcon: Icon(Icons.contacts), label: 'Danh bạ'),
-            NavigationDestination(icon: Icon(Icons.history_outlined), selectedIcon: Icon(Icons.history), label: 'Cuộc gọi'),
-          ],
-        ),
+    return Scaffold(
+      backgroundColor: AppTheme.bg900,
+      body: IndexedStack(
+        index: _tabIndex,
+        children: const [
+          ConversationListScreen(),
+          ContactListScreen(),
+          CallHistoryScreen(),
+        ],
+      ),
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: _tabIndex,
+        backgroundColor: AppTheme.surface,
+        indicatorColor: AppTheme.primaryBlue.withValues(alpha: 0.15),
+        onDestinationSelected: (i) => setState(() => _tabIndex = i),
+        destinations: const [
+          NavigationDestination(icon: Icon(Icons.chat_bubble_outline), selectedIcon: Icon(Icons.chat_bubble), label: 'Tin nhắn'),
+          NavigationDestination(icon: Icon(Icons.contacts_outlined), selectedIcon: Icon(Icons.contacts), label: 'Danh bạ'),
+          NavigationDestination(icon: Icon(Icons.history_outlined), selectedIcon: Icon(Icons.history), label: 'Cuộc gọi'),
+        ],
       ),
     );
   }

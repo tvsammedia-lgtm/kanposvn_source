@@ -134,6 +134,7 @@ export async function POST(req: NextRequest) {
       { code: 'kanhot_one', name: 'KHACH SAN THIEN NHIEN', desc: 'Khach san - nha hang', pkg: '', plat: 'flutter' },
       { code: 'KANCAFE_ONE', name: 'CAFE - KANCAFE_ONE', desc: 'Quan ly cafe - KANCAFE_ONE', pkg: '', plat: 'flutter' },
       { code: 'kanposvnvideocall', name: 'KanPosVN Video Call / Chat', desc: 'Nhan tin va goi video truc tuyen', pkg: '', plat: 'flutter' },
+      { code: 'kanposvnairbook', name: 'KanPosVN AirBook', desc: 'Dat ve may bay - tim chuyen bay', pkg: '', plat: 'flutter' },
     ];
     for (const a of seedApps) {
       await sql`
@@ -284,6 +285,17 @@ export async function POST(req: NextRequest) {
         ON CONFLICT (user_id, app_id) DO UPDATE SET role_id = ${adminRole[0].id}, can_login = true
       `;
       results.push(`${ownerEmail}: granted kanposvnvideocall as Admin (Owner)`);
+    }
+
+    // Owner kanposvnairbook: đảm bảo quyền Admin trên app kanposvnairbook cho cùng owner
+    const airbookApp = await sql`SELECT id FROM apps WHERE app_code = 'kanposvnairbook'`;
+    if (airbookApp.length > 0 && adminRole.length > 0) {
+      await sql`
+        INSERT INTO user_permissions (user_id, app_id, role_id, can_login)
+        VALUES (${ownerUser[0].id}, ${airbookApp[0].id}, ${adminRole[0].id}, true)
+        ON CONFLICT (user_id, app_id) DO UPDATE SET role_id = ${adminRole[0].id}, can_login = true
+      `;
+      results.push(`${ownerEmail}: granted kanposvnairbook as Admin (Owner)`);
     }
 
     return NextResponse.json({ ok: true, results }, { headers: corsHeaders() });

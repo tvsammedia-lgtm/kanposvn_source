@@ -77,7 +77,7 @@ class SpaBedsScreen extends ConsumerWidget {
                             final bed = room.value[i];
                             final color = _statusColor(bed.status);
                             final canOpenPos =
-                                bed.status == SpaBedStatus.EMPTY;
+                                bed.status == SpaBedStatus.EMPTY || bed.status == SpaBedStatus.PLAYING;
 
                             return InkWell(
                               onTap: canOpenPos

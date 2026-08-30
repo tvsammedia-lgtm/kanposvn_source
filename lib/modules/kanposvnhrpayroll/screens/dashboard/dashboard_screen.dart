@@ -66,14 +66,8 @@ class DashboardScreen extends ConsumerWidget {
                 child: Text('Lỗi: $e',
                     style: const TextStyle(color: AppTheme.danger)),
               ),
-              data: (stats) => SliverGrid(
-                gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                  maxCrossAxisExtent: 250,
-                  crossAxisSpacing: 16,
-                  mainAxisSpacing: 16,
-                  childAspectRatio: 1.4,
-                ),
-                delegate: SliverChildListDelegate([
+              data: (stats) {
+                final cards = [
                   StatCard(
                     title: 'Tổng nhân viên',
                     value: '${stats['totalEmployees'] ?? 0}',
@@ -122,8 +116,29 @@ class DashboardScreen extends ConsumerWidget {
                     color: AppTheme.success,
                     onTap: () => context.go('/reports'),
                   ),
-                ]),
-              ),
+                ];
+                return SliverToBoxAdapter(
+                  child: LayoutBuilder(
+                    builder: (context, constraints) {
+                      final cols =
+                          (constraints.maxWidth / 260).ceil().clamp(1, 6);
+                      return GridView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        gridDelegate:
+                            SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: cols,
+                          crossAxisSpacing: 16,
+                          mainAxisSpacing: 16,
+                          mainAxisExtent: 184,
+                        ),
+                        itemCount: cards.length,
+                        itemBuilder: (context, index) => cards[index],
+                      );
+                    },
+                  ),
+                );
+              },
             ),
           ),
 

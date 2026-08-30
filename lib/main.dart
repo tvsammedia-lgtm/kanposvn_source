@@ -35,6 +35,7 @@ import 'modules/kanposvnparking/screens/parking_dashboard_screen.dart';
 import 'modules/kanposvnviec/screens/viec_dashboard_screen.dart';
 import 'modules/kanposvnride/screens/ride_dashboard_screen.dart';
 import 'modules/kanposvneshop/screens/eshop_dashboard_screen.dart';
+import 'modules/kanposvnairbook/screens/kanposvnairbook_shell.dart';
 import 'modules/kanposvnvideocall/screens/kanposvnvideocall_shell.dart';
 import 'modules/kanposvnhrpayroll/screens/kanposvnhrpayroll_shell.dart';
 import 'modules/kanposvnkanji/kanposvnkanji_shell.dart';
@@ -285,6 +286,8 @@ class _MainShell extends ConsumerWidget {
         return const RideDashboardScreen();
       case AppModuleType.kanposvneshop:
         return const EshopDashboardScreen();
+      case AppModuleType.kanposvnairbook:
+        return const KanPosVnAirbookShell();
       case AppModuleType.kanposvnvideocall:
         return const KanPosVnVideoCallShell();
       case AppModuleType.kanposvnhrpayroll:

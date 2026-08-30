@@ -27,129 +27,149 @@ const TripSchema = CollectionSchema(
       name: r'assistantDriverName',
       type: IsarType.string,
     ),
-    r'cargoType': PropertySchema(
+    r'capacityBucket': PropertySchema(
       id: 2,
+      name: r'capacityBucket',
+      type: IsarType.string,
+    ),
+    r'cargoType': PropertySchema(
+      id: 3,
       name: r'cargoType',
       type: IsarType.string,
     ),
     r'cargoWeight': PropertySchema(
-      id: 3,
+      id: 4,
       name: r'cargoWeight',
       type: IsarType.double,
     ),
     r'containerNumber': PropertySchema(
-      id: 4,
+      id: 5,
       name: r'containerNumber',
       type: IsarType.string,
     ),
     r'coordinatorName': PropertySchema(
-      id: 5,
+      id: 6,
       name: r'coordinatorName',
       type: IsarType.string,
     ),
     r'createdAt': PropertySchema(
-      id: 6,
+      id: 7,
       name: r'createdAt',
       type: IsarType.dateTime,
     ),
     r'customerName': PropertySchema(
-      id: 7,
+      id: 8,
       name: r'customerName',
       type: IsarType.string,
     ),
     r'deliveryPoint': PropertySchema(
-      id: 8,
+      id: 9,
       name: r'deliveryPoint',
       type: IsarType.string,
     ),
     r'departureDate': PropertySchema(
-      id: 9,
+      id: 10,
       name: r'departureDate',
       type: IsarType.dateTime,
     ),
     r'distanceKm': PropertySchema(
-      id: 10,
+      id: 11,
       name: r'distanceKm',
       type: IsarType.double,
     ),
     r'expenses': PropertySchema(
-      id: 11,
+      id: 12,
       name: r'expenses',
       type: IsarType.double,
     ),
     r'lastSyncAt': PropertySchema(
-      id: 12,
+      id: 13,
       name: r'lastSyncAt',
       type: IsarType.dateTime,
     ),
     r'mainDriverId': PropertySchema(
-      id: 13,
+      id: 14,
       name: r'mainDriverId',
       type: IsarType.long,
     ),
     r'mainDriverName': PropertySchema(
-      id: 14,
+      id: 15,
       name: r'mainDriverName',
       type: IsarType.string,
     ),
     r'moocPlate': PropertySchema(
-      id: 15,
+      id: 16,
       name: r'moocPlate',
       type: IsarType.string,
     ),
     r'needsSync': PropertySchema(
-      id: 16,
+      id: 17,
       name: r'needsSync',
       type: IsarType.bool,
     ),
     r'notes': PropertySchema(
-      id: 17,
+      id: 18,
       name: r'notes',
       type: IsarType.string,
     ),
     r'pickupPoint': PropertySchema(
-      id: 18,
+      id: 19,
       name: r'pickupPoint',
       type: IsarType.string,
     ),
     r'remoteId': PropertySchema(
-      id: 19,
+      id: 20,
       name: r'remoteId',
       type: IsarType.string,
     ),
     r'returnDate': PropertySchema(
-      id: 20,
+      id: 21,
       name: r'returnDate',
       type: IsarType.dateTime,
     ),
     r'revenue': PropertySchema(
-      id: 21,
+      id: 22,
       name: r'revenue',
       type: IsarType.double,
     ),
+    r'routeCode': PropertySchema(
+      id: 23,
+      name: r'routeCode',
+      type: IsarType.string,
+    ),
+    r'routeName': PropertySchema(
+      id: 24,
+      name: r'routeName',
+      type: IsarType.string,
+    ),
     r'status': PropertySchema(
-      id: 22,
+      id: 25,
       name: r'status',
       type: IsarType.string,
       enumMap: _TripstatusEnumValueMap,
     ),
     r'tripCode': PropertySchema(
-      id: 23,
+      id: 26,
       name: r'tripCode',
       type: IsarType.string,
     ),
     r'tripDate': PropertySchema(
-      id: 24,
+      id: 27,
       name: r'tripDate',
       type: IsarType.dateTime,
     ),
+    r'tripSalaryAmount': PropertySchema(
+      id: 28,
+      name: r'tripSalaryAmount',
+      type: IsarType.double,
+    ),
     r'updatedAt': PropertySchema(
-      id: 25,
+      id: 29,
       name: r'updatedAt',
       type: IsarType.dateTime,
     ),
     r'vehiclePlate': PropertySchema(
-      id: 26,
+      id: 30,
       name: r'vehiclePlate',
       type: IsarType.string,
     )
@@ -190,6 +210,12 @@ int _tripEstimateSize(
   var bytesCount = offsets.last;
   {
     final value = object.assistantDriverName;
+    if (value != null) {
+      bytesCount += 3 + value.length * 3;
+    }
+  }
+  {
+    final value = object.capacityBucket;
     if (value != null) {
       bytesCount += 3 + value.length * 3;
     }
@@ -254,6 +280,18 @@ int _tripEstimateSize(
       bytesCount += 3 + value.length * 3;
     }
   }
+  {
+    final value = object.routeCode;
+    if (value != null) {
+      bytesCount += 3 + value.length * 3;
+    }
+  }
+  {
+    final value = object.routeName;
+    if (value != null) {
+      bytesCount += 3 + value.length * 3;
+    }
+  }
   bytesCount += 3 + object.status.name.length * 3;
   bytesCount += 3 + object.tripCode.length * 3;
   {
@@ -273,31 +311,35 @@ void _tripSerialize(
 ) {
   writer.writeLong(offsets[0], object.assistantDriverId);
   writer.writeString(offsets[1], object.assistantDriverName);
-  writer.writeString(offsets[2], object.cargoType);
-  writer.writeDouble(offsets[3], object.cargoWeight);
-  writer.writeString(offsets[4], object.containerNumber);
-  writer.writeString(offsets[5], object.coordinatorName);
-  writer.writeDateTime(offsets[6], object.createdAt);
-  writer.writeString(offsets[7], object.customerName);
-  writer.writeString(offsets[8], object.deliveryPoint);
-  writer.writeDateTime(offsets[9], object.departureDate);
-  writer.writeDouble(offsets[10], object.distanceKm);
-  writer.writeDouble(offsets[11], object.expenses);
-  writer.writeDateTime(offsets[12], object.lastSyncAt);
-  writer.writeLong(offsets[13], object.mainDriverId);
-  writer.writeString(offsets[14], object.mainDriverName);
-  writer.writeString(offsets[15], object.moocPlate);
-  writer.writeBool(offsets[16], object.needsSync);
-  writer.writeString(offsets[17], object.notes);
-  writer.writeString(offsets[18], object.pickupPoint);
-  writer.writeString(offsets[19], object.remoteId);
-  writer.writeDateTime(offsets[20], object.returnDate);
-  writer.writeDouble(offsets[21], object.revenue);
-  writer.writeString(offsets[22], object.status.name);
-  writer.writeString(offsets[23], object.tripCode);
-  writer.writeDateTime(offsets[24], object.tripDate);
-  writer.writeDateTime(offsets[25], object.updatedAt);
-  writer.writeString(offsets[26], object.vehiclePlate);
+  writer.writeString(offsets[2], object.capacityBucket);
+  writer.writeString(offsets[3], object.cargoType);
+  writer.writeDouble(offsets[4], object.cargoWeight);
+  writer.writeString(offsets[5], object.containerNumber);
+  writer.writeString(offsets[6], object.coordinatorName);
+  writer.writeDateTime(offsets[7], object.createdAt);
+  writer.writeString(offsets[8], object.customerName);
+  writer.writeString(offsets[9], object.deliveryPoint);
+  writer.writeDateTime(offsets[10], object.departureDate);
+  writer.writeDouble(offsets[11], object.distanceKm);
+  writer.writeDouble(offsets[12], object.expenses);
+  writer.writeDateTime(offsets[13], object.lastSyncAt);
+  writer.writeLong(offsets[14], object.mainDriverId);
+  writer.writeString(offsets[15], object.mainDriverName);
+  writer.writeString(offsets[16], object.moocPlate);
+  writer.writeBool(offsets[17], object.needsSync);
+  writer.writeString(offsets[18], object.notes);
+  writer.writeString(offsets[19], object.pickupPoint);
+  writer.writeString(offsets[20], object.remoteId);
+  writer.writeDateTime(offsets[21], object.returnDate);
+  writer.writeDouble(offsets[22], object.revenue);
+  writer.writeString(offsets[23], object.routeCode);
+  writer.writeString(offsets[24], object.routeName);
+  writer.writeString(offsets[25], object.status.name);
+  writer.writeString(offsets[26], object.tripCode);
+  writer.writeDateTime(offsets[27], object.tripDate);
+  writer.writeDouble(offsets[28], object.tripSalaryAmount);
+  writer.writeDateTime(offsets[29], object.updatedAt);
+  writer.writeString(offsets[30], object.vehiclePlate);
 }
 
 Trip _tripDeserialize(
@@ -309,34 +351,38 @@ Trip _tripDeserialize(
   final object = Trip();
   object.assistantDriverId = reader.readLongOrNull(offsets[0]);
   object.assistantDriverName = reader.readStringOrNull(offsets[1]);
-  object.cargoType = reader.readStringOrNull(offsets[2]);
-  object.cargoWeight = reader.readDoubleOrNull(offsets[3]);
-  object.containerNumber = reader.readStringOrNull(offsets[4]);
-  object.coordinatorName = reader.readStringOrNull(offsets[5]);
-  object.createdAt = reader.readDateTime(offsets[6]);
-  object.customerName = reader.readStringOrNull(offsets[7]);
-  object.deliveryPoint = reader.readStringOrNull(offsets[8]);
-  object.departureDate = reader.readDateTimeOrNull(offsets[9]);
-  object.distanceKm = reader.readDoubleOrNull(offsets[10]);
-  object.expenses = reader.readDoubleOrNull(offsets[11]);
+  object.capacityBucket = reader.readStringOrNull(offsets[2]);
+  object.cargoType = reader.readStringOrNull(offsets[3]);
+  object.cargoWeight = reader.readDoubleOrNull(offsets[4]);
+  object.containerNumber = reader.readStringOrNull(offsets[5]);
+  object.coordinatorName = reader.readStringOrNull(offsets[6]);
+  object.createdAt = reader.readDateTime(offsets[7]);
+  object.customerName = reader.readStringOrNull(offsets[8]);
+  object.deliveryPoint = reader.readStringOrNull(offsets[9]);
+  object.departureDate = reader.readDateTimeOrNull(offsets[10]);
+  object.distanceKm = reader.readDoubleOrNull(offsets[11]);
+  object.expenses = reader.readDoubleOrNull(offsets[12]);
   object.id = id;
-  object.lastSyncAt = reader.readDateTimeOrNull(offsets[12]);
-  object.mainDriverId = reader.readLongOrNull(offsets[13]);
-  object.mainDriverName = reader.readStringOrNull(offsets[14]);
-  object.moocPlate = reader.readStringOrNull(offsets[15]);
-  object.needsSync = reader.readBool(offsets[16]);
-  object.notes = reader.readStringOrNull(offsets[17]);
-  object.pickupPoint = reader.readStringOrNull(offsets[18]);
-  object.remoteId = reader.readStringOrNull(offsets[19]);
-  object.returnDate = reader.readDateTimeOrNull(offsets[20]);
-  object.revenue = reader.readDoubleOrNull(offsets[21]);
+  object.lastSyncAt = reader.readDateTimeOrNull(offsets[13]);
+  object.mainDriverId = reader.readLongOrNull(offsets[14]);
+  object.mainDriverName = reader.readStringOrNull(offsets[15]);
+  object.moocPlate = reader.readStringOrNull(offsets[16]);
+  object.needsSync = reader.readBool(offsets[17]);
+  object.notes = reader.readStringOrNull(offsets[18]);
+  object.pickupPoint = reader.readStringOrNull(offsets[19]);
+  object.remoteId = reader.readStringOrNull(offsets[20]);
+  object.returnDate = reader.readDateTimeOrNull(offsets[21]);
+  object.revenue = reader.readDoubleOrNull(offsets[22]);
+  object.routeCode = reader.readStringOrNull(offsets[23]);
+  object.routeName = reader.readStringOrNull(offsets[24]);
   object.status =
-      _TripstatusValueEnumMap[reader.readStringOrNull(offsets[22])] ??
+      _TripstatusValueEnumMap[reader.readStringOrNull(offsets[25])] ??
           TripStatus.assigned;
-  object.tripCode = reader.readString(offsets[23]);
-  object.tripDate = reader.readDateTimeOrNull(offsets[24]);
-  object.updatedAt = reader.readDateTime(offsets[25]);
-  object.vehiclePlate = reader.readStringOrNull(offsets[26]);
+  object.tripCode = reader.readString(offsets[26]);
+  object.tripDate = reader.readDateTimeOrNull(offsets[27]);
+  object.tripSalaryAmount = reader.readDouble(offsets[28]);
+  object.updatedAt = reader.readDateTime(offsets[29]);
+  object.vehiclePlate = reader.readStringOrNull(offsets[30]);
   return object;
 }
 
@@ -354,53 +400,61 @@ P _tripDeserializeProp<P>(
     case 2:
       return (reader.readStringOrNull(offset)) as P;
     case 3:
-      return (reader.readDoubleOrNull(offset)) as P;
-    case 4:
       return (reader.readStringOrNull(offset)) as P;
+    case 4:
+      return (reader.readDoubleOrNull(offset)) as P;
     case 5:
       return (reader.readStringOrNull(offset)) as P;
     case 6:
-      return (reader.readDateTime(offset)) as P;
-    case 7:
       return (reader.readStringOrNull(offset)) as P;
+    case 7:
+      return (reader.readDateTime(offset)) as P;
     case 8:
       return (reader.readStringOrNull(offset)) as P;
     case 9:
-      return (reader.readDateTimeOrNull(offset)) as P;
+      return (reader.readStringOrNull(offset)) as P;
     case 10:
-      return (reader.readDoubleOrNull(offset)) as P;
+      return (reader.readDateTimeOrNull(offset)) as P;
     case 11:
       return (reader.readDoubleOrNull(offset)) as P;
     case 12:
-      return (reader.readDateTimeOrNull(offset)) as P;
+      return (reader.readDoubleOrNull(offset)) as P;
     case 13:
-      return (reader.readLongOrNull(offset)) as P;
+      return (reader.readDateTimeOrNull(offset)) as P;
     case 14:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readLongOrNull(offset)) as P;
     case 15:
       return (reader.readStringOrNull(offset)) as P;
     case 16:
-      return (reader.readBool(offset)) as P;
-    case 17:
       return (reader.readStringOrNull(offset)) as P;
+    case 17:
+      return (reader.readBool(offset)) as P;
     case 18:
       return (reader.readStringOrNull(offset)) as P;
     case 19:
       return (reader.readStringOrNull(offset)) as P;
     case 20:
-      return (reader.readDateTimeOrNull(offset)) as P;
+      return (reader.readStringOrNull(offset)) as P;
     case 21:
-      return (reader.readDoubleOrNull(offset)) as P;
+      return (reader.readDateTimeOrNull(offset)) as P;
     case 22:
+      return (reader.readDoubleOrNull(offset)) as P;
+    case 23:
+      return (reader.readStringOrNull(offset)) as P;
+    case 24:
+      return (reader.readStringOrNull(offset)) as P;
+    case 25:
       return (_TripstatusValueEnumMap[reader.readStringOrNull(offset)] ??
           TripStatus.assigned) as P;
-    case 23:
-      return (reader.readString(offset)) as P;
-    case 24:
-      return (reader.readDateTimeOrNull(offset)) as P;
-    case 25:
-      return (reader.readDateTime(offset)) as P;
     case 26:
+      return (reader.readString(offset)) as P;
+    case 27:
+      return (reader.readDateTimeOrNull(offset)) as P;
+    case 28:
+      return (reader.readDouble(offset)) as P;
+    case 29:
+      return (reader.readDateTime(offset)) as P;
+    case 30:
       return (reader.readStringOrNull(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -819,6 +873,152 @@ extension TripQueryFilter on QueryBuilder<Trip, Trip, QFilterCondition> {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         property: r'assistantDriverName',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<Trip, Trip, QAfterFilterCondition> capacityBucketIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'capacityBucket',
+      ));
+    });
+  }
+
+  QueryBuilder<Trip, Trip, QAfterFilterCondition> capacityBucketIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'capacityBucket',
+      ));
+    });
+  }
+
+  QueryBuilder<Trip, Trip, QAfterFilterCondition> capacityBucketEqualTo(
+    String? value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'capacityBucket',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Trip, Trip, QAfterFilterCondition> capacityBucketGreaterThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'capacityBucket',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Trip, Trip, QAfterFilterCondition> capacityBucketLessThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'capacityBucket',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Trip, Trip, QAfterFilterCondition> capacityBucketBetween(
+    String? lower,
+    String? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'capacityBucket',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Trip, Trip, QAfterFilterCondition> capacityBucketStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'capacityBucket',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Trip, Trip, QAfterFilterCondition> capacityBucketEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'capacityBucket',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Trip, Trip, QAfterFilterCondition> capacityBucketContains(
+      String value,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'capacityBucket',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Trip, Trip, QAfterFilterCondition> capacityBucketMatches(
+      String pattern,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'capacityBucket',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Trip, Trip, QAfterFilterCondition> capacityBucketIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'capacityBucket',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<Trip, Trip, QAfterFilterCondition> capacityBucketIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'capacityBucket',
         value: '',
       ));
     });
@@ -2983,6 +3183,298 @@ extension TripQueryFilter on QueryBuilder<Trip, Trip, QFilterCondition> {
     });
   }
 
+  QueryBuilder<Trip, Trip, QAfterFilterCondition> routeCodeIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'routeCode',
+      ));
+    });
+  }
+
+  QueryBuilder<Trip, Trip, QAfterFilterCondition> routeCodeIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'routeCode',
+      ));
+    });
+  }
+
+  QueryBuilder<Trip, Trip, QAfterFilterCondition> routeCodeEqualTo(
+    String? value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'routeCode',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Trip, Trip, QAfterFilterCondition> routeCodeGreaterThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'routeCode',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Trip, Trip, QAfterFilterCondition> routeCodeLessThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'routeCode',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Trip, Trip, QAfterFilterCondition> routeCodeBetween(
+    String? lower,
+    String? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'routeCode',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Trip, Trip, QAfterFilterCondition> routeCodeStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'routeCode',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Trip, Trip, QAfterFilterCondition> routeCodeEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'routeCode',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Trip, Trip, QAfterFilterCondition> routeCodeContains(
+      String value,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'routeCode',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Trip, Trip, QAfterFilterCondition> routeCodeMatches(
+      String pattern,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'routeCode',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Trip, Trip, QAfterFilterCondition> routeCodeIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'routeCode',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<Trip, Trip, QAfterFilterCondition> routeCodeIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'routeCode',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<Trip, Trip, QAfterFilterCondition> routeNameIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'routeName',
+      ));
+    });
+  }
+
+  QueryBuilder<Trip, Trip, QAfterFilterCondition> routeNameIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'routeName',
+      ));
+    });
+  }
+
+  QueryBuilder<Trip, Trip, QAfterFilterCondition> routeNameEqualTo(
+    String? value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'routeName',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Trip, Trip, QAfterFilterCondition> routeNameGreaterThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'routeName',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Trip, Trip, QAfterFilterCondition> routeNameLessThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'routeName',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Trip, Trip, QAfterFilterCondition> routeNameBetween(
+    String? lower,
+    String? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'routeName',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Trip, Trip, QAfterFilterCondition> routeNameStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'routeName',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Trip, Trip, QAfterFilterCondition> routeNameEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'routeName',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Trip, Trip, QAfterFilterCondition> routeNameContains(
+      String value,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'routeName',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Trip, Trip, QAfterFilterCondition> routeNameMatches(
+      String pattern,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'routeName',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Trip, Trip, QAfterFilterCondition> routeNameIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'routeName',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<Trip, Trip, QAfterFilterCondition> routeNameIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'routeName',
+        value: '',
+      ));
+    });
+  }
+
   QueryBuilder<Trip, Trip, QAfterFilterCondition> statusEqualTo(
     TripStatus value, {
     bool caseSensitive = true,
@@ -3309,6 +3801,68 @@ extension TripQueryFilter on QueryBuilder<Trip, Trip, QFilterCondition> {
     });
   }
 
+  QueryBuilder<Trip, Trip, QAfterFilterCondition> tripSalaryAmountEqualTo(
+    double value, {
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'tripSalaryAmount',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<Trip, Trip, QAfterFilterCondition> tripSalaryAmountGreaterThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'tripSalaryAmount',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<Trip, Trip, QAfterFilterCondition> tripSalaryAmountLessThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'tripSalaryAmount',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<Trip, Trip, QAfterFilterCondition> tripSalaryAmountBetween(
+    double lower,
+    double upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'tripSalaryAmount',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
   QueryBuilder<Trip, Trip, QAfterFilterCondition> updatedAtEqualTo(
       DateTime value) {
     return QueryBuilder.apply(this, (query) {
@@ -3535,6 +4089,18 @@ extension TripQuerySortBy on QueryBuilder<Trip, Trip, QSortBy> {
   QueryBuilder<Trip, Trip, QAfterSortBy> sortByAssistantDriverNameDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'assistantDriverName', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Trip, Trip, QAfterSortBy> sortByCapacityBucket() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'capacityBucket', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Trip, Trip, QAfterSortBy> sortByCapacityBucketDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'capacityBucket', Sort.desc);
     });
   }
 
@@ -3778,6 +4344,30 @@ extension TripQuerySortBy on QueryBuilder<Trip, Trip, QSortBy> {
     });
   }
 
+  QueryBuilder<Trip, Trip, QAfterSortBy> sortByRouteCode() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'routeCode', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Trip, Trip, QAfterSortBy> sortByRouteCodeDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'routeCode', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Trip, Trip, QAfterSortBy> sortByRouteName() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'routeName', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Trip, Trip, QAfterSortBy> sortByRouteNameDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'routeName', Sort.desc);
+    });
+  }
+
   QueryBuilder<Trip, Trip, QAfterSortBy> sortByStatus() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'status', Sort.asc);
@@ -3811,6 +4401,18 @@ extension TripQuerySortBy on QueryBuilder<Trip, Trip, QSortBy> {
   QueryBuilder<Trip, Trip, QAfterSortBy> sortByTripDateDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'tripDate', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Trip, Trip, QAfterSortBy> sortByTripSalaryAmount() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'tripSalaryAmount', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Trip, Trip, QAfterSortBy> sortByTripSalaryAmountDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'tripSalaryAmount', Sort.desc);
     });
   }
 
@@ -3861,6 +4463,18 @@ extension TripQuerySortThenBy on QueryBuilder<Trip, Trip, QSortThenBy> {
   QueryBuilder<Trip, Trip, QAfterSortBy> thenByAssistantDriverNameDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'assistantDriverName', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Trip, Trip, QAfterSortBy> thenByCapacityBucket() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'capacityBucket', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Trip, Trip, QAfterSortBy> thenByCapacityBucketDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'capacityBucket', Sort.desc);
     });
   }
 
@@ -4116,6 +4730,30 @@ extension TripQuerySortThenBy on QueryBuilder<Trip, Trip, QSortThenBy> {
     });
   }
 
+  QueryBuilder<Trip, Trip, QAfterSortBy> thenByRouteCode() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'routeCode', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Trip, Trip, QAfterSortBy> thenByRouteCodeDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'routeCode', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Trip, Trip, QAfterSortBy> thenByRouteName() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'routeName', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Trip, Trip, QAfterSortBy> thenByRouteNameDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'routeName', Sort.desc);
+    });
+  }
+
   QueryBuilder<Trip, Trip, QAfterSortBy> thenByStatus() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'status', Sort.asc);
@@ -4149,6 +4787,18 @@ extension TripQuerySortThenBy on QueryBuilder<Trip, Trip, QSortThenBy> {
   QueryBuilder<Trip, Trip, QAfterSortBy> thenByTripDateDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'tripDate', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Trip, Trip, QAfterSortBy> thenByTripSalaryAmount() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'tripSalaryAmount', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Trip, Trip, QAfterSortBy> thenByTripSalaryAmountDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'tripSalaryAmount', Sort.desc);
     });
   }
 
@@ -4188,6 +4838,14 @@ extension TripQueryWhereDistinct on QueryBuilder<Trip, Trip, QDistinct> {
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'assistantDriverName',
+          caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<Trip, Trip, QDistinct> distinctByCapacityBucket(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'capacityBucket',
           caseSensitive: caseSensitive);
     });
   }
@@ -4326,6 +4984,20 @@ extension TripQueryWhereDistinct on QueryBuilder<Trip, Trip, QDistinct> {
     });
   }
 
+  QueryBuilder<Trip, Trip, QDistinct> distinctByRouteCode(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'routeCode', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<Trip, Trip, QDistinct> distinctByRouteName(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'routeName', caseSensitive: caseSensitive);
+    });
+  }
+
   QueryBuilder<Trip, Trip, QDistinct> distinctByStatus(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
@@ -4343,6 +5015,12 @@ extension TripQueryWhereDistinct on QueryBuilder<Trip, Trip, QDistinct> {
   QueryBuilder<Trip, Trip, QDistinct> distinctByTripDate() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'tripDate');
+    });
+  }
+
+  QueryBuilder<Trip, Trip, QDistinct> distinctByTripSalaryAmount() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'tripSalaryAmount');
     });
   }
 
@@ -4376,6 +5054,12 @@ extension TripQueryProperty on QueryBuilder<Trip, Trip, QQueryProperty> {
   QueryBuilder<Trip, String?, QQueryOperations> assistantDriverNameProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'assistantDriverName');
+    });
+  }
+
+  QueryBuilder<Trip, String?, QQueryOperations> capacityBucketProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'capacityBucket');
     });
   }
 
@@ -4499,6 +5183,18 @@ extension TripQueryProperty on QueryBuilder<Trip, Trip, QQueryProperty> {
     });
   }
 
+  QueryBuilder<Trip, String?, QQueryOperations> routeCodeProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'routeCode');
+    });
+  }
+
+  QueryBuilder<Trip, String?, QQueryOperations> routeNameProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'routeName');
+    });
+  }
+
   QueryBuilder<Trip, TripStatus, QQueryOperations> statusProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'status');
@@ -4514,6 +5210,12 @@ extension TripQueryProperty on QueryBuilder<Trip, Trip, QQueryProperty> {
   QueryBuilder<Trip, DateTime?, QQueryOperations> tripDateProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'tripDate');
+    });
+  }
+
+  QueryBuilder<Trip, double, QQueryOperations> tripSalaryAmountProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'tripSalaryAmount');
     });
   }
 

@@ -4,6 +4,7 @@ import '../models/employee.dart';
 import '../models/driver.dart';
 import '../models/vehicle.dart';
 import '../models/trip.dart';
+import '../models/trip_price.dart';
 import '../models/attendance.dart';
 import '../models/payroll.dart';
 import '../models/kpi.dart';
@@ -39,7 +40,7 @@ class DatabaseService {
       _isar = existing;
       return;
     }
-    final dir = await getApplicationDocumentsDirectory();
+final dir = await getApplicationDocumentsDirectory();
     _isar = await Isar.open(
       [
         EmployeeSchema,
@@ -57,6 +58,7 @@ class DatabaseService {
         AccountingEntryLineSchema,
         PayslipSchema,
         AccountDefaultSchema,
+        TripPriceSchema,
       ],
       directory: dir.path,
       name: name,

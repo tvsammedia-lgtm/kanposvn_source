@@ -83,11 +83,17 @@ class _GymPlansScreenState extends ConsumerState<GymPlansScreen> {
         trailing: Column(
           crossAxisAlignment: CrossAxisAlignment.end,
           mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
           children: [
             Text(_money.format(plan.price),
                 style:
                     const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
             TextButton(
+              style: TextButton.styleFrom(
+                minimumSize: const Size(48, 28),
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
               child: const Text('BÁN'),
               onPressed: () => _sellDialog(preselectPlanId: plan.planId),
             ),

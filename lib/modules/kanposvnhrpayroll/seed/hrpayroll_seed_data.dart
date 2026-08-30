@@ -8,6 +8,7 @@ import '../models/kpi.dart';
 import '../models/leave_request.dart';
 import '../models/payroll.dart';
 import '../models/trip.dart';
+import '../models/trip_price.dart';
 import '../models/vehicle.dart';
 import '../models/account.dart';
 import '../models/accounting_entry.dart';
@@ -242,12 +243,24 @@ class HrPayrollSeedData {
         'Công ty TNHH SX Nhựa An Phát',
       ];
       const cargoTypes = ['Container 40ft', 'Container 20ft', 'Hàng rời', 'Thép cuộn'];
+
+      // Các tuyến (mã chuyến) thực tế theo BẢNG LƯƠNG CHUYẾN HOA.
       const routes = [
-        ['ICD Phú Lộc, Thủ Đức', 'Cát Lái, Thủ Đức'],
-        ['Depot Sóng Thần, Bình Dương', 'Cảng Cát Lái'],
-        ['Khu công nghiệp VSIP', 'Long Thành, Đồng Nai'],
-        ['Cảng Hiệp Phước', 'KCN Tân Tạo'],
+        ('HCM', 'TP.HCM', 'Bến Cát, Bình Dương', 'Q.9, TP.HCM'),
+        ('BD', 'Bình Dương', 'ICD Sóng Thần', 'Bình Dương'),
+        ('BH', 'Biên Hòa', 'Bến Cát, Bình Dương', 'Biên Hòa, Đồng Nai'),
+        ('DN', 'Đồng Nai', 'ICD Long Bình', 'Long Khánh, Đồng Nai'),
+        ('VT', 'Vũng Tàu', 'Cảng Cát Lái', 'Bà Rịa - Vũng Tàu'),
+        ('TN', 'Tây Ninh', 'KCN Sóng Thần', 'Tây Ninh'),
+        ('ST', 'Sóc Trăng', 'ICD Phú Lộc', 'Sóc Trăng'),
+        ('AG', 'An Giang', 'Bến Cát, Bình Dương', 'An Giang'),
+        ('CM', 'Cà Mau', 'Cảng Cát Lái', 'Cà Mau'),
+        ('GL', 'Gia Lai', 'ICD Sóng Thần', 'Gia Lai'),
+        ('NTG', 'Nha Trang', 'KCN Sóng Thần', 'Nha Trang, Khánh Hòa'),
+        ('LD', 'Lâm Đồng', 'ICD Sóng Thần', 'Lâm Đồng'),
       ];
+      const khuVucNgan = ['HCM', 'BD', 'BH', 'DN', 'TN'];
+      const khuVucXa = ['VT', 'ST', 'AG', 'CM', 'GL', 'NTG', 'LD'];
 
       var tripNo = 1;
       final trips = <Trip>[];
@@ -255,7 +268,22 @@ class HrPayrollSeedData {
           {Employee? assistant,
           String status = 'completed',
           double kmBase = 90}) {
-        final route = routes[_rand.nextInt(routes.length)];
+        // Chọn xe từ cơ sở xe hiện có (10 xe).
+        final vehicleIndex = _rand.nextInt(vehicles.length);
+        final vehicle = vehicles[vehicleIndex];
+        // Phân nhóm tải trọng cho chuyến (3.5T / 5T / 8T) – chọn ngẫu độ.
+        final capacityBuckets = ['3.5T', '5T', '8T'];
+        final capacityBucket = capacityBuckets[_rand.nextInt(capacityBuckets.length)];
+
+        // Chọn tuyến (ưu tiên tuyến ngắn) theo nhóm tải trọng.
+        final pool = _rand.nextDouble() < 0.65 ? khuVucNgan : khuVucXa;
+        final route = routes[_rand.nextInt(pool.length)];
+        final routeCode = route.$1;
+        final routeName = route.$2;
+        final price =
+            PayrollCalculatorService.tripPriceFor(capacityBucket, routeCode) ??
+                220000;
+
         final km = kmBase * (0.8 + _rand.nextDouble() * 0.6);
         final revenue = (6500000 + _rand.nextInt(30) * 100000).toDouble();
         final expenses = (revenue * (0.52 + _rand.nextDouble() * 0.12)).roundToDouble();
@@ -263,13 +291,17 @@ class HrPayrollSeedData {
           ..tripCode = 'CX${tripNo.toString().padLeft(4, '0')}'
           ..tripDate = _daysAgo(daysAgo)
           ..customerName = customers[_rand.nextInt(customers.length)]
-          ..pickupPoint = route[0]
-          ..deliveryPoint = route[1]
+          ..pickupPoint = route.$3
+          ..deliveryPoint = route.$4
           ..cargoType = cargoTypes[_rand.nextInt(cargoTypes.length)]
           ..cargoWeight = 15 + _rand.nextDouble() * 15
           ..containerNumber =
               'MSCU${_rand.nextInt(1000000).toString().padLeft(6, '0')}'
-          ..vehiclePlate = vehicles[_rand.nextInt(6)].licensePlate
+          ..vehiclePlate = vehicle.licensePlate
+          ..capacityBucket = capacityBucket
+          ..routeCode = routeCode
+          ..routeName = routeName
+          ..tripSalaryAmount = price.toDouble()
           ..moocPlate = '51M-555.0${1 + _rand.nextInt(3)}'
           ..mainDriverId = main.id
           ..mainDriverName = main.fullName
@@ -549,6 +581,20 @@ class HrPayrollSeedData {
     ];
     await isar.writeTxn(() => isar.accounts.putAll(accounts));
 
+    // ══════════════════ BẢNG LƯƠNG CHUYẾN (TripPrice — theo HOA) ══════════════════
+    final tripPrices = <TripPrice>[];
+    for (final row in PayrollCalculatorService.tripPriceTable) {
+      tripPrices.add(TripPrice()
+        ..capacityBucket = row.capacity
+        ..routeCode = row.code
+        ..routeName = row.name
+        ..price = row.price.toDouble()
+        ..sortOrder = tripPrices.length
+        ..createdAt = DateTime(2024, 1, 1)
+        ..updatedAt = DateTime(2024, 1, 1));
+    }
+    await isar.writeTxn(() => isar.tripPrices.putAll(tripPrices));
+
     // ══════════════════ BÚT TOÁN KẾ TOÁN THÁNG TRƯỚC ══════════════════
     if (lastMonthPayrolls.isNotEmpty) {
       // 1. Bút toán hạch toán lương
@@ -735,6 +781,15 @@ class HrPayrollSeedData {
       _acctDef(33821, 'Công đoàn - hạch toán', 'GLVoucher', '6422', '3382'),
       _acctDef(64221, 'Chi phí lương - PASalaryExpense', 'PASalaryExpense', '6422', '334'),
       _acctDef(64222, 'Chi phí BCNLĐ - PASalaryExpense', 'PASalaryExpense', '6422', '3383'),
+      // ADDITIONAL: other business transaction accounts
+      _acctDef(4011, 'Nghiệp vụ công nợ', 'GLVoucher', '6422', '131'),
+      _acctDef(4012, 'Nghiệp vụ khác nội bộ', 'GLVoucher', '6422', '3383'),
+      _acctDef(4013, 'Phạt bộ mặt', 'GLVoucher', '6422', '334'),
+      _acctDef(4014, 'Trả thù phát sinh', 'GLVoucher', '334', '111'),
+      _acctDef(4015, 'Bù trừ thuế', 'GLVoucher', '3335', '334'),
+      _acctDef(4016, 'Chi phí khác', 'GLVoucher', '6422', '334'),
+      _acctDef(4017, 'Thu Nhập khác', 'GLVoucher', '111', '131'),
+      _acctDef(4018, 'Chi nhặt máy', 'GLVoucher', '6422', '112'),
     ];
     await isar.writeTxn(() => isar.accountDefaults.putAll(defaults));
 
