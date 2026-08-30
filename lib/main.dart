@@ -30,11 +30,12 @@ import 'modules/kanposvnnbatdongsan/views/batdongsan_dashboard.dart';
 import 'modules/kanposvnnhatro200/views/kanposvnnhatro200_shell.dart';
 import 'modules/kanposvntaphoasmmini/screens/taphoa_dashboard_screen.dart';
 import 'modules/kanposvncrm/screens/crm_dashboard_screen.dart';
-import 'modules/kanposvngym/screens/gym_dashboard_screen.dart';
+import 'modules/kanposvngym/screens/gym_shell.dart';
 import 'modules/kanposvnparking/screens/parking_dashboard_screen.dart';
 import 'modules/kanposvnviec/screens/viec_dashboard_screen.dart';
 import 'modules/kanposvnride/screens/ride_dashboard_screen.dart';
 import 'modules/kanposvneshop/screens/eshop_dashboard_screen.dart';
+import 'modules/kanposvnvideocall/screens/kanposvnvideocall_shell.dart';
 import 'modules/kanposvnhrpayroll/screens/kanposvnhrpayroll_shell.dart';
 import 'modules/kanposvnkanji/kanposvnkanji_shell.dart';
 import 'modules/kanposvnengpic/kanposvnengpic_shell.dart';
@@ -275,7 +276,7 @@ class _MainShell extends ConsumerWidget {
       case AppModuleType.kanposvncrm:
         return const CrmDashboardScreen();
       case AppModuleType.kanposvngym:
-        return const GymDashboardScreen();
+        return const GymShell();
       case AppModuleType.kanposvnparking:
         return const ParkingDashboardScreen();
       case AppModuleType.kanposvnviec:
@@ -284,6 +285,8 @@ class _MainShell extends ConsumerWidget {
         return const RideDashboardScreen();
       case AppModuleType.kanposvneshop:
         return const EshopDashboardScreen();
+      case AppModuleType.kanposvnvideocall:
+        return const KanPosVnVideoCallShell();
       case AppModuleType.kanposvnhrpayroll:
         return const KanPosVnHrPayrollShell();
       case AppModuleType.kanposvnkanji:

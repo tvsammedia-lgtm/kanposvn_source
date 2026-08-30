@@ -23,6 +23,7 @@ enum AppModule {
   kanposvnviec('KanViec', Icons.work, Color(0xFF6366F1)),
   kanposvnride('KanRide', Icons.hail, Color(0xFFFACC15)),
   kanposvneshop('KanShop', Icons.shopping_bag, Color(0xFFF97316)),
+  kanposvnvideocall('KanPosVN Video Call / Chat', Icons.videocam, Color(0xFFD946EF)),
   kanposvnhrpayroll('KanPosVN HR Payroll (Vận Tải)', Icons.badge, Color(0xFF0EA5E9)),
   kanposvnengpic('KanPosVN EngPic', Icons.image, Color(0xFF10B981)),
   kanposvnkanji('KanPosVN Kanji', Icons.language, Color(0xFF3B82F6)),
@@ -57,6 +58,7 @@ enum AppModule {
       case AppModule.kanposvnviec: return 'kanposvnviec';
       case AppModule.kanposvnride: return 'kanposvnride';
       case AppModule.kanposvneshop: return 'kanposvneshop';
+      case AppModule.kanposvnvideocall: return 'kanposvnvideocall';
       case AppModule.kanposvnhrpayroll: return 'kanposvnhrpayroll';
       case AppModule.kanposvnengpic: return 'kanposvnengpic';
       case AppModule.kanposvnkanji: return 'kanposvnkanji';
@@ -88,6 +90,7 @@ enum AppModule {
       case AppModule.kanposvnviec: return AppModuleType.kanposvnviec;
       case AppModule.kanposvnride: return AppModuleType.kanposvnride;
       case AppModule.kanposvneshop: return AppModuleType.kanposvneshop;
+      case AppModule.kanposvnvideocall: return AppModuleType.kanposvnvideocall;
       case AppModule.kanposvnhrpayroll: return AppModuleType.kanposvnhrpayroll;
       case AppModule.kanposvnengpic: return AppModuleType.kanposvnengpic;
       case AppModule.kanposvnkanji: return AppModuleType.kanposvnkanji;
@@ -123,6 +126,7 @@ enum AppModuleType {
   kanposvnviec('KanViec', Icons.work),
   kanposvnride('KanRide', Icons.hail),
   kanposvneshop('KanShop', Icons.shopping_bag),
+  kanposvnvideocall('KanPosVN Video Call / Chat', Icons.videocam),
   kanposvnhrpayroll('KanPosVN HR Payroll (Vận Tải)', Icons.badge),
   kanposvnengpic('KanPosVN EngPic', Icons.image),
   kanposvnkanji('KanPosVN Kanji', Icons.language),
