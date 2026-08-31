@@ -445,6 +445,8 @@ final dir = await getApplicationDocumentsDirectory();
 
   /// Nạp dữ liệu mẫu nếu DB trống (gọi khi shell khởi động).
   Future<void> seedIfEmpty() async {
+    // Luôn đảm bảo có tài khoản kế toán mặc định (dù nhân viên đã có).
+    await HrPayrollSeedData.seedAccountsOnly(isar);
     if (await isar.employees.count() > 0) return;
     await HrPayrollSeedData.seed();
   }

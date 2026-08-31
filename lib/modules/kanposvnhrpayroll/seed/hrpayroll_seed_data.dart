@@ -800,6 +800,33 @@ class HrPayrollSeedData {
     await isar.writeTxn(() => isar.payslips.putAll(slips));
   }
 
+  /// Nạp tài khoản kế toán mặc định nếu DB chưa có (gọi từ seedIfEmpty).
+  static Future<void> seedAccountsOnly(Isar isar) async {
+    if (await isar.accounts.count() > 0) return;
+    final accounts = <Account>[
+      _acct('111', 'Tiền mặt', 'Cash in hand', 1, null, true, AccountCategoryKind.balanceSheet),
+      _acct('1111', 'Tiền Việt Nam', 'Vietnam dong', 2, 1, false, AccountCategoryKind.balanceSheet),
+      _acct('112', 'Tiền gửi Ngân hàng', 'Cash in bank', 1, null, true, AccountCategoryKind.balanceSheet),
+      _acct('1121', 'Tiền Việt Nam', 'Vietnam dong', 2, 2, false, AccountCategoryKind.balanceSheet),
+      _acct('131', 'Phải thu của khách hàng', 'Accounts receivable', 1, null, false, AccountCategoryKind.offBalanceSheet),
+      _acct('141', 'Tạm ứng', 'Advances', 1, null, false, AccountCategoryKind.balanceSheet),
+      _acct('333', 'Thuế và các khoản phải nộp NS', 'Taxes payable', 1, null, true, AccountCategoryKind.offBalanceSheet),
+      _acct('3335', 'Thuế thu nhập cá nhân', 'PIT payable', 2, 3, false, AccountCategoryKind.offBalanceSheet),
+      _acct('334', 'Phải trả người lao động', 'Payable to employees', 1, null, false, AccountCategoryKind.offBalanceSheet),
+      _acct('338', 'Phải trả, phải nộp khác', 'Other payable', 1, null, true, AccountCategoryKind.offBalanceSheet),
+      _acct('3382', 'Kinh phí công đoàn', 'Trade union fees', 2, 8, false, AccountCategoryKind.offBalanceSheet),
+      _acct('3383', 'Bảo hiểm xã hội', 'Social insurance', 2, 8, false, AccountCategoryKind.offBalanceSheet),
+      _acct('3384', 'Bảo hiểm y tế', 'Health insurance', 2, 8, false, AccountCategoryKind.offBalanceSheet),
+      _acct('3385', 'Bảo hiểm thất nghiệp', 'Unemployment insurance', 2, 8, false, AccountCategoryKind.offBalanceSheet),
+      _acct('353', 'Quỹ khen thưởng, phúc lợi', 'Bonus & welfare funds', 1, null, true, AccountCategoryKind.offBalanceSheet),
+      _acct('3531', 'Quỹ khen thưởng', 'Bonus fund', 2, 15, false, AccountCategoryKind.offBalanceSheet),
+      _acct('3532', 'Quỹ phúc lợi', 'Welfare fund', 2, 15, false, AccountCategoryKind.offBalanceSheet),
+      _acct('642', 'Chi phí quản lý DN', 'General & admin expenses', 1, null, true, AccountCategoryKind.offBalanceSheet),
+      _acct('6422', 'Chi phí quản lý DN', 'G&A expenses', 2, 17, false, AccountCategoryKind.offBalanceSheet),
+    ];
+    await isar.writeTxn(() => isar.accounts.putAll(accounts));
+  }
+
   /// Helper tạo tài khoản kế toán TT133.
   static Account _acct(
     String number,

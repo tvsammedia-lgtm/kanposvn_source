@@ -61,7 +61,9 @@ class MyBookingsScreen extends ConsumerWidget {
                     children: [
                       const SizedBox(height: 4),
                       Text('Hành khách: ${b.passengerName}'),
-                      Text('Ngày đặt: ${DateFormat('dd/MM/yyyy HH:mm').format(b.createdAt!)}'),
+                      Text(b.createdAt != null
+                          ? 'Ngày đặt: ${DateFormat('dd/MM/yyyy HH:mm').format(b.createdAt!)}'
+                          : 'Ngày đặt: —'),
                       if (b.isCheckedIn) Text('Ghế: ${b.seatNumber}', style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.blue)),
                       const SizedBox(height: 8),
                       Row(

@@ -62,13 +62,15 @@ class CommissionReportScreen extends ConsumerWidget {
                     child: ListTile(
                       leading: const CircleAvatar(backgroundColor: Colors.purple, child: Icon(Icons.flight, color: Colors.white)),
                       title: Text('PNR: ${b.pnrCode}'),
-                      subtitle: Text(DateFormat('dd/MM/yyyy').format(b.createdAt!)),
+                      subtitle: Text(b.createdAt != null
+                          ? DateFormat('dd/MM/yyyy').format(b.createdAt!)
+                          : '—'),
                       trailing: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
-                          Text('+ ${NumberFormat.currency(locale: 'vi_VN', symbol: 'đ').format(b.commission)}', style: const TextStyle(color: Colors.green, fontWeight: FontWeight.bold)),
-                          Text('Giá: ${NumberFormat.compact().format(b.totalAmount)}đ', style: const TextStyle(fontSize: 10, color: Colors.grey)),
+                          Text('+ ${NumberFormat.currency(locale: 'vi_VN', symbol: 'đ').format(b.commission ?? 0)}', style: const TextStyle(color: Colors.green, fontWeight: FontWeight.bold)),
+                          Text('Giá: ${NumberFormat.compact().format(b.totalAmount ?? 0)}đ', style: const TextStyle(fontSize: 10, color: Colors.grey)),
                         ],
                       ),
                     ),

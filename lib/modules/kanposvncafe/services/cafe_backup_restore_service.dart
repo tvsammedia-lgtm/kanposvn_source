@@ -166,7 +166,7 @@ class CafeBackupRestoreService extends ChangeNotifier {
       ArchiveFile('$baseName.json', jsonStr.length, utf8.encode(jsonStr)),
     );
     final bytes = ZipEncoder().encode(archive);
-    return Uint8List.fromList(bytes);
+    return Uint8List.fromList(bytes ?? const []);
   }
 
   Map<String, dynamic> parseBackupBytes(List<int> bytes) {

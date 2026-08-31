@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/app_theme.dart';
 import '../../core/providers.dart';
+import '../../core/widgets.dart';
 import '../../models/accounting_entry.dart';
 import '../../models/account.dart';
 import 'gl_journal_entry_screen.dart';
@@ -388,7 +389,11 @@ class _ChartOfAccountsTab extends ConsumerWidget {
     return accountsAsync.when(
       data: (accounts) {
         if (accounts.isEmpty) {
-          return const Center(child: Text('Chưa có tài khoản'));
+          return const EmptyState(
+            icon: Icons.account_tree_outlined,
+            title: 'Chưa có tài khoản',
+            subtitle: 'Hệ thống tài khoản sẽ được tự động tạo khi.seed dữ liệu',
+          );
         }
 
         final grouped = <String, List<Account>>{};
@@ -427,48 +432,64 @@ class _ChartOfAccountsTab extends ConsumerWidget {
                     padding: const EdgeInsets.all(12),
                     child: Text(
                       groupLabels[group] ?? 'Nhóm $group',
-                      style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13, color: AppTheme.primaryBlue),
+                      style: const TextStyle(
+                          fontWeight: FontWeight.w700,
+                          fontSize: 13,
+                          color: AppTheme.primaryBlue),
                     ),
                   ),
                   const Divider(height: 1),
                   ...items.map((a) => Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                    child: Row(
-                      children: [
-                        Container(
-                          width: 32,
-                          height: 32,
-                          decoration: BoxDecoration(
-                            color: AppTheme.textMuted.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          child: Center(
-                            child: Text(a.accountNumber.substring(0, 1),
-                                style: const TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w700,
-                                    color: AppTheme.textPrimary)),
-                          ),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 8),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 32,
+                              height: 32,
+                              decoration: BoxDecoration(
+                                color: a.isDebitNormal
+                                    ? AppTheme.success.withValues(alpha: 0.1)
+                                    : AppTheme.danger.withValues(alpha: 0.1),
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: Center(
+                                child: Text(
+                                    a.accountNumber.substring(0, 1),
+                                    style: TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w700,
+                                        color: a.isDebitNormal
+                                            ? AppTheme.success
+                                            : AppTheme.danger)),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(a.accountNumber,
+                                      style: const TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 12)),
+                                  Text(a.accountName,
+                                      style: const TextStyle(
+                                          fontSize: 11,
+                                          color: AppTheme.textSecondary)),
+                                ],
+                              ),
+                            ),
+                            Icon(
+                              a.inactive ? Icons.cancel : Icons.check_circle,
+                              size: 16,
+                              color: a.inactive
+                                  ? AppTheme.danger
+                                  : AppTheme.success,
+                            ),
+                          ],
                         ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(a.accountNumber, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 12)),
-                              Text(a.accountName,
-                                  style: const TextStyle(fontSize: 11, color: AppTheme.textSecondary)),
-                            ],
-                          ),
-                        ),
-                        Icon(
-                          a.inactive ? Icons.cancel : Icons.check_circle,
-                          size: 16,
-                          color: a.inactive ? AppTheme.danger : AppTheme.success,
-                        ),
-                      ],
-                    ),
-                  )),
+                      )),
                 ],
               ),
             );
