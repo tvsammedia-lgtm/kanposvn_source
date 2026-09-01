@@ -30,7 +30,11 @@ class DashboardScreen extends ConsumerWidget {
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
-              child: Row(
+              child: Wrap(
+                spacing: 16,
+                runSpacing: 12,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                alignment: WrapAlignment.spaceBetween,
                 children: [
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -41,7 +45,6 @@ class DashboardScreen extends ConsumerWidget {
                           style: Theme.of(context).textTheme.bodyMedium),
                     ],
                   ),
-                  const Spacer(),
                   MonthPicker(
                     year: selectedMonth.year,
                     month: selectedMonth.month,

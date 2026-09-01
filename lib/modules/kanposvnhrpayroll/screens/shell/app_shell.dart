@@ -17,7 +17,7 @@ class AppShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isWide = MediaQuery.of(context).size.width > 900;
+    final isWide = MediaQuery.of(context).size.width > 600;
     if (isWide) {
       return _DesktopShell(child: child);
     }
@@ -86,40 +86,18 @@ class _DesktopShell extends ConsumerWidget {
   }
 }
 
-// ─── Mobile Layout (Bottom Nav) ───────────────────────────────────────────
+// ─── Mobile Layout (Scrollable Bottom Tab Bar) ──────────────────────────
 class _MobileShell extends ConsumerWidget {
   final Widget child;
   const _MobileShell({required this.child});
 
-  static const _mobileItems = [
-    NavItem(
-        path: '/dashboard',
-        icon: Icons.dashboard_outlined,
-        activeIcon: Icons.dashboard,
-        label: 'Home'),
-    NavItem(
-        path: '/employees',
-        icon: Icons.people_outline,
-        activeIcon: Icons.people,
-        label: 'Nhân sự'),
-    NavItem(
-        path: '/drivers',
-        icon: Icons.local_shipping_outlined,
-        activeIcon: Icons.local_shipping,
-        label: 'Tài xế'),
-    NavItem(
-        path: '/payroll',
-        icon: Icons.account_balance_wallet_outlined,
-        activeIcon: Icons.account_balance_wallet,
-        label: 'Lương'),
-  ];
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final location = GoRouterState.of(context).uri.path;
-    final selectedIndex = _mobileItems.indexWhere(
+    final selectedIndex = navItems.indexWhere(
       (item) => location.startsWith(item.path),
     );
+    final safeIndex = selectedIndex < 0 ? 0 : selectedIndex;
     final moduleColor =
         ref.watch(authServiceProvider).currentModule?.color ?? _moduleColor;
 
@@ -142,26 +120,99 @@ class _MobileShell extends ConsumerWidget {
         top: false,
         child: child,
       ),
-      bottomNavigationBar: Container(
-        decoration: const BoxDecoration(
-          color: AppTheme.bg800,
-          border: Border(top: BorderSide(color: AppTheme.borderColor)),
+      bottomNavigationBar: _ScrollableTabBar(
+        items: navItems,
+        selectedIndex: safeIndex,
+        color: moduleColor,
+        onSelected: (i) => context.go(navItems[i].path),
+      ),
+    );
+  }
+}
+
+/// Thanh tab cuộn ngang — bọc để cuộn được hết các tab module trên màn hình
+/// hẹp, giống cách KanPosVN Nhà Thuốc hiển thị đủ tab.
+class _ScrollableTabBar extends StatelessWidget {
+  final List<NavItem> items;
+  final int selectedIndex;
+  final Color color;
+  final ValueChanged<int> onSelected;
+
+  const _ScrollableTabBar({
+    required this.items,
+    required this.selectedIndex,
+    required this.color,
+    required this.onSelected,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: const BoxDecoration(
+        color: AppTheme.bg800,
+        border: Border(top: BorderSide(color: AppTheme.borderColor)),
+      ),
+      child: SafeArea(
+        top: false,
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+          child: Row(
+            children: [
+              for (var i = 0; i < items.length; i++)
+                _TabItem(
+                  item: items[i],
+                  selected: i == selectedIndex,
+                  color: color,
+                  onTap: () => onSelected(i),
+                ),
+            ],
+          ),
         ),
-        child: NavigationBar(
-          backgroundColor: Colors.transparent,
-          selectedIndex: selectedIndex < 0 ? 0 : selectedIndex,
-          onDestinationSelected: (i) => context.go(_mobileItems[i].path),
-          destinations: _mobileItems
-              .map((item) => NavigationDestination(
-                    icon: Icon(item.icon),
-                    selectedIcon: Icon(item.activeIcon,
-                        color: AppTheme.primaryLight),
-                    label: item.label,
-                  ))
-              .toList(),
-          indicatorColor: AppTheme.primaryBlue.withOpacity(0.2),
-          labelBehavior: NavigationDestinationLabelBehavior.onlyShowSelected,
-          height: 62,
+      ),
+    );
+  }
+}
+
+class _TabItem extends StatelessWidget {
+  final NavItem item;
+  final bool selected;
+  final Color color;
+  final VoidCallback onTap;
+
+  const _TabItem({
+    required this.item,
+    required this.selected,
+    required this.color,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(10),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              selected ? item.activeIcon : item.icon,
+              color: selected ? color : AppTheme.textSecondary,
+              size: 22,
+            ),
+            const SizedBox(height: 2),
+            Text(
+              item.label,
+              style: TextStyle(
+                fontSize: 10,
+                color: selected ? color : AppTheme.textSecondary,
+                fontWeight:
+                    selected ? FontWeight.bold : FontWeight.normal,
+              ),
+            ),
+          ],
         ),
       ),
     );
