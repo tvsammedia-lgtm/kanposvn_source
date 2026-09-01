@@ -300,6 +300,8 @@ class _RestaurantTablesScreenState extends ConsumerState<RestaurantTablesScreen>
 
           final zones = ['Tất cả', ...tables.map((t) => t.zone).toSet()];
           final filteredTables = _selectedZone == 'Tất cả' ? tables : tables.where((t) => t.zone == _selectedZone).toList();
+          final width = MediaQuery.of(context).size.width;
+          final cols = width > 900 ? 5 : width > 700 ? 4 : width > 500 ? 3 : 2;
 
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -320,11 +322,11 @@ class _RestaurantTablesScreenState extends ConsumerState<RestaurantTablesScreen>
               Expanded(
                 child: GridView.builder(
                   padding: const EdgeInsets.all(16),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 5,
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: cols,
                     crossAxisSpacing: 16,
                     mainAxisSpacing: 16,
-                    childAspectRatio: 1.2,
+                    childAspectRatio: 1.1,
                   ),
                   itemCount: filteredTables.length,
                   itemBuilder: (context, index) {

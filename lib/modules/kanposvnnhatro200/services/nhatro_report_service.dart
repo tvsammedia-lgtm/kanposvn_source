@@ -94,51 +94,107 @@ class NhatroReportService {
     );
   }
 
-  // ===== 2. rp1111_Detail.rpt — Chi tiet quỹ tien mat =====
+  // ===== 2. rp1111_Detail.rpt — Chi tiet quy tien mat (So quy tien mat) =====
+  // Khop nghiep vu voi kanposvnvlxd buildCashBook (rp1111_Detail):
+  // co So du dau ky, cot Ton (running balance), Cong phat sinh, So du cuoi ky.
   Future<CrystalReportModel> buildCashFundDetail({required DateTime from, required DateTime to}) async {
-    final payments = await _paymentsInRange(from, to);
-    final expenses = await _expensesInRange(from, to);
+    final allPayments = await _isar.payments.where().findAll();
+    final allExpenses = await _isar.hostelExpenses.where().findAll();
+    final payments = allPayments.where((p) => p.paymentDate != null && _inRange(p.paymentDate!, from, to)).toList();
+    final expenses = allExpenses.where((e) => e.expenseDate != null && _inRange(e.expenseDate!, from, to)).toList();
     final rm = await _roomMap();
     final tm = await _tenantMap();
 
-    final flex = [10, 14, 30, 12, 12];
-    final rows = <ReportRow>[];
+    double opening = 0;
+    for (final p in allPayments) {
+      if (p.paymentDate != null && p.paymentDate!.isBefore(from)) opening += p.paidAmount ?? 0;
+    }
+    for (final e in allExpenses) {
+      if (e.expenseDate != null && e.expenseDate!.isBefore(from)) opening -= e.amount ?? 0;
+    }
 
+    final flex = [10, 12, 30, 12, 12, 12];
+    final rows = <ReportRow>[
+      ReportRow([
+        const ReportCell(''), const ReportCell(''),
+        const ReportCell('So du dau ky', isBold: true),
+        const ReportCell(''), const ReportCell(''),
+        ReportCell(formatMoney(opening), align: ReportCellAlign.right, isBold: true),
+      ], isSection: true),
+    ];
+
+    double running = opening;
+    double totalIn = 0, totalOut = 0;
     for (final p in payments) {
       final room = rm[p.roomUuid]?.roomCode ?? '';
       final tenant = tm[p.tenantUuid]?.fullName ?? '';
+      running += p.paidAmount ?? 0;
+      totalIn += p.paidAmount ?? 0;
       rows.add(ReportRow([
         ReportCell(_dateFmt.format(p.paymentDate!)),
         ReportCell(p.receiptNumber ?? ''),
         ReportCell('Thu tien phong $room - $tenant'),
         ReportCell(formatMoney(p.paidAmount ?? 0), align: ReportCellAlign.right),
         const ReportCell(''),
+        ReportCell(formatMoney(running), align: ReportCellAlign.right),
       ]));
     }
     for (final e in expenses) {
       final room = rm[e.roomUuid]?.roomCode ?? '';
+      running -= e.amount ?? 0;
+      totalOut += e.amount ?? 0;
       rows.add(ReportRow([
         ReportCell(_dateFmt.format(e.expenseDate!)),
         ReportCell(e.expenseNumber ?? ''),
         ReportCell('${e.category ?? ''} - ${e.description ?? ''} ${room.isNotEmpty ? "($room)" : ""}'),
         const ReportCell(''),
         ReportCell(formatMoney(e.amount ?? 0), align: ReportCellAlign.right),
+        ReportCell(formatMoney(running), align: ReportCellAlign.right),
       ]));
     }
+
+    final totalRows = <ReportRow>[
+      ReportRow([
+        const ReportCell(''), const ReportCell(''),
+        const ReportCell('Cong phat sinh trong ky', isBold: true),
+        ReportCell(formatMoney(totalIn), align: ReportCellAlign.right, isBold: true),
+        ReportCell(formatMoney(totalOut), align: ReportCellAlign.right, isBold: true),
+        const ReportCell(''),
+      ], isSection: true),
+      ReportRow([
+        const ReportCell(''), const ReportCell(''),
+        const ReportCell('So du cuoi ky', isBold: true),
+        const ReportCell(''), const ReportCell(''),
+        ReportCell(formatMoney(running), align: ReportCellAlign.right, isBold: true),
+      ], isSection: true),
+    ];
 
     return CrystalReportModel(
       formLine: 'Mau so S03a-DN',
       unitName: 'Don vi: $_kUnit',
-      title: 'CHI TIET QUY TIEN MAT',
+      title: 'SO QUY TIEN MAT',
+      titleSub: 'Chi tiet (Tuong duong rp1111_Detail)',
       subtitleLines: ['Tu ngay ${_dateFmt.format(from)} den ngay ${_dateFmt.format(to)}'],
       columnFlex: flex,
       headerRows: [
-        [const ReportHeaderCell('Ngay'), const ReportHeaderCell('Phieu'), const ReportHeaderCell('Dien giai', align: ReportCellAlign.left), const ReportHeaderCell('Thu (VND)'), const ReportHeaderCell('Chi (VND)')],
+        [
+          const ReportHeaderCell('Chung tu', colspan: 2),
+          const ReportHeaderCell('Dien giai', align: ReportCellAlign.left),
+          const ReportHeaderCell('So tien', colspan: 3),
+        ],
+        [
+          const ReportHeaderCell('Ngay'), const ReportHeaderCell('So'),
+          const ReportHeaderCell('Dien giai', align: ReportCellAlign.left),
+          const ReportHeaderCell('Thu (VND)'), const ReportHeaderCell('Chi (VND)'), const ReportHeaderCell('Ton (VND)'),
+        ],
       ],
       rows: rows,
+      totalRows: totalRows,
       signature: [
         const ReportSignatureItem('Nguoi lap bieu', '(Ky, ghi ro ho ten)'),
         const ReportSignatureItem('Ke toan truong', '(Ky, ghi ro ho ten)'),
+        const ReportSignatureItem('Thu quy', '(Ky, ghi ro ho ten)'),
+        const ReportSignatureItem('Giam doc', '(Ky, ghi ro ho ten)'),
       ],
     );
   }
@@ -426,31 +482,75 @@ class NhatroReportService {
   }
 
   // ===== 11. rpOutputByStock.rpt — Xuat nhap ton tai san =====
-  Future<CrystalReportModel> buildInventorySummary() async {
+  // Khop nghiep vu voi kanposvnvlxd buildStockSummary: tinh Ton dau ky / Nhap
+  // trong ky / Xuat trong ky / Ton cuoi ky theo tung loai tai san, theo ngay mua.
+  Future<CrystalReportModel> buildInventorySummary({required DateTime from, required DateTime to}) async {
     final assets = await _isar.assets.where().findAll();
     final rm = await _roomMap();
 
-    final flex = [20, 10, 14, 16, 14, 12];
-    final rows = assets.map((a) => ReportRow([
-      ReportCell(a.name ?? ''),
-      ReportCell(rm[a.roomUuid]?.roomCode ?? ''),
-      ReportCell(a.purchaseDate != null ? _dateFmt.format(a.purchaseDate!) : ''),
-      ReportCell(formatMoney(a.purchasePrice ?? 0), align: ReportCellAlign.right),
-      ReportCell('${a.depreciationRate ?? 0}'),
-      ReportCell(a.condition ?? ''),
-    ])).toList();
+    final byName = <String, List<Asset>>{};
+    for (final a in assets) {
+      byName.putIfAbsent(a.name ?? 'Chua phan loai', () => []).add(a);
+    }
+
+    final flex = [26, 10, 10, 10, 10, 10];
+    final rows = <ReportRow>[];
+    double tOpenQty = 0, tInQty = 0, tOutQty = 0, tCloseQty = 0;
+
+    for (final entry in byName.entries) {
+      final list = entry.value;
+      double openQty = 0, inQty = 0, outQty = 0;
+      for (final a in list) {
+        final d = a.purchaseDate;
+        if (d == null || d.isBefore(from)) {
+          openQty += 1;
+        } else if (_inRange(d, from, to)) {
+          inQty += 1;
+        } else {
+          // mua sau ky — khong tinh trong ky nay
+        }
+      }
+      // Khong co du lieu xuat (thanh ly) tai san trong mo hinh hien tai.
+      final closeQty = openQty + inQty - outQty;
+      tOpenQty += openQty; tInQty += inQty; tOutQty += outQty; tCloseQty += closeQty;
+
+      rows.add(ReportRow([
+        ReportCell(entry.key),
+        ReportCell(entry.value.first.roomUuid != null ? rm[entry.value.first.roomUuid]?.roomCode ?? '' : ''),
+        ReportCell(formatQty(openQty), align: ReportCellAlign.right),
+        ReportCell(formatQty(inQty), align: ReportCellAlign.right),
+        ReportCell(formatQty(outQty), align: ReportCellAlign.right),
+        ReportCell(formatQty(closeQty), align: ReportCellAlign.right),
+      ]));
+    }
 
     return CrystalReportModel(
       formLine: 'Mau so S03a-DN',
       unitName: 'Don vi: $_kUnit',
       title: 'XUAT NHAP TON TAI SAN',
+      subtitleLines: ['Tu ngay ${_dateFmt.format(from)} den ngay ${_dateFmt.format(to)}'],
       columnFlex: flex,
       headerRows: [
-        [const ReportHeaderCell('Tai san', align: ReportCellAlign.left), const ReportHeaderCell('Phong'), const ReportHeaderCell('Ngay mua'), const ReportHeaderCell('Gia mua (VND)'), const ReportHeaderCell('Ty le KH (%/thang)'), const ReportHeaderCell('Tinh trang')],
+        [
+          const ReportHeaderCell('Loai tai san', align: ReportCellAlign.left), const ReportHeaderCell('Phong'),
+          const ReportHeaderCell('Ton dau ky'), const ReportHeaderCell('Nhap trong ky'),
+          const ReportHeaderCell('Xuat trong ky'), const ReportHeaderCell('Ton cuoi ky'),
+        ],
       ],
       rows: rows,
+      totalRows: [
+        ReportRow([
+          const ReportCell('Cong', isBold: true), const ReportCell(''),
+          ReportCell(formatQty(tOpenQty), align: ReportCellAlign.right, isBold: true),
+          ReportCell(formatQty(tInQty), align: ReportCellAlign.right, isBold: true),
+          ReportCell(formatQty(tOutQty), align: ReportCellAlign.right, isBold: true),
+          ReportCell(formatQty(tCloseQty), align: ReportCellAlign.right, isBold: true),
+        ], isSection: true),
+      ],
       signature: [
         const ReportSignatureItem('Nguoi lap bieu', '(Ky, ghi ro ho ten)'),
+        const ReportSignatureItem('Ke toan truong', '(Ky, ghi ro ho ten)'),
+        const ReportSignatureItem('Giam doc', '(Ky, ghi ro ho ten)'),
       ],
     );
   }
@@ -602,35 +702,61 @@ class NhatroReportService {
   }
 
   // ===== 16. rpSoChiTietThanhToanNguoiBan.rpt — Cong no KH =====
-  Future<CrystalReportModel> buildCustomerDebt() async {
+  // Khop nghiep vu voi kanposvnvlxd buildCustomerDebt: tinh No dau ky / Phat sinh
+  // trong ky / Da thanh toan / Con no cuoi ky theo tung khach va khoang ngay.
+  Future<CrystalReportModel> buildCustomerDebt({required DateTime from, required DateTime to}) async {
     final payments = await _isar.payments.where().findAll();
     final rm = await _roomMap();
     final tm = await _tenantMap();
 
-    final tenantTotals = <String, ({double receivable, double paid, double debt})>{};
+    final tenantTotals = <String, ({double open, double incurred, double paid, double close})>{};
     for (final p in payments) {
       final tenantId = p.tenantUuid;
       if (tenantId == null) continue;
+      final d = p.paymentDate;
       final cur = tenantTotals[tenantId];
       tenantTotals[tenantId] = (
-        receivable: (cur?.receivable ?? 0) + (p.totalAmount ?? 0),
-        paid: (cur?.paid ?? 0) + (p.paidAmount ?? 0),
-        debt: (cur?.debt ?? 0) + (p.debtAmount ?? 0),
+        open: cur?.open ?? 0,
+        incurred: cur?.incurred ?? 0,
+        paid: cur?.paid ?? 0,
+        close: cur?.close ?? 0,
       );
+      final total = p.totalAmount ?? 0;
+      final paidAmt = p.paidAmount ?? 0;
+      if (d == null || d.isBefore(from)) {
+        // No dau ky = so tien da lap hoa don truoc ky chua thu het.
+        tenantTotals[tenantId] = (
+          open: (cur?.open ?? 0) + (total - paidAmt),
+          incurred: cur?.incurred ?? 0,
+          paid: cur?.paid ?? 0,
+          close: (cur?.close ?? 0) + (total - paidAmt),
+        );
+      } else if (_inRange(d, from, to)) {
+        tenantTotals[tenantId] = (
+          open: cur?.open ?? 0,
+          incurred: (cur?.incurred ?? 0) + total,
+          paid: (cur?.paid ?? 0) + paidAmt,
+          close: (cur?.close ?? 0) + (total - paidAmt),
+        );
+      }
     }
 
-    final flex = [18, 10, 18, 16, 16];
+    final flex = [18, 10, 15, 15, 15, 15];
     final rows = <ReportRow>[];
+    double tOpen = 0, tIncur = 0, tPaid = 0, tClose = 0;
     for (final entry in tenantTotals.entries) {
+      final v = entry.value;
       final tenant = tm[entry.key];
       final roomPayments = payments.where((p) => p.tenantUuid == entry.key).toList();
       final roomCode = roomPayments.isNotEmpty ? rm[roomPayments.first.roomUuid]?.roomCode : null;
+      tOpen += v.open; tIncur += v.incurred; tPaid += v.paid; tClose += v.close;
       rows.add(ReportRow([
         ReportCell(tenant?.fullName ?? ''),
         ReportCell(roomCode ?? ''),
-        ReportCell(formatMoney(entry.value.receivable), align: ReportCellAlign.right),
-        ReportCell(formatMoney(entry.value.paid), align: ReportCellAlign.right),
-        ReportCell(formatMoney(entry.value.debt), align: ReportCellAlign.right),
+        ReportCell(formatMoney(v.open), align: ReportCellAlign.right),
+        ReportCell(formatMoney(v.incurred), align: ReportCellAlign.right),
+        ReportCell(formatMoney(v.paid), align: ReportCellAlign.right),
+        ReportCell(formatMoney(v.close), align: ReportCellAlign.right),
       ]));
     }
 
@@ -638,14 +764,29 @@ class NhatroReportService {
       formLine: 'Mau so S03a-DN',
       unitName: 'Don vi: $_kUnit',
       title: 'CONG NO KHACH HANG',
+      subtitleLines: ['Tu ngay ${_dateFmt.format(from)} den ngay ${_dateFmt.format(to)}'],
       columnFlex: flex,
       headerRows: [
-        [const ReportHeaderCell('Khach hang', align: ReportCellAlign.left), const ReportHeaderCell('Phong'), const ReportHeaderCell('Tong phai thu'), const ReportHeaderCell('Da thu'), const ReportHeaderCell('Con no')],
+        [
+          const ReportHeaderCell('Khach hang', align: ReportCellAlign.left), const ReportHeaderCell('Phong'),
+          const ReportHeaderCell('No dau ky'), const ReportHeaderCell('Phat sinh trong ky'),
+          const ReportHeaderCell('Da thanh toan'), const ReportHeaderCell('Con no cuoi ky'),
+        ],
       ],
       rows: rows,
+      totalRows: [
+        ReportRow([
+          const ReportCell('Cong', isBold: true), const ReportCell(''),
+          ReportCell(formatMoney(tOpen), align: ReportCellAlign.right, isBold: true),
+          ReportCell(formatMoney(tIncur), align: ReportCellAlign.right, isBold: true),
+          ReportCell(formatMoney(tPaid), align: ReportCellAlign.right, isBold: true),
+          ReportCell(formatMoney(tClose), align: ReportCellAlign.right, isBold: true),
+        ], isSection: true),
+      ],
       signature: [
         const ReportSignatureItem('Nguoi lap bieu', '(Ky, ghi ro ho ten)'),
         const ReportSignatureItem('Ke toan truong', '(Ky, ghi ro ho ten)'),
+        const ReportSignatureItem('Giam doc', '(Ky, ghi ro ho ten)'),
       ],
     );
   }
@@ -752,7 +893,9 @@ class NhatroReportService {
     );
   }
 
-  // ===== 20. rpS10DN.rpt — Lai lo =====
+  // ===== 20. rpS10DN.rpt — Loi lo =====
+  // Khop nghiep vu voi kanposvnvlxd buildProfitLoss: doanh thu tru chi phi,
+  // them ca khau hao tai san trong ky vao chi phi.
   Future<CrystalReportModel> buildProfitLoss({required DateTime from, required DateTime to}) async {
     final payments = await _paymentsInRange(from, to);
     final expenses = await _expensesInRange(from, to);
@@ -773,6 +916,23 @@ class NhatroReportService {
       tongChi += e.amount ?? 0;
     }
     final sortedChi = chiPhiCategories.entries.toList()..sort((a, b) => b.value.compareTo(a.value));
+    final grossChi = tongChi;
+
+    // Khau hao tai san trong ky (theo ty le %/thang * so thang trong ky).
+    final assets = await _isar.assets.where().findAll();
+    final periodMonths = ((to.year - from.year) * 12 + (to.month - from.month));
+    final months = periodMonths < 1 ? 1 : periodMonths;
+    double khauHao = 0;
+    for (final a in assets) {
+      final d = a.purchaseDate;
+      if (d != null && !d.isAfter(to)) {
+        final rate = a.depreciationRate ?? 0;
+        if (rate > 0) {
+          khauHao += ((a.purchasePrice ?? 0) * rate / 100) * months;
+        }
+      }
+    }
+    final tongChiBaoGomKH = tongChi + khauHao;
 
     final flex = [42, 20];
     final rows = <ReportRow>[
@@ -786,10 +946,12 @@ class NhatroReportService {
     for (final entry in sortedChi) {
       rows.add(ReportRow([ReportCell('  ${entry.key}'), ReportCell(formatMoney(entry.value), align: ReportCellAlign.right)]));
     }
-    rows.add(ReportRow([const ReportCell('Tong chi', isBold: true), ReportCell(formatMoney(tongChi), align: ReportCellAlign.right, isBold: true)]));
+    rows.add(ReportRow([const ReportCell('Tong chi - khau hao', isBold: true), ReportCell(formatMoney(grossChi), align: ReportCellAlign.right, isBold: true)]));
+    rows.add(ReportRow([ReportCell('  Khau hao tai san ($months thang)'), ReportCell(formatMoney(khauHao), align: ReportCellAlign.right)]));
+    rows.add(ReportRow([const ReportCell('Tong chi (gom khau hao)', isBold: true), ReportCell(formatMoney(tongChiBaoGomKH), align: ReportCellAlign.right, isBold: true)]));
     rows.add(ReportRow([const ReportCell(''), const ReportCell('')]));
     rows.add(ReportRow([const ReportCell('=== LAI/LO ===', isBold: true), const ReportCell('')]));
-    rows.add(ReportRow([const ReportCell('Loi nhuan rong', isBold: true), ReportCell(formatMoney(tongThu - tongChi), align: ReportCellAlign.right, isBold: true)]));
+    rows.add(ReportRow([const ReportCell('Loi nhuan rong', isBold: true), ReportCell(formatMoney(tongThu - tongChiBaoGomKH), align: ReportCellAlign.right, isBold: true)]));
 
     return CrystalReportModel(
       formLine: 'Mau so S03a-DN',
@@ -802,7 +964,7 @@ class NhatroReportService {
       ],
       rows: rows,
       totalRows: [
-        ReportRow([const ReportCell('LOI NHUAN RONG', isBold: true), ReportCell(formatMoney(tongThu - tongChi), align: ReportCellAlign.right, isBold: true)]),
+        ReportRow([const ReportCell('LOI NHUAN RONG', isBold: true), ReportCell(formatMoney(tongThu - tongChiBaoGomKH), align: ReportCellAlign.right, isBold: true)]),
       ],
       signature: [
         const ReportSignatureItem('Nguoi lap bieu', '(Ky, ghi ro ho ten)'),
@@ -817,9 +979,9 @@ class NhatroReportService {
     (code: 'rp1111_Detail',           title: 'Chi tiet quy tien mat',     group: '★ Quy tien mat',              useDateRange: true),
     (code: 'rpBaoCaoTongHopXuatNhapTonVatTu', title: 'Tong hop tai san',  group: '★ Xuat nhap ton kho',         useDateRange: false),
     (code: 'rpBaoCaoHaoHutNguyenVatLieuHangHoa', title: 'Hao hut tai san', group: '★ Xuat nhap ton kho',         useDateRange: false),
-    (code: 'rpOutputByStock',         title: 'Xuat nhap ton tai san',     group: '★ Xuat nhap ton kho',         useDateRange: false),
+    (code: 'rpOutputByStock',         title: 'Xuat nhap ton tai san',     group: '★ Xuat nhap ton kho',         useDateRange: true),
     (code: 'rpOutputFromShift',       title: 'Tai san theo phong',        group: '★ Xuat nhap ton kho',         useDateRange: false),
-    (code: 'rpSoChiTietThanhToanNguoiBan', title: 'Cong no KH',          group: '★ Cong no KH-NCC',            useDateRange: false),
+    (code: 'rpSoChiTietThanhToanNguoiBan', title: 'Cong no KH',          group: '★ Cong no KH-NCC',            useDateRange: true),
     (code: 'rpSoTongHopThanhToanVoiNguoiBan', title: 'Tong hop cong no',  group: '★ Cong no KH-NCC',            useDateRange: false),
     (code: 'rpS10DN',                 title: 'Bao cao loi lo',            group: '★ Lai lo',                    useDateRange: true),
     (code: 'rpBill',                  title: 'Danh sach phieu thu',       group: 'Hoa don',                     useDateRange: true),
@@ -847,12 +1009,12 @@ class NhatroReportService {
       case 'rpPaymentForCashier': return buildPaymentForCashier(from: from, to: to);
       case 'rpInput': return buildExpenseList(from: from, to: to);
       case 'rpListInput': return buildExpenseByCategory(from: from, to: to);
-      case 'rpOutputByStock': return buildInventorySummary();
+      case 'rpOutputByStock': return buildInventorySummary(from: from, to: to);
       case 'rpOutputFromShift': return buildAssetByRoom();
       case 'rpBillForField': return buildServiceByRoom(from: from, to: to);
       case 'rpBillForField_IsNotUsed': return buildUnusedRooms();
       case 'rpBillForTax': return buildInvoiceForTax(from: from, to: to);
-      case 'rpSoChiTietThanhToanNguoiBan': return buildCustomerDebt();
+      case 'rpSoChiTietThanhToanNguoiBan': return buildCustomerDebt(from: from, to: to);
       case 'rpSoTongHopThanhToanVoiNguoiBan': return buildDebtSummary();
       case 'rpBaoCaoHaoHutNguyenVatLieuHangHoa': return buildAssetDepreciation();
       case 'rpBaoCaoTongHopXuatNhapTonVatTu': return buildAssetSummary();

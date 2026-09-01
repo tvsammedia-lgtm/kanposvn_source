@@ -69,6 +69,20 @@ class RestaurantDashboardScreen extends ConsumerWidget {
           final completedYear = (metrics['completedYear'] ?? 0) as int;
           final revenueAll = (metrics['revenueAll'] ?? 0.0) as double;
 
+          final width = MediaQuery.of(context).size.width;
+          final cols = width > 900 ? 4 : width > 700 ? 3 : 2;
+          final aspect = cols >= 3 ? 2.0 : 1.6;
+
+          Widget metricGrid(List<Widget> cards) => GridView.count(
+                crossAxisCount: cols,
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                mainAxisSpacing: 12,
+                crossAxisSpacing: 12,
+                childAspectRatio: aspect,
+                children: cards,
+              );
+
           return ListView(
             padding: const EdgeInsets.all(24),
             children: [
@@ -80,14 +94,7 @@ class RestaurantDashboardScreen extends ConsumerWidget {
                       fontWeight: FontWeight.bold,
                       color: Colors.orange[800])),
               const SizedBox(height: 16),
-              GridView.count(
-                crossAxisCount: 4,
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                mainAxisSpacing: 12,
-                crossAxisSpacing: 12,
-                childAspectRatio: 2.2,
-                children: [
+              metricGrid([
                   _buildMetricCard('Doanh thu hôm nay',
                       _money.format(revToday), Colors.orange,
                       icon: Icons.attach_money),
@@ -116,14 +123,7 @@ class RestaurantDashboardScreen extends ConsumerWidget {
                       fontWeight: FontWeight.bold,
                       color: Colors.orange[800])),
               const SizedBox(height: 16),
-              GridView.count(
-                crossAxisCount: 4,
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                mainAxisSpacing: 12,
-                crossAxisSpacing: 12,
-                childAspectRatio: 2.2,
-                children: [
+              metricGrid([
                   _buildMetricCard('Doanh thu tháng',
                       _money.format(revenueMonth), Colors.orange,
                       icon: Icons.trending_up),
@@ -145,14 +145,7 @@ class RestaurantDashboardScreen extends ConsumerWidget {
                       fontWeight: FontWeight.bold,
                       color: Colors.orange[800])),
               const SizedBox(height: 16),
-              GridView.count(
-                crossAxisCount: 4,
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                mainAxisSpacing: 12,
-                crossAxisSpacing: 12,
-                childAspectRatio: 2.2,
-                children: [
+              metricGrid([
                   _buildMetricCard('Tổng doanh thu (mọi thời gian)',
                       _money.format(revenueAll), Colors.orange,
                       icon: Icons.stacked_line_chart),

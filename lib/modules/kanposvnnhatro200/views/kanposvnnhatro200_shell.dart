@@ -48,7 +48,7 @@ class _KanPosVnNhaTro200ShellState extends ConsumerState<KanPosVnNhaTro200Shell>
     (id: 4, icon: Icons.attach_money, label: 'Thu chi'),
     (id: 5, icon: Icons.electric_bolt, label: 'Điện Nước'),
     (id: 6, icon: Icons.build, label: 'Bảo trì'),
-    (id: 7, icon: Icons.bar_chart, label: 'Báo cáo'),
+    (id: 7, icon: Icons.bar_chart, label: 'Báo cáo chung'),
     (id: 8, icon: Icons.sync, label: 'Đồng bộ'),
   ];
 
