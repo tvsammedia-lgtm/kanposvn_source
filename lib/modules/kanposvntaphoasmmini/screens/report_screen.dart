@@ -97,7 +97,7 @@ class _TapHoaReportScreenState extends ConsumerState<TapHoaReportScreen> {
     String? phone;
     try {
       name = await AuthService.loadSavedStoreName();
-      phone = await AuthService.loadSavedStorePhone();
+      phone = await AuthService.loadSavedPhoneAddress();
     } catch (_) {}
     TapHoaReportService.configureCompany(
       name: name,

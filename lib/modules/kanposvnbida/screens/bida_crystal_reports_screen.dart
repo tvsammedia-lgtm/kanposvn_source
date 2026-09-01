@@ -86,7 +86,7 @@ class _BidaCrystalReportsScreenState extends ConsumerState<BidaCrystalReportsScr
     String? phone;
     try {
       name = await AuthService.loadSavedStoreName();
-      phone = await AuthService.loadSavedStorePhone();
+      phone = await AuthService.loadSavedPhoneAddress();
     } catch (_) {}
     BidaReportService.configureCompany(name: name, address: phone);
     if (mounted) setState(() {});

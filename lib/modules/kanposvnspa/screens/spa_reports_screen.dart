@@ -92,7 +92,7 @@ class _SpaReportsScreenState extends ConsumerState<SpaReportsScreen> {
     String? phone;
     try {
       name = await AuthService.loadSavedStoreName();
-      phone = await AuthService.loadSavedStorePhone();
+      phone = await AuthService.loadSavedPhoneAddress();
     } catch (_) {}
     SpaReportService.configureCompany(name: name, address: phone);
     if (mounted) setState(() {});

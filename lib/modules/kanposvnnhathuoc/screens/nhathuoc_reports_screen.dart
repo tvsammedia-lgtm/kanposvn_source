@@ -74,7 +74,7 @@ class _NhathuocReportsScreenState extends ConsumerState<NhathuocReportsScreen> {
     String? phone;
     try {
       name = await AuthService.loadSavedStoreName();
-      phone = await AuthService.loadSavedStorePhone();
+      phone = await AuthService.loadSavedPhoneAddress();
     } catch (_) {}
     NhathuocReportService.configureCompany(name: name, address: phone);
     if (mounted) setState(() {});

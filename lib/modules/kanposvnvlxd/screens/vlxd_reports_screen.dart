@@ -95,6 +95,7 @@ class _VlxdReportsScreenState extends ConsumerState<VlxdReportsScreen> {
     String? name, address, tax;
     try {
       name = await AuthService.loadSavedStoreName();
+      address = await AuthService.loadSavedPhoneAddress();
     } catch (_) {}
     final einvoice = await VlxdEinvoiceSettingsStore.loadOnce();
     VlxdReportService.configureCompany(

@@ -96,7 +96,7 @@ class _HotelReportsScreenState extends ConsumerState<HotelReportsScreen> {
     String? phone;
     try {
       name = await AuthService.loadSavedStoreName();
-      phone = await AuthService.loadSavedStorePhone();
+      phone = await AuthService.loadSavedPhoneAddress();
     } catch (_) {}
     HotelReportService.configureCompany(name: name, address: phone);
     if (mounted) setState(() {});

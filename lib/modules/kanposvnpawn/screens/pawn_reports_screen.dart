@@ -86,7 +86,7 @@ class _PawnReportsScreenState extends ConsumerState<PawnReportsScreen> {
     String? phone;
     try {
       name = await AuthService.loadSavedStoreName();
-      phone = await AuthService.loadSavedStorePhone();
+      phone = await AuthService.loadSavedPhoneAddress();
     } catch (_) {}
     PawnReportService.configureCompany(name: name, address: phone);
     if (mounted) setState(() {});

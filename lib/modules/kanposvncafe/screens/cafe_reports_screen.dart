@@ -68,7 +68,7 @@ class _CafeReportsScreenState extends ConsumerState<CafeReportsScreen> {
     String? phone;
     try {
       name = await AuthService.loadSavedStoreName();
-      phone = await AuthService.loadSavedStorePhone();
+      phone = await AuthService.loadSavedPhoneAddress();
     } catch (_) {}
     CafeReportService.configureCompany(
       name: name,

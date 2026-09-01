@@ -99,7 +99,7 @@ class _BarberReportsScreenState extends ConsumerState<BarberReportsScreen> {
     String? phone;
     try {
       name = await AuthService.loadSavedStoreName();
-      phone = await AuthService.loadSavedStorePhone();
+      phone = await AuthService.loadSavedPhoneAddress();
     } catch (_) {}
     BarberReportService.configureCompany(name: name, address: phone);
     if (mounted) setState(() {});

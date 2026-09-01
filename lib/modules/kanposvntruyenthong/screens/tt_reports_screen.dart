@@ -79,6 +79,7 @@ class _TtReportsScreenState extends ConsumerState<TtReportsScreen> {
     try {
       final storeName = await AuthService.loadSavedStoreName();
       if (storeName != null && storeName.isNotEmpty) name = storeName;
+      address = await AuthService.loadSavedPhoneAddress();
     } catch (_) {}
     TtReportService.configureCompany(name: name, address: address, taxCode: tax);
     final db = await ref.read(ttIsarServiceProvider).db;

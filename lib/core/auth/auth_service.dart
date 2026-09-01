@@ -18,6 +18,7 @@ class AuthService extends ChangeNotifier {
   static const _kStoreIdKey = 'auth_store_id';
   static const _kStoreNameKey = 'auth_store_name';
   static const _kStorePhoneKey = 'auth_store_phone';
+  static const _kStoreAddressKey = 'auth_store_address';
   static const _kOwnerNameKey = 'auth_owner_name';
   static const _kOwnerPhoneKey = 'auth_owner_phone';
   static const _kStoreAppCodeKey = 'auth_store_app_code';
@@ -30,6 +31,7 @@ class AuthService extends ChangeNotifier {
   static const _kBranchNameKey = 'auth_branch_name';
   static const _kBranchPhoneKey = 'auth_branch_phone';
   static const _kBranchIdKey = 'auth_branch_id';
+  static const _kBranchAddressKey = 'auth_branch_address';
   /// Mô hình Kho đa chi nhánh (Customer → Branch → Warehouse → Stock).
   /// Customer id của doanh nghiệp + KHO đang dùng của chi nhánh (mặc định).
   static const _kCustomerIdKey = 'auth_customer_id';
@@ -151,6 +153,14 @@ class AuthService extends ChangeNotifier {
   String? _branchPhone;
   String? get branchPhone => _branchPhone;
 
+  String? _storeAddress;
+  String? get storeAddress => _storeAddress;
+
+  /// Địa chỉ CHI NHÁNH đang dùng (từ `/api/owner/info` shop_address) —
+  /// dòng "SĐT / Địa chỉ" trên tiêu đề báo cáo, hóa đơn.
+  String? _branchAddress;
+  String? get branchAddress => _branchAddress;
+
   /// Khách hàng (doanh nghiệp) đang sử dụng — mô hình Kho đa chi nhánh.
   String? _customerId;
   String? get customerId => _customerId;
@@ -225,6 +235,7 @@ class AuthService extends ChangeNotifier {
         _storeId = data['storeId']?.toString();
         _storeName = data['storeName']?.toString();
         _storePhone = data['storePhone']?.toString();
+        _storeAddress = _user?['shop_address']?.toString();
         _storeAppCode = data['appCode']?.toString() ?? data['app_code']?.toString();
         _isStoreTrial = data['trial'] == true;
         _licenseExpiresAt = data['expiresAt'] != null
@@ -504,6 +515,7 @@ class AuthService extends ChangeNotifier {
       _storeId = prefs.getString(_kStoreIdKey);
       _storeName = prefs.getString(_kStoreNameKey);
       _storePhone = prefs.getString(_kStorePhoneKey);
+      _storeAddress = prefs.getString(_kStoreAddressKey);
       _storeAppCode = prefs.getString(_kStoreAppCodeKey);
       _isStoreTrial = prefs.getBool(_kTrialKey) ?? false;
       final expiresStr = prefs.getString(_kExpiresAtKey);
@@ -512,6 +524,7 @@ class AuthService extends ChangeNotifier {
       _branchId = prefs.getString(_kBranchIdKey);
       _branchName = prefs.getString(_kBranchNameKey);
       _branchPhone = prefs.getString(_kBranchPhoneKey);
+      _branchAddress = prefs.getString(_kBranchAddressKey);
       // Kho đa chi nhánh: khôi phục customer + kho đã chọn lần trước.
       _customerId = prefs.getString(_kCustomerIdKey);
       _warehouseId = prefs.getString(_kWarehouseIdKey);
@@ -649,6 +662,11 @@ class AuthService extends ChangeNotifier {
     } else {
       await prefs.remove(_kStorePhoneKey);
     }
+    if (_storeAddress != null) {
+      await prefs.setString(_kStoreAddressKey, _storeAddress!);
+    } else {
+      await prefs.remove(_kStoreAddressKey);
+    }
     if (_storeAppCode != null) {
       await prefs.setString(_kStoreAppCodeKey, _storeAppCode!);
     } else {
@@ -716,6 +734,7 @@ class AuthService extends ChangeNotifier {
     await prefs.remove(_kExpiresAtKey);
     await prefs.remove(_kBranchNameKey);
     await prefs.remove(_kBranchPhoneKey);
+    await prefs.remove(_kBranchAddressKey);
     await prefs.remove(_kBranchIdKey);
     await prefs.remove(_kCustomerIdKey);
     await prefs.remove(_kWarehouseIdKey);
@@ -755,6 +774,28 @@ class AuthService extends ChangeNotifier {
     return prefs.getString(_kStorePhoneKey);
   }
 
+  /// Địa chỉ cửa hàng — tiêu đề báo cáo (.rpt), hóa đơn.
+  /// Ưu tiên ĐỊA CHỈ CHI NHÁNH (branch.address) → địa chỉ cửa hàng đã lưu.
+  static Future<String?> loadSavedStoreAddress() async {
+    final prefs = await SharedPreferences.getInstance();
+    final branchAddress = prefs.getString(_kBranchAddressKey);
+    if (branchAddress != null && branchAddress.isNotEmpty) return branchAddress;
+    return prefs.getString(_kStoreAddressKey);
+  }
+
+  /// "SĐT - Địa chỉ" cho dòng "Địa chỉ:" trên tiêu đề báo cáo (.rpt):
+  /// join SĐT + địa chỉ cửa hàng (2 trường "SĐT / Địa chỉ" trên admin-web).
+  /// Trả về null nếu không có gì.
+  static Future<String?> loadSavedPhoneAddress() async {
+    final phone = (await loadSavedStorePhone())?.trim() ?? '';
+    final address = (await loadSavedStoreAddress())?.trim() ?? '';
+    final parts = <String>[
+      if (phone.isNotEmpty) phone,
+      if (address.isNotEmpty) address,
+    ];
+    return parts.isNotEmpty ? parts.join(' - ') : null;
+  }
+
   /// Tên chủ cửa hàng (Owner) đã đăng ký — dòng thứ 2 trên tiêu đề bill khi có
   /// chi nhánh (vd: "CỬA HÀNG CHÍNH" + "Nguyễn Văn A"). Migration 016.
   static Future<String?> loadSavedOwnerName() async {
@@ -790,13 +831,16 @@ class AuthService extends ChangeNotifier {
       final prefs = await SharedPreferences.getInstance();
       final name = json['shop_name']?.toString() ?? '';
       final phone = json['phone']?.toString() ?? '';
+      final address = json['shop_address']?.toString() ?? '';
       final branchId2 = json['branch_id']?.toString() ?? '';
       final ownerName = json['full_name']?.toString() ?? '';
       _branchName = name;
       _branchPhone = phone;
+      _branchAddress = address;
       _branchId = branchId2;
       if (name.isNotEmpty) await prefs.setString(_kBranchNameKey, name);
       if (phone.isNotEmpty) await prefs.setString(_kBranchPhoneKey, phone);
+      if (address.isNotEmpty) await prefs.setString(_kBranchAddressKey, address);
       if (branchId2.isNotEmpty) await prefs.setString(_kBranchIdKey, branchId2);
       if (ownerName.isNotEmpty) await prefs.setString(_kOwnerNameKey, ownerName);
       notifyListeners();
@@ -845,13 +889,16 @@ class AuthService extends ChangeNotifier {
     final id = branch['id']?.toString() ?? '';
     final name = branch['name']?.toString() ?? '';
     final phone = branch['phone']?.toString() ?? '';
+    final address = branch['address']?.toString() ?? '';
     if (id.isEmpty) return;
     _branchId = id;
     _branchName = name;
     _branchPhone = phone;
+    _branchAddress = address;
     final prefs = await SharedPreferences.getInstance();
     if (name.isNotEmpty) await prefs.setString(_kBranchNameKey, name);
     if (phone.isNotEmpty) await prefs.setString(_kBranchPhoneKey, phone);
+    if (address.isNotEmpty) await prefs.setString(_kBranchAddressKey, address);
     await prefs.setString(_kBranchIdKey, id);
     notifyListeners();
     final code = _currentAppCode ?? _storeAppCode;

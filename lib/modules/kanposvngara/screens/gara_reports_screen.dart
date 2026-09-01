@@ -92,7 +92,7 @@ class _GaraReportsScreenState extends ConsumerState<GaraReportsScreen> {
     String? phone;
     try {
       name = await AuthService.loadSavedStoreName();
-      phone = await AuthService.loadSavedStorePhone();
+      phone = await AuthService.loadSavedPhoneAddress();
     } catch (_) {}
     GaraReportService.configureCompany(name: name, address: phone);
     if (mounted) setState(() {});
