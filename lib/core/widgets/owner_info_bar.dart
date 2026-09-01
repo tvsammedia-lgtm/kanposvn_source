@@ -87,17 +87,17 @@ class _OwnerInfoBarState extends State<OwnerInfoBar> {
         borderRadius: BorderRadius.circular(8),
         border: Border.all(color: Colors.blue.shade200),
       ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
+      child: Wrap(
+        alignment: WrapAlignment.start,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        spacing: 8,
+        runSpacing: 4,
         children: [
           const Icon(Icons.person, size: 16, color: Colors.blue),
           const SizedBox(width: 6),
-          Flexible(
-            child: Text(
-              name,
-              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
-              overflow: TextOverflow.ellipsis,
-            ),
+          Text(
+            name,
+            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
           ),
           if (phone.isNotEmpty) ...[
             const SizedBox(width: 8),

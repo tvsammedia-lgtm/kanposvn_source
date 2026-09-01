@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../license/license_service.dart';
-import '../providers.dart';
 import 'update_providers.dart';
 import 'update_service.dart';
 
@@ -45,24 +44,6 @@ class _UpdateAndLicenseCheckerState
     if (latest != null &&
         isVersionNewer(latest.version, UpdateService.currentVersion)) {
       await showUpdateDialog(context, latest);
-      if (!mounted) return;
-    }
-
-    final token = ref.read(authServiceProvider).token;
-    if (token == null || token.isEmpty) return;
-
-    final auth = ref.read(authServiceProvider);
-    final license = ref.read(licenseServiceProvider);
-    final status = await license.check(
-      token: token,
-      appCode: auth.licenseAppCode,
-      branchId: auth.branchId,
-    );
-    if (!mounted) return;
-
-    // Auto-lock: license hết hạn / bị khóa -> hiện dialog để khoá truy cập.
-    if (status != null && !status.valid) {
-      await showLicenseDialog(context, status);
       if (!mounted) return;
     }
   }
