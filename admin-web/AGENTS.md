@@ -43,3 +43,13 @@ current stable baseline. Do NOT modify them unless the user explicitly asks.
    asked to change, nothing else.
 <!-- END:freeze-rules -->
 
+<!-- BEGIN:product-note -->
+## Product note — kanposvnhrpayroll
+`kanposvnhrpayroll` (HR Payroll) is a **product module** that customers select to
+use during registration / for trial, exactly like other modules (cafe, vlxd,
+nhathuoc, gara, spa, ...). It is a customer-facing POS/HR **product**, NOT a
+platform HR feature that manages admin users. It must never be wired into the
+platform `user_permissions` / `roles` / `api/set-admin` user-management flow
+(that role-access layer is separate and FROZEN).
+<!-- END:product-note -->
+
