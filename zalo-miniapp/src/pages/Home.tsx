@@ -7,6 +7,7 @@ interface Props {
   licenses: UserLicense[];
   onBrowseSoftware: () => void;
   onMyLicenses: () => void;
+  onBranches: () => void;
   onDownload: () => void;
   onLogout: () => void;
 }
@@ -39,7 +40,7 @@ function daysLeft(expiresAt: string | null) {
   return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
 }
 
-export default function Home({ user, licenses, onBrowseSoftware, onMyLicenses, onDownload, onLogout }: Props) {
+export default function Home({ user, licenses, onBrowseSoftware, onMyLicenses, onBranches, onDownload, onLogout }: Props) {
   const activeCount = licenses.filter((l) => l.status === 'active').length;
   const trialCount = licenses.filter((l) => l.plan === 'trial' && l.status === 'active').length;
 
@@ -110,6 +111,20 @@ export default function Home({ user, licenses, onBrowseSoftware, onMyLicenses, o
           <div className="flex-1">
             <div className="font-bold text-gray-800">Goi dang su dung</div>
             <div className="text-sm text-gray-500">Quan ly license & goi dich vu</div>
+          </div>
+          <span className="text-gray-300">›</span>
+        </button>
+
+        <button
+          onClick={onBranches}
+          className="w-full bg-white rounded-xl shadow-sm p-4 flex items-center gap-4 hover:shadow-md transition text-left"
+        >
+          <div className="w-12 h-12 bg-teal-100 text-teal-600 rounded-xl flex items-center justify-center text-2xl">
+            🏪
+          </div>
+          <div className="flex-1">
+            <div className="font-bold text-gray-800">Chi nhanh</div>
+            <div className="text-sm text-gray-500">Them & quản ly chi nhanh cua ban</div>
           </div>
           <span className="text-gray-300">›</span>
         </button>

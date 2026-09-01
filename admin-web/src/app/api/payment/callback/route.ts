@@ -76,11 +76,17 @@ export async function POST(req: NextRequest) {
     const now = new Date();
     const expiresAt = new Date(now.getTime() + 365 * 24 * 60 * 60 * 1000); // 1 nam
 
+    // Neu order theo 1 chi nhanh cu the (branch_id) thi kich hoat dung license cua chi nhanh do.
+    const branchScope = order.branch_id
+      ? sql`AND branch_id = ${order.branch_id}`
+      : sql`AND branch_id IS NULL`;
+
     // Kiem tra license dang trial cua user + app nay
     const existingLicense = await sql`
       SELECT id, plan, status, expires_at
       FROM licenses
       WHERE user_id = ${order.user_id} AND app_code = ${order.app_code} AND device_id = ''
+      ${branchScope}
       ORDER BY started_at DESC LIMIT 1
     `;
 

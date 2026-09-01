@@ -3,12 +3,13 @@ import Login from './pages/Login';
 import Home from './pages/Home';
 import SoftwareList from './pages/SoftwareList';
 import MyLicenses from './pages/MyLicenses';
+import Branches from './pages/Branches';
 import Download from './pages/Download';
 import type { ZaloUser, UserLicense } from './config';
 
 import { API_BASE } from './config';
 
-type Page = 'login' | 'home' | 'software' | 'licenses' | 'download';
+type Page = 'login' | 'home' | 'software' | 'licenses' | 'branches' | 'download';
 
 export default function App() {
   const [page, setPage] = useState<Page>('login');
@@ -57,6 +58,7 @@ export default function App() {
         licenses={licenses}
         onBrowseSoftware={() => setPage('software')}
         onMyLicenses={() => setPage('licenses')}
+        onBranches={() => setPage('branches')}
         onDownload={() => setPage('download')}
         onLogout={handleLogout}
       />
@@ -84,6 +86,10 @@ export default function App() {
         onBack={() => setPage('home')}
       />
     );
+  }
+
+  if (page === 'branches') {
+    return <Branches user={user} onBack={() => setPage('home')} />;
   }
 
   if (page === 'download') {

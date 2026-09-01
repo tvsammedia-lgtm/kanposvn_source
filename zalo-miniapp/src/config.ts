@@ -32,6 +32,22 @@ export interface UserLicense {
   device_id?: string;
 }
 
+export interface CustomerBranch {
+  id: string;
+  branch_code: string;
+  name: string;
+  phone?: string;
+  address?: string;
+  app_code: string;
+  app_name: string;
+  is_default: boolean;
+  license?: {
+    plan: string;
+    status: string;
+    expires_at: string | null;
+  } | null;
+}
+
 export interface LoginResponse {
   user: ZaloUser;
   is_new: boolean;

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getSql } from '@/lib/db';
 import { getPlan } from '@/lib/pricing';
 import { hashPassword } from '@/lib/auth';
+import { ensureDefaultWarehouse } from '@/lib/default_warehouse';
 
 function corsHeaders() {
   return {
@@ -32,6 +33,7 @@ export async function POST(req: NextRequest) {
     let userRows = await sql`SELECT * FROM users WHERE zalo_id = ${String(zalo_id)}`;
     let user = userRows[0];
     let isNew = false;
+    let moduleCodes: string[] = [];
 
     // Fix user cu co password placeholder hoac thieu email
     if (user) {
@@ -65,7 +67,7 @@ export async function POST(req: NextRequest) {
 
       // 3. Tao license trial cho cac app co show_in_registration = true
       const visibleApps = await sql`SELECT app_code FROM apps WHERE show_in_registration = true`;
-      const moduleCodes = visibleApps.map((a: any) => a.app_code);
+      moduleCodes = visibleApps.map((a: any) => a.app_code);
 
       for (const appCode of moduleCodes) {
         // Dam bao app ton tai trong bang apps
@@ -96,8 +98,8 @@ export async function POST(req: NextRequest) {
           if (custRows.length === 0) {
             const code = 'C' + String(Date.now()).slice(-6);
             custRows = await sql`
-              INSERT INTO customers (customer_code, owner_user_id, name, phone)
-              VALUES (${code}, ${user.id}, ${fullName}, ${phone || ''})
+              INSERT INTO customers (customer_code, owner_user_id, name, phone, approval_status, registration_plan, active)
+              VALUES (${code}, ${user.id}, ${fullName}, ${phone || ''}, 'pending', 'free_trial', true)
               RETURNING *
             `;
           }
@@ -117,6 +119,12 @@ export async function POST(req: NextRequest) {
             `;
             // Gan license vao branch
             await sql`UPDATE licenses SET branch_id = ${branchRows[0].id} WHERE id = ${licRows[0].id}`;
+            // Kho mac dinh cho chi nhanh (migration 017)
+            await ensureDefaultWarehouse(sql, {
+              customerId: customer.id,
+              branchId: branchRows[0].id,
+              branchName: branchRows[0].name,
+            });
           }
 
           // Gán quyền user cho app (Manager mac dinh)
@@ -131,6 +139,20 @@ export async function POST(req: NextRequest) {
             }
           }
         }
+      }
+    }
+
+    // 4b. Luu danh sach module da dang ky tren customer chinh (dong bo voi web multi-module)
+    if (isNew && moduleCodes.length > 0) {
+      const [mainCustomer] = await sql`
+        SELECT id FROM customers WHERE owner_user_id = ${user.id} ORDER BY created_at ASC LIMIT 1
+      `;
+      if (mainCustomer) {
+        await sql`
+          UPDATE customers
+          SET registered_modules = ${JSON.stringify(moduleCodes)}
+          WHERE id = ${mainCustomer.id}
+        `;
       }
     }
 
@@ -175,6 +197,11 @@ export async function POST(req: NextRequest) {
             RETURNING *
           `;
           await sql`UPDATE licenses SET branch_id = ${branchRows[0].id} WHERE id = ${licRows[0].id}`;
+          await ensureDefaultWarehouse(sql, {
+            customerId: customer.id,
+            branchId: branchRows[0].id,
+            branchName: branchRows[0].name,
+          });
         }
         if (app) {
           const [managerRole] = await sql`SELECT id FROM roles WHERE role_name = 'Manager'`;

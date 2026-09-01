@@ -61,8 +61,8 @@ export async function POST(req: NextRequest) {
     const callbackUrl = `${process.env.NEXT_PUBLIC_BASE_URL || 'https://kanposvn-admin.vercel.app'}/api/payment/callback`;
 
     const [order] = await sql`
-      INSERT INTO orders (order_code, user_id, zalo_id, app_code, plan, amount, currency, status, payment_method, provider, callback_url)
-      VALUES (${orderCode}, ${user_id}, ${zalo_id || user.zalo_id || ''}, ${app_code}, ${plan}, ${amount}, 'VND', 'pending', 'zalo_miniapp', 'zalopay', ${callbackUrl})
+      INSERT INTO orders (order_code, user_id, zalo_id, app_code, plan, amount, currency, status, payment_method, provider, callback_url, branch_id)
+      VALUES (${orderCode}, ${user_id}, ${zalo_id || user.zalo_id || ''}, ${app_code}, ${plan}, ${amount}, 'VND', 'pending', 'zalo_miniapp', 'zalopay', ${callbackUrl}, ${branch_id || null})
       RETURNING *
     `;
 
