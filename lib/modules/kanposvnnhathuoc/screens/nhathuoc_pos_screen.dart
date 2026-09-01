@@ -314,97 +314,153 @@ class _NhathuocPosScreenState extends ConsumerState<NhathuocPosScreen> {
                   ),
                 ),
                 // Payment & Checkout
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: const BoxDecoration(border: Border(top: BorderSide(color: Colors.grey))),
-                  child: Column(
-                    children: [
-                      // Payment method selector
-                      DropdownButtonFormField<PaymentMethod>(
-                        value: _paymentMethod,
-                        decoration: const InputDecoration(labelText: 'Phương thức thanh toán', border: OutlineInputBorder(), isDense: true),
-                        items: PaymentMethod.values.where((p) => p != PaymentMethod.MIXED).map((p) => DropdownMenuItem(value: p, child: Text(p.label))).toList(),
-                        onChanged: (v) => setState(() => _paymentMethod = v ?? PaymentMethod.CASH),
-                      ),
-                      const SizedBox(height: 8),
-                      // Discount
-                      TextField(
-                        controller: _discountCtrl,
-                        keyboardType: TextInputType.number,
-                        decoration: const InputDecoration(labelText: 'Giảm giá (đ)', border: OutlineInputBorder(), isDense: true),
-                        onChanged: (v) => setState(() => _discountAmount = double.tryParse(v) ?? 0),
-                      ),
-                      if (_paymentMethod == PaymentMethod.CASH) ...[
-                        const SizedBox(height: 8),
-                        TextField(
-                          controller: _cashCtrl,
-                          keyboardType: TextInputType.number,
-                          decoration: const InputDecoration(labelText: 'Tiền khách đưa (đ)', border: OutlineInputBorder(), isDense: true),
-                          onChanged: (v) => setState(() => _cashReceived = double.tryParse(v) ?? 0),
-                        ),
-                        if (_cashReceived > 0 && _change >= 0)
-                          Padding(
-                            padding: const EdgeInsets.only(top: 4),
-                            child: Text('Tiền thối: ${_change.toStringAsFixed(0)} đ', style: const TextStyle(color: Colors.green, fontWeight: FontWeight.bold)),
-                          ),
-                        if (_cashReceived > 0 && _change < 0)
-                          Padding(
-                            padding: const EdgeInsets.only(top: 4),
-                            child: Text('Thiếu: ${(-_change).toStringAsFixed(0)} đ', style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
-                          ),
-                      ],
-                      const SizedBox(height: 8),
-                      // Total
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                Flexible(
+                  child: Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration:
+                        const BoxDecoration(border: Border(top: BorderSide(color: Colors.grey))),
+                    child: SingleChildScrollView(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Text('Tổng:', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                          Text('${_totalAmount.toStringAsFixed(0)} đ', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.red)),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      // Checkout buttons
-                      Row(
-                        children: [
-                          Expanded(
-                            child: SizedBox(
-                              height: 40,
-                              child: ElevatedButton.icon(
-                                style: ElevatedButton.styleFrom(backgroundColor: Colors.orange, foregroundColor: Colors.white),
-                                onPressed: _cart.isEmpty ? null : () => _completeCheckout(ReceiptPrintMode.thermal80),
-                                icon: const Icon(Icons.print, size: 14),
-                                label: const Text('IN 80mm', style: TextStyle(fontSize: 11)),
+                          // Payment method selector
+                          DropdownButtonFormField<PaymentMethod>(
+                            value: _paymentMethod,
+                            decoration: const InputDecoration(
+                                labelText: 'Phương thức thanh toán',
+                                border: OutlineInputBorder(),
+                                isDense: true),
+                            items: PaymentMethod.values
+                                .where((p) => p != PaymentMethod.MIXED)
+                                .map((p) =>
+                                    DropdownMenuItem(value: p, child: Text(p.label)))
+                                .toList(),
+                            onChanged: (v) =>
+                                setState(() => _paymentMethod = v ?? PaymentMethod.CASH),
+                          ),
+                          const SizedBox(height: 8),
+                          // Discount
+                          TextField(
+                            controller: _discountCtrl,
+                            keyboardType: TextInputType.number,
+                            decoration: const InputDecoration(
+                                labelText: 'Giảm giá (đ)',
+                                border: OutlineInputBorder(),
+                                isDense: true),
+                            onChanged: (v) =>
+                                setState(() => _discountAmount = double.tryParse(v) ?? 0),
+                          ),
+                          if (_paymentMethod == PaymentMethod.CASH) ...[
+                            const SizedBox(height: 8),
+                            TextField(
+                              controller: _cashCtrl,
+                              keyboardType: TextInputType.number,
+                              decoration: const InputDecoration(
+                                  labelText: 'Tiền khách đưa (đ)',
+                                  border: OutlineInputBorder(),
+                                  isDense: true),
+                              onChanged: (v) =>
+                                  setState(() => _cashReceived = double.tryParse(v) ?? 0),
+                            ),
+                            if (_cashReceived > 0 && _change >= 0)
+                              Padding(
+                                padding: const EdgeInsets.only(top: 4),
+                                child: Text(
+                                    'Tiền thối: ${_change.toStringAsFixed(0)} đ',
+                                    style: const TextStyle(
+                                        color: Colors.green,
+                                        fontWeight: FontWeight.bold)),
                               ),
+                            if (_cashReceived > 0 && _change < 0)
+                              Padding(
+                                padding: const EdgeInsets.only(top: 4),
+                                child: Text(
+                                    'Thiếu: ${(-_change).toStringAsFixed(0)} đ',
+                                    style: const TextStyle(
+                                        color: Colors.red,
+                                        fontWeight: FontWeight.bold)),
+                              ),
+                          ],
+                          const SizedBox(height: 8),
+                          // Total
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text('Tổng:',
+                                  style: TextStyle(
+                                      fontSize: 16, fontWeight: FontWeight.bold)),
+                              Text('${_totalAmount.toStringAsFixed(0)} đ',
+                                  style: const TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.red)),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          // Checkout buttons
+                          Row(
+                            children: [
+                              Expanded(
+                                child: SizedBox(
+                                  height: 40,
+                                  child: ElevatedButton.icon(
+                                    style: ElevatedButton.styleFrom(
+                                        backgroundColor: Colors.orange,
+                                        foregroundColor: Colors.white),
+                                    onPressed: _cart.isEmpty
+                                        ? null
+                                        : () =>
+                                            _completeCheckout(ReceiptPrintMode.thermal80),
+                                    icon: const Icon(Icons.print, size: 14),
+                                    label: const Text('IN 80mm',
+                                        style: TextStyle(fontSize: 11)),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 4),
+                              Expanded(
+                                child: SizedBox(
+                                  height: 40,
+                                  child: ElevatedButton.icon(
+                                    style: ElevatedButton.styleFrom(
+                                        backgroundColor: Colors.red,
+                                        foregroundColor: Colors.white),
+                                    onPressed: _cart.isEmpty
+                                        ? null
+                                        : () => _completeCheckout(ReceiptPrintMode.pdf),
+                                    icon: const Icon(Icons.picture_as_pdf, size: 14),
+                                    label: const Text('IN PDF',
+                                        style: TextStyle(fontSize: 11)),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 4),
+                          SizedBox(
+                            width: double.infinity,
+                            height: 44,
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: _paymentMethod ==
+                                        PaymentMethod.CREDIT
+                                    ? Colors.orange
+                                    : Colors.green,
+                                foregroundColor: Colors.white,
+                              ),
+                              onPressed: _cart.isEmpty
+                                  ? null
+                                  : () => _completeCheckout(ReceiptPrintMode.auto),
+                              child: Text(
+                                  _paymentMethod == PaymentMethod.CREDIT
+                                      ? 'GHI NỢ'
+                                      : 'Thanh Toán',
+                                  style: const TextStyle(fontSize: 16)),
                             ),
                           ),
-                          const SizedBox(width: 4),
-                          Expanded(
-                            child: SizedBox(
-                              height: 40,
-                              child: ElevatedButton.icon(
-                                style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
-                                onPressed: _cart.isEmpty ? null : () => _completeCheckout(ReceiptPrintMode.pdf),
-                                icon: const Icon(Icons.picture_as_pdf, size: 14),
-                                label: const Text('IN PDF', style: TextStyle(fontSize: 11)),
-                              ),
-                            ),
-                          ),
                         ],
                       ),
-                      const SizedBox(height: 4),
-                      SizedBox(
-                        width: double.infinity,
-                        height: 44,
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: _paymentMethod == PaymentMethod.CREDIT ? Colors.orange : Colors.green,
-                            foregroundColor: Colors.white,
-                          ),
-                          onPressed: _cart.isEmpty ? null : () => _completeCheckout(ReceiptPrintMode.auto),
-                          child: Text(_paymentMethod == PaymentMethod.CREDIT ? 'GHI NỢ' : 'Thanh Toán', style: const TextStyle(fontSize: 16)),
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
                 ),
               ],
