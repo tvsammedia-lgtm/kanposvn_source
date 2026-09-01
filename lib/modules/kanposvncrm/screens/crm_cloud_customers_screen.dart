@@ -61,6 +61,51 @@ class _CrmCloudCustomersScreenState extends ConsumerState<CrmCloudCustomersScree
     }
   }
 
+  String _approvalLabel(String? status) {
+    switch (status) {
+      case 'pending':
+        return 'Chờ duyệt';
+      case 'approved':
+        return 'Đã duyệt';
+      case 'rejected':
+        return 'Từ chối';
+      default:
+        return 'Đã duyệt';
+    }
+  }
+
+  Future<void> _approve(Map<String, dynamic> c, String action) async {
+    final customerId = c['customer_id']?.toString();
+    final name = c['full_name']?.toString() ?? c['store_name']?.toString() ?? 'Khách';
+    if (customerId == null || customerId.isEmpty) return;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(action == 'approve' ? 'Duyệt khách hàng?' : 'Từ chối khách hàng?'),
+        content: Text('$name sẽ được ${action == 'approve' ? 'duyệt' : 'từ chối'} và ${action == 'approve' ? 'kích hoạt' : 'khóa'} tài khoản.'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Huỷ')),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(action == 'approve' ? 'Duyệt' : 'Từ chối',
+                style: TextStyle(color: action == 'approve' ? Colors.green : Colors.red)),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+    final auth = ref.read(authServiceProvider);
+    final service = CrmCloudService(token: auth.token);
+    try {
+      await service.approveCustomer(customerId: customerId, action: action);
+      if (mounted) _load();
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Lỗi: $e')));
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -99,8 +144,10 @@ class _CrmCloudCustomersScreenState extends ConsumerState<CrmCloudCustomersScree
                       itemBuilder: (context, index) {
                         final c = _customers[index];
                         final plan = c['license_plan']?.toString();
-                        final licActive = c['license_status']?.toString() == 'active';
                         final orderPaid = c['order_status']?.toString() == 'paid';
+                        final approval = c['approval_status']?.toString() ?? 'approved';
+                        final modules = c['registered_modules']?.toString() ?? c['app_code']?.toString() ?? '';
+                        final pending = approval == 'pending';
                         return Card(
                           margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                           child: ListTile(
@@ -116,19 +163,52 @@ class _CrmCloudCustomersScreenState extends ConsumerState<CrmCloudCustomersScree
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text('SĐT: ${c['phone'] ?? ''}'),
-                                Text(
-                                  'Gói: ${_planLabel(plan)} • ${c['app_code'] ?? '-'}',
-                                ),
+                                Text('Modules: ${modules.isEmpty ? '-' : modules}'),
+                                Text('Gói: ${_planLabel(plan)}'),
                                 if (orderPaid)
                                   Text(
                                     'Đơn đã thanh toán: ${(c['amount'] ?? 0)} đ',
                                     style: const TextStyle(color: Colors.green),
                                   ),
+                                if (pending)
+                                  Row(
+                                    children: [
+                                      const Icon(Icons.hourglass_top, size: 14, color: Colors.orange),
+                                      const SizedBox(width: 4),
+                                      Text('Chờ admin duyệt', style: const TextStyle(color: Colors.orange)),
+                                    ],
+                                  ),
                               ],
                             ),
-                            trailing: Chip(
-                              label: Text(licActive ? 'active' : 'inactive'),
-                              backgroundColor: licActive ? Colors.green[100] : Colors.grey[300],
+                            trailing: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                Chip(
+                                  label: Text(_approvalLabel(approval)),
+                                  backgroundColor: approval == 'approved'
+                                      ? Colors.green[100]
+                                      : approval == 'pending'
+                                          ? Colors.orange[100]
+                                          : Colors.red[100],
+                                ),
+                                if (pending)
+                                  Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      IconButton(
+                                        icon: const Icon(Icons.check_circle, color: Colors.green),
+                                        tooltip: 'Duyệt',
+                                        onPressed: () => _approve(c, 'approve'),
+                                      ),
+                                      IconButton(
+                                        icon: const Icon(Icons.cancel, color: Colors.red),
+                                        tooltip: 'Từ chối',
+                                        onPressed: () => _approve(c, 'reject'),
+                                      ),
+                                    ],
+                                  ),
+                              ],
                             ),
                             isThreeLine: true,
                           ),

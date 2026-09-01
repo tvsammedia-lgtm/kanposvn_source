@@ -53,11 +53,18 @@ class _UpdateAndLicenseCheckerState
 
     final auth = ref.read(authServiceProvider);
     final license = ref.read(licenseServiceProvider);
-    await license.check(
+    final status = await license.check(
       token: token,
       appCode: auth.licenseAppCode,
       branchId: auth.branchId,
     );
+    if (!mounted) return;
+
+    // Auto-lock: license hết hạn / bị khóa -> hiện dialog để khoá truy cập.
+    if (status != null && !status.valid) {
+      await showLicenseDialog(context, status);
+      if (!mounted) return;
+    }
   }
 
   @override

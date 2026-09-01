@@ -38,11 +38,13 @@ export async function GET(req: NextRequest) {
              u.id AS user_id, u.full_name, u.phone, u.email, u.active AS user_active,
              u.subscription_plan, u.subscription_start, u.subscription_end,
              s.id AS store_id, s.name AS store_name,
+             c.id AS customer_id, c.approval_status, c.registration_plan, c.registered_modules, c.approved_at,
              l.plan AS license_plan, l.status AS license_status, l.expires_at AS license_expires_at,
              l.app_code,
              o.order_code, o.status AS order_status, o.amount, o.created_at AS order_created_at
       FROM users u
       LEFT JOIN stores s ON s.owner_user_id = u.id
+      LEFT JOIN customers c ON c.owner_user_id = u.id
       LEFT JOIN licenses l ON l.user_id = u.id
       LEFT JOIN orders o ON o.user_id = u.id AND o.status = 'paid'
       ORDER BY u.id, u.created_at DESC

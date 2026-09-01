@@ -55,6 +55,7 @@ export const STORE_MODULES: { app_code: string; name: string }[] = [
   { app_code: 'kanposvnqlcd', name: 'QLCD (Cắt Ghép & Vé)' },
   { app_code: 'kanposvnnhatro200', name: 'Nhà Trọ' },
   { app_code: 'kanposvnnbatdongsan', name: 'Bất Động Sản' },
+  { app_code: 'kanposvnhrpayroll', name: 'HR Payroll' },
   { app_code: 'nhansu', name: 'Nhân Sự' },
 ];
 

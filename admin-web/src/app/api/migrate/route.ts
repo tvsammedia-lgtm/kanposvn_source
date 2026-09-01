@@ -328,6 +328,29 @@ export async function POST(req: NextRequest) {
     ['018_zalopay_callback_url', "ALTER TABLE orders ADD COLUMN IF NOT EXISTS callback_url VARCHAR(500) DEFAULT ''"],
     ['018_zalopay_provider', "ALTER TABLE orders ADD COLUMN IF NOT EXISTS provider VARCHAR(50) DEFAULT 'zalopay'"],
     ['018_zalopay_index_app_trans_id', 'CREATE INDEX IF NOT EXISTS idx_orders_zalopay_app_trans_id ON orders(zalopay_app_trans_id)'],
+    // Migration 020: Multi-Module Registration + HR Payroll + CRM admin approval
+    ['020_hr_payroll_app', `INSERT INTO apps (app_code, app_name, description, package_name, platform, show_in_registration, price)
+      SELECT 'kanposvnhrpayroll', 'HR Payroll', 'Quản lý nhân sự & chấm công - HR Payroll', 'com.kanposvn.hrpayroll', 'flutter', true, 899000
+      WHERE NOT EXISTS (SELECT 1 FROM apps WHERE app_code = 'kanposvnhrpayroll')
+      ON CONFLICT (app_code) DO UPDATE SET show_in_registration = true`],
+    ['020_role_permissions_all', `DO $$
+      DECLARE app_record RECORD; role_record RECORD;
+      BEGIN
+        FOR app_record IN SELECT id FROM apps WHERE show_in_registration = true OR app_code = 'kanposvnhrpayroll' LOOP
+          FOR role_record IN SELECT id, role_name FROM roles LOOP
+            INSERT INTO role_permissions (app_id, role_id, can_view, can_edit, can_delete)
+            VALUES (app_record.id, role_record.id, true,
+              CASE WHEN role_record.role_name IN ('Admin', 'Manager') THEN true ELSE false END,
+              CASE WHEN role_record.role_name = 'Admin' THEN true ELSE false END
+            ) ON CONFLICT (app_id, role_id) DO NOTHING;
+          END LOOP;
+        END LOOP;
+      END $$;`],
+    ['020_customers_approval_status', "ALTER TABLE customers ADD COLUMN IF NOT EXISTS approval_status VARCHAR(20) DEFAULT 'pending'"],
+    ['020_customers_registration_plan', "ALTER TABLE customers ADD COLUMN IF NOT EXISTS registration_plan VARCHAR(50) DEFAULT ''"],
+    ['020_customers_registered_modules', "ALTER TABLE customers ADD COLUMN IF NOT EXISTS registered_modules TEXT DEFAULT ''"],
+    ['020_customers_approved_at', 'ALTER TABLE customers ADD COLUMN IF NOT EXISTS approved_at TIMESTAMP WITH TIME ZONE'],
+    ['020_customers_backfill_approved', "UPDATE customers SET approval_status = 'approved' WHERE approval_status = 'pending' AND active = true AND approved_at IS NULL"],
   ];
 
   for (const [name, sqlStr] of migrations) {

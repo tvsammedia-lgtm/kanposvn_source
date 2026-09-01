@@ -86,4 +86,23 @@ class CrmCloudService {
     }
     throw Exception((data['error'] as String?) ?? 'Lỗi tạo đơn bán');
   }
+
+  /// Admin duyệt / từ chối khách hàng đăng ký (action: 'approve' | 'reject').
+  Future<Map<String, dynamic>> approveCustomer({
+    required String customerId,
+    required String action,
+  }) async {
+    final res = await http
+        .post(
+          _uri('/api/crm/customers/$customerId'),
+          headers: _headers,
+          body: jsonEncode({'action': action}),
+        )
+        .timeout(ApiConfig.timeout);
+    final data = jsonDecode(utf8.decode(res.bodyBytes));
+    if (res.statusCode == 200) {
+      return data as Map<String, dynamic>;
+    }
+    throw Exception((data['error'] as String?) ?? 'Lỗi duyệt khách hàng');
+  }
 }
