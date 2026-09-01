@@ -13,7 +13,6 @@ class ConversationListScreen extends ConsumerWidget {
     final convState = ref.watch(conversationProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Tin nhắn')),
       body: convState.when(
         data: (convs) {
           if (convs.isEmpty) {

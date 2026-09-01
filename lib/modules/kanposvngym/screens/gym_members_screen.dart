@@ -11,10 +11,6 @@ class GymMembersScreen extends ConsumerWidget {
     final members = ref.watch(gymMembersProvider);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Quản lý Hội Viên'),
-        backgroundColor: const Color(0xFF1E3A8A),
-      ),
       body: members.isEmpty
           ? const Center(child: Text('Chưa có hội viên nào'))
           : ListView.builder(

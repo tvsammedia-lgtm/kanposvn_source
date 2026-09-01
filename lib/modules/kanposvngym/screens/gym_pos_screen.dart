@@ -27,7 +27,6 @@ class _GymPosScreenState extends ConsumerState<GymPosScreen> {
     }
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Bán Hàng POS')),
       body: Column(
         children: [
           Expanded(

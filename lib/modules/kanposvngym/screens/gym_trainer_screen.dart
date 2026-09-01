@@ -21,7 +21,6 @@ class GymTrainerScreen extends ConsumerWidget {
     final classes = ref.watch(gymClassesProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('PT & Lịch Lớp Học')),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [

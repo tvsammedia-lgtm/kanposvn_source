@@ -5,16 +5,8 @@ import 'package:intl/intl.dart';
 import '../providers/gym_providers.dart';
 import '../services/gym_isar_service.dart';
 import '../services/gym_seed_data.dart';
-import 'gym_members_screen.dart';
-import 'gym_pos_screen.dart';
-import 'gym_trainer_screen.dart';
-import 'gym_plans_screen.dart';
 import 'gym_checkin_screen.dart';
-import 'gym_settings_screen.dart';
-import 'gym_reports_screen.dart';
 import '../../../core/widgets/owner_info_bar.dart';
-import '../../../core/widgets/account_switcher_button.dart';
-import '../../../core/router/module_selector_screen.dart';
 
 class GymDashboardScreen extends ConsumerStatefulWidget {
   const GymDashboardScreen({super.key});
@@ -52,88 +44,6 @@ class _GymDashboardScreenState extends ConsumerState<GymDashboardScreen> {
     final expiringAsync = ref.watch(gymExpiringCardsProvider(7));
 
 return Scaffold(
-      appBar: AppBar(
-        title: const Text('KanGYM - Quản lý Phòng Tập'),
-        backgroundColor: const Color(0xFF1E3A8A),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          tooltip: 'Quay lại màn hình chọn module',
-          onPressed: () {
-            ref.read(selectedModuleProvider.notifier).state = null;
-          },
-        ),
-        actions: const [
-          AccountSwitcherButton(foregroundColor: Colors.white),
-        ],
-      ),
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            const DrawerHeader(
-              decoration: BoxDecoration(color: Color(0xFF1E3A8A)),
-              child: Text('KanGYM Menu', style: TextStyle(color: Colors.white, fontSize: 24)),
-            ),
-            ListTile(
-              leading: const Icon(Icons.people),
-              title: const Text('Hội Viên (Members)'),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.push(context, MaterialPageRoute(builder: (_) => const GymMembersScreen()));
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.sports_gymnastics),
-              title: const Text('Huấn Luyện Viên & Lớp'),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.push(context, MaterialPageRoute(builder: (_) => const GymTrainerScreen()));
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.point_of_sale),
-              title: const Text('Bán Hàng POS'),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.push(context, MaterialPageRoute(builder: (_) => const GymPosScreen()));
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.fitness_center),
-              title: const Text('Gói Tập & Bán Vé'),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.push(context, MaterialPageRoute(builder: (_) => const GymPlansScreen()));
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.qr_code_scanner),
-              title: const Text('Check-in'),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.push(context, MaterialPageRoute(builder: (_) => const GymCheckInScreen()));
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.bar_chart),
-              title: const Text('Báo cáo'),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.push(context, MaterialPageRoute(builder: (_) => const GymReportsScreen()));
-              },
-            ),
-            const Divider(height: 1),
-            ListTile(
-              leading: const Icon(Icons.settings, color: Colors.amber),
-              title: const Text('Cài Đặt'),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.push(context, MaterialPageRoute(builder: (_) => const GymSettingsScreen()));
-              },
-            ),
-          ],
-        ),
-      ),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),

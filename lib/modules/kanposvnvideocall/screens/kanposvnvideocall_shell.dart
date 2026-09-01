@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../kanposvnhrpayroll/core/app_theme.dart';
+import '../../../core/widgets/account_switcher_button.dart';
 import '../providers/videocall_isar_provider.dart';
 import '../services/videocall_seed_data.dart';
 import 'conversation_list_screen.dart';
@@ -47,6 +48,13 @@ class _KanPosVnVideoCallShellState extends ConsumerState<KanPosVnVideoCallShell>
 
     return Scaffold(
       backgroundColor: AppTheme.bg900,
+      appBar: AppBar(
+        title: const Text('KanPosVN VideoCall'),
+        backgroundColor: AppTheme.surface,
+        actions: const [
+          AccountSwitcherButton(foregroundColor: Colors.white),
+        ],
+      ),
       body: IndexedStack(
         index: _tabIndex,
         children: const [

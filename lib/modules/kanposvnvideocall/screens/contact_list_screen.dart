@@ -11,7 +11,6 @@ class ContactListScreen extends ConsumerWidget {
     final contactState = ref.watch(contactProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Danh bạ')),
       body: contactState.when(
         data: (contacts) {
           if (contacts.isEmpty) {

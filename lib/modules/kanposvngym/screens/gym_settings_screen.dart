@@ -12,9 +12,6 @@ class GymSettingsScreen extends ConsumerWidget {
     final auth = ref.watch(authServiceProvider);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Cài Đặt'),
-      ),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(

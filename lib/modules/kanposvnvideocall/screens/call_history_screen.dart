@@ -12,7 +12,6 @@ class CallHistoryScreen extends ConsumerWidget {
     final historyState = ref.watch(callHistoryProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Lịch sử cuộc gọi')),
       body: historyState.when(
         data: (histories) {
           if (histories.isEmpty) {

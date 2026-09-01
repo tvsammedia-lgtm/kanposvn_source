@@ -85,10 +85,6 @@ class _GymShellState extends ConsumerState<GymShell> {
     final safeIndex = _selectedIndex < _allTabs.length ? _selectedIndex : 0;
     final isDesktop = MediaQuery.of(context).size.width > 600;
 
-    if (!isDesktop) {
-      return const GymDashboardScreen();
-    }
-
     if (!_isInit) {
       return const Scaffold(
         backgroundColor: Color(0xFF1E3A8A),
@@ -116,36 +112,55 @@ class _GymShellState extends ConsumerState<GymShell> {
       ),
       body: Row(
         children: [
-          NavigationRail(
-            backgroundColor: const Color(0xFF16224B),
-            selectedIconTheme: const IconThemeData(color: Colors.white),
-            selectedLabelTextStyle: const TextStyle(
-                color: Colors.white, fontWeight: FontWeight.w600),
-            unselectedLabelTextStyle:
-                const TextStyle(color: Colors.white70),
-            unselectedIconTheme:
-                const IconThemeData(color: Colors.white70),
-            indicatorColor: const Color(0xFF1E3A8A),
-            scrollable: true,
-            selectedIndex: safeIndex,
-            onDestinationSelected: (index) {
-              setState(() => _selectedIndex = index);
-            },
-            labelType: NavigationRailLabelType.all,
-            destinations: [
-              for (final t in _allTabs)
-                NavigationRailDestination(
-                  icon: Icon(t.icon),
-                  label: Text(t.label),
-                ),
-            ],
-          ),
-          const VerticalDivider(thickness: 1, width: 1),
+          if (isDesktop)
+            NavigationRail(
+              backgroundColor: const Color(0xFF16224B),
+              selectedIconTheme: const IconThemeData(color: Colors.white),
+              selectedLabelTextStyle: const TextStyle(
+                  color: Colors.white, fontWeight: FontWeight.w600),
+              unselectedLabelTextStyle:
+                  const TextStyle(color: Colors.white70),
+              unselectedIconTheme:
+                  const IconThemeData(color: Colors.white70),
+              indicatorColor: const Color(0xFF1E3A8A),
+              scrollable: true,
+              selectedIndex: safeIndex,
+              onDestinationSelected: (index) {
+                setState(() => _selectedIndex = index);
+              },
+              labelType: NavigationRailLabelType.all,
+              destinations: [
+                for (final t in _allTabs)
+                  NavigationRailDestination(
+                    icon: Icon(t.icon),
+                    label: Text(t.label),
+                  ),
+              ],
+            ),
+          if (isDesktop) const VerticalDivider(thickness: 1, width: 1),
           Expanded(
             child: ClipRect(child: _allTabs[safeIndex].screen()),
           ),
         ],
       ),
+      bottomNavigationBar: isDesktop
+          ? null
+          : BottomNavigationBar(
+              currentIndex: safeIndex,
+              onTap: (index) {
+                setState(() => _selectedIndex = index);
+              },
+              selectedItemColor: const Color(0xFF1E3A8A),
+              unselectedItemColor: Colors.grey,
+              type: BottomNavigationBarType.fixed,
+              items: [
+                for (final t in _allTabs)
+                  BottomNavigationBarItem(
+                    icon: Icon(t.icon),
+                    label: t.label,
+                  ),
+              ],
+            ),
     );
   }
 }

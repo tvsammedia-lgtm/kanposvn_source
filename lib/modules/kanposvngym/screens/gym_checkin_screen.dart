@@ -39,7 +39,6 @@ class _GymCheckInScreenState extends ConsumerState<GymCheckInScreen> {
     final members = ref.watch(gymMembersProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Check-in')),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(

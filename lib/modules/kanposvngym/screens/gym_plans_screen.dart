@@ -21,7 +21,6 @@ class _GymPlansScreenState extends ConsumerState<GymPlansScreen> {
     final expiring = ref.watch(gymExpiringCardsProvider(7));
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Gói Tập & Bán Vé')),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
