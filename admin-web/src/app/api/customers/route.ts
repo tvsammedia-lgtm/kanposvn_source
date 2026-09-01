@@ -40,6 +40,7 @@ export async function GET(req: NextRequest) {
           (SELECT COUNT(*)::int
            FROM branches b
            JOIN licenses l ON l.app_code = b.app_code AND l.status = 'active'
+             AND (l.branch_id = b.id OR (l.branch_id IS NULL AND b.is_default = true))
            WHERE b.customer_id = c.id), 0
         ) AS license_count
       FROM customers c
