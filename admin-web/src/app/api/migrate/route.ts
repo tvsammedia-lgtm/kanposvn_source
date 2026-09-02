@@ -346,6 +346,11 @@ export async function POST(req: NextRequest) {
           END LOOP;
         END LOOP;
       END $$;`],
+    // Migration 021: sync_data theo chi nhánh (1 module = nhiều chi nhánh).
+    // Gara/VLXD... đẩy dữ liệu kèm branch_id để admin dashboard tách theo chi nhánh.
+    ['021_sync_data_branch', 'ALTER TABLE sync_data ADD COLUMN IF NOT EXISTS branch_id VARCHAR(100) DEFAULT NULL'],
+    ['021_sync_data_branch_index', 'CREATE INDEX IF NOT EXISTS idx_sync_data_branch ON sync_data(branch_id)'],
+    ['021_sync_data_app_branch_index', 'CREATE INDEX IF NOT EXISTS idx_sync_data_app_branch ON sync_data(app_code, branch_id)'],
     ['020_customers_approval_status', "ALTER TABLE customers ADD COLUMN IF NOT EXISTS approval_status VARCHAR(20) DEFAULT 'pending'"],
     ['020_customers_registration_plan', "ALTER TABLE customers ADD COLUMN IF NOT EXISTS registration_plan VARCHAR(50) DEFAULT ''"],
     ['020_customers_registered_modules', "ALTER TABLE customers ADD COLUMN IF NOT EXISTS registered_modules TEXT DEFAULT ''"],

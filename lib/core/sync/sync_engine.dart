@@ -57,7 +57,7 @@ class SyncEngine extends ChangeNotifier {
     _notify();
   }
 
-  Future<bool> triggerSync() async {
+  Future<bool> triggerSync({String? branchId}) async {
     if (_isSyncing || _disposed) return false;
     _isSyncing = true;
     _lastSyncStatus = 'Đang đồng bộ...';
@@ -65,8 +65,8 @@ class SyncEngine extends ChangeNotifier {
     _notify();
 
     try {
-      await _pushChanges();
-      await _pullChanges();
+      await _pushChanges(branchId: branchId);
+      await _pullChanges(branchId: branchId);
 
       _lastSyncTime = DateTime.now();
       _pendingCount = dbService.pendingSyncCount;
@@ -82,7 +82,7 @@ class SyncEngine extends ChangeNotifier {
     return true;
   }
 
-  Future<void> _pushChanges() async {
+  Future<void> _pushChanges({String? branchId}) async {
     final queueItems = dbService.syncQueue;
     if (queueItems.isEmpty) {
       _addLog('Push: không có thay đổi');
@@ -104,7 +104,7 @@ class SyncEngine extends ChangeNotifier {
         'createdAt': item.timestamp.toIso8601String(),
       }).toList();
 
-      final result = await apiClient.pushData(appCode: appCode, items: items);
+      final result = await apiClient.pushData(appCode: appCode, items: items, branchId: branchId);
 
       if (result.success) {
         dbService.markSyncQueueProcessed(result.syncedIds);
@@ -116,12 +116,13 @@ class SyncEngine extends ChangeNotifier {
     }
   }
 
-  Future<void> _pullChanges() async {
+  Future<void> _pullChanges({String? branchId}) async {
     _addLog('Pull: kiểm tra dữ liệu từ Neon DB...');
 
     final result = await apiClient.pullData(
       appCode: appCode,
       since: _lastSyncTime,
+      branchId: branchId,
     );
 
     if (!result.success) {

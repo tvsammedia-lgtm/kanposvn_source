@@ -47,10 +47,15 @@ class SnapshotSyncEngine {
   final List<SnapshotSyncCollection> collections;
   final int maxBatchSize;
 
+  /// Chi nhánh hiện tại của thiết bị (mô hình 1 module = nhiều chi nhánh).
+  /// Khi có (vd kanposvngara), push/pull sẽ gắn/lọc theo chi nhánh này.
+  final String? branchId;
+
   SnapshotSyncEngine({
     required this.apiClient,
     required this.appCode,
     required this.collections,
+    this.branchId,
     this.maxBatchSize = ApiConfig.maxBatchSize,
   });
 
@@ -86,7 +91,7 @@ class SnapshotSyncEngine {
               'payload': {...m, 'itemId': key},
             };
           }).toList();
-          final result = await apiClient.pushData(appCode: appCode, items: items);
+          final result = await apiClient.pushData(appCode: appCode, items: items, branchId: branchId);
           if (!result.success) {
             return SnapshotSyncResult(
               success: false,
@@ -114,7 +119,7 @@ class SnapshotSyncEngine {
   Future<SnapshotSyncResult> pullAll() async {
     var pulled = 0;
     try {
-      final result = await apiClient.pullData(appCode: appCode);
+      final result = await apiClient.pullData(appCode: appCode, branchId: branchId);
       if (!result.success) {
         return SnapshotSyncResult(
           success: false,

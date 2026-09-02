@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json();
-    const { appCode, apiKey, items } = body;
+    const { appCode, apiKey, items, branchId } = body;
 
     if (!apiKey || apiKey !== process.env.SYNC_API_KEY) {
       return NextResponse.json(
@@ -51,28 +51,36 @@ export async function POST(req: NextRequest) {
         || parsedPayload.id as string
         || operationId;
 
+      // Mô hình 1 module = nhiều chi nhánh: gắn branch vào row để tách dữ liệu theo
+      // chi nhánh ở admin. Chuẩn hóa item_id thành "branchId:itemId" để UNIQUE
+      // (app_code, collection, item_id) không ghi đè giữa các chi nhánh dùng chung app.
+      const branch = branchId ? String(branchId).trim() : null;
+      const rowItemId = branch ? `${branch}:${itemId}` : itemId;
+
       if (operationType === 'DELETE') {
         await sql`
           DELETE FROM sync_data
           WHERE app_code = ${appCode}
             AND collection = ${collectionName}
-            AND item_id = ${itemId}
+            AND item_id = ${rowItemId}
         `;
       } else {
         await sql`
-          INSERT INTO sync_data (app_code, collection, item_id, data, operation, updated_at)
+          INSERT INTO sync_data (app_code, collection, item_id, data, operation, branch_id, updated_at)
           VALUES (
             ${appCode},
             ${collectionName},
-            ${itemId},
+            ${rowItemId},
             ${JSON.stringify(parsedPayload)},
             'UPSERT',
+            ${branch},
             NOW()
           )
           ON CONFLICT (app_code, collection, item_id)
           DO UPDATE SET
             data = EXCLUDED.data,
             operation = 'UPSERT',
+            branch_id = COALESCE(EXCLUDED.branch_id, sync_data.branch_id),
             updated_at = NOW()
         `;
       }

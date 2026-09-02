@@ -87,6 +87,7 @@ interface OwnerCombo {
   ownerPhone: string;
   storeId: string;
   storeName: string;
+  branchId: string;
   appCode: string;
   appName: string;
   invoices: number;
@@ -116,7 +117,7 @@ export async function GET(req: NextRequest) {
     `;
 
     const licenses = await sql`
-      SELECT DISTINCT user_id, app_code, store_id FROM licenses WHERE status = 'active'
+      SELECT DISTINCT user_id, app_code, store_id, branch_id FROM licenses WHERE status = 'active'
     `;
 
     const apps = await sql`SELECT app_code, app_name FROM apps`;
@@ -134,7 +135,7 @@ export async function GET(req: NextRequest) {
       WHERE p.can_login = true
     `;
 
-    const dataRows = await sql`SELECT app_code, collection, data FROM sync_data`;
+    const dataRows = await sql`SELECT app_code, collection, branch_id, data FROM sync_data`;
 
     // Định danh collection cho mọi module (kể cả gara với tên viết hoa):
     // - Hóa đơn: cafe_orders / orders / *__orders / GaraRepairOrder / GaraInvoice
@@ -188,6 +189,21 @@ export async function GET(req: NextRequest) {
       WHERE c.owner_user_id IS NOT NULL
       GROUP BY b.app_code, c.owner_user_id, c.name
     `;
+    // Branch theo id: dùng khi sync_data có branch_id → hiện TÊN CHI NHÁNH (GARA
+    // THIÊN KIM / 01 / 02...) thay vì gộp tất cả vào một cửa hàng.
+    const branchById = new Map<string, { ownerId: string; branchName: string }>();
+    const branchAppRows = await sql`
+      SELECT b.id AS branch_id, b.name AS branch_name, c.owner_user_id
+      FROM branches b
+      JOIN customers c ON c.id = b.customer_id
+      WHERE c.owner_user_id IS NOT NULL
+    `;
+    for (const br of branchAppRows) {
+      branchById.set(String(br.branch_id), {
+        ownerId: String(br.owner_user_id),
+        branchName: String(br.branch_name || ''),
+      });
+    }
     const ownerByApp = new Map<string, { ownerId: string; customerName: string }>();
     const storeOwnerIds = new Set(stores.map((s) => String(s.owner_id)));
     const branchOwnersByApp = new Map<string, Array<{ ownerId: string; customerName: string }>>();
@@ -231,20 +247,26 @@ export async function GET(req: NextRequest) {
     }
 
     const combos = new Map<string, OwnerCombo>();
-    const comboKey = (ownerId: string, appCode: string) => `${ownerId}|${appCode}`;
+    const comboKey = (ownerId: string, appCode: string, branchId = '') =>
+      `${ownerId}|${appCode}|${branchId}`;
 
     for (const lic of licenses) {
       const store = storeById.get(lic.store_id);
       const ownerId = store ? store.ownerId : String(lic.user_id);
-      const key = comboKey(ownerId, String(lic.app_code));
+      const branchId = lic.branch_id ? String(lic.branch_id) : '';
+      const branch = branchById.get(branchId);
+      const key = comboKey(ownerId, String(lic.app_code), branchId);
       if (!combos.has(key)) {
         combos.set(key, {
           ownerId,
           ownerName: '',
           ownerEmail: '',
           ownerPhone: '',
-          storeId: lic.store_id,
-          storeName: store?.storeName || '',
+          storeId: branch ? '' : lic.store_id,
+          storeName: branch?.branchName
+            || store?.storeName
+            || '',
+          branchId,
           appCode: String(lic.app_code),
           appName: appNameMap.get(String(lic.app_code)) || String(lic.app_code),
           invoices: 0,
@@ -261,8 +283,38 @@ export async function GET(req: NextRequest) {
     // license chưa khớp đúng app_code (vd license 'pos' nhưng app đẩy 'kanposvncafe').
     for (const row of dataRows) {
       const appCode = String(row.app_code);
+      const branchId = row.branch_id ? String(row.branch_id) : '';
+      const branch = branchById.get(branchId);
       const d = parseData(row.data);
       const storeId = d.storeId ? String(d.storeId) : null;
+      if (branch) {
+        // Dữ liệu có branch_id → tạo/fill combo cho CHÍNH CHI NHÁNH đó (tên nhánh).
+        const key = comboKey(branch.ownerId, appCode, branchId);
+        const existing = combos.get(key);
+        if (existing) {
+          if (!existing.storeName && branch.branchName) {
+            existing.storeName = branch.branchName;
+          }
+          continue;
+        }
+        combos.set(key, {
+          ownerId: branch.ownerId,
+          ownerName: '',
+          ownerEmail: '',
+          ownerPhone: '',
+          storeId: branchId,
+          storeName: branch.branchName,
+          branchId,
+          appCode,
+          appName: appNameMap.get(appCode) || appCode,
+          invoices: 0,
+          revenue: 0,
+          cost: 0,
+          debt: 0,
+          lastSync: lastSyncByApp.get(appCode) || null,
+        });
+        continue;
+      }
       if (!storeId) {
         // Module đa chi nhánh (Gara/VLXD...): dữ liệu không có storeId nhưng có
         // app_code → quy về owner qua customers.owner_user_id để không bị 0.
@@ -284,6 +336,7 @@ export async function GET(req: NextRequest) {
           ownerPhone: '',
           storeId: '',
           storeName: appOwner.customerName,
+          branchId: '',
           appCode,
           appName: appNameMap.get(appCode) || appCode,
           invoices: 0,
@@ -305,6 +358,7 @@ export async function GET(req: NextRequest) {
         ownerPhone: '',
         storeId,
         storeName: store.storeName,
+        branchId: '',
         appCode,
         appName: appNameMap.get(appCode) || appCode,
         invoices: 0,
@@ -331,7 +385,7 @@ export async function GET(req: NextRequest) {
       const userId = String(row.user_id);
       const appCode = String(row.app_code);
       const store = stores.find((s) => s.owner_id === userId);
-      const key = comboKey(userId, appCode);
+      const key = comboKey(userId, appCode, '');
       if (combos.has(key)) continue;
       combos.set(key, {
         ownerId: userId,
@@ -340,6 +394,7 @@ export async function GET(req: NextRequest) {
         ownerPhone: store?.owner_phone || '',
         storeId: store?.store_id || '',
         storeName: store?.store_name || '',
+        branchId: '',
         appCode,
         appName: appNameMap.get(appCode) || appCode,
         invoices: 0,
@@ -359,21 +414,29 @@ export async function GET(req: NextRequest) {
     for (const row of dataRows) {
       const appCode = String(row.app_code);
       const collection = String(row.collection || '');
+      const branchId = row.branch_id ? String(row.branch_id) : '';
+      const branch = branchById.get(branchId);
       const d = parseData(row.data);
       const storeId = d.storeId ? String(d.storeId) : null;
       let ownerId: string;
-      if (storeId) {
+      let resolveBranch = branchId;
+      if (branch) {
+        // Dữ liệu thuộc một CHI NHÁNH cụ thể → gom riêng theo chi nhánh.
+        ownerId = branch.ownerId;
+      } else if (storeId) {
         const store = storeById.get(storeId);
         if (!store) continue;
         ownerId = store.ownerId;
+        resolveBranch = '';
       } else {
         // Module đa chi nhánh (Gara/VLXD...): không có storeId → quy về owner
         // theo app_code qua customers.owner_user_id.
         const appOwner = ownerByApp.get(appCode);
         if (!appOwner) continue;
         ownerId = appOwner.ownerId;
+        resolveBranch = '';
       }
-      const combo = combos.get(comboKey(ownerId, appCode));
+      const combo = combos.get(comboKey(ownerId, appCode, resolveBranch));
       if (!combo) continue;
 
       if (isInvoiceColl(collection)) {

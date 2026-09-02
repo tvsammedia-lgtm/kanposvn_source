@@ -14,7 +14,7 @@ class GaraNeonSyncService {
 
   GaraNeonSyncService(this._isarService);
 
-  Future<void> triggerSync(String apiUrl, String apiKey) async {
+  Future<void> triggerSync(String apiUrl, String apiKey, {String? branchId}) async {
     final isar = await _isarService.db;
 
     final engine = SnapshotSyncEngine(
@@ -24,6 +24,7 @@ class GaraNeonSyncService {
         apiKey: apiKey,
       ),
       appCode: 'kanposvngara',
+      branchId: branchId,
       collections: [
         SnapshotSyncCollection(collection: isar.garaCustomers, keyField: 'customerId'),
         SnapshotSyncCollection(collection: isar.garaVehicles, keyField: 'vehicleId'),

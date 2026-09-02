@@ -29,6 +29,7 @@ class VercelApiClient {
   Future<VercelSyncResponse> pushData({
     required String appCode,
     required List<Map<String, dynamic>> items,
+    String? branchId,
   }) async {
     try {
       if (offlineMode || pushUrl.contains('demo')) {
@@ -45,6 +46,7 @@ class VercelApiClient {
         'appCode': appCode,
         'apiKey': apiKey,
         'items': items,
+        if (branchId != null && branchId.isNotEmpty) 'branchId': branchId,
       });
 
       final response = await http.post(
@@ -85,6 +87,7 @@ class VercelApiClient {
     required String appCode,
     String? collection,
     DateTime? since,
+    String? branchId,
   }) async {
     try {
       if (offlineMode || pullUrl.contains('demo')) {
@@ -98,6 +101,7 @@ class VercelApiClient {
       var url = '$pullUrl?appCode=$appCode&apiKey=$apiKey';
       if (collection != null) url += '&collection=$collection';
       if (since != null) url += '&since=${since.toIso8601String()}';
+      if (branchId != null && branchId.isNotEmpty) url += '&branchId=$branchId';
 
       final response = await http.get(
         Uri.parse(url),

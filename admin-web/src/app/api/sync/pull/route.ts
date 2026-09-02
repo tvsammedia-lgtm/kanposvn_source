@@ -23,6 +23,7 @@ export async function GET(req: NextRequest) {
     const apiKey = searchParams.get('apiKey');
     const collection = searchParams.get('collection');
     const since = searchParams.get('since');
+    const branchId = searchParams.get('branchId');
 
     if (!apiKey || apiKey !== process.env.SYNC_API_KEY) {
       return NextResponse.json(
@@ -39,15 +40,27 @@ export async function GET(req: NextRequest) {
     }
 
     let query = sql`SELECT * FROM sync_data WHERE app_code = ${appCode}`;
+    if (branchId) {
+      query = sql`SELECT * FROM sync_data WHERE app_code = ${appCode} AND branch_id = ${branchId}`;
+    }
     if (collection) {
       query = sql`SELECT * FROM sync_data WHERE app_code = ${appCode} AND collection = ${collection}`;
+    }
+    if (collection && branchId) {
+      query = sql`SELECT * FROM sync_data WHERE app_code = ${appCode} AND collection = ${collection} AND branch_id = ${branchId}`;
     }
     if (since) {
       const sinceDate = new Date(since);
       query = sql`SELECT * FROM sync_data WHERE app_code = ${appCode} AND updated_at > ${sinceDate.toISOString()}`;
     }
+    if (since && branchId) {
+      query = sql`SELECT * FROM sync_data WHERE app_code = ${appCode} AND branch_id = ${branchId} AND updated_at > ${since}`;
+    }
     if (collection && since) {
       query = sql`SELECT * FROM sync_data WHERE app_code = ${appCode} AND collection = ${collection} AND updated_at > ${since}`;
+    }
+    if (collection && since && branchId) {
+      query = sql`SELECT * FROM sync_data WHERE app_code = ${appCode} AND collection = ${collection} AND branch_id = ${branchId} AND updated_at > ${since}`;
     }
 
     const rows = await query;

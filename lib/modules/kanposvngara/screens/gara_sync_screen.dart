@@ -34,7 +34,12 @@ class GaraSyncScreen extends ConsumerWidget {
               const SnackBar(content: Text('Đang đồng bộ...')),
             );
             final syncService = ref.read(garaNeonSyncServiceProvider);
-            await syncService.triggerSync(ApiConfig.baseUrl, ApiConfig.syncApiKey);
+            final auth = ref.read(authServiceProvider);
+            await syncService.triggerSync(
+              ApiConfig.baseUrl,
+              ApiConfig.syncApiKey,
+              branchId: auth.branchId,
+            );
             if (context.mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text('Đồng bộ hoàn tất!')),

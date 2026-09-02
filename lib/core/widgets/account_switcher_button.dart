@@ -452,7 +452,9 @@ class _AccountSwitcherButtonState extends ConsumerState<AccountSwitcherButton> {
         // chi nhánh đã chọn để data trên shell cập nhật liền (không cần reboot).
         unawaited(syncCurrentGaraBranchData(ref));
       } else if (module.appCode == 'kanposvnvlxd') {
-        unawaited(ref.read(syncEngineProvider).triggerSync());
+        unawaited(ref.read(syncEngineProvider).triggerSync(
+          branchId: ref.read(authServiceProvider).branchId,
+        ));
       }
 
       // Re-mount shell: selectedModule null rồi set lại để cập nhật ngay.
@@ -470,9 +472,11 @@ class _AccountSwitcherButtonState extends ConsumerState<AccountSwitcherButton> {
   /// Đồng bộ dữ liệu chi nhánh Gara hiện tại từ Neon rồi nạp lại các provider.
   Future<void> syncCurrentGaraBranchData(WidgetRef ref) async {
     try {
+      final auth = ref.read(authServiceProvider);
       await ref.read(garaNeonSyncServiceProvider).triggerSync(
             ApiConfig.baseUrl,
             ApiConfig.syncApiKey,
+            branchId: auth.branchId,
           );
     } catch (_) {
       // Best-effort: không làm hỏng việc chuyển chi nhánh nếu đồng bộ lỗi mạng.

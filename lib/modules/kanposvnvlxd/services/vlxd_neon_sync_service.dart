@@ -31,7 +31,7 @@ class VlxdNeonSyncService {
     if (_syncLogs.length > 100) _syncLogs.removeLast();
   }
 
-  Future<bool> triggerSync(String vercelApiUrl, String apiKey) async {
+  Future<bool> triggerSync(String vercelApiUrl, String apiKey, {String? branchId}) async {
     if (_isSyncing) return false;
     _isSyncing = true;
     try {
@@ -45,6 +45,7 @@ class VlxdNeonSyncService {
           apiKey: apiKey,
         ),
         appCode: 'kanposvnvlxd',
+        branchId: branchId,
         collections: [
           SnapshotSyncCollection(collection: isar.vlxdProductCategorys, keyField: 'categoryId'),
           SnapshotSyncCollection(collection: isar.vlxdProducts, keyField: 'productId'),
