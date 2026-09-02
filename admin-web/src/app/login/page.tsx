@@ -20,6 +20,12 @@ type AppCodeOption = { code: string; name: string };
 type StoreSummary = {
   appCode?: string;
   appCodes?: AppCodeOption[];
+  branches?: Array<{
+    id: string;
+    name: string;
+    today: { invoices: number; revenue: number; cost: number; profit: number; debt: number };
+    display: { invoices: string; revenue: string; cost: string; profit: string; debt: string };
+  }>;
   today: { invoices: number; revenue: number; cost: number; profit: number; debt: number };
   display: { invoices: string; revenue: string; cost: string; profit: string; debt: string };
   lastSync: string | null;
@@ -106,6 +112,34 @@ export default function StoreLoginPage() {
   const inputCls =
     'w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none';
 
+  const BranchStats = ({ title, display }: { title: string; display: StoreSummary['display'] }) => (
+    <div className="space-y-1.5 text-sm">
+      <div className="text-xs font-semibold text-gray-500 text-left">{title}</div>
+      <div className="flex justify-between">
+        <span>🧾 Hóa đơn</span>
+        <b>{display.invoices}</b>
+      </div>
+      <div className="flex justify-between">
+        <span>💰 Doanh thu</span>
+        <b className="text-green-700">{display.revenue}</b>
+      </div>
+      <div className="flex justify-between">
+        <span>💸 Chi phí</span>
+        <b className="text-orange-600">{display.cost}</b>
+      </div>
+      <div className="flex justify-between">
+        <span>📈 Lợi nhuận</span>
+        <b className="text-blue-700">{display.profit}</b>
+      </div>
+      <div className="flex justify-between">
+        <span>📒 Công nợ</span>
+        <b className="text-red-600">{display.debt}</b>
+      </div>
+    </div>
+  );
+
+  const showBranches = !!summary && !!summary.branches && summary.branches!.length >= 1;
+
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md">
@@ -177,6 +211,18 @@ export default function StoreLoginPage() {
                 )}
                 {summaryLoading ? (
                   <div className="text-xs text-gray-400 text-center py-2">Đang tải tóm tắt...</div>
+                ) : summary && showBranches && summary.branches!.length > 1 ? (
+                  <div className="space-y-3 border-t border-blue-100 pt-3 text-left">
+                    {summary.branches!.map((br) => (
+                      <div key={br.id} className="bg-blue-50 rounded-lg p-2.5">
+                        <BranchStats title={br.name} display={br.display} />
+                      </div>
+                    ))}
+                    <div className="flex justify-between text-sm">
+                      <span>⏰ Đồng bộ</span>
+                      <b>{summary.lastSync || 'Chưa đồng bộ'}</b>
+                    </div>
+                  </div>
                 ) : summary ? (
                   <div className="space-y-1.5 text-sm">
                     <div className="flex justify-between">
