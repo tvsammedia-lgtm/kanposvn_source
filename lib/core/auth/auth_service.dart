@@ -783,15 +783,15 @@ class AuthService extends ChangeNotifier {
     return prefs.getString(_kStoreAddressKey);
   }
 
-  /// "SĐT - Địa chỉ" cho dòng "Địa chỉ:" trên tiêu đề báo cáo (.rpt):
-  /// join SĐT + địa chỉ cửa hàng (2 trường "SĐT / Địa chỉ" trên admin-web).
-  /// Trả về null nếu không có gì.
+  /// "Địa chỉ - SĐT" cho dòng "Địa chỉ:" trên tiêu đề báo cáo (.rpt):
+  /// join địa chỉ cửa hàng trước rồi đến SĐT (2 trường "SĐT / Địa chỉ" trên
+  /// admin-web đảo thứ tự: địa chỉ - số ĐT). Trả về null nếu không có gì.
   static Future<String?> loadSavedPhoneAddress() async {
     final phone = (await loadSavedStorePhone())?.trim() ?? '';
     final address = (await loadSavedStoreAddress())?.trim() ?? '';
     final parts = <String>[
-      if (phone.isNotEmpty) phone,
       if (address.isNotEmpty) address,
+      if (phone.isNotEmpty) phone,
     ];
     return parts.isNotEmpty ? parts.join(' - ') : null;
   }
