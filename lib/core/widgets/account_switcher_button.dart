@@ -5,6 +5,7 @@ import '../auth/auth_service.dart';
 import '../module_enum.dart';
 import '../providers.dart';
 import '../router/module_selector_screen.dart';
+import '../router/branch_selector_screen.dart';
 import '../sync/sync_providers.dart';
 
 /// Nút "Đổi tài khoản" ở góc phải màn hình: hiển thị tài khoản hiện tại và mở
@@ -221,6 +222,17 @@ class AccountSwitcherButton extends ConsumerWidget {
 
       if (module.appCode == 'kanposvncafe' || module.appCode == 'nhansu') {
         ref.read(syncEngineProvider).triggerSync();
+      }
+
+      // Mô hình 1 module = nhiều chi nhánh: module có chi nhánh → hiện màn hình
+      // chọn chi nhánh để chuyển (giống luồng sau login), KHÔNG vào shell ngay.
+      final branches = await auth.fetchBranches(module.appCode);
+      if (branches.isNotEmpty) {
+        // Đặt branch selector và bỏ shell hiện tại để main.dart render
+        // BranchSelectorScreen (thứ tự: ưu tiên selectedModule trước).
+        ref.read(selectedModuleProvider.notifier).state = null;
+        ref.read(branchSelectorModuleProvider.notifier).state = module;
+        return;
       }
 
       // Đặt selectedModule để main.dart render shell của module mới.
