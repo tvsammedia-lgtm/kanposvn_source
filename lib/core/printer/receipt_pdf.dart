@@ -33,6 +33,11 @@ Future<void> printReceiptPdf(
   }
 
   final ownerHeader = await buildOwnerHeaderLine();
+  // Tránh in trùng thông tin đơn vị: đã in shopOwnerName thì không in ownerHeader nữa.
+  final showsOwnerName =
+      receipt.shopOwnerName != null &&
+      receipt.shopOwnerName!.isNotEmpty &&
+      receipt.shopOwnerName != receipt.shopName;
 
   final pdf = pw.Document();
 
@@ -91,7 +96,7 @@ Future<void> printReceiptPdf(
                   style: pw.TextStyle(fontSize: 8),
                 ),
               ),
-            if (ownerHeader != null)
+            if (ownerHeader != null && !showsOwnerName)
               pw.Center(
                 child: pw.Text(ownerHeader, style: pw.TextStyle(fontSize: 8)),
               ),
