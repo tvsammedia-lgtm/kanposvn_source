@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/auth/employee_auth.dart';
 import '../../../core/auth/employee_management_screen.dart';
 import '../../../core/widgets/generic_backup_restore_screen.dart';
+import '../../kanposvngara/screens/gara_sync_screen.dart';
 import '../providers/vlxd_providers.dart';
 import '../services/vlxd_einvoice_settings.dart';
 import '../services/vlxd_report_service.dart';
@@ -211,6 +212,35 @@ class _VlxdSettingsScreenState extends ConsumerState<VlxdSettingsScreen> {
                   ),
                 ],
               ),
+            ),
+          ),
+
+          const SizedBox(height: 20),
+
+          // -----------------------------------------------------------------
+          // Đồng bộ KanPosVN Gara
+          // -----------------------------------------------------------------
+          Text('ĐỒNG BỘ DỮ LIỆU',
+              style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.grey[700])),
+          const SizedBox(height: 8),
+          Card(
+            child: ListTile(
+              leading:
+                  const Icon(Icons.cloud_sync, color: Colors.deepOrange),
+              title: const Text('Đồng bộ KanPosVN Gara'),
+              subtitle: const Text(
+                  'Đẩy dữ liệu Isar của Gara lên server qua Vercel API'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => const GaraSyncScreen(),
+                  ),
+                );
+              },
             ),
           ),
 
