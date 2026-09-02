@@ -24,15 +24,37 @@ function getToken(req: NextRequest) {
 
 /// Chuyển timestamp từ dữ liệu điện thoại (Dart toIso8601String không có offset)
 /// thành thời điểm thực. Nếu chuỗi không có múi giờ -> coi là giờ VN (+07:00).
+/// Hỗ trợ cả số nguyên microgiây của các module như kanposvngara
+/// (orderDate, updatedAt, transactionDate...) -> chia 1000 thành millis.
 function parseTs(value: unknown): number | null {
   if (value == null || value === '') return null;
-  const s = String(value);
+  // Số nguyên: < 1e14 là millis giữ nguyên; >= 1e14 là microgiây -> chia 1000.
+  if (typeof value === 'number' && Number.isFinite(value)) {
+    return value >= 1e14 ? value / 1000 : value;
+  }
+  const s = String(value).trim();
+  if (/^\d{12,}$/.test(s)) {
+    const n = Number(s);
+    if (!Number.isNaN(n)) return n >= 1e14 ? n / 1000 : n;
+  }
   let t = Date.parse(s);
   if (Number.isNaN(t)) return null;
   if (!/[zZ]|[+-]\d\d:?\d\d$/.test(s)) {
     t -= VN_OFFSET_MS;
   }
   return t;
+}
+
+/// Trạng thái hóa đơn đã thanh toán: chấp nhận cả chuỗi trạng thái cũ và
+/// dạng SỐ của các module như gara (status: 2 = hoàn thành, 3 = đã giao xe).
+function isPaidStatus(d: Record<string, unknown>): boolean {
+  const raw = d.status;
+  const s = String(raw ?? '').trim();
+  if (s === 'daThanhToan' || s === 'paid' || s === 'DA_THANH_TOAN') return true;
+  // status dạng số nguyên của gara: coi >= 2 (hoàn thành/giao xe) là đã thanh toán.
+  if (typeof raw === 'number' && raw >= 2) return true;
+  if (s !== '' && !Number.isNaN(Number(s)) && Number(s) >= 2) return true;
+  return false;
 }
 
 function parseData(data: unknown): Record<string, unknown> {
@@ -114,6 +136,32 @@ export async function GET(req: NextRequest) {
 
     const dataRows = await sql`SELECT app_code, collection, data FROM sync_data`;
 
+    // Định danh collection cho mọi module (kể cả gara với tên viết hoa):
+    // - Hóa đơn: cafe_orders / orders / *__orders / GaraRepairOrder / GaraInvoice
+    // - Giao dịch thu chi: cash_transactions / transactions / expense / GaraFinanceTransaction
+    // - Công nợ: khách hàng / nhà cung cấp / *__Debt (gara dùng GaraCustomer.currentDebt)
+    const isInvoiceColl = (c: string) =>
+      c === 'cafe_orders' ||
+      c === 'orders' ||
+      c.endsWith('_orders') ||
+      c === 'GaraRepairOrder' ||
+      c === 'GaraInvoice';
+    const isTxColl = (c: string) =>
+      c.includes('cash_transactions') ||
+      c.includes('transactions') ||
+      c.includes('expense') ||
+      c === 'GaraFinanceTransaction';
+    const DEBT_COLLS = [
+      'cafe_customers',
+      'cafe_suppliers',
+      'customers',
+      'suppliers',
+      'customer_debts',
+      'supplier_debts',
+      'GaraCustomer',
+      'GaraSupplier',
+    ];
+
     const lastLogs = await sql`
       SELECT DISTINCT ON (app_code) app_code, created_at
       FROM sync_logs ORDER BY app_code, created_at DESC
@@ -126,6 +174,60 @@ export async function GET(req: NextRequest) {
     const storeById = new Map<string, { ownerId: string; storeName: string }>();
     for (const s of stores) {
       storeById.set(s.store_id, { ownerId: s.owner_id, storeName: s.store_name });
+    }
+
+    // Bản đồ app_code -> owner dành cho MODULE ĐA CHI NHÁNH (Gara, VLXD, ...)
+    // mà dữ liệu sync_data KHÔNG nhúng storeId (chỉ gắn app_code).
+    // Quy về chủ sở hữu qua customers.owner_user_id; nếu có nhiều owner cùng
+    // dùng một app_code thì ưu tiên owner có cửa hàng đăng ký (stores), rồi mới
+    // đến owner có license active.
+    const branchRows = await sql`
+      SELECT b.app_code, c.owner_user_id, c.name AS customer_name
+      FROM branches b
+      JOIN customers c ON c.id = b.customer_id
+      WHERE c.owner_user_id IS NOT NULL
+      GROUP BY b.app_code, c.owner_user_id, c.name
+    `;
+    const ownerByApp = new Map<string, { ownerId: string; customerName: string }>();
+    const storeOwnerIds = new Set(stores.map((s) => String(s.owner_id)));
+    const branchOwnersByApp = new Map<string, Array<{ ownerId: string; customerName: string }>>();
+    for (const br of branchRows) {
+      const code = String(br.app_code);
+      const owner = { ownerId: String(br.owner_user_id), customerName: String(br.customer_name || '') };
+      const list = branchOwnersByApp.get(code);
+      if (list) {
+        if (!list.some((o) => o.ownerId === owner.ownerId)) list.push(owner);
+      } else {
+        branchOwnersByApp.set(code, [owner]);
+      }
+    }
+    const pickOwner = (candidates: Array<{ ownerId: string; customerName: string }>) => {
+      if (!candidates.length) return null;
+      const withStore = candidates.find((o) => storeOwnerIds.has(o.ownerId));
+      const owner = withStore ?? candidates[0];
+      // Khớp store (nếu tồn tại) để lấy tên chuẩn.
+      return {
+        ownerId: owner.ownerId,
+        customerName: owner.customerName,
+      };
+    };
+    const licenseOwnersByApp = new Map<string, Array<{ ownerId: string; customerName: string }>>();
+    for (const lic of licenses) {
+      const code = String(lic.app_code);
+      const list = licenseOwnersByApp.get(code) ?? [];
+      list.push({ ownerId: String(lic.user_id), customerName: '' });
+      licenseOwnersByApp.set(code, list);
+    }
+    for (const code of new Set([...branchOwnersByApp.keys(), ...licenseOwnersByApp.keys()])) {
+      const candidates = branchOwnersByApp.get(code) ?? [];
+      const picked = pickOwner(candidates);
+      if (picked) {
+        ownerByApp.set(code, picked);
+      } else {
+        const licCandidates = licenseOwnersByApp.get(code) ?? [];
+        const licPicked = pickOwner(licCandidates);
+        if (licPicked) ownerByApp.set(code, licPicked);
+      }
     }
 
     const combos = new Map<string, OwnerCombo>();
@@ -161,7 +263,37 @@ export async function GET(req: NextRequest) {
       const appCode = String(row.app_code);
       const d = parseData(row.data);
       const storeId = d.storeId ? String(d.storeId) : null;
-      if (!storeId) continue;
+      if (!storeId) {
+        // Module đa chi nhánh (Gara/VLXD...): dữ liệu không có storeId nhưng có
+        // app_code → quy về owner qua customers.owner_user_id để không bị 0.
+        const appOwner = ownerByApp.get(appCode);
+        if (!appOwner) continue;
+        const key = comboKey(appOwner.ownerId, appCode);
+        const existing = combos.get(key);
+        if (existing) {
+          // Đã có combo (từ license): điền tên chi nhánh/customer cho dễ nhận diện.
+          if (!existing.storeName && appOwner.customerName) {
+            existing.storeName = appOwner.customerName;
+          }
+          continue;
+        }
+        combos.set(key, {
+          ownerId: appOwner.ownerId,
+          ownerName: '',
+          ownerEmail: '',
+          ownerPhone: '',
+          storeId: '',
+          storeName: appOwner.customerName,
+          appCode,
+          appName: appNameMap.get(appCode) || appCode,
+          invoices: 0,
+          revenue: 0,
+          cost: 0,
+          debt: 0,
+          lastSync: lastSyncByApp.get(appCode) || null,
+        });
+        continue;
+      }
       const store = storeById.get(storeId);
       if (!store) continue;
       const key = comboKey(store.ownerId, appCode);
@@ -229,48 +361,58 @@ export async function GET(req: NextRequest) {
       const collection = String(row.collection || '');
       const d = parseData(row.data);
       const storeId = d.storeId ? String(d.storeId) : null;
-      const store = storeId ? storeById.get(storeId) : null;
-      if (!store) continue;
-      const combo = combos.get(comboKey(store.ownerId, appCode));
+      let ownerId: string;
+      if (storeId) {
+        const store = storeById.get(storeId);
+        if (!store) continue;
+        ownerId = store.ownerId;
+      } else {
+        // Module đa chi nhánh (Gara/VLXD...): không có storeId → quy về owner
+        // theo app_code qua customers.owner_user_id.
+        const appOwner = ownerByApp.get(appCode);
+        if (!appOwner) continue;
+        ownerId = appOwner.ownerId;
+      }
+      const combo = combos.get(comboKey(ownerId, appCode));
       if (!combo) continue;
 
-      const isInvoiceColl =
-        collection === 'cafe_orders' || collection === 'orders' || collection.endsWith('_orders');
-      const isTxColl =
-        collection.includes('cash_transactions') ||
-        collection.includes('transactions') ||
-        collection.includes('expense');
-      const isDebtColl = [
-        'cafe_customers',
-        'cafe_suppliers',
-        'customers',
-        'suppliers',
-        'customer_debts',
-        'supplier_debts',
-      ].includes(collection);
-
-      if (isInvoiceColl) {
-        const status = String(d.status || '');
-        if (status === 'daThanhToan' || status === 'paid' || status === 'DA_THANH_TOAN') {
-          const t = parseTs(d.paidAt) ?? parseTs(d.createdAt) ?? parseTs(d.updatedAt);
+      if (isInvoiceColl(collection)) {
+        if (isPaidStatus(d)) {
+          // Thời gian: gara dùng orderDate/paidDate/updatedAt dạng Unix millis.
+          const t = parseTs(d.paidAt)
+            ?? parseTs(d.orderDate)
+            ?? parseTs(d.transactionDate)
+            ?? parseTs(d.createdAt)
+            ?? parseTs(d.updatedAt);
           if (t != null && t >= startOfTodayVn) {
-            const total = Number(d.grandTotal ?? d.totalAmount ?? d.total ?? 0) || 0;
+            const total =
+              Number(d.paidAmount ?? d.grandTotal ?? d.totalAmount ?? d.total ?? 0) || 0;
             if (total > 0) {
               combo.invoices += 1;
               combo.revenue += total;
             }
           }
         }
-      } else if (isTxColl) {
-        const type = String(d.type || '');
-        if (type === 'EXPENSE' || type === 'expense') {
-          const t = parseTs(d.timestamp) ?? parseTs(d.createdAt);
+      } else if (isTxColl(collection)) {
+        // Gara finance: type dạng SỐ (0 = thu, 1/2 = chi...). Chấp nhận cả chuỗi.
+        const rawType = d.type;
+        const type = String(rawType ?? '').trim();
+        const isExpense =
+          type === 'EXPENSE' ||
+          type === 'expense' ||
+          (typeof rawType === 'number' && rawType > 0);
+        if (isExpense) {
+          const t = parseTs(d.transactionDate)
+            ?? parseTs(d.timestamp)
+            ?? parseTs(d.createdAt);
           if (t != null && t >= startOfTodayVn) {
             combo.cost += Number(d.amount ?? d.total ?? 0) || 0;
           }
         }
-      } else if (isDebtColl) {
-        combo.debt += Number(d.debtAmount ?? d.debt ?? d.balance ?? 0) || 0;
+      } else if (DEBT_COLLS.includes(collection)) {
+        // Gara customer/supplier dùng currentDebt.
+        combo.debt +=
+          Number(d.currentDebt ?? d.debtAmount ?? d.debt ?? d.balance ?? 0) || 0;
       }
     }
 
