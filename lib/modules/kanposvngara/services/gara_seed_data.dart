@@ -1,4 +1,5 @@
 import 'gara_isar_service.dart';
+import '../../../core/utils/branch_variant.dart';
 import '../models/gara_product.dart';
 import '../models/gara_customer.dart';
 import '../models/gara_vehicle.dart';
@@ -13,10 +14,10 @@ class GaraSeedData {
     final count = await db.garaProducts.count();
     if (count > 0) return;
 
-    // Mỗi CHI NHÁNH (mô hình 1 module = nhiều chi nhánh) dùng DB riêng.
-    // Không tự gieo demo data vào chi nhánh để mỗi nhánh chỉ nhận dữ liệu
-    // thật của chính nó qua sync — tránh các nhánh hiển thị cùng bộ dữ liệu.
-    if (service.branchId != null && service.branchId!.isNotEmpty) return;
+    // Mỗi CHI NHÁNH (mô hình 1 module = nhiều chi nhánh) dùng DB riêng và có
+    // bộ demo data riêng (biến thể theo branchId) để admin phân biệt được
+    // từng nhánh thay vì mọi nhánh hiển thị cùng một bộ số liệu.
+    final variant = BranchVariant.fromBranchId(service.branchId);
 
     final now = DateTime.now();
 
@@ -64,6 +65,14 @@ class GaraSeedData {
       GaraCustomer()..customerId = 'KH-009'..name = 'Bùi Văn Lân'..phone = '0989012345'..address = '369 Trần Hưng Đạo, Q.5'..currentDebt = 0,
       GaraCustomer()..customerId = 'KH-010'..name = 'Lý Thị Mai'..phone = '0990123456'..address = '741 Nguyễn Trãi, Q.1'..currentDebt = 0,
     ];
+    if (variant.index != 0) {
+      for (var i = 0; i < customers.length; i++) {
+        customers[i].name = '${customers[i].name} (CN-${variant.label})';
+        if (customers[i].currentDebt > 0) {
+          customers[i].currentDebt = variant.scale(customers[i].currentDebt);
+        }
+      }
+    }
     await db.writeTxn(() async {
       await db.garaCustomers.putAll(customers);
     });
@@ -76,6 +85,13 @@ class GaraSeedData {
       GaraSupplier()..supplierId = 'NCC-004'..name = 'Ắc quy GS Battery'..phone = '02845678901'..address = 'KCN Đồng Nai'..currentDebt = 1500000,
       GaraSupplier()..supplierId = 'NCC-005'..name = 'Bosch Vietnam'..phone = '02856789012'..address = 'Q.7, TP.HCM'..currentDebt = 0,
     ];
+    if (variant.index != 0) {
+      for (var i = 0; i < suppliers.length; i++) {
+        if (suppliers[i].currentDebt > 0) {
+          suppliers[i].currentDebt = variant.scale(suppliers[i].currentDebt);
+        }
+      }
+    }
     await db.writeTxn(() async {
       await db.garaSuppliers.putAll(suppliers);
     });
@@ -121,6 +137,17 @@ class GaraSeedData {
       GaraRepairOrder()..orderId = 'RO-SEED-11'..orderCode = 'RO-1000011'..status = GaraOrderStatus.RECEPTION..orderDate = now.subtract(const Duration(hours: 2))..currentKm = 55000..notes = 'Rửa xe + vệ sinh nội thất'..customer.value = customers[0]..vehicle.value = vehicles[4],
       GaraRepairOrder()..orderId = 'RO-SEED-12'..orderCode = 'RO-1000012'..status = GaraOrderStatus.RECEPTION..orderDate = now.subtract(const Duration(hours: 1))..currentKm = 30000..notes = 'Bảo dưỡng định kỳ'..customer.value = customers[3]..vehicle.value = vehicles[9],
     ];
+    if (variant.index != 0) {
+      for (var i = 0; i < orders.length; i++) {
+        orders[i].orderCode = variant.codeWith(orders[i].orderCode);
+        if (orders[i].totalAmount > 0) {
+          orders[i].totalAmount = variant.scale(orders[i].totalAmount);
+        }
+        if (orders[i].paidAmount > 0) {
+          orders[i].paidAmount = variant.scale(orders[i].paidAmount);
+        }
+      }
+    }
     await db.writeTxn(() async {
       await db.garaRepairOrders.putAll(orders);
       for (final o in orders) {
@@ -253,6 +280,12 @@ class GaraSeedData {
       GaraFinanceTransaction()..transactionId = 'FIN-011'..documentCode = 'PC-1000004'..type = GaraFinanceTransactionType.PAYMENT..amount = 5000000..description = 'Thanh toán NCC Ắc quy GS (NK-1000002)'..transactionDate = now.subtract(const Duration(days: 12))..supplier.value = suppliers[3],
       GaraFinanceTransaction()..transactionId = 'FIN-012'..documentCode = 'PC-1000005'..type = GaraFinanceTransactionType.PAYMENT..amount = 2500000..description = 'Chi tiền lương nhân viên'..transactionDate = now.subtract(const Duration(days: 5)),
     ];
+    if (variant.index != 0) {
+      for (var i = 0; i < finTxs.length; i++) {
+        finTxs[i].amount = variant.scale(finTxs[i].amount);
+        finTxs[i].documentCode = variant.codeWith(finTxs[i].documentCode);
+      }
+    }
     await db.writeTxn(() async {
       for (final tx in finTxs) {
         await db.garaFinanceTransactions.put(tx);

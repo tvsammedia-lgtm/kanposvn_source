@@ -1,5 +1,6 @@
 import 'package:isar/isar.dart';
 import 'package:uuid/uuid.dart';
+import '../../../core/utils/branch_variant.dart';
 import '../models/vlxd_product.dart';
 import '../models/vlxd_order.dart';
 import '../models/vlxd_inventory.dart';
@@ -15,10 +16,10 @@ class VlxdSeedData {
     final categoryCount = await db.vlxdProductCategorys.count();
     if (categoryCount > 0) return;
 
-    // Mỗi CHI NHÁNH (mô hình 1 module = nhiều chi nhánh) dùng DB riêng.
-    // Không tự gieo demo data vào chi nhánh để mỗi nhánh chỉ nhận dữ liệu
-    // thật của chính nó qua sync — tránh các nhánh hiển thị cùng bộ dữ liệu.
-    if (isarService.branchId != null && isarService.branchId!.isNotEmpty) return;
+    // Mỗi CHI NHÁNH (mô hình 1 module = nhiều chi nhánh) dùng DB riêng và có
+    // bộ demo data riêng (biến thể theo branchId) để admin phân biệt được
+    // từng nhánh thay vì mọi nhánh hiển thị cùng một bộ số liệu.
+    final variant = BranchVariant.fromBranchId(isarService.branchId);
 
     final uuid = const Uuid();
 
@@ -1714,5 +1715,44 @@ class VlxdSeedData {
     await db.writeTxn(() async {
       await db.vlxdFinanceTransactions.putAll(finance);
     });
+
+    // ── Biến thể demo theo chi nhánh ────────────────────────────────
+    // Sau khi seed bộ cơ sở, điều chỉnh (hệ số tiền + nhãn) cho từng chi nhánh
+    // để mỗi nhánh hiển thị doanh thu / công nợ / mã đơn khác nhau.
+    if (variant.index != 0) {
+      await db.writeTxn(() async {
+        final allCustomers = await db.vlxdCustomers.where().findAll();
+        for (var i = 0; i < allCustomers.length; i++) {
+          final c = allCustomers[i];
+          c.name = '${c.name} (CN-${variant.label})';
+          if (c.currentDebt > 0) c.currentDebt = variant.scale(c.currentDebt);
+          await db.vlxdCustomers.put(c);
+        }
+        final allSuppliers = await db.vlxdSuppliers.where().findAll();
+        for (var i = 0; i < allSuppliers.length; i++) {
+          final s = allSuppliers[i];
+          if (s.currentDebt > 0) s.currentDebt = variant.scale(s.currentDebt);
+          await db.vlxdSuppliers.put(s);
+        }
+        final allOrders = await db.vlxdOrders.where().findAll();
+        for (var i = 0; i < allOrders.length; i++) {
+          final o = allOrders[i];
+          o.orderCode = variant.codeWith(o.orderCode);
+          o.subTotal = variant.scale(o.subTotal);
+          o.vatAmount = variant.scale(o.vatAmount);
+          o.shippingFee = variant.scale(o.shippingFee);
+          o.totalAmount = variant.scale(o.totalAmount);
+          o.paidAmount = variant.scale(o.paidAmount);
+          await db.vlxdOrders.put(o);
+        }
+        final allFinance = await db.vlxdFinanceTransactions.where().findAll();
+        for (var i = 0; i < allFinance.length; i++) {
+          final f = allFinance[i];
+          f.amount = variant.scale(f.amount);
+          f.documentCode = variant.codeWith(f.documentCode);
+          await db.vlxdFinanceTransactions.put(f);
+        }
+      });
+    }
   }
 }
