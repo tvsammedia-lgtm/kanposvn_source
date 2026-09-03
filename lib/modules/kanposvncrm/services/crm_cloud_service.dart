@@ -87,6 +87,43 @@ class CrmCloudService {
     throw Exception((data['error'] as String?) ?? 'Lỗi tạo đơn bán');
   }
 
+  /// Danh sách yêu cầu mua thêm module / chi nhánh (admin).
+  Future<List<Map<String, dynamic>>> fetchAddonRequests({String? status}) async {
+    final qs = (status != null && status.isNotEmpty) ? '?status=$status' : '';
+    final res = await http
+        .get(_uri('/api/crm/addon-requests$qs'), headers: _headers)
+        .timeout(ApiConfig.timeout);
+    if (res.statusCode == 200) {
+      final data = jsonDecode(utf8.decode(res.bodyBytes));
+      return List<Map<String, dynamic>>.from(data as List);
+    }
+    throw Exception('Lỗi tải yêu cầu: ${res.statusCode}');
+  }
+
+  /// Admin duyệt / từ chối yêu cầu mua thêm (action: 'approve' | 'reject').
+  /// Khi approve, truyền thêm plan ('trial' | 'yearly' | 'forever').
+  Future<Map<String, dynamic>> approveAddonRequest({
+    required String requestId,
+    required String action,
+    String? plan,
+  }) async {
+    final res = await http
+        .post(
+          _uri('/api/crm/addon-requests/$requestId'),
+          headers: _headers,
+          body: jsonEncode({
+            'action': action,
+            if (plan != null && plan.isNotEmpty) 'plan': plan,
+          }),
+        )
+        .timeout(ApiConfig.timeout);
+    final data = jsonDecode(utf8.decode(res.bodyBytes));
+    if (res.statusCode == 200) {
+      return data as Map<String, dynamic>;
+    }
+    throw Exception((data['error'] as String?) ?? 'Lỗi duyệt yêu cầu');
+  }
+
   /// Admin duyệt / từ chối khách hàng đăng ký (action: 'approve' | 'reject').
   Future<Map<String, dynamic>> approveCustomer({
     required String customerId,

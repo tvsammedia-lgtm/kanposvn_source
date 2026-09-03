@@ -11,6 +11,7 @@ import 'crm_license_screen.dart';
 import 'crm_ticket_screen.dart';
 import 'crm_sale_screen.dart';
 import 'crm_cloud_customers_screen.dart';
+import 'crm_addon_requests_screen.dart';
 import 'crm_backup_screen.dart';
 
 class CrmDashboardScreen extends ConsumerWidget {
@@ -44,6 +45,14 @@ class CrmDashboardScreen extends ConsumerWidget {
               onTap: () {
                 Navigator.pop(context);
                 Navigator.push(context, MaterialPageRoute(builder: (_) => const CrmCloudCustomersScreen()));
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.add_business),
+              title: const Text('Duyệt mua thêm module/chi nhánh'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(context, MaterialPageRoute(builder: (_) => const CrmAddonRequestsScreen()));
               },
             ),
             ListTile(
