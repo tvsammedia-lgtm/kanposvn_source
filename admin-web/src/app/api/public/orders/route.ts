@@ -90,7 +90,7 @@ export async function POST(request: Request) {
     if (sessions.length > 0) {
       sessionId = sessions[0].id;
     } else {
-      const sessionCode = \`SES-\${Date.now()}-\${Math.floor(Math.random()*1000)}\`;
+      const sessionCode = 'SES-' + Date.now().toString() + '-' + Math.floor(Math.random()*1000).toString();
       const newSession = await sql`
         INSERT INTO table_sessions (app_code, branch_id, table_id, session_code)
         VALUES (${table.app_code}, ${table.branch_id}, ${table.id}, ${sessionCode})
@@ -100,7 +100,7 @@ export async function POST(request: Request) {
     }
 
     // 4. Generate Order No & Insert Order
-    const orderNo = \`QR-\${Date.now().toString().slice(-6)}\`;
+    const orderNo = 'QR-' + Date.now().toString().slice(-6);
     const total = subtotal; // Assuming no tax/discount applied on QR by default
 
     // We do transaction-like inserts by inserting order then items
