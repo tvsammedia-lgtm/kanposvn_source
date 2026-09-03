@@ -258,6 +258,9 @@ export default function StoreLoginPage() {
             <Link href="/download" className="block w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors text-center">
               Tải POS về máy
             </Link>
+            <Link href="/buy-more" className="block w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors text-center mt-3">
+              Tiếp tục
+            </Link>
             <button
               onClick={() => { localStorage.removeItem('store_token'); localStorage.removeItem('store_user'); setResult(null); setDaysLeft(null); setSummary(null); setSummaryError(''); setAppCodes([]); setSelectedApp(''); }}
               className="w-full mt-3 text-gray-500 text-sm font-medium hover:underline"
