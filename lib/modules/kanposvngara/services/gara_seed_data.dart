@@ -13,6 +13,11 @@ class GaraSeedData {
     final count = await db.garaProducts.count();
     if (count > 0) return;
 
+    // Mỗi CHI NHÁNH (mô hình 1 module = nhiều chi nhánh) dùng DB riêng.
+    // Không tự gieo demo data vào chi nhánh để mỗi nhánh chỉ nhận dữ liệu
+    // thật của chính nó qua sync — tránh các nhánh hiển thị cùng bộ dữ liệu.
+    if (service.branchId != null && service.branchId!.isNotEmpty) return;
+
     final now = DateTime.now();
 
     // ── Phase 1: Independent entities ──────────────────────────

@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:isar/isar.dart';
+import '../../../core/providers.dart';
 import '../services/gara_isar_service.dart';
 import '../services/gara_neon_sync_service.dart';
 import '../services/gara_einvoice_settings.dart';
@@ -12,8 +13,12 @@ import '../models/gara_inventory.dart';
 import '../models/gara_finance.dart';
 
 // Services
+/// Isar service theo CHI NHÁNH hiện tại của thiết bị. Khi đổi chi nhánh
+/// (`auth.branchId` thay đổi) provider được tạo lại → toàn bộ các notifier
+/// phụ thuộc reload dữ liệu từ DB riêng của chi nhánh mới.
 final garaIsarServiceProvider = Provider<GaraIsarService>((ref) {
-  return GaraIsarService();
+  final branchId = ref.watch(authServiceProvider.select((a) => a.branchId));
+  return GaraIsarService(branchId: branchId);
 });
 
 final garaTabIndexProvider = StateProvider<int>((ref) => 0);

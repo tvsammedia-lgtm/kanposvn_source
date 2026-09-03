@@ -14,6 +14,12 @@ class VlxdSeedData {
     final db = await isarService.db;
     final categoryCount = await db.vlxdProductCategorys.count();
     if (categoryCount > 0) return;
+
+    // Mỗi CHI NHÁNH (mô hình 1 module = nhiều chi nhánh) dùng DB riêng.
+    // Không tự gieo demo data vào chi nhánh để mỗi nhánh chỉ nhận dữ liệu
+    // thật của chính nó qua sync — tránh các nhánh hiển thị cùng bộ dữ liệu.
+    if (isarService.branchId != null && isarService.branchId!.isNotEmpty) return;
+
     final uuid = const Uuid();
 
     // ----------------------------------------------------------------

@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:isar/isar.dart';
 
+import '../../../core/providers.dart';
 import '../services/vlxd_isar_service.dart';
 import '../services/vlxd_neon_sync_service.dart';
 import '../services/vlxd_einvoice_settings.dart';
@@ -44,8 +45,12 @@ final vlxdProductCategoriesProvider = FutureProvider<List<VlxdProductCategory>>(
 });
 
 // Services
+/// Isar service theo CHI NHÁNH hiện tại của thiết bị. Khi đổi chi nhánh
+/// (`auth.branchId` thay đổi) provider được tạo lại → toàn bộ các notifier
+/// phụ thuộc reload dữ liệu từ DB riêng của chi nhánh mới.
 final vlxdIsarServiceProvider = Provider<VlxdIsarService>((ref) {
-  return VlxdIsarService();
+  final branchId = ref.watch(authServiceProvider.select((a) => a.branchId));
+  return VlxdIsarService(branchId: branchId);
 });
 
 final vlxdNeonSyncServiceProvider = Provider<VlxdNeonSyncService>((ref) {
