@@ -59,7 +59,7 @@ class HotelNeonSyncService {
     }
   }
 
-  Future<bool> triggerSync(String vercelApiUrl, String apiKey) async {
+  Future<bool> triggerSync(String vercelApiUrl, String apiKey, {String? branchId}) async {
     if (_isSyncing) return false;
     _isSyncing = true;
     try {
@@ -73,6 +73,7 @@ class HotelNeonSyncService {
           apiKey: apiKey,
         ),
         appCode: 'kanposvnkhachsan',
+        branchId: branchId,
         collections: [
           SnapshotSyncCollection(collection: isar.hotelRooms, keyField: 'roomId'),
           SnapshotSyncCollection(collection: isar.roomTypes, keyField: 'typeCode'),

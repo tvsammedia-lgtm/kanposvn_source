@@ -183,7 +183,11 @@ class _KanPosVNKhachSanShellState extends ConsumerState<KanPosVNKhachSanShell> {
             onPressed: () async {
               final syncService = ref.read(hotelNeonSyncServiceProvider);
               // Assuming API URL and key are fetched from a config or environment
-              final success = await syncService.triggerSync(ApiConfig.baseUrl, ApiConfig.syncApiKey);
+              final success = await syncService.triggerSync(
+                ApiConfig.baseUrl,
+                ApiConfig.syncApiKey,
+                branchId: ref.read(authServiceProvider).branchId,
+              );
               if (context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(

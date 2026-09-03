@@ -10,6 +10,11 @@ import '../router/branch_selector_screen.dart';
 import '../sync/api_config.dart';
 import '../sync/sync_providers.dart';
 import '../../modules/kanposvngara/providers/gara_providers.dart';
+import '../../modules/kanposvnbida/providers/bida_providers.dart';
+import '../../modules/kanposvnkhachsan/providers/hotel_providers.dart';
+import '../../modules/kanposvnnhathuoc/providers/nhathuoc_providers.dart';
+import '../../modules/kanposvnpawn/providers/isar_provider.dart';
+import '../../modules/kanposvnspa/providers/spa_providers.dart';
 
 /// Nút "Đổi tài khoản" ở góc phải màn hình: hiển thị tài khoản hiện tại và mở
 /// menu để chuyển module/chi nhánh (owner có nhiều chi nhánh) hoặc đăng xuất.
@@ -445,17 +450,7 @@ class _AccountSwitcherButtonState extends ConsumerState<AccountSwitcherButton> {
       await auth.switchModule(module);
       await auth.selectBranch(branch);
 
-      if (module.appCode == 'kanposvncafe' || module.appCode == 'nhansu') {
-        ref.read(syncEngineProvider).triggerSync();
-      } else if (module.appCode == 'kanposvngara') {
-        // Gara theo dõi dữ liệu theo CHI NHÁNH (Neon): refresh ngay dữ liệu của
-        // chi nhánh đã chọn để data trên shell cập nhật liền (không cần reboot).
-        unawaited(syncCurrentGaraBranchData(ref));
-      } else if (module.appCode == 'kanposvnvlxd') {
-        unawaited(ref.read(syncEngineProvider).triggerSync(
-          branchId: ref.read(authServiceProvider).branchId,
-        ));
-      }
+      await _triggerBranchSync(ref, module);
 
       // Re-mount shell: selectedModule null rồi set lại để cập nhật ngay.
       ref.read(selectedModuleProvider.notifier).state = null;
@@ -489,6 +484,49 @@ class _AccountSwitcherButtonState extends ConsumerState<AccountSwitcherButton> {
     ref.read(garaSuppliersProvider.notifier).loadSuppliers();
     ref.read(garaInventoryProvider.notifier).loadTransactions();
     ref.read(garaFinanceProvider.notifier).loadTransactions();
+  }
+
+  /// Kích hoạt đồng bộ theo CHI NHÁNH (giống kanposvnvlxd/kanposvngara) cho từng
+  /// module khi chuyển chi nhánh qua Account Switcher. Best-effort: lỗi mạng
+  /// không làm hỏng việc chuyển chi nhánh.
+  Future<void> _triggerBranchSync(WidgetRef ref, AppModule module) async {
+    try {
+      final branchId = ref.read(authServiceProvider).branchId;
+      switch (module.appCode) {
+        case 'kanposvncafe':
+        case 'nhansu':
+          ref.read(syncEngineProvider).triggerSync();
+          break;
+        case 'kanposvngara':
+          unawaited(syncCurrentGaraBranchData(ref));
+          break;
+        case 'kanposvnvlxd':
+          unawaited(ref.read(syncEngineProvider).triggerSync(branchId: branchId));
+          break;
+        case 'kanposvnbida':
+          unawaited(ref.read(bidaNeonSyncServiceProvider).triggerSync(
+            ApiConfig.baseUrl, ApiConfig.syncApiKey, branchId: branchId));
+          break;
+        case 'kanposvnkhachsan':
+          unawaited(ref.read(hotelNeonSyncServiceProvider).triggerSync(
+            ApiConfig.baseUrl, ApiConfig.syncApiKey, branchId: branchId));
+          break;
+        case 'kanposvnnhathuoc':
+          unawaited(ref.read(nhathuocNeonSyncServiceProvider).triggerSync(
+            ApiConfig.baseUrl, ApiConfig.syncApiKey, branchId: branchId));
+          break;
+        case 'kanposvnpawn':
+          unawaited(ref.read(pawnNeonSyncServiceProvider).triggerSync(
+            ApiConfig.baseUrl, ApiConfig.syncApiKey, branchId: branchId));
+          break;
+        case 'kanposvnspa':
+          unawaited(ref.read(spaNeonSyncServiceProvider).triggerSync(
+            ApiConfig.baseUrl, ApiConfig.syncApiKey, branchId: branchId));
+          break;
+      }
+    } catch (_) {
+      // Best-effort
+    }
   }
 
   Future<void> _signOut(BuildContext context, WidgetRef ref) async {

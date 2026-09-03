@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:isar/isar.dart';
 
@@ -20,13 +22,13 @@ final vlxdEinvoiceSettingsProvider =
 });
 
 // Inventory Stocks
-final vlxdStocksProvider = FutureProvider<List<VlxdInventoryStock>>((ref) async {
+final vlxdStocksProvider = FutureProvider.autoDispose<List<VlxdInventoryStock>>((ref) async {
   final isarService = ref.watch(vlxdIsarServiceProvider);
   final db = await isarService.db;
   return await db.vlxdInventoryStocks.where().findAll();
 });
 
-final vlxdWarehousesProvider = FutureProvider<List<VlxdWarehouse>>((ref) async {
+final vlxdWarehousesProvider = FutureProvider.autoDispose<List<VlxdWarehouse>>((ref) async {
   final isarService = ref.watch(vlxdIsarServiceProvider);
   final db = await isarService.db;
   final warehouses = await db.vlxdWarehouses.where().findAll();
@@ -35,7 +37,7 @@ final vlxdWarehousesProvider = FutureProvider<List<VlxdWarehouse>>((ref) async {
   return warehouses;
 });
 
-final vlxdProductCategoriesProvider = FutureProvider<List<VlxdProductCategory>>((ref) async {
+final vlxdProductCategoriesProvider = FutureProvider.autoDispose<List<VlxdProductCategory>>((ref) async {
   final isarService = ref.watch(vlxdIsarServiceProvider);
   final db = await isarService.db;
   final categories = await db.vlxdProductCategorys.where().findAll();
@@ -48,12 +50,18 @@ final vlxdProductCategoriesProvider = FutureProvider<List<VlxdProductCategory>>(
 /// Isar service theo CHI NHÁNH hiện tại của thiết bị. Khi đổi chi nhánh
 /// (`auth.branchId` thay đổi) provider được tạo lại → toàn bộ các notifier
 /// phụ thuộc reload dữ liệu từ DB riêng của chi nhánh mới.
-final vlxdIsarServiceProvider = Provider<VlxdIsarService>((ref) {
+final vlxdIsarServiceProvider = Provider.autoDispose<VlxdIsarService>((ref) {
   final branchId = ref.watch(authServiceProvider.select((a) => a.branchId));
-  return VlxdIsarService(branchId: branchId);
+  final service = VlxdIsarService(branchId: branchId);
+  ref.onDispose(() {
+    // Đóng DB của module VLXD khi provider bị dispose (rời module / đổi chi
+    // nhánh) — tránh giữ nhiều instance và tránh close() blocking khi chuyển.
+    unawaited(service.dispose());
+  });
+  return service;
 });
 
-final vlxdNeonSyncServiceProvider = Provider<VlxdNeonSyncService>((ref) {
+final vlxdNeonSyncServiceProvider = Provider.autoDispose<VlxdNeonSyncService>((ref) {
   final isarService = ref.watch(vlxdIsarServiceProvider);
   return VlxdNeonSyncService(isarService);
 });
@@ -87,7 +95,7 @@ class VlxdProductsNotifier extends StateNotifier<AsyncValue<List<VlxdProduct>>> 
   }
 }
 
-final vlxdProductsProvider = StateNotifierProvider<VlxdProductsNotifier, AsyncValue<List<VlxdProduct>>>((ref) {
+final vlxdProductsProvider = StateNotifierProvider.autoDispose<VlxdProductsNotifier, AsyncValue<List<VlxdProduct>>>((ref) {
   final isarService = ref.watch(vlxdIsarServiceProvider);
   return VlxdProductsNotifier(isarService);
 });
@@ -132,7 +140,7 @@ class VlxdOrdersNotifier extends StateNotifier<AsyncValue<List<VlxdOrder>>> {
   }
 }
 
-final vlxdOrdersProvider = StateNotifierProvider<VlxdOrdersNotifier, AsyncValue<List<VlxdOrder>>>((ref) {
+final vlxdOrdersProvider = StateNotifierProvider.autoDispose<VlxdOrdersNotifier, AsyncValue<List<VlxdOrder>>>((ref) {
   final isarService = ref.watch(vlxdIsarServiceProvider);
   return VlxdOrdersNotifier(isarService);
 });
@@ -201,7 +209,7 @@ class VlxdInventoryNotifier extends StateNotifier<AsyncValue<List<VlxdInventoryT
   }
 }
 
-final vlxdInventoryProvider = StateNotifierProvider<VlxdInventoryNotifier, AsyncValue<List<VlxdInventoryTransaction>>>((ref) {
+final vlxdInventoryProvider = StateNotifierProvider.autoDispose<VlxdInventoryNotifier, AsyncValue<List<VlxdInventoryTransaction>>>((ref) {
   final isarService = ref.watch(vlxdIsarServiceProvider);
   return VlxdInventoryNotifier(isarService);
 });
@@ -234,12 +242,12 @@ class VlxdPartnersNotifier extends StateNotifier<AsyncValue<List<VlxdCustomer>>>
   }
 }
 
-final vlxdCustomersProvider = StateNotifierProvider<VlxdPartnersNotifier, AsyncValue<List<VlxdCustomer>>>((ref) {
+final vlxdCustomersProvider = StateNotifierProvider.autoDispose<VlxdPartnersNotifier, AsyncValue<List<VlxdCustomer>>>((ref) {
   final isarService = ref.watch(vlxdIsarServiceProvider);
   return VlxdPartnersNotifier(isarService);
 });
 
-final vlxdSuppliersProvider = FutureProvider<List<VlxdSupplier>>((ref) async {
+final vlxdSuppliersProvider = FutureProvider.autoDispose<List<VlxdSupplier>>((ref) async {
   final isarService = ref.watch(vlxdIsarServiceProvider);
   final db = await isarService.db;
   return await db.vlxdSuppliers.where().findAll();
@@ -303,13 +311,13 @@ class VlxdFinanceNotifier extends StateNotifier<AsyncValue<List<VlxdFinanceTrans
   }
 }
 
-final vlxdFinanceProvider = StateNotifierProvider<VlxdFinanceNotifier, AsyncValue<List<VlxdFinanceTransaction>>>((ref) {
+final vlxdFinanceProvider = StateNotifierProvider.autoDispose<VlxdFinanceNotifier, AsyncValue<List<VlxdFinanceTransaction>>>((ref) {
   final isarService = ref.watch(vlxdIsarServiceProvider);
   return VlxdFinanceNotifier(isarService);
 });
 
 // Dashboard Metrics
-final vlxdDashboardProvider = FutureProvider<Map<String, dynamic>>((ref) async {
+final vlxdDashboardProvider = FutureProvider.autoDispose<Map<String, dynamic>>((ref) async {
   final isarService = ref.watch(vlxdIsarServiceProvider);
 
   // Recompute whenever underlying data changes

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:isar/isar.dart';
 import '../../../core/providers.dart';
@@ -16,14 +18,18 @@ import '../models/gara_finance.dart';
 /// Isar service theo CHI NHÁNH hiện tại của thiết bị. Khi đổi chi nhánh
 /// (`auth.branchId` thay đổi) provider được tạo lại → toàn bộ các notifier
 /// phụ thuộc reload dữ liệu từ DB riêng của chi nhánh mới.
-final garaIsarServiceProvider = Provider<GaraIsarService>((ref) {
+final garaIsarServiceProvider = Provider.autoDispose<GaraIsarService>((ref) {
   final branchId = ref.watch(authServiceProvider.select((a) => a.branchId));
-  return GaraIsarService(branchId: branchId);
+  final service = GaraIsarService(branchId: branchId);
+  ref.onDispose(() {
+    unawaited(service.dispose());
+  });
+  return service;
 });
 
 final garaTabIndexProvider = StateProvider<int>((ref) => 0);
 
-final garaNeonSyncServiceProvider = Provider<GaraNeonSyncService>((ref) {
+final garaNeonSyncServiceProvider = Provider.autoDispose<GaraNeonSyncService>((ref) {
   final isarService = ref.watch(garaIsarServiceProvider);
   return GaraNeonSyncService(isarService);
 });
@@ -64,7 +70,7 @@ class GaraCustomersNotifier extends StateNotifier<AsyncValue<List<GaraCustomer>>
   }
 }
 
-final garaCustomersProvider = StateNotifierProvider<GaraCustomersNotifier, AsyncValue<List<GaraCustomer>>>((ref) {
+final garaCustomersProvider = StateNotifierProvider.autoDispose<GaraCustomersNotifier, AsyncValue<List<GaraCustomer>>>((ref) {
   final isarService = ref.watch(garaIsarServiceProvider);
   return GaraCustomersNotifier(isarService);
 });
@@ -98,7 +104,7 @@ class GaraVehiclesNotifier extends StateNotifier<AsyncValue<List<GaraVehicle>>> 
   }
 }
 
-final garaVehiclesProvider = StateNotifierProvider<GaraVehiclesNotifier, AsyncValue<List<GaraVehicle>>>((ref) {
+final garaVehiclesProvider = StateNotifierProvider.autoDispose<GaraVehiclesNotifier, AsyncValue<List<GaraVehicle>>>((ref) {
   final isarService = ref.watch(garaIsarServiceProvider);
   return GaraVehiclesNotifier(isarService);
 });
@@ -123,7 +129,7 @@ class GaraProductsNotifier extends StateNotifier<AsyncValue<List<GaraProduct>>> 
   }
 }
 
-final garaProductsProvider = StateNotifierProvider<GaraProductsNotifier, AsyncValue<List<GaraProduct>>>((ref) {
+final garaProductsProvider = StateNotifierProvider.autoDispose<GaraProductsNotifier, AsyncValue<List<GaraProduct>>>((ref) {
   final isarService = ref.watch(garaIsarServiceProvider);
   return GaraProductsNotifier(isarService);
 });
@@ -183,12 +189,12 @@ class GaraOrdersNotifier extends StateNotifier<AsyncValue<List<GaraRepairOrder>>
   }
 }
 
-final garaOrdersProvider = StateNotifierProvider<GaraOrdersNotifier, AsyncValue<List<GaraRepairOrder>>>((ref) {
+final garaOrdersProvider = StateNotifierProvider.autoDispose<GaraOrdersNotifier, AsyncValue<List<GaraRepairOrder>>>((ref) {
   final isarService = ref.watch(garaIsarServiceProvider);
   return GaraOrdersNotifier(isarService);
 });
 
-final garaPaidOrdersProvider = FutureProvider<List<GaraRepairOrder>>((ref) async {
+final garaPaidOrdersProvider = FutureProvider.autoDispose<List<GaraRepairOrder>>((ref) async {
   final isarService = ref.watch(garaIsarServiceProvider);
   ref.watch(garaOrdersProvider);
   final db = await isarService.db;
@@ -244,7 +250,7 @@ class GaraSuppliersNotifier extends StateNotifier<AsyncValue<List<GaraSupplier>>
   }
 }
 
-final garaSuppliersProvider = StateNotifierProvider<GaraSuppliersNotifier, AsyncValue<List<GaraSupplier>>>((ref) {
+final garaSuppliersProvider = StateNotifierProvider.autoDispose<GaraSuppliersNotifier, AsyncValue<List<GaraSupplier>>>((ref) {
   final isarService = ref.watch(garaIsarServiceProvider);
   return GaraSuppliersNotifier(isarService);
 });
@@ -299,7 +305,7 @@ class GaraInventoryNotifier extends StateNotifier<AsyncValue<List<GaraInventoryT
   }
 }
 
-final garaInventoryProvider = StateNotifierProvider<GaraInventoryNotifier, AsyncValue<List<GaraInventoryTransaction>>>((ref) {
+final garaInventoryProvider = StateNotifierProvider.autoDispose<GaraInventoryNotifier, AsyncValue<List<GaraInventoryTransaction>>>((ref) {
   return GaraInventoryNotifier(ref.watch(garaIsarServiceProvider), ref);
 });
 
@@ -357,13 +363,13 @@ class GaraFinanceNotifier extends StateNotifier<AsyncValue<List<GaraFinanceTrans
   }
 }
 
-final garaFinanceProvider = StateNotifierProvider<GaraFinanceNotifier, AsyncValue<List<GaraFinanceTransaction>>>((ref) {
+final garaFinanceProvider = StateNotifierProvider.autoDispose<GaraFinanceNotifier, AsyncValue<List<GaraFinanceTransaction>>>((ref) {
   final isarService = ref.watch(garaIsarServiceProvider);
   return GaraFinanceNotifier(isarService);
 });
 
 // Dashboard Metrics
-final garaDashboardProvider = FutureProvider<Map<String, dynamic>>((ref) async {
+final garaDashboardProvider = FutureProvider.autoDispose<Map<String, dynamic>>((ref) async {
   final isarService = ref.watch(garaIsarServiceProvider);
 
   // Recompute whenever underlying data changes

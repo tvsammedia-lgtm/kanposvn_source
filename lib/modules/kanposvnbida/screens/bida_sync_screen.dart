@@ -34,7 +34,11 @@ class BidaSyncScreen extends ConsumerWidget {
               const SnackBar(content: Text('Đang đồng bộ...')),
             );
             final syncService = ref.read(bidaNeonSyncServiceProvider);
-            await syncService.triggerSync(ApiConfig.baseUrl, ApiConfig.syncApiKey);
+            await syncService.triggerSync(
+              ApiConfig.baseUrl,
+              ApiConfig.syncApiKey,
+              branchId: ref.read(authServiceProvider).branchId,
+            );
             if (context.mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text('Đồng bộ hoàn tất!')),

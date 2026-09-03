@@ -32,7 +32,7 @@ class SpaNeonSyncService {
     if (_syncLogs.length > 100) _syncLogs.removeLast();
   }
 
-  Future<bool> triggerSync(String vercelApiUrl, String apiKey) async {
+  Future<bool> triggerSync(String vercelApiUrl, String apiKey, {String? branchId}) async {
     if (_isSyncing) return false;
     _isSyncing = true;
     try {
@@ -46,6 +46,7 @@ class SpaNeonSyncService {
           apiKey: apiKey,
         ),
         appCode: 'kanposvnspa',
+        branchId: branchId,
         collections: [
           SnapshotSyncCollection(collection: isar.spaBeds, keyField: 'bedId'),
           SnapshotSyncCollection(collection: isar.spaServiceModels, keyField: 'serviceId'),

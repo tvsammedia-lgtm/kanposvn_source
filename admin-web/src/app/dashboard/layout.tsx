@@ -38,6 +38,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     { href: '/dashboard/sync-summary', label: 'Xem dong bo', icon: '📊' },
     { href: '/dashboard/logs', label: 'Nhat ky', icon: '📝' },
     { href: '/dashboard/addon-requests', label: 'Duyet mua them', icon: '🧩' },
+    { href: '/dashboard/qr-test', label: 'Test QR Order', icon: '📱' },
   ];
 
   return (

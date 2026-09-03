@@ -30,7 +30,7 @@ class BidaNeonSyncService {
     if (_syncLogs.length > 100) _syncLogs.removeLast();
   }
 
-  Future<bool> triggerSync(String vercelApiUrl, String apiKey) async {
+  Future<bool> triggerSync(String vercelApiUrl, String apiKey, {String? branchId}) async {
     if (_isSyncing) return false;
     _isSyncing = true;
     try {
@@ -44,6 +44,7 @@ class BidaNeonSyncService {
           apiKey: apiKey,
         ),
         appCode: 'kanposvnbida',
+        branchId: branchId,
         collections: [
           SnapshotSyncCollection(collection: isar.bidaTables, keyField: 'tableId'),
           SnapshotSyncCollection(collection: isar.bidaItems, keyField: 'itemId'),

@@ -14,7 +14,7 @@ class VantaiNeonSyncService {
 
   VantaiNeonSyncService(this._isarService);
 
-  Future<void> triggerSync(String apiUrl, String apiKey) async {
+  Future<void> triggerSync(String apiUrl, String apiKey, {String? branchId}) async {
     final isar = await _isarService.db;
 
     final engine = SnapshotSyncEngine(
@@ -24,6 +24,7 @@ class VantaiNeonSyncService {
         apiKey: apiKey,
       ),
       appCode: 'kanposvnbanvevantai',
+      branchId: branchId,
       collections: [
         SnapshotSyncCollection(collection: isar.vantaiRoutes, keyField: 'routeId'),
         SnapshotSyncCollection(collection: isar.vantaiVehicles, keyField: 'vehicleId'),

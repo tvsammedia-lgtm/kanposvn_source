@@ -13,7 +13,7 @@ class NhathuocNeonSyncService {
 
   NhathuocNeonSyncService(this._isarService);
 
-  Future<void> triggerSync(String apiUrl, String apiKey) async {
+  Future<void> triggerSync(String apiUrl, String apiKey, {String? branchId}) async {
     final isar = await _isarService.db;
 
     final engine = SnapshotSyncEngine(
@@ -23,6 +23,7 @@ class NhathuocNeonSyncService {
         apiKey: apiKey,
       ),
       appCode: 'kanposvnnhathuoc',
+      branchId: branchId,
       collections: [
         SnapshotSyncCollection(collection: isar.nhathuocMedicines, keyField: 'medicineId'),
         SnapshotSyncCollection(collection: isar.nhathuocPatients, keyField: 'patientId'),

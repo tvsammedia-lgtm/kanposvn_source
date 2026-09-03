@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/providers.dart';
 import '../../../core/sync/api_config.dart';
 import '../providers/isar_provider.dart';
 
@@ -20,7 +21,11 @@ class PawnSyncScreen extends ConsumerWidget {
             ScaffoldMessenger.of(context)
                 .showSnackBar(const SnackBar(content: Text('Đang đồng bộ...')));
             final syncService = ref.read(pawnNeonSyncServiceProvider);
-            await syncService.triggerSync(ApiConfig.baseUrl, ApiConfig.syncApiKey);
+            await syncService.triggerSync(
+              ApiConfig.baseUrl,
+              ApiConfig.syncApiKey,
+              branchId: ref.read(authServiceProvider).branchId,
+            );
             if (context.mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text('Đồng bộ hoàn tất!')));
