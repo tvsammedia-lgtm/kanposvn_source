@@ -3,10 +3,11 @@ import { getSql } from '@/lib/db';
 
 export async function GET(
   request: Request,
-  { params }: { params: { token: string } }
+  { params }: { params: Promise<{ token: string }> }
 ) {
   try {
-    const token = params.token;
+    const resolvedParams = await params;
+    const token = resolvedParams.token;
     if (!token) {
       return NextResponse.json({ valid: false, reason: 'MISSING_TOKEN' }, { status: 400 });
     }

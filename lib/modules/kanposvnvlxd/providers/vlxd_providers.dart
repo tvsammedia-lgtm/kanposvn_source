@@ -102,13 +102,21 @@ final vlxdProductsProvider = StateNotifierProvider.autoDispose<VlxdProductsNotif
 
 // Orders
 class VlxdOrdersNotifier extends StateNotifier<AsyncValue<List<VlxdOrder>>> {
+  bool _disposed = false;
   final VlxdIsarService _isarService;
 
   VlxdOrdersNotifier(this._isarService) : super(const AsyncValue.loading()) {
     loadOrders();
   }
 
+  @override
+  void dispose() {
+    _disposed = true;
+    super.dispose();
+  }
+
   Future<void> loadOrders() async {
+    if (_disposed) return;
     try {
       state = const AsyncValue.loading();
       final db = await _isarService.db;
@@ -120,6 +128,7 @@ class VlxdOrdersNotifier extends StateNotifier<AsyncValue<List<VlxdOrder>>> {
   }
 
   Future<void> createOrder(VlxdOrder order, List<VlxdOrderDetail> details) async {
+    if (_disposed) return;
     try {
       final db = await _isarService.db;
       await db.writeTxn(() async {
@@ -147,13 +156,21 @@ final vlxdOrdersProvider = StateNotifierProvider.autoDispose<VlxdOrdersNotifier,
 
 // Inventory Transactions
 class VlxdInventoryNotifier extends StateNotifier<AsyncValue<List<VlxdInventoryTransaction>>> {
+  bool _disposed = false;
   final VlxdIsarService _isarService;
 
   VlxdInventoryNotifier(this._isarService) : super(const AsyncValue.loading()) {
     loadTransactions();
   }
 
+  @override
+  void dispose() {
+    _disposed = true;
+    super.dispose();
+  }
+
   Future<void> loadTransactions() async {
+    if (_disposed) return;
     try {
       state = const AsyncValue.loading();
       final db = await _isarService.db;

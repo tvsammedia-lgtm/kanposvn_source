@@ -1,5 +1,6 @@
 import OrderClient from './OrderClient';
 
-export default function OrderPage({ params }: { params: { token: string } }) {
-  return <OrderClient token={params.token} />;
+export default async function OrderPage({ params }: { params: Promise<{ token: string }> }) {
+  const resolvedParams = await params;
+  return <OrderClient token={resolvedParams.token} />;
 }
