@@ -60,7 +60,7 @@ CREATE TABLE IF NOT EXISTS table_sessions (
 );
 CREATE INDEX IF NOT EXISTS idx_sessions_table ON table_sessions(table_id);
 
-CREATE TABLE IF NOT EXISTS orders (
+CREATE TABLE IF NOT EXISTS qr_orders (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     app_code VARCHAR(100) NOT NULL,
     branch_id UUID NOT NULL REFERENCES branches(id) ON DELETE CASCADE,
@@ -79,11 +79,11 @@ CREATE TABLE IF NOT EXISTS orders (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
-CREATE INDEX IF NOT EXISTS idx_orders_app_branch ON orders(app_code, branch_id);
+CREATE INDEX IF NOT EXISTS idx_orders_app_branch ON qr_orders(app_code, branch_id);
 
-CREATE TABLE IF NOT EXISTS order_items (
+CREATE TABLE IF NOT EXISTS qr_order_items (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    order_id UUID NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
+    order_id UUID NOT NULL REFERENCES qr_orders(id) ON DELETE CASCADE,
     menu_item_id UUID REFERENCES menu_items(id) ON DELETE SET NULL,
     item_name_snapshot VARCHAR(255) NOT NULL,
     unit_price_snapshot NUMERIC(18,2) NOT NULL,
@@ -95,4 +95,4 @@ CREATE TABLE IF NOT EXISTS order_items (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
-CREATE INDEX IF NOT EXISTS idx_order_items_order ON order_items(order_id);
+CREATE INDEX IF NOT EXISTS idx_order_items_order ON qr_order_items(order_id);

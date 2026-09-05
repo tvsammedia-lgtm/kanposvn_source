@@ -29,7 +29,7 @@ export async function POST(request: Request) {
     if (idempotency_key) {
       const existing = await sql`
         SELECT id, order_no, status, total 
-        FROM orders 
+        FROM qr_orders 
         WHERE idempotency_key = ${idempotency_key} 
         LIMIT 1
       `;
@@ -105,7 +105,7 @@ export async function POST(request: Request) {
 
     // We do transaction-like inserts by inserting order then items
     const newOrder = await sql`
-      INSERT INTO orders (
+      INSERT INTO qr_orders (
         app_code, branch_id, table_id, session_id, order_no, 
         source, status, subtotal, total, customer_note, customer_name, idempotency_key
       )
@@ -120,7 +120,7 @@ export async function POST(request: Request) {
     // Insert Order Items
     for (const oi of orderItemsToInsert) {
       await sql`
-        INSERT INTO order_items (
+        INSERT INTO qr_order_items (
           order_id, menu_item_id, item_name_snapshot, unit_price_snapshot, 
           quantity, subtotal, note, kitchen_station
         ) VALUES (

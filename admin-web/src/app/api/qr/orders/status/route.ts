@@ -6,7 +6,7 @@ import { getSql } from '@/lib/db';
  * trạng thái đơn do khách web gửi lên.
  *
  * Body: { apiKey, app_code, order_id, status }
- * Status hợp lệ (khớp orders.status trong schema QR):
+ * Status hợp lệ (khớp qr_orders.status trong schema QR):
  *   NEW, CONFIRMED, PREPARING, READY, SERVED, PAID, COMPLETED, CANCELLED
  */
 
@@ -40,7 +40,7 @@ export async function POST(request: Request) {
     const sql = getSql();
 
     const updated = await sql`
-      UPDATE orders
+      UPDATE qr_orders
       SET status = ${s}, updated_at = NOW()
       WHERE id = ${order_id} AND app_code = ${app_code}
       RETURNING id, status, order_no, table_id

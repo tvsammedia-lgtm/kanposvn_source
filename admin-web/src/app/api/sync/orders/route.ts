@@ -18,7 +18,7 @@ export async function GET(request: Request) {
     if (updated_after) {
       orders = await sql`
         SELECT o.*, d.code AS table_code, d.name AS table_name, d.qr_token AS table_qr_token
-        FROM orders o
+        FROM qr_orders o
         LEFT JOIN dining_tables d ON d.id = o.table_id
         WHERE o.app_code = ${app_code} 
           AND o.branch_id = ${branch_id} 
@@ -28,7 +28,7 @@ export async function GET(request: Request) {
     } else {
       orders = await sql`
         SELECT o.*, d.code AS table_code, d.name AS table_name, d.qr_token AS table_qr_token
-        FROM orders o
+        FROM qr_orders o
         LEFT JOIN dining_tables d ON d.id = o.table_id
         WHERE o.app_code = ${app_code} 
           AND o.branch_id = ${branch_id} 
@@ -44,7 +44,7 @@ export async function GET(request: Request) {
 
     const orderIds = orders.map(o => o.id);
     const orderItems = await sql`
-      SELECT * FROM order_items 
+      SELECT * FROM qr_order_items 
       WHERE order_id = ANY(${orderIds})
     `;
 
