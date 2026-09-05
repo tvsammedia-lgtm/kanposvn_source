@@ -164,6 +164,58 @@ void main() {
     await dir.delete(recursive: true);
   }, timeout: const Timeout(Duration(seconds: 45)));
 
+  test(
+      'probe: REGRESSION gara->vlxd double filtered findAll on SAME store instance',
+      () async {
+    // Tái hiện đúng luồng crash: login chọn gara (findAll appCode A) rồi chọn
+    // vlxd (findAll appCode B) trên CÙNG instance store Isar (DataEntitySchema,
+    // có .filter().appCodeEqualTo). Isar 3.1 use-after-free fail ở lệnh thứ 2.
+    final dir = await Directory.systemTemp.createTemp('storemulti');
+    final store = await Isar.open(
+      [DataEntitySchema],
+      directory: dir.path,
+      name: 'isar_store_regression',
+    );
+
+    await store.writeTxn(() async {
+      await store.dataEntitys.putAll([
+        DataEntity()
+          ..collection = 'x'
+          ..appCode = 'kanposvngara'
+          ..itemId = 'g1'
+          ..jsonData = '{"n":1}',
+        DataEntity()
+          ..collection = 'x'
+          ..appCode = 'kanposvnvlxd'
+          ..itemId = 'v1'
+          ..jsonData = '{"n":2}',
+      ]);
+    });
+    debugPrint('[REGRESS] seed done');
+
+    debugPrint('[REGRESS] findAll #1 (gara-ish)');
+    final gara = await store.dataEntitys
+        .where()
+        .filter()
+        .appCodeEqualTo('kanposvngara')
+        .findAll();
+    debugPrint('[REGRESS] gara findAll DONE=${gara.length}');
+
+    debugPrint('[REGRESS] findAll #2 (vlxd-ish) on SAME instance');
+    final vlxd = await store.dataEntitys
+        .where()
+        .filter()
+        .appCodeEqualTo('kanposvnvlxd')
+        .findAll();
+    debugPrint('[REGRESS] vlxd findAll DONE=${vlxd.length}');
+
+    expect(gara.length, 1);
+    expect(vlxd.length, 1);
+
+    await store.close(deleteFromDisk: true);
+    await dir.delete(recursive: true);
+  }, timeout: const Timeout(Duration(seconds: 45)));
+
   test('probe: CONCURRENT findAll on multiple collections (app-like burst)',
       () async {
     final dir = await Directory.systemTemp.createTemp('bdsconc');

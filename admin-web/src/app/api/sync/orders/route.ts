@@ -17,19 +17,23 @@ export async function GET(request: Request) {
     let orders;
     if (updated_after) {
       orders = await sql`
-        SELECT * FROM orders 
-        WHERE app_code = ${app_code} 
-          AND branch_id = ${branch_id} 
-          AND updated_at >= ${updated_after}
-        ORDER BY updated_at ASC
+        SELECT o.*, d.code AS table_code, d.name AS table_name, d.qr_token AS table_qr_token
+        FROM orders o
+        LEFT JOIN dining_tables d ON d.id = o.table_id
+        WHERE o.app_code = ${app_code} 
+          AND o.branch_id = ${branch_id} 
+          AND o.updated_at >= ${updated_after}
+        ORDER BY o.updated_at ASC
       `;
     } else {
       orders = await sql`
-        SELECT * FROM orders 
-        WHERE app_code = ${app_code} 
-          AND branch_id = ${branch_id} 
-          AND status IN ('NEW', 'CONFIRMED', 'PREPARING', 'READY', 'SERVED')
-        ORDER BY created_at DESC
+        SELECT o.*, d.code AS table_code, d.name AS table_name, d.qr_token AS table_qr_token
+        FROM orders o
+        LEFT JOIN dining_tables d ON d.id = o.table_id
+        WHERE o.app_code = ${app_code} 
+          AND o.branch_id = ${branch_id} 
+          AND o.status IN ('NEW', 'CONFIRMED', 'PREPARING', 'READY', 'SERVED')
+        ORDER BY o.created_at DESC
         LIMIT 100
       `;
     }

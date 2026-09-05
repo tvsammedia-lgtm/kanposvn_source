@@ -118,7 +118,6 @@ class _ModuleSelectorScreenState extends ConsumerState<ModuleSelectorScreen> {
 
       setState(() => _loadingModule = module);
       ref.read(moduleSelectingProvider.notifier).state = true;
-      debugPrint('LOGIN-DEBUG: selector tap $module isStoreUser=${auth.isStoreUser} storeId=${auth.storeId}');
 
       // Nạp dữ liệu TRƯỚC khi switchModule: giữ màn hình chọn module còn sống,
       // hiện tiến trình rõ ràng và lỗi vẫn hiển thị được thay vì treo "Đang xác thực...".
@@ -127,10 +126,8 @@ class _ModuleSelectorScreenState extends ConsumerState<ModuleSelectorScreen> {
       } else {
         await db.init(module: module);
       }
-      debugPrint('LOGIN-DEBUG: selector init done');
 
       await auth.switchModule(module);
-      debugPrint('LOGIN-DEBUG: selector switchModule done');
 
       if (module.appCode == 'kanposvncafe' || module.appCode == 'nhansu') {
         ref.read(syncEngineProvider).triggerSync();
@@ -140,7 +137,6 @@ class _ModuleSelectorScreenState extends ConsumerState<ModuleSelectorScreen> {
       // cấp quyền) thì vào màn hình chọn chi nhánh trước, KHÔNG vào shell ngay.
       // Module không có chi nhánh (cửa hàng đăng ký Web/Zalo cũ) → vào thẳng.
       final branches = await auth.fetchBranches(module.appCode);
-      debugPrint('LOGIN-DEBUG: selector fetchBranches count=${branches.length}');
       if (branches.isNotEmpty) {
         ref.read(branchSelectorModuleProvider.notifier).state = module;
         ref.read(moduleSelectingProvider.notifier).state = false;
@@ -151,11 +147,9 @@ class _ModuleSelectorScreenState extends ConsumerState<ModuleSelectorScreen> {
       // Đặt selectedModule không phụ thuộc context (màn hình có thể đã bị thay thế).
       ref.read(selectedModuleProvider.notifier).state = module;
       ref.read(moduleSelectingProvider.notifier).state = false;
-      debugPrint('LOGIN-DEBUG: selector set selectedModule=${module.appCode} done');
       if (mounted) setState(() => _loadingModule = null);
-    } catch (e, st) {
+    } catch (e) {
       ref.read(moduleSelectingProvider.notifier).state = false;
-      debugPrint('LOGIN-DEBUG: selector CATCH e=$e\n$st');
       if (!mounted) return;
       setState(() => _loadingModule = null);
       ScaffoldMessenger.of(context).showSnackBar(

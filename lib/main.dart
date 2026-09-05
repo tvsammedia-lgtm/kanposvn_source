@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ui' show PlatformDispatcher;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -47,17 +48,31 @@ import 'modules/kanposvndoichieuketoan/screens/kanposvndoichieuketoan_shell.dart
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  final db = DatabaseService.instance;
-  await DatabaseService.openIsar();
+  // Bắt mọi lỗi Dart (kể cả async) trước khi VM tự abort (c0000409) — giúp vạch
+  // rõ căn nguyên thay vì chỉ "Lost connection to device".
+  PlatformDispatcher.instance.onError = (Object error, StackTrace stack) {
+    debugPrint('GLOBAL-DEBUG: onError error=$error\n$stack');
+    return true;
+  };
+  FlutterError.onError = (FlutterErrorDetails details) {
+    debugPrint('GLOBAL-DEBUG: FlutterError ${details.exception}\n${details.stack}');
+  };
 
-  runApp(
-    ProviderScope(
-      overrides: [
-        databaseServiceProvider.overrideWith((ref) => db),
-      ],
-      child: const KanPosVNApp(),
-    ),
-  );
+  try {
+    final db = DatabaseService.instance;
+    await DatabaseService.openIsar();
+    runApp(
+      ProviderScope(
+        overrides: [
+          databaseServiceProvider.overrideWith((ref) => db),
+        ],
+        child: const KanPosVNApp(),
+      ),
+    );
+  } catch (e, st) {
+    debugPrint('GLOBAL-DEBUG: main() fatal e=$e\n$st');
+    rethrow;
+  }
 }
 
 final currentScreenIndexProvider = StateProvider<int>((ref) => 0);

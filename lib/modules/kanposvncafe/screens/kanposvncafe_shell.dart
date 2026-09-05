@@ -40,6 +40,9 @@ class _KanPosVNCafeShellState extends ConsumerState<KanPosVNCafeShell> {
 
   Future<void> _initData() async {
     try {
+      // QR Order Online: nạp cấu hình + auto-poll nếu trước đó đang bật.
+      await ref.read(cafeQrBridgeProvider).initialize();
+
       final db = DatabaseService.instance;
       await CafeSeedData.seedIfEmpty(db);
       ref.read(cafeTabPermissionsProvider.notifier).load(db);

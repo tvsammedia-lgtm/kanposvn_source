@@ -471,7 +471,8 @@ class TtReportService {
       map.putIfAbsent(pid, () => []).add(d);
     }
 
-    final rows = <ReportRow>[];
+    // Sắp xếp theo doanh thu giảm dần (giá trị số, không phải chuỗi format)
+    final data = <({String name, double qty, double rev, double cost})>[];
     double totalQty = 0, totalRevenue = 0, totalCost = 0;
     for (final e in map.entries) {
       final name = e.value.first.product.value?.name ?? '(Đã xóa)';
@@ -484,18 +485,22 @@ class TtReportService {
       totalQty += qty;
       totalRevenue += rev;
       totalCost += cost;
-      final gross = rev - cost;
-      final margin = rev > 0 ? (gross / rev * 100) : 0;
+      data.add((name: name, qty: qty, rev: rev, cost: cost));
+    }
+    data.sort((a, b) => b.rev.compareTo(a.rev));
+    final rows = <ReportRow>[];
+    for (final d in data) {
+      final gross = d.rev - d.cost;
+      final margin = d.rev > 0 ? (gross / d.rev * 100) : 0;
       rows.add(ReportRow([
-        ReportCell(name),
-        ReportCell(formatQty(qty), align: ReportCellAlign.right),
-        ReportCell(formatMoney(rev), align: ReportCellAlign.right),
-        ReportCell(formatMoney(cost), align: ReportCellAlign.right),
+        ReportCell(d.name),
+        ReportCell(formatQty(d.qty), align: ReportCellAlign.right),
+        ReportCell(formatMoney(d.rev), align: ReportCellAlign.right),
+        ReportCell(formatMoney(d.cost), align: ReportCellAlign.right),
         ReportCell(formatMoney(gross), align: ReportCellAlign.right),
         ReportCell('${margin.toStringAsFixed(1)}%', align: ReportCellAlign.right),
       ]));
     }
-    rows.sort((a, b) => a.cells[2].text.compareTo(b.cells[2].text));
 
     return CrystalReportModel(
       formLine: _formS08,
@@ -634,11 +639,14 @@ class TtReportService {
     }
     final keys = map.keys.toList()..sort();
 
+    // Tỷ lệ % so với TỔNG chi phí (tổng đúng, không phải tổng cộng dồn)
+    final sums = {
+      for (final k in keys) k: map[k]!.fold<double>(0, (s, e) => s + e.amount),
+    };
+    final total = sums.values.fold<double>(0, (a, b) => a + b);
     final rows = <ReportRow>[];
-    double total = 0;
     for (final k in keys) {
-      final sum = map[k]!.fold<double>(0, (s, e) => s + e.amount);
-      total += sum;
+      final sum = sums[k]!;
       final pct = total > 0 ? (sum / total * 100) : 0;
       rows.add(ReportRow([
         ReportCell(k),
@@ -1368,7 +1376,8 @@ class TtReportService {
       final e = l.expiryDate;
       if (e == null) continue;
       final name = l.product.value?.name ?? '(Đã xóa)';
-      final daysLeft = e.difference(_dayStart(now)).inDays;
+      // So theo ngày (không phải giờ) để lô quá hạn 1 ngày tính đúng là đã hết hạn
+      final daysLeft = _dayStart(e).difference(_dayStart(now)).inDays;
       if (daysLeft > to.difference(from).inDays) continue;
       final value = l.quantityRemaining * l.unitCost;
       totalValue += value;

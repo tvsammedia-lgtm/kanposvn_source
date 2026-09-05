@@ -71,28 +71,40 @@ class DatabaseService extends ChangeNotifier {
   /// Idempotent: nếu cùng storeId + app code đã được khởi tạo thì không
   /// load lại toàn bộ data (tránh chậm khi login lặp lại). Nếu có luồng
   /// khởi tạo đang chạy cùng storeId thì chờ luồng đó thay vì chạy thêm.
-  Future<void>? _pendingStoreInit;
+  ///
+  /// Serialize mọi lời gọi `initStore` của cửa hàng. Bất kỳ `_doInitStore` nào cũng
+  /// chạy qua chain này để KHÔNG bao giờ có 2 luồng chạy `_loadFromIsar()` cùng lúc
+  /// trên cùng instance Isar — tránh crash native (isar.dll) trên Windows khi đăng
+  /// nhập nhiều module / chuyển module nhanh (login ẩn + selector chạy song song).
+  Future<void> _initChain = Future.value();
 
   Future<void> initStore({
     required String storeId,
     AppModule module = AppModule.kanposvncafe,
     Isar? isar,
   }) {
-    final pending = _pendingStoreInit;
-    if (pending != null && _currentStoreId == storeId) {
-      if (_currentAppCode == module.appCode) return pending;
-      // Cùng cửa hàng nhưng khác module → chờ luồng đang chạy rồi nạp tiếp.
-      return pending
-          .then((_) => _doInitStore(storeId: storeId, module: module, isar: isar));
-    }
     if (_isInitialized &&
         _currentStoreId == storeId &&
         _currentAppCode == module.appCode &&
         (_isar?.isOpen ?? false)) {
       return Future.value();
     }
-    final task = _doInitStore(storeId: storeId, module: module, isar: isar);
-    _pendingStoreInit = task;
+
+    // Mọi lời gọi được xếp hàng đợi tuần tự trên _initChain. Lần chạy kế có thể
+    // kiểm tra lại điều kiện "đã khởi tạo xong" để bỏ qua nếu module đã được nạp.
+    final task = _initChain.then((_) async {
+      if (_currentStoreId == storeId &&
+          _currentAppCode == module.appCode &&
+          _isInitialized &&
+          (_isar?.isOpen ?? false)) {
+        return;
+      }
+      await _doInitStore(storeId: storeId, module: module, isar: isar);
+    });
+
+    // Giữ cho chain không bao giờ bị gián đoạn bởi lỗi của 1 lần chạy trước; cũng
+    // gợi ý cho GC/lỗi native không để lỗi từ task rò rỉ sang caller.
+    _initChain = task.catchError((_) {});
     return task;
   }
 
@@ -101,24 +113,34 @@ class DatabaseService extends ChangeNotifier {
     required AppModule module,
     Isar? isar,
   }) async {
-    try {
-      _currentModule = module;
-      _currentAppCode = module.appCode;
-      _currentStoreId = storeId;
-      if (isar != null && isar.isOpen) {
-        _isar = isar;
-      } else if (_isar == null || !_isar!.isOpen || _currentStoreId != storeId) {
-        _isar = await openStoreIsar(storeId);
-      }
-      _isInitialized = true;
-      if (!_memories.containsKey(_currentAppCode)) {
-        await _loadFromIsar();
-      } else {
-        await _loadSyncQueue();
-      }
-      notifyListeners();
-    } finally {
-      _pendingStoreInit = null;
+    _currentModule = module;
+    _currentAppCode = module.appCode;
+    _currentStoreId = storeId;
+    if (isar != null && isar.isOpen) {
+      _isar = isar;
+    } else if (_isar == null || !_isar!.isOpen || _currentStoreId != storeId) {
+      _isar = await openStoreIsar(storeId);
+    }
+    _isInitialized = true;
+    if (_memories.containsKey(_currentAppCode)) {
+      await _loadSyncQueue();
+    } else if (_usesStoreMemory()) {
+      await _loadFromIsar();
+    }
+    notifyListeners();
+  }
+
+  // Các module dùng DB riêng (module_isar_service / *_db_<branchId>) KHÔNG đọc
+  // _memories (store DB). Bỏ qua _loadFromIsar cho những module này: ngoài việc
+  // thừa, lệnh findAll thứ 2 trên cùng instance store Isar trong một phiên làm
+  // kích hoạt use-after-free native trong Isar 3.1 (gây crash AV 0xc0000005).
+  bool _usesStoreMemory() {
+    switch (_currentModule) {
+      case AppModule.kanposvncafe:
+      case AppModule.nhanSu:
+        return true;
+      default:
+        return false;
     }
   }
 
@@ -132,10 +154,10 @@ class DatabaseService extends ChangeNotifier {
       _isar = await openIsar();
     }
     _isInitialized = true;
-    if (!_memories.containsKey(_currentAppCode)) {
-      await _loadFromIsar();
-    } else {
+    if (_memories.containsKey(_currentAppCode)) {
       await _loadSyncQueue();
+    } else if (_usesStoreMemory()) {
+      await _loadFromIsar();
     }
     notifyListeners();
   }
@@ -153,7 +175,11 @@ class DatabaseService extends ChangeNotifier {
       for (final e in entities) {
         if (e.collection == syncQueueCollection) continue;
         appMemory.putIfAbsent(e.collection, () => {});
-        appMemory[e.collection]![e.itemId] = jsonDecode(e.jsonData);
+        try {
+          appMemory[e.collection]![e.itemId] = jsonDecode(e.jsonData);
+        } catch (_) {
+          // Bỏ qua entity lỗi định dạng JSON thay vì làm hỏng toàn bộ module.
+        }
       }
       await _loadSyncQueue();
     } catch (e) {

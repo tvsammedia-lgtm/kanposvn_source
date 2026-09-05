@@ -54,24 +54,19 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       final auth = ref.read(authServiceProvider);
       final identifier = _identifierController.text.trim();
       final password = _passwordController.text;
-      debugPrint('LOGIN-DEBUG: _login() START identifier=$identifier');
 
       // Chủ cửa hàng đăng nhập bằng SĐT đã đăng ký: không kiểm tra tài khoản
       // nội bộ (Cấp 2) — tránh mở Isar + quét employees làm chậm login.
       final savedStoreId = await AuthService.loadSavedStoreId();
       final savedStorePhone = await AuthService.loadSavedStorePhone();
       final isOwnerPhone = savedStorePhone != null && identifier == savedStorePhone;
-      debugPrint(
-          'LOGIN-DEBUG: savedStoreId=$savedStoreId savedStorePhone=$savedStorePhone isOwnerPhone=$isOwnerPhone');
 
       if (!isOwnerPhone && await AuthService.hasOwnerLoggedInOnDevice()) {
         // Bước 1: thử tài khoản nội bộ (Cấp 2) — xác thực trong Isar, không gọi Cloud.
         // Chỉ được check trên Isar khi Owner đã từng đăng nhập Cloud trên máy này
         // (DB cửa hàng đã được khởi tạo + sync dữ liệu employee). Nếu chưa có phiên
         // Owner thì bỏ qua Isar và chuyển thẳng sang Cloud login ở Bước 2.
-        debugPrint('LOGIN-DEBUG: hasOwnerLoggedInOnDevice=true -> _tryLocalLogin');
         final localError = await _tryLocalLogin(identifier, password);
-        debugPrint('LOGIN-DEBUG: _tryLocalLogin done localError=$localError');
         if (localError != null) {
           if (!mounted) return;
           setState(() {
@@ -82,13 +77,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         }
         if (!mounted) return;
         if (auth.isEmployeeLogin) return;
-      } else {
-        debugPrint('LOGIN-DEBUG: skip local login');
       }
 
       // Bước 2: đăng nhập Cloud (Owner).
       // Với owner: mở DB cửa hàng song song với network login để vào app nhanh.
-      debugPrint('LOGIN-DEBUG: cloud signIn start');
       final cloudLogin = auth.signIn(
         identifier: identifier,
         password: password,
@@ -101,12 +93,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       }
 
       final success = await cloudLogin;
-      debugPrint(
-          'LOGIN-DEBUG: cloud signIn done success=$success isStoreUser=${auth.isStoreUser} isEmployeeLogin=${auth.isEmployeeLogin} storeId=${auth.storeId} appCode=${auth.storeAppCode}');
       if (!mounted) return;
       if (storeInit != null) {
         await storeInit;
-        debugPrint('LOGIN-DEBUG: storeInit done');
       }
 
       if (!success) {
@@ -128,8 +117,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       }
 
       final modules = auth.accessibleModules;
-      debugPrint(
-          'LOGIN-DEBUG: modules=${modules.map((m) => m.appCode).toList()} defaultStoreModule=${auth.defaultStoreModule.appCode}');
 
       // User gán nhiều module → hiện màn hình chọn module (kể cả user cửa hàng).
       if (modules.length > 1) {
@@ -156,9 +143,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       }
 
       await _selectModule(modules.first);
-    } catch (e, st) {
+    } catch (e) {
       // ignore login errors
-      debugPrint('LOGIN-DEBUG: _login CATCH e=$e\n$st');
       if (!mounted) return;
       setState(() {
         _isLoading = false;
@@ -245,8 +231,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       final db = ref.read(databaseServiceProvider);
       final auth = ref.read(authServiceProvider);
       final storeId = auth.storeId;
-      debugPrint(
-          'LOGIN-DEBUG: _initStoreLogin START storeId=$storeId module=${auth.defaultStoreModule.appCode}');
       if (storeId == null) {
         if (!mounted) return;
         setState(() {
@@ -256,10 +240,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         return;
       }
       await db.initStore(storeId: storeId, module: auth.defaultStoreModule);
-      debugPrint('LOGIN-DEBUG: _initStoreLogin initStore done');
       // Mô hình 1 module = nhiều chi nhánh: cửa hàng có chi nhánh → chọn chi nhánh.
       final branches = await auth.fetchBranches(auth.defaultStoreModule.appCode);
-      debugPrint('LOGIN-DEBUG: _initStoreLogin fetchBranches count=${branches.length}');
       if (!mounted) return;
       if (branches.isNotEmpty) {
         setState(() => _isLoading = false);
@@ -272,9 +254,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           _isLoading = false;
         });
       }
-    } catch (e, st) {
+    } catch (e) {
       // ignore store init errors
-      debugPrint('LOGIN-DEBUG: _initStoreLogin CATCH e=$e\n$st');
       if (!mounted) return;
       setState(() {
         _isLoading = false;
@@ -284,7 +265,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   }
 
   Future<void> _selectModule(AppModule module) async {
-    debugPrint('LOGIN-DEBUG: _selectModule START module=${module.appCode}');
     if (!mounted) return;
     setState(() {
       _isLoading = true;
@@ -297,7 +277,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       final moduleNotifier = ref.read(selectedModuleProvider.notifier);
 
       if (!auth.canLoginTo(module)) {
-        debugPrint('LOGIN-DEBUG: _selectModule cannot login to module');
         if (mounted) {
           setState(() {
             _isLoading = false;
@@ -310,13 +289,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       // Nạp dữ liệu trước khi switchModule để tiến trình hiện trên màn hình
       // đang mở thay vì màn hình "Đang xác thực...".
       await db.init(module: module);
-      debugPrint('LOGIN-DEBUG: _selectModule init done');
       await auth.switchModule(module);
-      debugPrint('LOGIN-DEBUG: _selectModule switchModule done');
 
       // Mô hình 1 module = nhiều chi nhánh: module có chi nhánh → chọn chi nhánh.
       final branches = await auth.fetchBranches(module.appCode);
-      debugPrint('LOGIN-DEBUG: _selectModule fetchBranches count=${branches.length}');
       if (!mounted) return;
       if (branches.isNotEmpty) {
         setState(() => _isLoading = false);
@@ -326,7 +302,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
       // Đặt selectedModule kể cả khi LoginScreen đã bị thay thế (mounted == false).
       moduleNotifier.state = module;
-      debugPrint('LOGIN-DEBUG: _selectModule set selectedModule=${module.appCode} done');
       if (mounted) {
         setState(() {
           _isLoading = false;
@@ -334,9 +309,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       }
 
       _autoSyncAfterLogin(module);
-    } catch (e, st) {
+    } catch (e) {
       // ignore select module errors
-      debugPrint('LOGIN-DEBUG: _selectModule CATCH e=$e\n$st');
       if (!mounted) return;
       setState(() {
         _isLoading = false;

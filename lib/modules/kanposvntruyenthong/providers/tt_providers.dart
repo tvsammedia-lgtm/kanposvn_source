@@ -118,11 +118,15 @@ class TtSalesNotifier extends StateNotifier<AsyncValue<List<TtSalesInvoice>>> {
 
   /// Tạo hóa đơn bán: giảm tồn kho theo lô FIFO, ghi nhận giá vốn,
   /// tăng công nợ khách, tích điểm thưởng.
+  ///
+  /// [redeemPoints] là số điểm khách dùng để trừ tiền (đổi điểm) trên hóa đơn;
+  /// hệ thống tự hạ thấp điểm khách và ghi LoyaltyTransaction loại REDEEM.
   Future<TtSalesInvoice> createSale(
     TtSalesInvoice invoice,
     List<TtSalesItem> items,
-    List<TtCustomer> buyers,
-  ) async {
+    List<TtCustomer> buyers, {
+    double redeemPoints = 0,
+  }) async {
     final db = await _isarService.db;
     await db.writeTxn(() async {
       await db.ttSalesInvoices.put(invoice);
@@ -134,8 +138,9 @@ class TtSalesNotifier extends StateNotifier<AsyncValue<List<TtSalesInvoice>>> {
         await d.invoice.save();
         await d.product.save();
         // Giảm tồn lô
+        TtStockLot? lot;
         if (d.lotId.isNotEmpty) {
-          final lot = await db.ttStockLots.where().lotIdEqualTo(d.lotId).findFirst();
+          lot = await db.ttStockLots.where().lotIdEqualTo(d.lotId).findFirst();
           if (lot != null) {
             lot.quantityOut += d.quantity;
             lot.quantityRemaining -= d.quantity;
@@ -143,14 +148,22 @@ class TtSalesNotifier extends StateNotifier<AsyncValue<List<TtSalesInvoice>>> {
           }
         }
         // Ghi nhận movement SALE
-        await db.ttStockMovements.put(TtStockMovement()
+        final mov = TtStockMovement()
           ..movementId = DateTime.now().microsecondsSinceEpoch.toString()
           ..product.value = d.product.value
           ..movementType = TtMovementType.SALE
           ..referenceId = invoice.invoiceNumber
           ..quantity = -d.quantity
           ..unitCost = d.costPrice
-          ..totalCost = -d.amount);
+          ..totalCost = -d.amount;
+        if (lot != null) {
+          mov.lot.value = lot;
+        }
+        await db.ttStockMovements.put(mov);
+        await mov.product.save();
+        if (lot != null) {
+          await mov.lot.save();
+        }
       }
       // Công nợ khách
       if (invoice.customer.value != null) {
@@ -158,6 +171,21 @@ class TtSalesNotifier extends StateNotifier<AsyncValue<List<TtSalesInvoice>>> {
         c.totalPurchase += invoice.totalAmount;
         c.totalPayment += invoice.paidAmount;
         c.currentDebt += invoice.debtAmount;
+        // Đổi điểm (REDEEM) trước khi tích điểm mới
+        if (redeemPoints > 0 && c.loyaltyPoint > 0) {
+          final redeem = redeemPoints.clamp(0.0, c.loyaltyPoint);
+          if (redeem > 0) {
+            c.loyaltyPoint -= redeem;
+            await db.ttLoyaltyTransactions.put(TtLoyaltyTransaction()
+              ..loyaltyTxId = '${DateTime.now().microsecondsSinceEpoch}redeem'
+              ..customer.value = c
+              ..invoiceId = invoice.invoiceId
+              ..type = TtLoyaltyType.REDEEM
+              ..points = -redeem
+              ..balanceAfter = c.loyaltyPoint
+              ..description = 'Đổi điểm HĐ ${invoice.invoiceNumber}');
+          }
+        }
         // Tích điểm
         final rules = await db.ttLoyaltyRules.where().findAll();
         if (rules.isNotEmpty) {
@@ -239,13 +267,15 @@ class TtPurchasesNotifier extends StateNotifier<AsyncValue<List<TtPurchaseInvoic
           ..product.value = d.product.value
           ..supplier.value = invoice.supplier.value;
         await db.ttStockLots.put(lot);
+        await lot.product.save();
+        await lot.supplier.save();
         d.lot.value = lot;
+        await db.ttPurchaseItems.put(d);
         await d.product.save();
         await d.lot.save();
-        await db.ttPurchaseItems.put(d);
         await d.purchaseInvoice.save();
         // Ghi nhận movement PURCHASE
-        await db.ttStockMovements.put(TtStockMovement()
+        final mov = TtStockMovement()
           ..movementId = DateTime.now().microsecondsSinceEpoch.toString()
           ..product.value = d.product.value
           ..lot.value = lot
@@ -253,7 +283,10 @@ class TtPurchasesNotifier extends StateNotifier<AsyncValue<List<TtPurchaseInvoic
           ..referenceId = invoice.invoiceNumber
           ..quantity = d.quantity
           ..unitCost = d.unitPrice
-          ..totalCost = d.amount);
+          ..totalCost = d.amount;
+        await db.ttStockMovements.put(mov);
+        await mov.product.save();
+        await mov.lot.save();
       }
       if (invoice.supplier.value != null) {
         final s = invoice.supplier.value!;
@@ -322,17 +355,25 @@ class TtFinanceNotifier extends StateNotifier<AsyncValue<List<TtReceipt>>> {
   }
 
   Future<void> addReceipt(TtReceipt receipt) async {
+    // Lấy đối tượng liên kết TRƯỚC khi put (put() có thể xóa cache link,
+    // đọc lại trong txn sẽ gây lỗi "không được lồng transaction").
+    final customer = receipt.customer.value;
+    final supplier = receipt.supplier.value;
     final db = await _isarService.db;
     await db.writeTxn(() async {
       await db.ttReceipts.put(receipt);
-      if (receipt.customer.value != null) {
+      if (customer != null) {
+        await receipt.customer.save();
         // Khách trả nợ -> giảm công nợ khách
-        receipt.customer.value!.currentDebt -= receipt.amount;
-        receipt.customer.value!.totalPayment += receipt.amount;
-        await db.ttCustomers.put(receipt.customer.value!);
+        customer.currentDebt -= receipt.amount;
+        customer.totalPayment += receipt.amount;
+        await db.ttCustomers.put(customer);
       }
-      if (receipt.supplier.value != null) {
-        await db.ttSuppliers.put(receipt.supplier.value!);
+      if (supplier != null) {
+        await receipt.supplier.save();
+        // Trả nhà cung cấp -> giảm công nợ NCC
+        supplier.currentDebt -= receipt.amount;
+        await db.ttSuppliers.put(supplier);
       }
     });
     await loadReceipts();
@@ -363,14 +404,9 @@ final ttLoyaltyTxProvider = FutureProvider<List<TtLoyaltyTransaction>>((ref) asy
 });
 
 final ttDashboardProvider = FutureProvider<Map<String, dynamic>>((ref) async {
-  ref.watch(ttSalesProvider);
-  ref.watch(ttPurchasesProvider);
-  ref.watch(ttProductsProvider);
-  ref.watch(ttCustomersProvider);
-  ref.watch(ttFinanceProvider);
-  ref.watch(ttExpensesProvider);
-  ref.watch(ttStockLotsProvider);
-
+  // Không ref.watch các provider khác: mỗi provider con chạy một chuỗi truy vấn
+  // Isar riêng, nếu chạy đồng thời cùng body này sẽ treo (deadlock trên task queue
+  // của Isar trong môi trường test). Body tự đọc tuần tự từ DB.
   final db = await ref.watch(ttIsarServiceProvider).db;
   final now = DateTime.now();
   final today = DateTime(now.year, now.month, now.day);
@@ -420,7 +456,6 @@ final ttDashboardProvider = FutureProvider<Map<String, dynamic>>((ref) async {
   for (final r in receipts) {
     totalReceipt += r.amount;
   }
-  cashBalance = totalReceipt - monthExpense;
   final totalExpense = expenses.fold<double>(0, (sum, e) => sum + e.amount);
   cashBalance = totalReceipt - totalExpense;
 

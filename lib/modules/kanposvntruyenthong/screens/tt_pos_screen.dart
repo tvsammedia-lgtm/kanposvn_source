@@ -99,22 +99,66 @@ class _TtPosScreenState extends ConsumerState<TtPosScreen> {
 
     final items = <TtSalesItem>[];
     for (final line in _cart) {
-      final item = TtSalesItem()
-        ..quantity = line.quantity
-        ..unit = line.unit
-        ..unitPrice = line.unitPrice
-        ..costPrice = line.costPrice
-        ..discount = 0
-        ..amount = line.amount;
-      item.product.value = line.product;
-      final lot = await db.ttStockLots.where().filter().product((p) => p.idEqualTo(line.product.id)).findFirst();
-      item.lotId = lot?.lotId ?? '';
-      items.add(item);
+      double remainingToFulfill = line.quantity;
+      final lots = await db.ttStockLots.filter()
+          .product((p) => p.idEqualTo(line.product.id))
+          .quantityRemainingGreaterThan(0)
+          .sortByPurchaseDate()
+          .findAll();
+
+      if (lots.isEmpty) {
+        // Nếu không có tồn kho lô nào, cứ tạo 1 item không có lotId (cho phép xuất âm hoặc cảnh báo)
+        final item = TtSalesItem()
+          ..quantity = remainingToFulfill
+          ..unit = line.unit
+          ..unitPrice = line.unitPrice
+          ..costPrice = line.costPrice
+          ..discount = 0
+          ..amount = remainingToFulfill * line.unitPrice;
+        item.product.value = line.product;
+        items.add(item);
+      } else {
+        for (final lot in lots) {
+          if (remainingToFulfill <= 0) break;
+          final takeQty = remainingToFulfill <= lot.quantityRemaining ? remainingToFulfill : lot.quantityRemaining;
+          
+          final item = TtSalesItem()
+            ..quantity = takeQty
+            ..unit = line.unit
+            ..unitPrice = line.unitPrice
+            ..costPrice = lot.unitCost // Lấy giá vốn của lô
+            ..discount = 0
+            ..amount = takeQty * line.unitPrice
+            ..lotId = lot.lotId;
+          item.product.value = line.product;
+          items.add(item);
+
+          remainingToFulfill -= takeQty;
+        }
+        
+        // Nếu vẫn còn thiếu (tức là tổng tồn kho nhỏ hơn số lượng bán)
+        if (remainingToFulfill > 0) {
+          final item = TtSalesItem()
+            ..quantity = remainingToFulfill
+            ..unit = line.unit
+            ..unitPrice = line.unitPrice
+            ..costPrice = line.costPrice
+            ..discount = 0
+            ..amount = remainingToFulfill * line.unitPrice;
+          item.product.value = line.product;
+          items.add(item);
+        }
+      }
     }
 
     final buyers = <TtCustomer>[];
     if (_customer != null) buyers.add(_customer!);
-    final created = await ref.read(ttSalesProvider.notifier).createSale(invoice, items, buyers);
+    final created = await ref.read(ttSalesProvider.notifier).createSale(
+      invoice,
+      items,
+      buyers,
+      redeemPoints: _customer != null ? _redeemPoints : 0,
+    );
 
     final printed = await showDialog<bool>(
       context: context,

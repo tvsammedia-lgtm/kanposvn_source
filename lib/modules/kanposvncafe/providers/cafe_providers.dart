@@ -12,6 +12,7 @@ import '../services/cafe_neon_sync_service.dart';
 import '../services/cafe_backup_restore_service.dart';
 import '../services/cafe_permission_service.dart';
 import '../services/cafe_einvoice_settings.dart';
+import '../services/cafe_qr_bridge.dart';
 
 final cafeIsarServiceProvider = Provider<CafeIsarService>(
   (ref) => CafeIsarService(),
@@ -802,3 +803,12 @@ final cafeTabPermissionsProvider =
     StateNotifierProvider<CafeTabPermissionsNotifier, Map<String, Set<String>>>(
       (ref) => CafeTabPermissionsNotifier(),
     );
+
+// QR Order Online
+final cafeQrBridgeProvider = Provider<CafeQrBridge>((ref) {
+  final isar = ref.watch(cafeIsarServiceProvider);
+  return CafeQrBridge(isar, onLocalRefresh: () async {
+    ref.read(cafeOrdersProvider.notifier).loadOrders();
+    ref.read(cafeTablesProvider.notifier).loadTables();
+  });
+});

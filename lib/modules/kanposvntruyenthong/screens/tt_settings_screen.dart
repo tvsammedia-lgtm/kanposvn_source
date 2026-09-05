@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/tt_product.dart';
 import '../models/tt_finance.dart';
 import '../providers/tt_providers.dart';
+import '../services/tt_seed_data.dart';
 
 /// Tab "Cài Đặt": thông tin sạp, danh mục sản phẩm, đơn vị tính, nhóm chi phí,
 /// xóa sạch dữ liệu demo.
@@ -198,6 +199,45 @@ await db.writeTxn(() async {
     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Đã xóa dữ liệu. Khởi động lại tab để nạp lại mẫu.')));
   }
 
+  Future<void> _generateDemoData() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Tạo dữ liệu mẫu?'),
+        content: const Text(
+            'Xóa toàn bộ dữ liệu và tạo lại mẫu cho tháng hiện tại: sản phẩm, nhập hàng, bán hàng, xuất-nhập tồn, thu chi.',
+            ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Hủy')),
+          FilledButton(onPressed: () => Navigator.pop(context, true), child: const Text('Tạo')),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+    final service = ref.read(ttIsarServiceProvider);
+    final db = await service.db;
+    await db.writeTxn(() => db.clear());
+    await TtSeedData.seedIfEmpty(service);
+    ref.invalidate(ttCategoriesProvider);
+    ref.invalidate(ttProductsProvider);
+    ref.invalidate(ttCustomersProvider);
+    ref.invalidate(ttSuppliersProvider);
+    ref.invalidate(ttLoyaltyRulesProvider);
+    ref.invalidate(ttExpenseCategoriesProvider);
+    ref.invalidate(ttSalesProvider);
+    ref.invalidate(ttPurchasesProvider);
+    ref.invalidate(ttStockLotsProvider);
+    ref.invalidate(ttStockMovementsProvider);
+    ref.invalidate(ttStockIssuesProvider);
+    ref.invalidate(ttFinanceProvider);
+    ref.invalidate(ttExpensesProvider);
+    ref.invalidate(ttLoyaltyTxProvider);
+    ref.invalidate(ttDashboardProvider);
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text('Đã tạo dữ liệu mẫu cho tháng này. Vào Bán Hàng / Thu Chi / Báo Cáo để xem.')));
+  }
+
   @override
   Widget build(BuildContext context) {
     final catsAsync = ref.watch(ttCategoriesProvider);
@@ -327,6 +367,15 @@ await db.writeTxn(() async {
                   ),
                 ],
               ),
+            ),
+          ),
+          const SizedBox(height: 12),
+          Card(
+            child: ListTile(
+              leading: const Icon(Icons.auto_fix_high, color: Color(0xFF16A34A)),
+              title: const Text('Tạo dữ liệu mẫu'),
+              subtitle: const Text('Sản phẩm, bán/nhập hàng, xuất nhập tồn, thu chi cho tháng hiện tại'),
+              onTap: _generateDemoData,
             ),
           ),
           const SizedBox(height: 12),

@@ -14,6 +14,29 @@ import '../models/gara_supplier.dart';
 import '../models/gara_inventory.dart';
 import '../models/gara_finance.dart';
 
+/// Notifier autoDispose an toàn với load dữ liệu bất đồng bộ (Isar).
+///
+/// Các notifier này là `autoDispose`: khi không còn widget nào watch, Riverpod
+/// dispose chúng ngay cả khi `load*()` đang chạy (await mở DB / findAll). Sau đó
+/// lệnh `state = ...` còn treo sẽ ném `StateError` ("used after dispose").
+/// `setState` ghi đè chỉ ghi khi notifier chưa bị dispose; sau dispose thì bỏ qua.
+abstract class GaraSafeNotifier<T> extends StateNotifier<T> {
+  GaraSafeNotifier(super.initial);
+
+  bool _disposed = false;
+
+  @override
+  void dispose() {
+    _disposed = true;
+    super.dispose();
+  }
+
+  void setState(T next) {
+    if (_disposed) return;
+    state = next;
+  }
+}
+
 // Services
 /// Isar service theo CHI NHÁNH hiện tại của thiết bị. Khi đổi chi nhánh
 /// (`auth.branchId` thay đổi) provider được tạo lại → toàn bộ các notifier
@@ -43,7 +66,7 @@ final garaEinvoiceSettingsProvider =
 });
 
 // Customers
-class GaraCustomersNotifier extends StateNotifier<AsyncValue<List<GaraCustomer>>> {
+class GaraCustomersNotifier extends GaraSafeNotifier<AsyncValue<List<GaraCustomer>>> {
   final GaraIsarService _isarService;
 
   GaraCustomersNotifier(this._isarService) : super(const AsyncValue.loading()) {
@@ -52,12 +75,12 @@ class GaraCustomersNotifier extends StateNotifier<AsyncValue<List<GaraCustomer>>
 
   Future<void> loadCustomers() async {
     try {
-      state = const AsyncValue.loading();
+      setState(const AsyncValue.loading());
       final db = await _isarService.db;
       final customers = await db.garaCustomers.where().findAll();
-      state = AsyncValue.data(customers);
+      setState(AsyncValue.data(customers));
     } catch (e, st) {
-      state = AsyncValue.error(e, st);
+      setState(AsyncValue.error(e, st));
     }
   }
 
@@ -76,7 +99,7 @@ final garaCustomersProvider = StateNotifierProvider.autoDispose<GaraCustomersNot
 });
 
 // Vehicles
-class GaraVehiclesNotifier extends StateNotifier<AsyncValue<List<GaraVehicle>>> {
+class GaraVehiclesNotifier extends GaraSafeNotifier<AsyncValue<List<GaraVehicle>>> {
   final GaraIsarService _isarService;
 
   GaraVehiclesNotifier(this._isarService) : super(const AsyncValue.loading()) {
@@ -85,12 +108,12 @@ class GaraVehiclesNotifier extends StateNotifier<AsyncValue<List<GaraVehicle>>> 
 
   Future<void> loadVehicles() async {
     try {
-      state = const AsyncValue.loading();
+      setState(const AsyncValue.loading());
       final db = await _isarService.db;
       final vehicles = await db.garaVehicles.where().findAll();
-      state = AsyncValue.data(vehicles);
+      setState(AsyncValue.data(vehicles));
     } catch (e, st) {
-      state = AsyncValue.error(e, st);
+      setState(AsyncValue.error(e, st));
     }
   }
 
@@ -110,7 +133,7 @@ final garaVehiclesProvider = StateNotifierProvider.autoDispose<GaraVehiclesNotif
 });
 
 // Products (Parts & Services)
-class GaraProductsNotifier extends StateNotifier<AsyncValue<List<GaraProduct>>> {
+class GaraProductsNotifier extends GaraSafeNotifier<AsyncValue<List<GaraProduct>>> {
   final GaraIsarService _isarService;
 
   GaraProductsNotifier(this._isarService) : super(const AsyncValue.loading()) {
@@ -119,12 +142,12 @@ class GaraProductsNotifier extends StateNotifier<AsyncValue<List<GaraProduct>>> 
 
   Future<void> loadProducts() async {
     try {
-      state = const AsyncValue.loading();
+      setState(const AsyncValue.loading());
       final db = await _isarService.db;
       final products = await db.garaProducts.where().findAll();
-      state = AsyncValue.data(products);
+      setState(AsyncValue.data(products));
     } catch (e, st) {
-      state = AsyncValue.error(e, st);
+      setState(AsyncValue.error(e, st));
     }
   }
 }
@@ -135,7 +158,7 @@ final garaProductsProvider = StateNotifierProvider.autoDispose<GaraProductsNotif
 });
 
 // Repair Orders
-class GaraOrdersNotifier extends StateNotifier<AsyncValue<List<GaraRepairOrder>>> {
+class GaraOrdersNotifier extends GaraSafeNotifier<AsyncValue<List<GaraRepairOrder>>> {
   final GaraIsarService _isarService;
 
   GaraOrdersNotifier(this._isarService) : super(const AsyncValue.loading()) {
@@ -144,16 +167,16 @@ class GaraOrdersNotifier extends StateNotifier<AsyncValue<List<GaraRepairOrder>>
 
   Future<void> loadOrders() async {
     try {
-      state = const AsyncValue.loading();
+      setState(const AsyncValue.loading());
       final db = await _isarService.db;
       final orders = await db.garaRepairOrders.where().findAll();
       for (final o in orders) {
         await o.customer.load();
         await o.vehicle.load();
       }
-      state = AsyncValue.data(orders);
+      setState(AsyncValue.data(orders));
     } catch (e, st) {
-      state = AsyncValue.error(e, st);
+      setState(AsyncValue.error(e, st));
     }
   }
 
@@ -167,7 +190,7 @@ class GaraOrdersNotifier extends StateNotifier<AsyncValue<List<GaraRepairOrder>>
       });
       await loadOrders();
     } catch (e, st) {
-      state = AsyncValue.error(e, st);
+      setState(AsyncValue.error(e, st));
     }
   }
   
@@ -184,7 +207,7 @@ class GaraOrdersNotifier extends StateNotifier<AsyncValue<List<GaraRepairOrder>>
       });
       await loadOrders();
     } catch (e, st) {
-      state = AsyncValue.error(e, st);
+      setState(AsyncValue.error(e, st));
     }
   }
 }
@@ -223,7 +246,7 @@ final garaOrderDetailsProvider = FutureProvider.family<List<GaraRepairDetail>, i
 });
 
 // Suppliers
-class GaraSuppliersNotifier extends StateNotifier<AsyncValue<List<GaraSupplier>>> {
+class GaraSuppliersNotifier extends GaraSafeNotifier<AsyncValue<List<GaraSupplier>>> {
   final GaraIsarService _isarService;
 
   GaraSuppliersNotifier(this._isarService) : super(const AsyncValue.loading()) {
@@ -232,12 +255,12 @@ class GaraSuppliersNotifier extends StateNotifier<AsyncValue<List<GaraSupplier>>
 
   Future<void> loadSuppliers() async {
     try {
-      state = const AsyncValue.loading();
+      setState(const AsyncValue.loading());
       final db = await _isarService.db;
       final suppliers = await db.garaSuppliers.where().findAll();
-      state = AsyncValue.data(suppliers);
+      setState(AsyncValue.data(suppliers));
     } catch (e, st) {
-      state = AsyncValue.error(e, st);
+      setState(AsyncValue.error(e, st));
     }
   }
 
@@ -256,7 +279,7 @@ final garaSuppliersProvider = StateNotifierProvider.autoDispose<GaraSuppliersNot
 });
 
 // Inventory
-class GaraInventoryNotifier extends StateNotifier<AsyncValue<List<GaraInventoryTransaction>>> {
+class GaraInventoryNotifier extends GaraSafeNotifier<AsyncValue<List<GaraInventoryTransaction>>> {
   final GaraIsarService _isarService;
   final Ref _ref;
 
@@ -266,12 +289,12 @@ class GaraInventoryNotifier extends StateNotifier<AsyncValue<List<GaraInventoryT
 
   Future<void> loadTransactions() async {
     try {
-      state = const AsyncValue.loading();
+      setState(const AsyncValue.loading());
       final db = await _isarService.db;
       final txs = await db.garaInventoryTransactions.where().sortByTransactionDateDesc().findAll();
-      state = AsyncValue.data(txs);
+      setState(AsyncValue.data(txs));
     } catch (e, st) {
-      state = AsyncValue.error(e, st);
+      setState(AsyncValue.error(e, st));
     }
   }
 
@@ -300,7 +323,7 @@ class GaraInventoryNotifier extends StateNotifier<AsyncValue<List<GaraInventoryT
       await loadTransactions();
       _ref.read(garaProductsProvider.notifier).loadProducts();
     } catch (e, st) {
-      state = AsyncValue.error(e, st);
+      setState(AsyncValue.error(e, st));
     }
   }
 }
@@ -310,7 +333,7 @@ final garaInventoryProvider = StateNotifierProvider.autoDispose<GaraInventoryNot
 });
 
 // Finance
-class GaraFinanceNotifier extends StateNotifier<AsyncValue<List<GaraFinanceTransaction>>> {
+class GaraFinanceNotifier extends GaraSafeNotifier<AsyncValue<List<GaraFinanceTransaction>>> {
   final GaraIsarService _isarService;
 
   GaraFinanceNotifier(this._isarService) : super(const AsyncValue.loading()) {
@@ -319,12 +342,12 @@ class GaraFinanceNotifier extends StateNotifier<AsyncValue<List<GaraFinanceTrans
 
   Future<void> loadTransactions() async {
     try {
-      state = const AsyncValue.loading();
+      setState(const AsyncValue.loading());
       final db = await _isarService.db;
       final txs = await db.garaFinanceTransactions.where().sortByTransactionDateDesc().findAll();
-      state = AsyncValue.data(txs);
+      setState(AsyncValue.data(txs));
     } catch (e, st) {
-      state = AsyncValue.error(e, st);
+      setState(AsyncValue.error(e, st));
     }
   }
 
@@ -358,7 +381,7 @@ class GaraFinanceNotifier extends StateNotifier<AsyncValue<List<GaraFinanceTrans
       });
       await loadTransactions();
     } catch (e, st) {
-      state = AsyncValue.error(e, st);
+      setState(AsyncValue.error(e, st));
     }
   }
 }

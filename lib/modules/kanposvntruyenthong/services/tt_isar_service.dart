@@ -18,6 +18,10 @@ class TtIsarService {
     db = openDB();
   }
 
+  TtIsarService.forIsar(Isar isar) {
+    db = Future.value(isar);
+  }
+
   Future<Isar> openDB() async {
     if (Isar.instanceNames.contains('kanposvntruyenthong_db')) {
       return Isar.getInstance('kanposvntruyenthong_db')!;

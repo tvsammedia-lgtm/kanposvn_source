@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/auth/employee_auth.dart';
 import '../../../core/auth/employee_management_screen.dart';
+import '../../../core/sync/qr_order_screen.dart';
 import '../../../core/widgets/generic_backup_restore_screen.dart';
 import '../providers/restaurant_providers.dart';
 import '../services/restaurant_einvoice_settings.dart';
@@ -201,6 +202,35 @@ class _RestaurantSettingsScreenState
                   ),
                 ],
               ),
+            ),
+          ),
+
+          const SizedBox(height: 20),
+
+          // -----------------------------------------------------------------
+          // Đặt món online (QR)
+          // -----------------------------------------------------------------
+          Text('ĐẶT MÓN ONLINE',
+              style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.grey[700])),
+          const SizedBox(height: 8),
+          Card(
+            child: ListTile(
+              leading: const Icon(Icons.qr_code_2, color: Colors.deepPurple),
+              title: const Text('QR Order Online'),
+              subtitle: const Text('Đồng bộ bàn + menu tạo mã QR, nhận đơn của khách web'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => QrOrderScreen(
+                      bridgeProvider: restaurantQrBridgeProvider,
+                    ),
+                  ),
+                );
+              },
             ),
           ),
 

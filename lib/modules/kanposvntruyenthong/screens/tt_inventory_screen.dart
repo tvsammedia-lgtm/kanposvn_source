@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:isar/isar.dart';
-import 'package:uuid/uuid.dart';
 
 import '../models/tt_product.dart';
 import '../models/tt_stock.dart';
 import '../providers/tt_providers.dart';
+import '../services/tt_stock_service.dart';
 
 String ttFmt2(double value) {
   final abs = value.abs().toStringAsFixed(0);
@@ -78,49 +77,29 @@ class _TtInventoryScreenState extends ConsumerState<TtInventoryScreen>
     if (qty <= 0) return;
 
     final db = await ref.read(ttIsarServiceProvider).db;
-    final no = (await db.ttStockIssues.count()) + 1;
-    final issueNumber = 'XK${no.toString().padLeft(4, '0')}';
-    final totalCost = qty * product.defaultPurchasePrice;
-    final issue = TtStockIssue()
-      ..issueId = const Uuid().v4()
-      ..issueNumber = issueNumber
-      ..issueType = _issueType
-      ..date = DateTime.now()
-      ..note = _issueNoteCtrl.text.trim()
-      ..totalCost = totalCost
-      ..createdBy = 'inventory';
-    await db.writeTxn(() async {
-      await db.ttStockIssues.put(issue);
-      // Trừ lô theo FIFO
-      final lots = await db.ttStockLots.filter().product((p) => p.idEqualTo(product.id)).findAll()
-        ..sort((a, b) => a.purchaseDate.compareTo(b.purchaseDate));
-      double remaining = qty;
-      for (final lot in lots) {
-        if (remaining <= 0) break;
-        if (lot.quantityRemaining <= 0) continue;
-        final take = lot.quantityRemaining < remaining ? lot.quantityRemaining : remaining;
-        lot.quantityOut += take;
-        lot.quantityRemaining -= take;
-        remaining -= take;
-        await db.ttStockLots.put(lot);
+    try {
+      final created = await TtStockService(db).createStockIssue(
+        product: product,
+        qty: qty,
+        issueType: _issueType,
+        note: _issueNoteCtrl.text.trim(),
+      );
+      ref.invalidate(ttStockLotsProvider);
+      ref.invalidate(ttStockMovementsProvider);
+      ref.invalidate(ttProductsProvider);
+      _issueNoteCtrl.clear();
+      _issueQtyCtrl.clear();
+      setState(() => _issueProduct = null);
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('Đã tạo phiếu ${created.issueNumber}')));
       }
-      await db.ttStockMovements.put(TtStockMovement()
-        ..movementId = const Uuid().v4()
-        ..product.value = product
-        ..movementType = _issueType == TtIssueType.WASTE
-            ? TtMovementType.WASTE
-            : _issueType == TtIssueType.DAMAGE
-                ? TtMovementType.DAMAGE
-                : TtMovementType.INTERNAL_USE
-        ..referenceId = issueNumber
-        ..quantity = -qty
-        ..unitCost = product.defaultPurchasePrice
-        ..totalCost = -totalCost);
-    });
-    _issueNoteCtrl.clear();
-    _issueQtyCtrl.clear();
-    setState(() => _issueProduct = null);
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Đã tạo phiếu $issueNumber')));
+    } on StateError catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(e.message)));
+      }
+    }
   }
 
   Future<void> _pickIssueProduct() async {

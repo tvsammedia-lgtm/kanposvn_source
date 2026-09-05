@@ -38,6 +38,9 @@ class _KanPosVNRestaurantShellState extends ConsumerState<KanPosVNRestaurantShel
 
   Future<void> _initData() async {
     try {
+      // QR Order Online: nạp cấu hình + auto-poll nếu trước đó đang bật.
+      await ref.read(restaurantQrBridgeProvider).initialize();
+
       final isarService = ref.read(restaurantIsarServiceProvider);
       await RestaurantSeedData.seedIfEmpty(isarService);
       ref.read(restaurantTablesProvider.notifier).loadTables();

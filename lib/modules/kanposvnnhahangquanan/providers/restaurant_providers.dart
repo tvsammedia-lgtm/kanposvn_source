@@ -11,6 +11,7 @@ import '../models/restaurant_expense_model.dart';
 import '../services/restaurant_isar_service.dart';
 import '../services/restaurant_business_logic.dart';
 import '../services/restaurant_einvoice_settings.dart';
+import '../services/restaurant_qr_bridge.dart';
 
 final restaurantIsarServiceProvider = Provider((ref) => RestaurantIsarService());
 
@@ -684,4 +685,14 @@ final restaurantDashboardProvider = StateNotifierProvider<
     RestaurantDashboardNotifier,
     AsyncValue<Map<String, dynamic>>>((ref) {
   return RestaurantDashboardNotifier(ref.watch(restaurantIsarServiceProvider));
+});
+
+// QR Order Online
+final restaurantQrBridgeProvider = Provider<RestaurantQrBridge>((ref) {
+  final isar = ref.watch(restaurantIsarServiceProvider);
+  return RestaurantQrBridge(isar, onLocalRefresh: () async {
+    await ref.read(restaurantOrdersProvider.notifier).loadOrders();
+    await ref.read(restaurantTablesProvider.notifier).loadTables();
+    await ref.read(restaurantDashboardProvider.notifier).loadDashboard();
+  });
 });
