@@ -35,7 +35,7 @@ class CongTrinhMaterial {
   @Index(unique: true, replace: true)
   String materialId = '';
   
-  final category = IsarLink<CongTrinhMaterialCategory>();
+  String categoryId = ''; // denormalized scalar key tới Category
   
   String code = '';
   String name = '';
@@ -58,7 +58,7 @@ class CongTrinhMaterialNorm {
   @Index(unique: true, replace: true)
   String normId = '';
   
-  final material = IsarLink<CongTrinhMaterial>();
+  String materialId = ''; // denormalized scalar key tới Material
   
   String code = '';
   String name = '';
@@ -94,7 +94,7 @@ class CongTrinhMaterialPrice {
   @Index(unique: true, replace: true)
   String priceId = '';
   
-  final material = IsarLink<CongTrinhMaterial>();
+  String materialId = ''; // denormalized scalar key tới Material
   
   String supplierId = ''; 
   String province = '';

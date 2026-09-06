@@ -1940,28 +1940,33 @@ const CongTrinhLaborNormSchema = CollectionSchema(
       name: r'laborNormId',
       type: IsarType.string,
     ),
-    r'quantityPerM2': PropertySchema(
+    r'laborTypeId': PropertySchema(
       id: 9,
+      name: r'laborTypeId',
+      type: IsarType.string,
+    ),
+    r'quantityPerM2': PropertySchema(
+      id: 10,
       name: r'quantityPerM2',
       type: IsarType.double,
     ),
     r'unit': PropertySchema(
-      id: 10,
+      id: 11,
       name: r'unit',
       type: IsarType.string,
     ),
     r'unitPrice': PropertySchema(
-      id: 11,
+      id: 12,
       name: r'unitPrice',
       type: IsarType.double,
     ),
     r'updatedAt': PropertySchema(
-      id: 12,
+      id: 13,
       name: r'updatedAt',
       type: IsarType.dateTime,
     ),
     r'version': PropertySchema(
-      id: 13,
+      id: 14,
       name: r'version',
       type: IsarType.long,
     )
@@ -1986,14 +1991,7 @@ const CongTrinhLaborNormSchema = CollectionSchema(
       ],
     )
   },
-  links: {
-    r'laborType': LinkSchema(
-      id: 190723063323919663,
-      name: r'laborType',
-      target: r'CongTrinhLaborType',
-      single: true,
-    )
-  },
+  links: {},
   embeddedSchemas: {},
   getId: _congTrinhLaborNormGetId,
   getLinks: _congTrinhLaborNormGetLinks,
@@ -2011,6 +2009,7 @@ int _congTrinhLaborNormEstimateSize(
   bytesCount += 3 + object.deviceId.length * 3;
   bytesCount += 3 + object.finishLevel.length * 3;
   bytesCount += 3 + object.laborNormId.length * 3;
+  bytesCount += 3 + object.laborTypeId.length * 3;
   bytesCount += 3 + object.unit.length * 3;
   return bytesCount;
 }
@@ -2030,11 +2029,12 @@ void _congTrinhLaborNormSerialize(
   writer.writeString(offsets[6], object.finishLevel);
   writer.writeBool(offsets[7], object.isSynced);
   writer.writeString(offsets[8], object.laborNormId);
-  writer.writeDouble(offsets[9], object.quantityPerM2);
-  writer.writeString(offsets[10], object.unit);
-  writer.writeDouble(offsets[11], object.unitPrice);
-  writer.writeDateTime(offsets[12], object.updatedAt);
-  writer.writeLong(offsets[13], object.version);
+  writer.writeString(offsets[9], object.laborTypeId);
+  writer.writeDouble(offsets[10], object.quantityPerM2);
+  writer.writeString(offsets[11], object.unit);
+  writer.writeDouble(offsets[12], object.unitPrice);
+  writer.writeDateTime(offsets[13], object.updatedAt);
+  writer.writeLong(offsets[14], object.version);
 }
 
 CongTrinhLaborNorm _congTrinhLaborNormDeserialize(
@@ -2054,11 +2054,12 @@ CongTrinhLaborNorm _congTrinhLaborNormDeserialize(
   object.id = id;
   object.isSynced = reader.readBool(offsets[7]);
   object.laborNormId = reader.readString(offsets[8]);
-  object.quantityPerM2 = reader.readDouble(offsets[9]);
-  object.unit = reader.readString(offsets[10]);
-  object.unitPrice = reader.readDouble(offsets[11]);
-  object.updatedAt = reader.readDateTime(offsets[12]);
-  object.version = reader.readLong(offsets[13]);
+  object.laborTypeId = reader.readString(offsets[9]);
+  object.quantityPerM2 = reader.readDouble(offsets[10]);
+  object.unit = reader.readString(offsets[11]);
+  object.unitPrice = reader.readDouble(offsets[12]);
+  object.updatedAt = reader.readDateTime(offsets[13]);
+  object.version = reader.readLong(offsets[14]);
   return object;
 }
 
@@ -2088,14 +2089,16 @@ P _congTrinhLaborNormDeserializeProp<P>(
     case 8:
       return (reader.readString(offset)) as P;
     case 9:
-      return (reader.readDouble(offset)) as P;
-    case 10:
       return (reader.readString(offset)) as P;
-    case 11:
+    case 10:
       return (reader.readDouble(offset)) as P;
+    case 11:
+      return (reader.readString(offset)) as P;
     case 12:
-      return (reader.readDateTime(offset)) as P;
+      return (reader.readDouble(offset)) as P;
     case 13:
+      return (reader.readDateTime(offset)) as P;
+    case 14:
       return (reader.readLong(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -2108,14 +2111,12 @@ Id _congTrinhLaborNormGetId(CongTrinhLaborNorm object) {
 
 List<IsarLinkBase<dynamic>> _congTrinhLaborNormGetLinks(
     CongTrinhLaborNorm object) {
-  return [object.laborType];
+  return [];
 }
 
 void _congTrinhLaborNormAttach(
     IsarCollection<dynamic> col, Id id, CongTrinhLaborNorm object) {
   object.id = id;
-  object.laborType
-      .attach(col, col.isar.collection<CongTrinhLaborType>(), r'laborType', id);
 }
 
 extension CongTrinhLaborNormByIndex on IsarCollection<CongTrinhLaborNorm> {
@@ -3191,6 +3192,142 @@ extension CongTrinhLaborNormQueryFilter
   }
 
   QueryBuilder<CongTrinhLaborNorm, CongTrinhLaborNorm, QAfterFilterCondition>
+      laborTypeIdEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'laborTypeId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<CongTrinhLaborNorm, CongTrinhLaborNorm, QAfterFilterCondition>
+      laborTypeIdGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'laborTypeId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<CongTrinhLaborNorm, CongTrinhLaborNorm, QAfterFilterCondition>
+      laborTypeIdLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'laborTypeId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<CongTrinhLaborNorm, CongTrinhLaborNorm, QAfterFilterCondition>
+      laborTypeIdBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'laborTypeId',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<CongTrinhLaborNorm, CongTrinhLaborNorm, QAfterFilterCondition>
+      laborTypeIdStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'laborTypeId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<CongTrinhLaborNorm, CongTrinhLaborNorm, QAfterFilterCondition>
+      laborTypeIdEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'laborTypeId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<CongTrinhLaborNorm, CongTrinhLaborNorm, QAfterFilterCondition>
+      laborTypeIdContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'laborTypeId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<CongTrinhLaborNorm, CongTrinhLaborNorm, QAfterFilterCondition>
+      laborTypeIdMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'laborTypeId',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<CongTrinhLaborNorm, CongTrinhLaborNorm, QAfterFilterCondition>
+      laborTypeIdIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'laborTypeId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<CongTrinhLaborNorm, CongTrinhLaborNorm, QAfterFilterCondition>
+      laborTypeIdIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'laborTypeId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<CongTrinhLaborNorm, CongTrinhLaborNorm, QAfterFilterCondition>
       quantityPerM2EqualTo(
     double value, {
     double epsilon = Query.epsilon,
@@ -3575,21 +3712,7 @@ extension CongTrinhLaborNormQueryObject
     on QueryBuilder<CongTrinhLaborNorm, CongTrinhLaborNorm, QFilterCondition> {}
 
 extension CongTrinhLaborNormQueryLinks
-    on QueryBuilder<CongTrinhLaborNorm, CongTrinhLaborNorm, QFilterCondition> {
-  QueryBuilder<CongTrinhLaborNorm, CongTrinhLaborNorm, QAfterFilterCondition>
-      laborType(FilterQuery<CongTrinhLaborType> q) {
-    return QueryBuilder.apply(this, (query) {
-      return query.link(q, r'laborType');
-    });
-  }
-
-  QueryBuilder<CongTrinhLaborNorm, CongTrinhLaborNorm, QAfterFilterCondition>
-      laborTypeIsNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.linkLength(r'laborType', 0, true, 0, true);
-    });
-  }
-}
+    on QueryBuilder<CongTrinhLaborNorm, CongTrinhLaborNorm, QFilterCondition> {}
 
 extension CongTrinhLaborNormQuerySortBy
     on QueryBuilder<CongTrinhLaborNorm, CongTrinhLaborNorm, QSortBy> {
@@ -3716,6 +3839,20 @@ extension CongTrinhLaborNormQuerySortBy
       sortByLaborNormIdDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'laborNormId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<CongTrinhLaborNorm, CongTrinhLaborNorm, QAfterSortBy>
+      sortByLaborTypeId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'laborTypeId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<CongTrinhLaborNorm, CongTrinhLaborNorm, QAfterSortBy>
+      sortByLaborTypeIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'laborTypeId', Sort.desc);
     });
   }
 
@@ -3933,6 +4070,20 @@ extension CongTrinhLaborNormQuerySortThenBy
   }
 
   QueryBuilder<CongTrinhLaborNorm, CongTrinhLaborNorm, QAfterSortBy>
+      thenByLaborTypeId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'laborTypeId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<CongTrinhLaborNorm, CongTrinhLaborNorm, QAfterSortBy>
+      thenByLaborTypeIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'laborTypeId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<CongTrinhLaborNorm, CongTrinhLaborNorm, QAfterSortBy>
       thenByQuantityPerM2() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'quantityPerM2', Sort.asc);
@@ -4070,6 +4221,13 @@ extension CongTrinhLaborNormQueryWhereDistinct
   }
 
   QueryBuilder<CongTrinhLaborNorm, CongTrinhLaborNorm, QDistinct>
+      distinctByLaborTypeId({bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'laborTypeId', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<CongTrinhLaborNorm, CongTrinhLaborNorm, QDistinct>
       distinctByQuantityPerM2() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'quantityPerM2');
@@ -4172,6 +4330,13 @@ extension CongTrinhLaborNormQueryProperty
       laborNormIdProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'laborNormId');
+    });
+  }
+
+  QueryBuilder<CongTrinhLaborNorm, String, QQueryOperations>
+      laborTypeIdProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'laborTypeId');
     });
   }
 

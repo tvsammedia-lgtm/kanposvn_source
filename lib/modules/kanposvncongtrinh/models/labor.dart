@@ -35,8 +35,8 @@ class CongTrinhLaborNorm {
 
   @Index(unique: true, replace: true)
   String laborNormId = '';
-  
-  final laborType = IsarLink<CongTrinhLaborType>();
+
+  String laborTypeId = ''; // denormalized scalar key tới LaborType
   
   String unit = 'cong/m2'; // Công/m2
   double quantityPerM2 = 0;

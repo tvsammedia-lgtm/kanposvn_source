@@ -1851,58 +1851,63 @@ const CongTrinhMaterialSchema = CollectionSchema(
   name: r'CongTrinhMaterial',
   id: 7792242400892454821,
   properties: {
-    r'code': PropertySchema(
+    r'categoryId': PropertySchema(
       id: 0,
+      name: r'categoryId',
+      type: IsarType.string,
+    ),
+    r'code': PropertySchema(
+      id: 1,
       name: r'code',
       type: IsarType.string,
     ),
     r'createdAt': PropertySchema(
-      id: 1,
+      id: 2,
       name: r'createdAt',
       type: IsarType.dateTime,
     ),
     r'defaultUnit': PropertySchema(
-      id: 2,
+      id: 3,
       name: r'defaultUnit',
       type: IsarType.string,
     ),
     r'deletedAt': PropertySchema(
-      id: 3,
+      id: 4,
       name: r'deletedAt',
       type: IsarType.dateTime,
     ),
     r'deviceId': PropertySchema(
-      id: 4,
+      id: 5,
       name: r'deviceId',
       type: IsarType.string,
     ),
     r'isSynced': PropertySchema(
-      id: 5,
+      id: 6,
       name: r'isSynced',
       type: IsarType.bool,
     ),
     r'materialId': PropertySchema(
-      id: 6,
+      id: 7,
       name: r'materialId',
       type: IsarType.string,
     ),
     r'name': PropertySchema(
-      id: 7,
+      id: 8,
       name: r'name',
       type: IsarType.string,
     ),
     r'notes': PropertySchema(
-      id: 8,
+      id: 9,
       name: r'notes',
       type: IsarType.string,
     ),
     r'updatedAt': PropertySchema(
-      id: 9,
+      id: 10,
       name: r'updatedAt',
       type: IsarType.dateTime,
     ),
     r'version': PropertySchema(
-      id: 10,
+      id: 11,
       name: r'version',
       type: IsarType.long,
     )
@@ -1927,14 +1932,7 @@ const CongTrinhMaterialSchema = CollectionSchema(
       ],
     )
   },
-  links: {
-    r'category': LinkSchema(
-      id: -8620145610637681848,
-      name: r'category',
-      target: r'CongTrinhMaterialCategory',
-      single: true,
-    )
-  },
+  links: {},
   embeddedSchemas: {},
   getId: _congTrinhMaterialGetId,
   getLinks: _congTrinhMaterialGetLinks,
@@ -1948,6 +1946,7 @@ int _congTrinhMaterialEstimateSize(
   Map<Type, List<int>> allOffsets,
 ) {
   var bytesCount = offsets.last;
+  bytesCount += 3 + object.categoryId.length * 3;
   bytesCount += 3 + object.code.length * 3;
   bytesCount += 3 + object.defaultUnit.length * 3;
   bytesCount += 3 + object.deviceId.length * 3;
@@ -1963,17 +1962,18 @@ void _congTrinhMaterialSerialize(
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
-  writer.writeString(offsets[0], object.code);
-  writer.writeDateTime(offsets[1], object.createdAt);
-  writer.writeString(offsets[2], object.defaultUnit);
-  writer.writeDateTime(offsets[3], object.deletedAt);
-  writer.writeString(offsets[4], object.deviceId);
-  writer.writeBool(offsets[5], object.isSynced);
-  writer.writeString(offsets[6], object.materialId);
-  writer.writeString(offsets[7], object.name);
-  writer.writeString(offsets[8], object.notes);
-  writer.writeDateTime(offsets[9], object.updatedAt);
-  writer.writeLong(offsets[10], object.version);
+  writer.writeString(offsets[0], object.categoryId);
+  writer.writeString(offsets[1], object.code);
+  writer.writeDateTime(offsets[2], object.createdAt);
+  writer.writeString(offsets[3], object.defaultUnit);
+  writer.writeDateTime(offsets[4], object.deletedAt);
+  writer.writeString(offsets[5], object.deviceId);
+  writer.writeBool(offsets[6], object.isSynced);
+  writer.writeString(offsets[7], object.materialId);
+  writer.writeString(offsets[8], object.name);
+  writer.writeString(offsets[9], object.notes);
+  writer.writeDateTime(offsets[10], object.updatedAt);
+  writer.writeLong(offsets[11], object.version);
 }
 
 CongTrinhMaterial _congTrinhMaterialDeserialize(
@@ -1983,18 +1983,19 @@ CongTrinhMaterial _congTrinhMaterialDeserialize(
   Map<Type, List<int>> allOffsets,
 ) {
   final object = CongTrinhMaterial();
-  object.code = reader.readString(offsets[0]);
-  object.createdAt = reader.readDateTime(offsets[1]);
-  object.defaultUnit = reader.readString(offsets[2]);
-  object.deletedAt = reader.readDateTimeOrNull(offsets[3]);
-  object.deviceId = reader.readString(offsets[4]);
+  object.categoryId = reader.readString(offsets[0]);
+  object.code = reader.readString(offsets[1]);
+  object.createdAt = reader.readDateTime(offsets[2]);
+  object.defaultUnit = reader.readString(offsets[3]);
+  object.deletedAt = reader.readDateTimeOrNull(offsets[4]);
+  object.deviceId = reader.readString(offsets[5]);
   object.id = id;
-  object.isSynced = reader.readBool(offsets[5]);
-  object.materialId = reader.readString(offsets[6]);
-  object.name = reader.readString(offsets[7]);
-  object.notes = reader.readString(offsets[8]);
-  object.updatedAt = reader.readDateTime(offsets[9]);
-  object.version = reader.readLong(offsets[10]);
+  object.isSynced = reader.readBool(offsets[6]);
+  object.materialId = reader.readString(offsets[7]);
+  object.name = reader.readString(offsets[8]);
+  object.notes = reader.readString(offsets[9]);
+  object.updatedAt = reader.readDateTime(offsets[10]);
+  object.version = reader.readLong(offsets[11]);
   return object;
 }
 
@@ -2008,24 +2009,26 @@ P _congTrinhMaterialDeserializeProp<P>(
     case 0:
       return (reader.readString(offset)) as P;
     case 1:
-      return (reader.readDateTime(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 2:
-      return (reader.readString(offset)) as P;
+      return (reader.readDateTime(offset)) as P;
     case 3:
-      return (reader.readDateTimeOrNull(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 4:
-      return (reader.readString(offset)) as P;
+      return (reader.readDateTimeOrNull(offset)) as P;
     case 5:
-      return (reader.readBool(offset)) as P;
-    case 6:
       return (reader.readString(offset)) as P;
+    case 6:
+      return (reader.readBool(offset)) as P;
     case 7:
       return (reader.readString(offset)) as P;
     case 8:
       return (reader.readString(offset)) as P;
     case 9:
-      return (reader.readDateTime(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 10:
+      return (reader.readDateTime(offset)) as P;
+    case 11:
       return (reader.readLong(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -2038,14 +2041,12 @@ Id _congTrinhMaterialGetId(CongTrinhMaterial object) {
 
 List<IsarLinkBase<dynamic>> _congTrinhMaterialGetLinks(
     CongTrinhMaterial object) {
-  return [object.category];
+  return [];
 }
 
 void _congTrinhMaterialAttach(
     IsarCollection<dynamic> col, Id id, CongTrinhMaterial object) {
   object.id = id;
-  object.category.attach(
-      col, col.isar.collection<CongTrinhMaterialCategory>(), r'category', id);
 }
 
 extension CongTrinhMaterialByIndex on IsarCollection<CongTrinhMaterial> {
@@ -2232,6 +2233,142 @@ extension CongTrinhMaterialQueryWhere
 
 extension CongTrinhMaterialQueryFilter
     on QueryBuilder<CongTrinhMaterial, CongTrinhMaterial, QFilterCondition> {
+  QueryBuilder<CongTrinhMaterial, CongTrinhMaterial, QAfterFilterCondition>
+      categoryIdEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'categoryId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<CongTrinhMaterial, CongTrinhMaterial, QAfterFilterCondition>
+      categoryIdGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'categoryId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<CongTrinhMaterial, CongTrinhMaterial, QAfterFilterCondition>
+      categoryIdLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'categoryId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<CongTrinhMaterial, CongTrinhMaterial, QAfterFilterCondition>
+      categoryIdBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'categoryId',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<CongTrinhMaterial, CongTrinhMaterial, QAfterFilterCondition>
+      categoryIdStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'categoryId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<CongTrinhMaterial, CongTrinhMaterial, QAfterFilterCondition>
+      categoryIdEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'categoryId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<CongTrinhMaterial, CongTrinhMaterial, QAfterFilterCondition>
+      categoryIdContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'categoryId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<CongTrinhMaterial, CongTrinhMaterial, QAfterFilterCondition>
+      categoryIdMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'categoryId',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<CongTrinhMaterial, CongTrinhMaterial, QAfterFilterCondition>
+      categoryIdIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'categoryId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<CongTrinhMaterial, CongTrinhMaterial, QAfterFilterCondition>
+      categoryIdIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'categoryId',
+        value: '',
+      ));
+    });
+  }
+
   QueryBuilder<CongTrinhMaterial, CongTrinhMaterial, QAfterFilterCondition>
       codeEqualTo(
     String value, {
@@ -3361,24 +3498,24 @@ extension CongTrinhMaterialQueryObject
     on QueryBuilder<CongTrinhMaterial, CongTrinhMaterial, QFilterCondition> {}
 
 extension CongTrinhMaterialQueryLinks
-    on QueryBuilder<CongTrinhMaterial, CongTrinhMaterial, QFilterCondition> {
-  QueryBuilder<CongTrinhMaterial, CongTrinhMaterial, QAfterFilterCondition>
-      category(FilterQuery<CongTrinhMaterialCategory> q) {
-    return QueryBuilder.apply(this, (query) {
-      return query.link(q, r'category');
-    });
-  }
-
-  QueryBuilder<CongTrinhMaterial, CongTrinhMaterial, QAfterFilterCondition>
-      categoryIsNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.linkLength(r'category', 0, true, 0, true);
-    });
-  }
-}
+    on QueryBuilder<CongTrinhMaterial, CongTrinhMaterial, QFilterCondition> {}
 
 extension CongTrinhMaterialQuerySortBy
     on QueryBuilder<CongTrinhMaterial, CongTrinhMaterial, QSortBy> {
+  QueryBuilder<CongTrinhMaterial, CongTrinhMaterial, QAfterSortBy>
+      sortByCategoryId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'categoryId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<CongTrinhMaterial, CongTrinhMaterial, QAfterSortBy>
+      sortByCategoryIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'categoryId', Sort.desc);
+    });
+  }
+
   QueryBuilder<CongTrinhMaterial, CongTrinhMaterial, QAfterSortBy>
       sortByCode() {
     return QueryBuilder.apply(this, (query) {
@@ -3536,6 +3673,20 @@ extension CongTrinhMaterialQuerySortBy
 
 extension CongTrinhMaterialQuerySortThenBy
     on QueryBuilder<CongTrinhMaterial, CongTrinhMaterial, QSortThenBy> {
+  QueryBuilder<CongTrinhMaterial, CongTrinhMaterial, QAfterSortBy>
+      thenByCategoryId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'categoryId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<CongTrinhMaterial, CongTrinhMaterial, QAfterSortBy>
+      thenByCategoryIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'categoryId', Sort.desc);
+    });
+  }
+
   QueryBuilder<CongTrinhMaterial, CongTrinhMaterial, QAfterSortBy>
       thenByCode() {
     return QueryBuilder.apply(this, (query) {
@@ -3706,6 +3857,13 @@ extension CongTrinhMaterialQuerySortThenBy
 
 extension CongTrinhMaterialQueryWhereDistinct
     on QueryBuilder<CongTrinhMaterial, CongTrinhMaterial, QDistinct> {
+  QueryBuilder<CongTrinhMaterial, CongTrinhMaterial, QDistinct>
+      distinctByCategoryId({bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'categoryId', caseSensitive: caseSensitive);
+    });
+  }
+
   QueryBuilder<CongTrinhMaterial, CongTrinhMaterial, QDistinct> distinctByCode(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
@@ -3789,6 +3947,13 @@ extension CongTrinhMaterialQueryProperty
   QueryBuilder<CongTrinhMaterial, int, QQueryOperations> idProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'id');
+    });
+  }
+
+  QueryBuilder<CongTrinhMaterial, String, QQueryOperations>
+      categoryIdProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'categoryId');
     });
   }
 
@@ -3931,48 +4096,53 @@ const CongTrinhMaterialNormSchema = CollectionSchema(
       name: r'isSynced',
       type: IsarType.bool,
     ),
-    r'name': PropertySchema(
+    r'materialId': PropertySchema(
       id: 11,
+      name: r'materialId',
+      type: IsarType.string,
+    ),
+    r'name': PropertySchema(
+      id: 12,
       name: r'name',
       type: IsarType.string,
     ),
     r'normId': PropertySchema(
-      id: 12,
+      id: 13,
       name: r'normId',
       type: IsarType.string,
     ),
     r'notes': PropertySchema(
-      id: 13,
+      id: 14,
       name: r'notes',
       type: IsarType.string,
     ),
     r'quantityPerM2': PropertySchema(
-      id: 14,
+      id: 15,
       name: r'quantityPerM2',
       type: IsarType.double,
     ),
     r'structureType': PropertySchema(
-      id: 15,
+      id: 16,
       name: r'structureType',
       type: IsarType.string,
     ),
     r'unit': PropertySchema(
-      id: 16,
+      id: 17,
       name: r'unit',
       type: IsarType.string,
     ),
     r'updatedAt': PropertySchema(
-      id: 17,
+      id: 18,
       name: r'updatedAt',
       type: IsarType.dateTime,
     ),
     r'version': PropertySchema(
-      id: 18,
+      id: 19,
       name: r'version',
       type: IsarType.long,
     ),
     r'wastePercent': PropertySchema(
-      id: 19,
+      id: 20,
       name: r'wastePercent',
       type: IsarType.double,
     )
@@ -3997,14 +4167,7 @@ const CongTrinhMaterialNormSchema = CollectionSchema(
       ],
     )
   },
-  links: {
-    r'material': LinkSchema(
-      id: -8185425478777599813,
-      name: r'material',
-      target: r'CongTrinhMaterial',
-      single: true,
-    )
-  },
+  links: {},
   embeddedSchemas: {},
   getId: _congTrinhMaterialNormGetId,
   getLinks: _congTrinhMaterialNormGetLinks,
@@ -4023,6 +4186,7 @@ int _congTrinhMaterialNormEstimateSize(
   bytesCount += 3 + object.deviceId.length * 3;
   bytesCount += 3 + object.finishLevel.length * 3;
   bytesCount += 3 + object.foundationType.length * 3;
+  bytesCount += 3 + object.materialId.length * 3;
   bytesCount += 3 + object.name.length * 3;
   bytesCount += 3 + object.normId.length * 3;
   bytesCount += 3 + object.notes.length * 3;
@@ -4048,15 +4212,16 @@ void _congTrinhMaterialNormSerialize(
   writer.writeString(offsets[8], object.finishLevel);
   writer.writeString(offsets[9], object.foundationType);
   writer.writeBool(offsets[10], object.isSynced);
-  writer.writeString(offsets[11], object.name);
-  writer.writeString(offsets[12], object.normId);
-  writer.writeString(offsets[13], object.notes);
-  writer.writeDouble(offsets[14], object.quantityPerM2);
-  writer.writeString(offsets[15], object.structureType);
-  writer.writeString(offsets[16], object.unit);
-  writer.writeDateTime(offsets[17], object.updatedAt);
-  writer.writeLong(offsets[18], object.version);
-  writer.writeDouble(offsets[19], object.wastePercent);
+  writer.writeString(offsets[11], object.materialId);
+  writer.writeString(offsets[12], object.name);
+  writer.writeString(offsets[13], object.normId);
+  writer.writeString(offsets[14], object.notes);
+  writer.writeDouble(offsets[15], object.quantityPerM2);
+  writer.writeString(offsets[16], object.structureType);
+  writer.writeString(offsets[17], object.unit);
+  writer.writeDateTime(offsets[18], object.updatedAt);
+  writer.writeLong(offsets[19], object.version);
+  writer.writeDouble(offsets[20], object.wastePercent);
 }
 
 CongTrinhMaterialNorm _congTrinhMaterialNormDeserialize(
@@ -4078,15 +4243,16 @@ CongTrinhMaterialNorm _congTrinhMaterialNormDeserialize(
   object.foundationType = reader.readString(offsets[9]);
   object.id = id;
   object.isSynced = reader.readBool(offsets[10]);
-  object.name = reader.readString(offsets[11]);
-  object.normId = reader.readString(offsets[12]);
-  object.notes = reader.readString(offsets[13]);
-  object.quantityPerM2 = reader.readDouble(offsets[14]);
-  object.structureType = reader.readString(offsets[15]);
-  object.unit = reader.readString(offsets[16]);
-  object.updatedAt = reader.readDateTime(offsets[17]);
-  object.version = reader.readLong(offsets[18]);
-  object.wastePercent = reader.readDouble(offsets[19]);
+  object.materialId = reader.readString(offsets[11]);
+  object.name = reader.readString(offsets[12]);
+  object.normId = reader.readString(offsets[13]);
+  object.notes = reader.readString(offsets[14]);
+  object.quantityPerM2 = reader.readDouble(offsets[15]);
+  object.structureType = reader.readString(offsets[16]);
+  object.unit = reader.readString(offsets[17]);
+  object.updatedAt = reader.readDateTime(offsets[18]);
+  object.version = reader.readLong(offsets[19]);
+  object.wastePercent = reader.readDouble(offsets[20]);
   return object;
 }
 
@@ -4126,16 +4292,18 @@ P _congTrinhMaterialNormDeserializeProp<P>(
     case 13:
       return (reader.readString(offset)) as P;
     case 14:
-      return (reader.readDouble(offset)) as P;
-    case 15:
       return (reader.readString(offset)) as P;
+    case 15:
+      return (reader.readDouble(offset)) as P;
     case 16:
       return (reader.readString(offset)) as P;
     case 17:
-      return (reader.readDateTime(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 18:
-      return (reader.readLong(offset)) as P;
+      return (reader.readDateTime(offset)) as P;
     case 19:
+      return (reader.readLong(offset)) as P;
+    case 20:
       return (reader.readDouble(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -4148,14 +4316,12 @@ Id _congTrinhMaterialNormGetId(CongTrinhMaterialNorm object) {
 
 List<IsarLinkBase<dynamic>> _congTrinhMaterialNormGetLinks(
     CongTrinhMaterialNorm object) {
-  return [object.material];
+  return [];
 }
 
 void _congTrinhMaterialNormAttach(
     IsarCollection<dynamic> col, Id id, CongTrinhMaterialNorm object) {
   object.id = id;
-  object.material
-      .attach(col, col.isar.collection<CongTrinhMaterial>(), r'material', id);
 }
 
 extension CongTrinhMaterialNormByIndex
@@ -5444,6 +5610,144 @@ extension CongTrinhMaterialNormQueryFilter on QueryBuilder<
   }
 
   QueryBuilder<CongTrinhMaterialNorm, CongTrinhMaterialNorm,
+      QAfterFilterCondition> materialIdEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'materialId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<CongTrinhMaterialNorm, CongTrinhMaterialNorm,
+      QAfterFilterCondition> materialIdGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'materialId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<CongTrinhMaterialNorm, CongTrinhMaterialNorm,
+      QAfterFilterCondition> materialIdLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'materialId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<CongTrinhMaterialNorm, CongTrinhMaterialNorm,
+      QAfterFilterCondition> materialIdBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'materialId',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<CongTrinhMaterialNorm, CongTrinhMaterialNorm,
+      QAfterFilterCondition> materialIdStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'materialId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<CongTrinhMaterialNorm, CongTrinhMaterialNorm,
+      QAfterFilterCondition> materialIdEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'materialId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<CongTrinhMaterialNorm, CongTrinhMaterialNorm,
+          QAfterFilterCondition>
+      materialIdContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'materialId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<CongTrinhMaterialNorm, CongTrinhMaterialNorm,
+          QAfterFilterCondition>
+      materialIdMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'materialId',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<CongTrinhMaterialNorm, CongTrinhMaterialNorm,
+      QAfterFilterCondition> materialIdIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'materialId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<CongTrinhMaterialNorm, CongTrinhMaterialNorm,
+      QAfterFilterCondition> materialIdIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'materialId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<CongTrinhMaterialNorm, CongTrinhMaterialNorm,
       QAfterFilterCondition> nameEqualTo(
     String value, {
     bool caseSensitive = true,
@@ -6382,21 +6686,7 @@ extension CongTrinhMaterialNormQueryObject on QueryBuilder<
     CongTrinhMaterialNorm, CongTrinhMaterialNorm, QFilterCondition> {}
 
 extension CongTrinhMaterialNormQueryLinks on QueryBuilder<CongTrinhMaterialNorm,
-    CongTrinhMaterialNorm, QFilterCondition> {
-  QueryBuilder<CongTrinhMaterialNorm, CongTrinhMaterialNorm,
-      QAfterFilterCondition> material(FilterQuery<CongTrinhMaterial> q) {
-    return QueryBuilder.apply(this, (query) {
-      return query.link(q, r'material');
-    });
-  }
-
-  QueryBuilder<CongTrinhMaterialNorm, CongTrinhMaterialNorm,
-      QAfterFilterCondition> materialIsNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.linkLength(r'material', 0, true, 0, true);
-    });
-  }
-}
+    CongTrinhMaterialNorm, QFilterCondition> {}
 
 extension CongTrinhMaterialNormQuerySortBy
     on QueryBuilder<CongTrinhMaterialNorm, CongTrinhMaterialNorm, QSortBy> {
@@ -6551,6 +6841,20 @@ extension CongTrinhMaterialNormQuerySortBy
       sortByIsSyncedDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'isSynced', Sort.desc);
+    });
+  }
+
+  QueryBuilder<CongTrinhMaterialNorm, CongTrinhMaterialNorm, QAfterSortBy>
+      sortByMaterialId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'materialId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<CongTrinhMaterialNorm, CongTrinhMaterialNorm, QAfterSortBy>
+      sortByMaterialIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'materialId', Sort.desc);
     });
   }
 
@@ -6852,6 +7156,20 @@ extension CongTrinhMaterialNormQuerySortThenBy
   }
 
   QueryBuilder<CongTrinhMaterialNorm, CongTrinhMaterialNorm, QAfterSortBy>
+      thenByMaterialId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'materialId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<CongTrinhMaterialNorm, CongTrinhMaterialNorm, QAfterSortBy>
+      thenByMaterialIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'materialId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<CongTrinhMaterialNorm, CongTrinhMaterialNorm, QAfterSortBy>
       thenByName() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'name', Sort.asc);
@@ -7060,6 +7378,13 @@ extension CongTrinhMaterialNormQueryWhereDistinct
   }
 
   QueryBuilder<CongTrinhMaterialNorm, CongTrinhMaterialNorm, QDistinct>
+      distinctByMaterialId({bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'materialId', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<CongTrinhMaterialNorm, CongTrinhMaterialNorm, QDistinct>
       distinctByName({bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'name', caseSensitive: caseSensitive);
@@ -7208,6 +7533,13 @@ extension CongTrinhMaterialNormQueryProperty on QueryBuilder<
     });
   }
 
+  QueryBuilder<CongTrinhMaterialNorm, String, QQueryOperations>
+      materialIdProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'materialId');
+    });
+  }
+
   QueryBuilder<CongTrinhMaterialNorm, String, QQueryOperations> nameProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'name');
@@ -7311,58 +7643,63 @@ const CongTrinhMaterialPriceSchema = CollectionSchema(
       name: r'isSynced',
       type: IsarType.bool,
     ),
-    r'notes': PropertySchema(
+    r'materialId': PropertySchema(
       id: 6,
+      name: r'materialId',
+      type: IsarType.string,
+    ),
+    r'notes': PropertySchema(
+      id: 7,
       name: r'notes',
       type: IsarType.string,
     ),
     r'price': PropertySchema(
-      id: 7,
+      id: 8,
       name: r'price',
       type: IsarType.double,
     ),
     r'priceId': PropertySchema(
-      id: 8,
+      id: 9,
       name: r'priceId',
       type: IsarType.string,
     ),
     r'province': PropertySchema(
-      id: 9,
+      id: 10,
       name: r'province',
       type: IsarType.string,
     ),
     r'source': PropertySchema(
-      id: 10,
+      id: 11,
       name: r'source',
       type: IsarType.string,
     ),
     r'supplierId': PropertySchema(
-      id: 11,
+      id: 12,
       name: r'supplierId',
       type: IsarType.string,
     ),
     r'transportCost': PropertySchema(
-      id: 12,
+      id: 13,
       name: r'transportCost',
       type: IsarType.double,
     ),
     r'unit': PropertySchema(
-      id: 13,
+      id: 14,
       name: r'unit',
       type: IsarType.string,
     ),
     r'updatedAt': PropertySchema(
-      id: 14,
+      id: 15,
       name: r'updatedAt',
       type: IsarType.dateTime,
     ),
     r'vatPercent': PropertySchema(
-      id: 15,
+      id: 16,
       name: r'vatPercent',
       type: IsarType.double,
     ),
     r'version': PropertySchema(
-      id: 16,
+      id: 17,
       name: r'version',
       type: IsarType.long,
     )
@@ -7387,14 +7724,7 @@ const CongTrinhMaterialPriceSchema = CollectionSchema(
       ],
     )
   },
-  links: {
-    r'material': LinkSchema(
-      id: 1456595690512232981,
-      name: r'material',
-      target: r'CongTrinhMaterial',
-      single: true,
-    )
-  },
+  links: {},
   embeddedSchemas: {},
   getId: _congTrinhMaterialPriceGetId,
   getLinks: _congTrinhMaterialPriceGetLinks,
@@ -7410,6 +7740,7 @@ int _congTrinhMaterialPriceEstimateSize(
   var bytesCount = offsets.last;
   bytesCount += 3 + object.deviceId.length * 3;
   bytesCount += 3 + object.district.length * 3;
+  bytesCount += 3 + object.materialId.length * 3;
   bytesCount += 3 + object.notes.length * 3;
   bytesCount += 3 + object.priceId.length * 3;
   bytesCount += 3 + object.province.length * 3;
@@ -7431,17 +7762,18 @@ void _congTrinhMaterialPriceSerialize(
   writer.writeString(offsets[3], object.district);
   writer.writeDateTime(offsets[4], object.effectiveDate);
   writer.writeBool(offsets[5], object.isSynced);
-  writer.writeString(offsets[6], object.notes);
-  writer.writeDouble(offsets[7], object.price);
-  writer.writeString(offsets[8], object.priceId);
-  writer.writeString(offsets[9], object.province);
-  writer.writeString(offsets[10], object.source);
-  writer.writeString(offsets[11], object.supplierId);
-  writer.writeDouble(offsets[12], object.transportCost);
-  writer.writeString(offsets[13], object.unit);
-  writer.writeDateTime(offsets[14], object.updatedAt);
-  writer.writeDouble(offsets[15], object.vatPercent);
-  writer.writeLong(offsets[16], object.version);
+  writer.writeString(offsets[6], object.materialId);
+  writer.writeString(offsets[7], object.notes);
+  writer.writeDouble(offsets[8], object.price);
+  writer.writeString(offsets[9], object.priceId);
+  writer.writeString(offsets[10], object.province);
+  writer.writeString(offsets[11], object.source);
+  writer.writeString(offsets[12], object.supplierId);
+  writer.writeDouble(offsets[13], object.transportCost);
+  writer.writeString(offsets[14], object.unit);
+  writer.writeDateTime(offsets[15], object.updatedAt);
+  writer.writeDouble(offsets[16], object.vatPercent);
+  writer.writeLong(offsets[17], object.version);
 }
 
 CongTrinhMaterialPrice _congTrinhMaterialPriceDeserialize(
@@ -7458,17 +7790,18 @@ CongTrinhMaterialPrice _congTrinhMaterialPriceDeserialize(
   object.effectiveDate = reader.readDateTimeOrNull(offsets[4]);
   object.id = id;
   object.isSynced = reader.readBool(offsets[5]);
-  object.notes = reader.readString(offsets[6]);
-  object.price = reader.readDouble(offsets[7]);
-  object.priceId = reader.readString(offsets[8]);
-  object.province = reader.readString(offsets[9]);
-  object.source = reader.readString(offsets[10]);
-  object.supplierId = reader.readString(offsets[11]);
-  object.transportCost = reader.readDouble(offsets[12]);
-  object.unit = reader.readString(offsets[13]);
-  object.updatedAt = reader.readDateTime(offsets[14]);
-  object.vatPercent = reader.readDouble(offsets[15]);
-  object.version = reader.readLong(offsets[16]);
+  object.materialId = reader.readString(offsets[6]);
+  object.notes = reader.readString(offsets[7]);
+  object.price = reader.readDouble(offsets[8]);
+  object.priceId = reader.readString(offsets[9]);
+  object.province = reader.readString(offsets[10]);
+  object.source = reader.readString(offsets[11]);
+  object.supplierId = reader.readString(offsets[12]);
+  object.transportCost = reader.readDouble(offsets[13]);
+  object.unit = reader.readString(offsets[14]);
+  object.updatedAt = reader.readDateTime(offsets[15]);
+  object.vatPercent = reader.readDouble(offsets[16]);
+  object.version = reader.readLong(offsets[17]);
   return object;
 }
 
@@ -7494,9 +7827,9 @@ P _congTrinhMaterialPriceDeserializeProp<P>(
     case 6:
       return (reader.readString(offset)) as P;
     case 7:
-      return (reader.readDouble(offset)) as P;
-    case 8:
       return (reader.readString(offset)) as P;
+    case 8:
+      return (reader.readDouble(offset)) as P;
     case 9:
       return (reader.readString(offset)) as P;
     case 10:
@@ -7504,14 +7837,16 @@ P _congTrinhMaterialPriceDeserializeProp<P>(
     case 11:
       return (reader.readString(offset)) as P;
     case 12:
-      return (reader.readDouble(offset)) as P;
-    case 13:
       return (reader.readString(offset)) as P;
-    case 14:
-      return (reader.readDateTime(offset)) as P;
-    case 15:
+    case 13:
       return (reader.readDouble(offset)) as P;
+    case 14:
+      return (reader.readString(offset)) as P;
+    case 15:
+      return (reader.readDateTime(offset)) as P;
     case 16:
+      return (reader.readDouble(offset)) as P;
+    case 17:
       return (reader.readLong(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -7524,14 +7859,12 @@ Id _congTrinhMaterialPriceGetId(CongTrinhMaterialPrice object) {
 
 List<IsarLinkBase<dynamic>> _congTrinhMaterialPriceGetLinks(
     CongTrinhMaterialPrice object) {
-  return [object.material];
+  return [];
 }
 
 void _congTrinhMaterialPriceAttach(
     IsarCollection<dynamic> col, Id id, CongTrinhMaterialPrice object) {
   object.id = id;
-  object.material
-      .attach(col, col.isar.collection<CongTrinhMaterial>(), r'material', id);
 }
 
 extension CongTrinhMaterialPriceByIndex
@@ -8262,6 +8595,144 @@ extension CongTrinhMaterialPriceQueryFilter on QueryBuilder<
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'isSynced',
         value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<CongTrinhMaterialPrice, CongTrinhMaterialPrice,
+      QAfterFilterCondition> materialIdEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'materialId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<CongTrinhMaterialPrice, CongTrinhMaterialPrice,
+      QAfterFilterCondition> materialIdGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'materialId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<CongTrinhMaterialPrice, CongTrinhMaterialPrice,
+      QAfterFilterCondition> materialIdLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'materialId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<CongTrinhMaterialPrice, CongTrinhMaterialPrice,
+      QAfterFilterCondition> materialIdBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'materialId',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<CongTrinhMaterialPrice, CongTrinhMaterialPrice,
+      QAfterFilterCondition> materialIdStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'materialId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<CongTrinhMaterialPrice, CongTrinhMaterialPrice,
+      QAfterFilterCondition> materialIdEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'materialId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<CongTrinhMaterialPrice, CongTrinhMaterialPrice,
+          QAfterFilterCondition>
+      materialIdContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'materialId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<CongTrinhMaterialPrice, CongTrinhMaterialPrice,
+          QAfterFilterCondition>
+      materialIdMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'materialId',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<CongTrinhMaterialPrice, CongTrinhMaterialPrice,
+      QAfterFilterCondition> materialIdIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'materialId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<CongTrinhMaterialPrice, CongTrinhMaterialPrice,
+      QAfterFilterCondition> materialIdIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'materialId',
+        value: '',
       ));
     });
   }
@@ -9409,21 +9880,7 @@ extension CongTrinhMaterialPriceQueryObject on QueryBuilder<
     CongTrinhMaterialPrice, CongTrinhMaterialPrice, QFilterCondition> {}
 
 extension CongTrinhMaterialPriceQueryLinks on QueryBuilder<
-    CongTrinhMaterialPrice, CongTrinhMaterialPrice, QFilterCondition> {
-  QueryBuilder<CongTrinhMaterialPrice, CongTrinhMaterialPrice,
-      QAfterFilterCondition> material(FilterQuery<CongTrinhMaterial> q) {
-    return QueryBuilder.apply(this, (query) {
-      return query.link(q, r'material');
-    });
-  }
-
-  QueryBuilder<CongTrinhMaterialPrice, CongTrinhMaterialPrice,
-      QAfterFilterCondition> materialIsNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.linkLength(r'material', 0, true, 0, true);
-    });
-  }
-}
+    CongTrinhMaterialPrice, CongTrinhMaterialPrice, QFilterCondition> {}
 
 extension CongTrinhMaterialPriceQuerySortBy
     on QueryBuilder<CongTrinhMaterialPrice, CongTrinhMaterialPrice, QSortBy> {
@@ -9508,6 +9965,20 @@ extension CongTrinhMaterialPriceQuerySortBy
       sortByIsSyncedDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'isSynced', Sort.desc);
+    });
+  }
+
+  QueryBuilder<CongTrinhMaterialPrice, CongTrinhMaterialPrice, QAfterSortBy>
+      sortByMaterialId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'materialId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<CongTrinhMaterialPrice, CongTrinhMaterialPrice, QAfterSortBy>
+      sortByMaterialIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'materialId', Sort.desc);
     });
   }
 
@@ -9767,6 +10238,20 @@ extension CongTrinhMaterialPriceQuerySortThenBy on QueryBuilder<
   }
 
   QueryBuilder<CongTrinhMaterialPrice, CongTrinhMaterialPrice, QAfterSortBy>
+      thenByMaterialId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'materialId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<CongTrinhMaterialPrice, CongTrinhMaterialPrice, QAfterSortBy>
+      thenByMaterialIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'materialId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<CongTrinhMaterialPrice, CongTrinhMaterialPrice, QAfterSortBy>
       thenByNotes() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'notes', Sort.asc);
@@ -9966,6 +10451,13 @@ extension CongTrinhMaterialPriceQueryWhereDistinct
   }
 
   QueryBuilder<CongTrinhMaterialPrice, CongTrinhMaterialPrice, QDistinct>
+      distinctByMaterialId({bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'materialId', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<CongTrinhMaterialPrice, CongTrinhMaterialPrice, QDistinct>
       distinctByNotes({bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'notes', caseSensitive: caseSensitive);
@@ -10090,6 +10582,13 @@ extension CongTrinhMaterialPriceQueryProperty on QueryBuilder<
       isSyncedProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'isSynced');
+    });
+  }
+
+  QueryBuilder<CongTrinhMaterialPrice, String, QQueryOperations>
+      materialIdProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'materialId');
     });
   }
 

@@ -56,7 +56,7 @@ class CongTrinhEstimate {
   @Index(unique: true, replace: true)
   String estimateId = '';
   
-  final project = IsarLink<CongTrinhProject>();
+  String projectId = ''; // denormalized scalar key tới Project (để lọc nhanh)
   
   String estimateCode = '';
   int estimateVersion = 1; // v1, v2, v3
@@ -87,7 +87,7 @@ class CongTrinhEstimateItem {
   @Index(unique: true, replace: true)
   String estimateItemId = '';
   
-  final estimate = IsarLink<CongTrinhEstimate>();
+  String estimateId = ''; // denormalized scalar key tới Estimate
   
   String category = ''; // A. CÁT, B. ĐÁ, C. XI MĂNG...
   
