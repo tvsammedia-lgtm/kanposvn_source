@@ -30,7 +30,9 @@ enum AppModule {
   kanposvnkanji('KanPosVN Kanji', Icons.language, Color(0xFF3B82F6)),
   kanposvnnemda('Chơi Nhau (Ném Đá)', Icons.sports_esports, Color(0xFF7C3AED)),
   kanposvntruyenthong('KanPosVN Truyền Thống', Icons.shopping_basket, Color(0xFF16A34A)),
-  kanposvndoichieuketoan('KanPosVN Đối Chiếu Kế Toán', Icons.compare_arrows, Color(0xFF8B5CF6));
+  kanposvndoichieuketoan('KanPosVN Đối Chiếu Kế Toán', Icons.compare_arrows, Color(0xFF8B5CF6)),
+  kanposvntramxang('KanPosVN Trạm Xăng', Icons.local_gas_station, Color(0xFFF59E0B)),
+  kanposvncongtrinh('KanPosVN Công Trình', Icons.request_quote, Color(0xFF4F46E5));
 
   final String label;
   final IconData icon;
@@ -69,6 +71,8 @@ enum AppModule {
       case AppModule.kanposvnnemda: return 'kanposvnnemda';
       case AppModule.kanposvntruyenthong: return 'kanposvntruyenthong';
       case AppModule.kanposvndoichieuketoan: return 'kanposvndoichieuketoan';
+      case AppModule.kanposvntramxang: return 'kanposvntramxang';
+      case AppModule.kanposvncongtrinh: return 'kanposvncongtrinh';
     }
   }
 
@@ -104,6 +108,8 @@ enum AppModule {
       case AppModule.kanposvnnemda: return AppModuleType.kanposvnnemda;
       case AppModule.kanposvntruyenthong: return AppModuleType.kanposvntruyenthong;
       case AppModule.kanposvndoichieuketoan: return AppModuleType.kanposvndoichieuketoan;
+      case AppModule.kanposvntramxang: return AppModuleType.kanposvntramxang;
+      case AppModule.kanposvncongtrinh: return AppModuleType.kanposvncongtrinh;
     }
   }
 
@@ -142,7 +148,9 @@ enum AppModuleType {
   kanposvnkanji('KanPosVN Kanji', Icons.language),
   kanposvnnemda('Chơi Nhau (Ném Đá)', Icons.sports_esports),
   kanposvntruyenthong('Sạp Rau Củ Quả', Icons.shopping_basket),
-  kanposvndoichieuketoan('Đối Chiếu Kế Toán', Icons.compare_arrows);
+  kanposvndoichieuketoan('Đối Chiếu Kế Toán', Icons.compare_arrows),
+  kanposvntramxang('Trạm Xăng & Tạp Hóa', Icons.local_gas_station),
+  kanposvncongtrinh('Công Trình & Dự Toán', Icons.request_quote);
 
   final String label;
   final IconData icon;

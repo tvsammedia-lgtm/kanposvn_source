@@ -44,6 +44,8 @@ import 'modules/kanposvnengpic/kanposvnengpic_shell.dart';
 import 'modules/kanposvnnemda/kanposvnnemda_shell.dart';
 import 'modules/kanposvntruyenthong/screens/kanposvntruyenthong_shell.dart';
 import 'modules/kanposvndoichieuketoan/screens/kanposvndoichieuketoan_shell.dart';
+import 'modules/kanposvntramxang/screens/kanposvntramxang_shell.dart';
+import 'modules/kanposvncongtrinh/screens/kanposvncongtrinh_shell.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -319,6 +321,10 @@ class _MainShell extends ConsumerWidget {
         return const KanPosVNTruyenthongShell();
       case AppModuleType.kanposvndoichieuketoan:
         return const KanPosVnDoiChieuKeToanShell();
+      case AppModuleType.kanposvntramxang:
+        return const KanPosVNTramXangShell();
+      case AppModuleType.kanposvncongtrinh:
+        return const KanPosVNCongTrinhShell();
     }
   }
 

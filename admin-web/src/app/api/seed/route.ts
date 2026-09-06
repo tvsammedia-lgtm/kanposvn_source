@@ -137,6 +137,8 @@ export async function POST(req: NextRequest) {
       { code: 'kanposvnairbook', name: 'KanPosVN AirBook', desc: 'Dat ve may bay - tim chuyen bay', pkg: '', plat: 'flutter' },
       { code: 'kanposvntruyenthong', name: 'KanPosVN Truyen Thong', desc: 'Quan ly sap cho rau cu qua', pkg: '', plat: 'flutter' },
       { code: 'kanposvndoichieuketoan', name: 'KanPosVN Doi Chieu Ke Toan', desc: 'Doi chieu so sach ke toan giua cac file Excel/CSV', pkg: '', plat: 'flutter' },
+      { code: 'kanposvntramxang', name: 'KanPosVN Tram Xang', desc: 'Quan ly tram xang dau va tap hoa', pkg: '', plat: 'flutter' },
+      { code: 'kanposvncongtrinh', name: 'KanPosVN Cong Trinh', desc: 'Du toan xay dung nha dan dung', pkg: '', plat: 'flutter' },
     ];
     for (const a of seedApps) {
       await sql`
@@ -320,6 +322,28 @@ export async function POST(req: NextRequest) {
         ON CONFLICT (user_id, app_id) DO UPDATE SET role_id = ${adminRole[0].id}, can_login = true
       `;
       results.push(`${ownerEmail}: granted kanposvndoichieuketoan as Admin (Owner)`);
+    }
+
+    // Owner kanposvntramxang: đảm bảo quyền Admin trên app kanposvntramxang cho cùng owner
+    const tramxangApp = await sql`SELECT id FROM apps WHERE app_code = 'kanposvntramxang'`;
+    if (tramxangApp.length > 0 && adminRole.length > 0) {
+      await sql`
+        INSERT INTO user_permissions (user_id, app_id, role_id, can_login)
+        VALUES (${ownerUser[0].id}, ${tramxangApp[0].id}, ${adminRole[0].id}, true)
+        ON CONFLICT (user_id, app_id) DO UPDATE SET role_id = ${adminRole[0].id}, can_login = true
+      `;
+      results.push(`${ownerEmail}: granted kanposvntramxang as Admin (Owner)`);
+    }
+
+    // Owner kanposvncongtrinh: đảm bảo quyền Admin trên app kanposvncongtrinh cho cùng owner
+    const congtrinhApp = await sql`SELECT id FROM apps WHERE app_code = 'kanposvncongtrinh'`;
+    if (congtrinhApp.length > 0 && adminRole.length > 0) {
+      await sql`
+        INSERT INTO user_permissions (user_id, app_id, role_id, can_login)
+        VALUES (${ownerUser[0].id}, ${congtrinhApp[0].id}, ${adminRole[0].id}, true)
+        ON CONFLICT (user_id, app_id) DO UPDATE SET role_id = ${adminRole[0].id}, can_login = true
+      `;
+      results.push(`${ownerEmail}: granted kanposvncongtrinh as Admin (Owner)`);
     }
 
     return NextResponse.json({ ok: true, results }, { headers: corsHeaders() });
