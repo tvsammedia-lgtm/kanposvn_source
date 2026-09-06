@@ -258,6 +258,64 @@ class CongTrinhEstimationEngine {
     return total;
   }
 
+  /// Khôi phục item về chế độ AUTO theo định mức (đặc tả §30: "Reset về định mức").
+  /// - Vật tư: tính lại khối lượng từ định mức + đơn giá hiện hành.
+  /// - Nhân công: tính lại từ định mức công.
+  Future<void> resetItemToNorm({
+    required CongTrinhEstimateItem item,
+    required CongTrinhProject project,
+    required double area,
+    CongTrinhEngineOptions options = const CongTrinhEngineOptions(),
+  }) async {
+    final coefficient = options.floorCoefficient *
+        options.heightCoefficient *
+        options.locationCoefficient *
+        options.customCoefficient;
+
+    if (item.materialId != null && item.materialId!.isNotEmpty) {
+      final norms = await _isar.getMaterialNorms();
+      final resolved = resolveMaterialNorm(
+        norms,
+        materialId: item.materialId!,
+        grade: project.buildingGrade,
+        finishLevel: project.finishLevel,
+        structureType: project.structureType,
+        foundationType: project.foundationType,
+      );
+      if (resolved == null) return;
+      final price = await _isar.getBestMaterialPrice(item.materialId!);
+      final quantity = CongTrinhEstimationEngine.calculateMaterialQuantity(
+        area: area,
+        norm: resolved.quantityPerM2,
+        coefficient: resolved.coefficient * coefficient,
+        wastePercent: resolved.wastePercent,
+      );
+      item
+        ..quantity = quantity
+        ..unit = resolved.unit
+        ..wastePercent = resolved.wastePercent
+        ..unitPrice = price?.price ?? item.unitPrice
+        ..calculationMode = 'AUTO';
+    } else if (item.laborTypeId != null && item.laborTypeId!.isNotEmpty) {
+      final norm = await _isar.getLaborNorm(
+        item.laborTypeId!,
+        project.buildingGrade,
+        project.finishLevel,
+      );
+      if (norm == null) return;
+      item
+        ..quantity = area * norm.quantityPerM2 * coefficient
+        ..unit = norm.unit
+        ..unitPrice = norm.unitPrice
+        ..wastePercent = 0
+        ..calculationMode = 'AUTO';
+    } else {
+      item.calculationMode = 'AUTO';
+    }
+    item.amount = CongTrinhEstimationEngine.calculateAmount(
+        quantity: item.quantity, unitPrice: item.unitPrice);
+  }
+
   /// Tính lại số tiền & tổng cộng của dự toán khi người dùng sửa khối lượng/đơn giá.
   /// - Item MANUAL: giữ nguyên quantity do người dùng nhập.
   /// - Item AUTO: quantity giữ nguyên (đã được tính khi tạo); số tiền = qty × price.

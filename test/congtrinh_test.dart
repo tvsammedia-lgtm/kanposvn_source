@@ -316,4 +316,43 @@ void main() {
     expect(est.grandTotal, closeTo(est.subtotal + est.vat + est.contingency, 1));
     expect(est.grandTotal, greaterThan(0));
   });
+
+  test('11) Reset về định mức (AUTO) sau khi sửa tay (mục 29-30)', () async {
+    final project = (await service.getProjectById('prj_demo1'))!;
+    final engine = CongTrinhEstimationEngine(service);
+
+    final gen = await engine.generateEstimate(project);
+    final est = gen.estimate;
+
+    final sand =
+        gen.items.singleWhere((i) => i.materialId == 'mat_sand_xay');
+    sand
+      ..calculationMode = 'MANUAL'
+      ..quantity = 999;
+    await engine.resetItemToNorm(
+        item: sand, project: project, area: est.area);
+    expect(sand.calculationMode, 'AUTO');
+    // 295 x 0.115 x 1.05 = 35.62125 (12.5625 m3 ... )
+    expect(sand.quantity, closeTo(35.62125, 0.001));
+
+    final xay = gen.items.singleWhere((i) => i.laborTypeId == 'labor_xay');
+    xay
+      ..calculationMode = 'MANUAL'
+      ..quantity = 1234;
+    await engine.resetItemToNorm(
+        item: xay, project: project, area: est.area);
+    expect(xay.calculationMode, 'AUTO');
+    // 295 x 0.9775 = 288.3625 công
+    expect(xay.quantity, closeTo(288.3625, 0.001));
+
+    final dien = gen.items.singleWhere((i) => i.laborTypeId == 'labor_dien');
+    dien
+      ..calculationMode = 'MANUAL'
+      ..quantity = 50;
+    await engine.resetItemToNorm(
+        item: dien, project: project, area: est.area);
+    expect(dien.calculationMode, 'AUTO');
+    // 0.2 (không nhân hệ số hoàn thiện với thợ điện) => 295 x 0.2 = 59 công
+    expect(dien.quantity, closeTo(59.0, 0.001));
+  });
 }
