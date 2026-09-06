@@ -3,10 +3,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/providers.dart';
 import '../../../core/widgets/account_switcher_button.dart';
 import '../providers/tramxang_providers.dart';
+import 'accounting/tramxang_accounting_screen.dart';
 import 'tramxang_dashboard_screen.dart';
 import 'tramxang_fuel_sale_screen.dart';
 import 'tramxang_pos_screen.dart';
 import 'tramxang_report_screen.dart';
+import 'tramxang_reports_screen.dart';
+import 'tramxang_settings_screen.dart';
 import 'tramxang_shift_screen.dart';
 import 'tramxang_tank_screen.dart';
 
@@ -29,6 +32,9 @@ class _KanPosVNTramXangShellState extends ConsumerState<KanPosVNTramXangShell> {
     (id: 'tank', icon: Icons.propane_tank, label: 'Quản Lý Bồn'),
     (id: 'shift', icon: Icons.schedule, label: 'Ca Bán Hàng'),
     (id: 'report', icon: Icons.bar_chart, label: 'Báo Cáo'),
+    (id: 'reports', icon: Icons.picture_as_pdf, label: 'Báo Cáo Chung'),
+    (id: 'accounting', icon: Icons.book, label: 'Kế Toán'),
+    (id: 'settings', icon: Icons.settings, label: 'Cài Đặt'),
   ];
 
   late final List<({String id, IconData icon, String label, Widget screen})>
@@ -54,6 +60,9 @@ class _KanPosVNTramXangShellState extends ConsumerState<KanPosVNTramXangShell> {
                   'tank' => const TramXangTankScreen(),
                   'shift' => const TramXangShiftScreen(),
                   'report' => const TramXangReportScreen(),
+                  'reports' => const TramXangReportsScreen(),
+                  'accounting' => const TramXangAccountingScreen(),
+                  'settings' => const TramXangSettingsScreen(),
                   _ => const TramXangDashboardScreen(),
                 },
         ),

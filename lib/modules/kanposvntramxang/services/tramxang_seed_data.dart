@@ -6,6 +6,7 @@ import '../models/product.dart';
 import '../models/tank.dart';
 import '../models/sale.dart';
 import '../models/inventory.dart';
+import 'tramxang_account_seed.dart';
 import 'tramxang_isar_service.dart';
 
 /// Bộ dữ liệu mẫu cho module Trạm Xăng + POS tạp hóa (FuelStationPOS).
@@ -588,5 +589,8 @@ class TramXangSeedData {
         await db.tramXangInventoryTransactions.put(tx);
       }
     });
+
+    // ============ 10. KẾ TOÁN MẪU (TK + mặc định + bút toán mua/bán xăng) ============
+    await TramXangAccountSeedData.seedAccountsAndEntries(db);
   }
 }

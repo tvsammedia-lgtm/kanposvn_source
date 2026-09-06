@@ -2,6 +2,9 @@ import 'dart:io';
 import 'package:isar/isar.dart';
 import 'package:path_provider/path_provider.dart';
 
+import '../models/account.dart';
+import '../models/account_default.dart';
+import '../models/accounting_entry.dart';
 import '../models/core.dart';
 import '../models/product.dart';
 import '../models/tank.dart';
@@ -123,6 +126,10 @@ class TramXangIsarService {
         TramXangSupplierSchema,
         TramXangPurchaseSchema,
         TramXangInventoryTransactionSchema,
+        TramXangAccountSchema,
+        TramXangAccountDefaultSchema,
+        TramXangAccountingEntrySchema,
+        TramXangAccountingEntryLineSchema,
       ],
       inspector: inspector,
       directory: dirPath,
@@ -392,7 +399,7 @@ class TramXangIsarService {
       throw StateError('Chưa mở ca bán hàng. Hãy mở ca trước khi bán.');
     }
 
-    return await isar.writeTxn(() async {
+    final created = await isar.writeTxn(() async {
       // 1) Kiểm tra tồn trước khi ghi nhận
       for (final item in items) {
         if (item.product.productType == 'FUEL') {
@@ -530,6 +537,8 @@ class TramXangIsarService {
 
       return sale;
     });
+    await _postSaleAccounting(created);
+    return created;
   }
 
   Future<TramXangTank?> getTankByNozzleProduct(TramXangSaleItem item) async {
@@ -571,7 +580,7 @@ class TramXangIsarService {
       throw StateError('Vượt dung tích bồn ${tank.name} (${tank.capacityLiter} L)');
     }
 
-    return await isar.writeTxn(() async {
+    final created = await isar.writeTxn(() async {
       final amount = quantity * unitCost;
       final taxAmount = amount * taxRate / 100;
       final purchase = TramXangPurchase()
@@ -619,6 +628,8 @@ class TramXangIsarService {
 
       return purchase;
     });
+    await _postPurchaseAccounting(created);
+    return created;
   }
 
   // ================= INVENTORY =================
@@ -740,5 +751,531 @@ class TramXangIsarService {
       }
     }
     return cost;
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // KẾ TOÁN (ACCOUNTING) — TT133
+  //
+  // Nghiệp vụ chính của trạm xăng:
+  //  • Mua xăng dầu nhập kho:  Nợ 1561 (giá mua) + Nợ 1331 (VAT) / Có 331
+  //      (hoặc Có 1111/1121 nếu trả ngay).
+  //  • Bán xăng dầu thu tiền:  Nợ 1111/1121/131 / Có 5111 (doanh thu) + Có 3331 (VAT).
+  //  • Kết chuyển giá vốn:     Nợ 632 / Có 1561.
+  // Nguyên tắc bắt buộc: Tổng Nợ = Tổng Có trong mọi bút toán.
+  // ─────────────────────────────────────────────────────────────────────────
+
+  // ---------- CHART OF ACCOUNTS ----------
+  Future<List<TramXangAccount>> getAllAccounts() async {
+    final isar = await db;
+    return await isar.tramXangAccounts.where().sortByAccountNumber().findAll();
+  }
+
+  Future<TramXangAccount?> getAccountByNumber(String number) async {
+    final isar = await db;
+    return await isar.tramXangAccounts.getByAccountNumber(number);
+  }
+
+  Future<int> saveAccount(TramXangAccount account) async {
+    final isar = await db;
+    account.updatedAt = DateTime.now();
+    account.needsSync = true;
+    return await isar.writeTxn(() => isar.tramXangAccounts.put(account));
+  }
+
+  Future<List<int>> saveAccounts(List<TramXangAccount> accounts) async {
+    final isar = await db;
+    return await isar.writeTxn(() => isar.tramXangAccounts.putAll(accounts));
+  }
+
+  Future<List<TramXangAccountDefault>> getAllAccountDefaults() async {
+    final isar = await db;
+    return await isar.tramXangAccountDefaults.where().findAll();
+  }
+
+  // ---------- JOURNAL ENTRIES ----------
+  Future<List<TramXangAccountingEntry>> getEntriesByMonth(int year, int month) async {
+    final isar = await db;
+    return await isar.tramXangAccountingEntrys
+        .filter()
+        .yearEqualTo(year)
+        .monthEqualTo(month)
+        .sortByPostingDateDesc()
+        .findAll();
+  }
+
+  Future<List<TramXangAccountingEntry>> getAllEntries() async {
+    final isar = await db;
+    return await isar.tramXangAccountingEntrys.where().sortByPostingDateDesc().findAll();
+  }
+
+  Future<List<TramXangAccountingEntryLine>> getEntryLinesByJournal(String journalID) async {
+    final isar = await db;
+    return await isar.tramXangAccountingEntryLines
+        .filter()
+        .journalIDEqualTo(journalID)
+        .sortByLineOrder()
+        .findAll();
+  }
+
+  Future<List<TramXangAccountingEntry>> getEntriesByJournalID(String journalID) async {
+    final isar = await db;
+    return await isar.tramXangAccountingEntrys.filter().journalIDEqualTo(journalID).findAll();
+  }
+
+  Future<int> saveAccountingEntry(TramXangAccountingEntry entry) async {
+    final isar = await db;
+    entry.updatedAt = DateTime.now();
+    entry.needsSync = true;
+    return await isar.writeTxn(() => isar.tramXangAccountingEntrys.put(entry));
+  }
+
+  Future<List<int>> saveAccountingEntryLines(List<TramXangAccountingEntryLine> lines) async {
+    final isar = await db;
+    return await isar.writeTxn(() => isar.tramXangAccountingEntryLines.putAll(lines));
+  }
+
+  /// Ghi sổ (posted) bút toán theo journalID.
+  Future<void> postEntry(String journalID, String postedBy) async {
+    final isar = await db;
+    final entry = await isar.tramXangAccountingEntrys
+        .filter()
+        .journalIDEqualTo(journalID)
+        .findFirst();
+    if (entry == null) throw StateError('Không tìm thấy bút toán $journalID');
+    entry.status = TramXangEntryStatus.posted;
+    entry.postedDate = DateTime.now();
+    entry.postedBy = postedBy;
+    entry.updatedAt = DateTime.now();
+    await isar.writeTxn(() => isar.tramXangAccountingEntrys.put(entry));
+  }
+
+  /// Đảo bút toán (reversed) — không xoá, chỉ đổi trạng thái + ghi chú.
+  Future<void> reverseEntry(String journalID, String reversedBy) async {
+    final isar = await db;
+    final entry = await isar.tramXangAccountingEntrys
+        .filter()
+        .journalIDEqualTo(journalID)
+        .findFirst();
+    if (entry == null) throw StateError('Không tìm thấy bút toán $journalID');
+    entry.status = TramXangEntryStatus.reversed;
+    entry.notes = '${entry.notes ?? ''}\nĐảo bút toán bởi $reversedBy';
+    entry.updatedAt = DateTime.now();
+    await isar.writeTxn(() => isar.tramXangAccountingEntrys.put(entry));
+  }
+
+  /// Sinh số chứng từ dạng "PN-2026/09-001" (prefix + năm/tháng + STT).
+  Future<String> _nextVoucherNo(String prefix) async {
+    final isar = await db;
+    final d = DateTime.now();
+    final ym = '${d.year}/${d.month.toString().padLeft(2, '0')}';
+    final count = await isar.tramXangAccountingEntrys
+        .filter()
+        .voucherNumberStartsWith('$prefix-$ym-')
+        .count();
+    return '$prefix-$ym-${(count + 1).toString().padLeft(3, '0')}';
+  }
+
+  // ---------- TỰ ĐỘNG HẠCH TOÁN TỪ NGHIỆP VỤ ----------
+
+  Future<String?> _customerName(String? customerId) async {
+    if (customerId == null || customerId.isEmpty) return null;
+    final isar = await db;
+    final c = await isar.tramXangCustomers.getByCustomerId(customerId);
+    return c?.name;
+  }
+
+  /// Hạch toán 1 hoá đơn bán:
+  ///   BÚT TOÁN DOANH THU:  Nợ 1111/1121/131 (theo phương thức) / Có 5111 + 3331
+  ///   BÚT TOÁN GIÁ VỐN:    Nợ 632 / Có 1561
+  Future<void> _postSaleAccounting(TramXangSale sale) async {
+    final isar = await db;
+    final lines = await isar.tramXangSaleLines.filter().saleIdEqualTo(sale.saleId).findAll();
+    double cost = 0;
+    for (final l in lines) {
+      cost += l.costAmount;
+    }
+    final d = sale.createdAt;
+    final revenue = sale.subtotal - sale.discount;
+    final customerName = await _customerName(sale.customerId);
+
+    final saleJournal = 'JRN-BAN-${sale.saleId}';
+    final debitAccount = sale.paymentMethod == 'DEBT'
+        ? '131'
+        : (sale.paymentMethod == 'TRANSFER' || sale.paymentMethod == 'QR' ? '1121' : '1111');
+    final saleEntry = TramXangAccountingEntry()
+      ..voucherNumber = sale.saleNo
+      ..journalID = saleJournal
+      ..year = d.year
+      ..month = d.month
+      ..entryType = TramXangEntryType.fuelSale
+      ..status = TramXangEntryStatus.posted
+      ..postingDate = d
+      ..documentDate = d
+      ..postedDate = d
+      ..refType = 1111
+      ..description = 'Doanh thu bán hàng hoá đơn ${sale.saleNo}'
+      ..objectCode = sale.customerId
+      ..objectName = customerName
+      ..totalDebit = sale.total
+      ..totalCredit = sale.total
+      ..paymentMethod = sale.paymentMethod == 'DEBT'
+          ? 'debt'
+          : (sale.paymentMethod == 'TRANSFER' || sale.paymentMethod == 'QR' ? 'bank' : 'cash')
+      ..isAutoGenerated = true;
+
+    final saleLinesBk = <TramXangAccountingEntryLine>[
+      TramXangAccountingEntryLine()
+        ..journalID = saleJournal
+        ..lineOrder = 0
+        ..debitAccountNumber = debitAccount
+        ..creditAccountNumber = ''
+        ..amount = sale.total
+        ..objectCode = sale.customerId
+        ..objectName = customerName
+        ..description = 'Thu tiền bán hàng',
+      TramXangAccountingEntryLine()
+        ..journalID = saleJournal
+        ..lineOrder = 1
+        ..debitAccountNumber = ''
+        ..creditAccountNumber = '5111'
+        ..amount = revenue
+        ..description = 'Doanh thu bán hàng hoá',
+      TramXangAccountingEntryLine()
+        ..journalID = saleJournal
+        ..lineOrder = 2
+        ..debitAccountNumber = ''
+        ..creditAccountNumber = '3331'
+        ..amount = sale.tax
+        ..description = 'Thuế GTGT đầu ra',
+    ];
+
+    final costJournal = 'JRN-GV-${sale.saleId}';
+    final costEntry = TramXangAccountingEntry()
+      ..voucherNumber = await _nextVoucherNo('GV')
+      ..journalID = costJournal
+      ..year = d.year
+      ..month = d.month
+      ..entryType = TramXangEntryType.fuelCost
+      ..status = TramXangEntryStatus.posted
+      ..postingDate = d
+      ..documentDate = d
+      ..postedDate = d
+      ..refType = 6321
+      ..description = 'Kết chuyển giá vốn hoá đơn ${sale.saleNo}'
+      ..totalDebit = cost
+      ..totalCredit = cost
+      ..isAutoGenerated = true;
+    final costLinesBk = <TramXangAccountingEntryLine>[
+      TramXangAccountingEntryLine()
+        ..journalID = costJournal
+        ..lineOrder = 0
+        ..debitAccountNumber = '632'
+        ..creditAccountNumber = ''
+        ..amount = cost
+        ..description = 'Giá vốn hàng bán',
+      TramXangAccountingEntryLine()
+        ..journalID = costJournal
+        ..lineOrder = 1
+        ..debitAccountNumber = ''
+        ..creditAccountNumber = '1561'
+        ..amount = cost
+        ..description = 'Xuất kho hàng hoá (xăng dầu)',
+    ];
+
+    await isar.writeTxn(() async {
+      await isar.tramXangAccountingEntrys.putAll([saleEntry, costEntry]);
+      await isar.tramXangAccountingEntryLines.putAll([...saleLinesBk, ...costLinesBk]);
+    });
+  }
+
+  /// Hạch toán 1 phiếu nhập kho (mua xăng dầu):
+  ///   Nợ 1561 (giá mua) + Nợ 1331 (VAT đầu vào) / Có 331 (phải trả NCC).
+  Future<void> _postPurchaseAccounting(TramXangPurchase purchase) async {
+    final isar = await db;
+    final d = purchase.invoiceDate;
+    final amount = purchase.total - purchase.taxAmount;
+    final journal = 'JRN-MUA-${purchase.purchaseId}';
+    final supplierName = await _supplierName(purchase.supplierId);
+
+    final entry = TramXangAccountingEntry()
+      ..voucherNumber = purchase.invoiceNo.isNotEmpty ? purchase.invoiceNo : await _nextVoucherNo('PN')
+      ..journalID = journal
+      ..year = d.year
+      ..month = d.month
+      ..entryType = TramXangEntryType.fuelPurchase
+      ..status = TramXangEntryStatus.posted
+      ..postingDate = d
+      ..documentDate = d
+      ..postedDate = d
+      ..refType = 1550
+      ..description = 'Mua xăng dầu nhập kho phiếu ${purchase.invoiceNo}'
+      ..objectCode = purchase.supplierId
+      ..objectName = supplierName
+      ..totalDebit = purchase.total
+      ..totalCredit = purchase.total
+      ..paymentMethod = 'debt'
+      ..isAutoGenerated = true;
+
+    final lines = <TramXangAccountingEntryLine>[
+      TramXangAccountingEntryLine()
+        ..journalID = journal
+        ..lineOrder = 0
+        ..debitAccountNumber = '1561'
+        ..creditAccountNumber = ''
+        ..amount = amount
+        ..objectCode = purchase.supplierId
+        ..objectName = supplierName
+        ..description = 'Giá mua hàng hoá chưa thuế',
+      TramXangAccountingEntryLine()
+        ..journalID = journal
+        ..lineOrder = 1
+        ..debitAccountNumber = '1331'
+        ..creditAccountNumber = ''
+        ..amount = purchase.taxAmount
+        ..description = 'Thuế GTGT được khấu trừ',
+      TramXangAccountingEntryLine()
+        ..journalID = journal
+        ..lineOrder = 2
+        ..debitAccountNumber = ''
+        ..creditAccountNumber = '331'
+        ..amount = purchase.total
+        ..description = 'Phải trả người bán (nhà cung cấp)',
+    ];
+
+    await isar.writeTxn(() async {
+      await isar.tramXangAccountingEntrys.put(entry);
+      await isar.tramXangAccountingEntryLines.putAll(lines);
+    });
+  }
+
+  Future<String?> _supplierName(String? supplierId) async {
+    if (supplierId == null || supplierId.isEmpty) return null;
+    final isar = await db;
+    final s = await isar.tramXangSuppliers.getBySupplierId(supplierId);
+    return s?.name;
+  }
+
+  // ---------- BÚT TOÁN MẪU (THỦ CÔNG) ----------
+
+  TramXangAccountingEntryLine _entryLine(
+    String journalID,
+    int order, {
+    required String debit,
+    required String credit,
+    required double amount,
+    String? description,
+    String? objectCode,
+    String? objectName,
+  }) {
+    return TramXangAccountingEntryLine()
+      ..journalID = journalID
+      ..lineOrder = order
+      ..debitAccountNumber = debit
+      ..creditAccountNumber = credit
+      ..amount = amount
+      ..description = description
+      ..objectCode = objectCode
+      ..objectName = objectName;
+  }
+
+  /// BÚT TOÁN MẪU MUA XĂNG DẦU (Nợ 1561 + Nợ 1331 / Có 331 hoặc 1111/1121).
+  /// Không đổi kho — chỉ tạo bút toán kế toán.
+  Future<TramXangAccountingEntry> createFuelPurchaseEntry({
+    required TramXangProduct product,
+    required double quantity,
+    required double unitCost,
+    double taxRate = 10,
+    String method = '331', // 331 (chịu), 1111 (tiền mặt), 1121 (ngân hàng)
+    String? voucherNo,
+    TramXangSupplier? supplier,
+    String? postedBy = 'User',
+  }) async {
+    final isar = await db;
+    final amount = quantity * unitCost;
+    final taxAmount = amount * taxRate / 100;
+    final total = amount + taxAmount;
+    final d = DateTime.now();
+    final journal = 'JRN-${d.year}${d.month.toString().padLeft(2, '0')}-MUA-${DateTime.now().microsecondsSinceEpoch}';
+    final no = voucherNo ?? (await _nextVoucherNo('MUA'));
+    final name = supplier?.name;
+
+    final entry = TramXangAccountingEntry()
+      ..voucherNumber = no
+      ..journalID = journal
+      ..year = d.year
+      ..month = d.month
+      ..entryType = TramXangEntryType.fuelPurchase
+      ..status = TramXangEntryStatus.posted
+      ..postingDate = d
+      ..documentDate = d
+      ..postedDate = d
+      ..refType = 1550
+      ..description = 'Mua ${product.name} $quantity ${product.unit} ($unitCost/ĐV)'
+      ..objectCode = supplier?.supplierId
+      ..objectName = name
+      ..totalDebit = total
+      ..totalCredit = total
+      ..paymentMethod = method == '331' ? 'debt' : (method == '1121' ? 'bank' : 'cash')
+      ..isAutoGenerated = false
+      ..createdBy = postedBy ?? 'User';
+
+    await isar.writeTxn(() async {
+      await isar.tramXangAccountingEntrys.put(entry);
+      await isar.tramXangAccountingEntryLines.putAll([
+        _entryLine(journal, 0,
+            debit: '1561',
+            credit: '',
+            amount: amount,
+            description: 'Giá mua ${product.name} chưa thuế',
+            objectCode: supplier?.supplierId,
+            objectName: name),
+        _entryLine(journal, 1,
+            debit: '1331',
+            credit: '',
+            amount: taxAmount,
+            description: 'Thuế GTGT được khấu trừ'),
+        _entryLine(journal, 2,
+            debit: '',
+            credit: method,
+            amount: total,
+            description: method == '331' ? 'Phải trả người bán' : 'Thanh toán ngay',
+            objectCode: supplier?.supplierId,
+            objectName: name),
+      ]);
+    });
+    return entry;
+  }
+
+  /// BÚT TOÁN MẪU BÁN XĂNG DẦU (Nợ 1111/1121/131 / Có 5111 + Có 3331).
+  /// Không đổi kho — chỉ tạo bút toán kế toán.
+  Future<TramXangAccountingEntry> createFuelSaleEntry({
+    required TramXangProduct product,
+    required double quantity,
+    required double unitPrice,
+    double taxRate = 10,
+    String method = '1111', // 1111 (tiền mặt), 1121 (ngân hàng), 131 (chịu)
+    String? voucherNo,
+    TramXangCustomer? customer,
+    String? postedBy = 'User',
+  }) async {
+    final isar = await db;
+    final amount = quantity * unitPrice;
+    final tax = amount * taxRate / 100;
+    final total = amount + tax;
+    final d = DateTime.now();
+    final journal = 'JRN-${d.year}${d.month.toString().padLeft(2, '0')}-BAN-${DateTime.now().microsecondsSinceEpoch}';
+    final no = voucherNo ?? (await _nextVoucherNo('HD'));
+    final name = customer?.name;
+
+    final entry = TramXangAccountingEntry()
+      ..voucherNumber = no
+      ..journalID = journal
+      ..year = d.year
+      ..month = d.month
+      ..entryType = TramXangEntryType.fuelSale
+      ..status = TramXangEntryStatus.posted
+      ..postingDate = d
+      ..documentDate = d
+      ..postedDate = d
+      ..refType = 1111
+      ..description = 'Bán ${product.name} $quantity ${product.unit} ($unitPrice/ĐV)'
+      ..objectCode = customer?.customerId
+      ..objectName = name
+      ..totalDebit = total
+      ..totalCredit = total
+      ..paymentMethod = method == '131'
+          ? 'debt'
+          : (method == '1121' ? 'bank' : 'cash')
+      ..isAutoGenerated = false
+      ..createdBy = postedBy ?? 'User';
+
+    await isar.writeTxn(() async {
+      await isar.tramXangAccountingEntrys.put(entry);
+      await isar.tramXangAccountingEntryLines.putAll([
+        _entryLine(journal, 0,
+            debit: method,
+            credit: '',
+            amount: total,
+            description: 'Thu tiền bán hàng',
+            objectCode: customer?.customerId,
+            objectName: name),
+        _entryLine(journal, 1,
+            debit: '',
+            credit: '5111',
+            amount: amount,
+            description: 'Doanh thu bán ${product.name} chưa thuế'),
+        _entryLine(journal, 2,
+            debit: '',
+            credit: '3331',
+            amount: tax,
+            description: 'Thuế GTGT đầu ra'),
+      ]);
+    });
+    return entry;
+  }
+
+  /// BÚT TOÁN MẪU KẾT CHUYỂN GIÁ VỐN (Nợ 632 / Có 1561).
+  Future<TramXangAccountingEntry> createFuelCostEntry({
+    required TramXangProduct product,
+    required double quantity,
+    required double unitCost,
+    String? voucherNo,
+    String? postedBy = 'User',
+  }) async {
+    final isar = await db;
+    final cost = quantity * unitCost;
+    final d = DateTime.now();
+    final journal = 'JRN-${d.year}${d.month.toString().padLeft(2, '0')}-GV-${DateTime.now().microsecondsSinceEpoch}';
+    final no = voucherNo ?? (await _nextVoucherNo('GV'));
+
+    final entry = TramXangAccountingEntry()
+      ..voucherNumber = no
+      ..journalID = journal
+      ..year = d.year
+      ..month = d.month
+      ..entryType = TramXangEntryType.fuelCost
+      ..status = TramXangEntryStatus.posted
+      ..postingDate = d
+      ..documentDate = d
+      ..postedDate = d
+      ..refType = 6321
+      ..description = 'Kết chuyển giá vốn ${product.name} $quantity ${product.unit}'
+      ..totalDebit = cost
+      ..totalCredit = cost
+      ..isAutoGenerated = false
+      ..createdBy = postedBy ?? 'User';
+
+    await isar.writeTxn(() async {
+      await isar.tramXangAccountingEntrys.put(entry);
+      await isar.tramXangAccountingEntryLines.putAll([
+        _entryLine(journal, 0,
+            debit: '632', credit: '', amount: cost, description: 'Giá vốn hàng bán'),
+        _entryLine(journal, 1,
+            debit: '', credit: '1561', amount: cost, description: 'Xuất kho (xăng dầu)'),
+      ]);
+    });
+    return entry;
+  }
+
+  /// Tổng hợp bút toán theo tháng (phục vụ màn hình Sổ cái GL).
+  Future<Map<String, dynamic>> getAccountingSummary(int year, int month) async {
+    final entries = await getEntriesByMonth(year, month);
+    var totalDebit = 0.0;
+    var totalCredit = 0.0;
+    var posted = 0;
+    var drafts = 0;
+    for (final e in entries) {
+      totalDebit += e.totalDebit;
+      totalCredit += e.totalCredit;
+      if (e.status == TramXangEntryStatus.posted) posted++;
+      if (e.status == TramXangEntryStatus.draft) drafts++;
+    }
+    return {
+      'totalEntries': entries.length,
+      'postedEntries': posted,
+      'draftEntries': drafts,
+      'totalDebit': totalDebit,
+      'totalCredit': totalCredit,
+    };
   }
 }

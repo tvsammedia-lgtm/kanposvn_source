@@ -1,8 +1,12 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../models/account.dart';
+import '../models/account_default.dart';
+import '../models/accounting_entry.dart';
 import '../models/product.dart';
 import '../models/tank.dart';
 import '../models/sale.dart';
 import '../models/inventory.dart';
+import '../services/tramxang_einvoice_settings.dart';
 import '../services/tramxang_isar_service.dart';
 
 final tramXangIsarServiceProvider = Provider<TramXangIsarService>((ref) {
@@ -395,4 +399,108 @@ final tramXangTankReconProvider =
 final tramXangInventoryTxProvider =
     FutureProvider<List<TramXangInventoryTransaction>>((ref) {
   return ref.watch(tramXangIsarServiceProvider).getInventoryTransactions();
+});
+
+// ---------------------------------------------------------------------------
+// E-Invoice settings (Cài Đặt)
+// ---------------------------------------------------------------------------
+final tramXangEinvoiceSettingsProvider =
+    ChangeNotifierProvider<TramXangEinvoiceSettingsStore>((ref) {
+  final store = TramXangEinvoiceSettingsStore();
+  store.load();
+  return store;
+});
+
+// ---------------------------------------------------------------------------
+// Kế toán: tháng đang chọn
+// ---------------------------------------------------------------------------
+class TramXangSelectedMonth {
+  final int year;
+  final int month;
+  const TramXangSelectedMonth(this.year, this.month);
+}
+
+class TramXangSelectedMonthNotifier extends Notifier<TramXangSelectedMonth> {
+  @override
+  TramXangSelectedMonth build() {
+    final now = DateTime.now();
+    return TramXangSelectedMonth(now.year, now.month);
+  }
+
+  void setMonth(int year, int month) => state = TramXangSelectedMonth(year, month);
+
+  void previousMonth() {
+    var y = state.year;
+    var m = state.month - 1;
+    if (m < 1) {
+      m = 12;
+      y--;
+    }
+    state = TramXangSelectedMonth(y, m);
+  }
+
+  void nextMonth() {
+    var y = state.year;
+    var m = state.month + 1;
+    if (m > 12) {
+      m = 1;
+      y++;
+    }
+    state = TramXangSelectedMonth(y, m);
+  }
+}
+
+final tramXangSelectedMonthProvider =
+    NotifierProvider<TramXangSelectedMonthNotifier, TramXangSelectedMonth>(
+        TramXangSelectedMonthNotifier.new);
+
+// ---------------------------------------------------------------------------
+// Kế toán: hệ thống tài khoản
+// ---------------------------------------------------------------------------
+final tramXangAllAccountsProvider =
+    FutureProvider<List<TramXangAccount>>((ref) {
+  return ref.watch(tramXangIsarServiceProvider).getAllAccounts();
+});
+
+final tramXangParentAccountsProvider =
+    FutureProvider<List<TramXangAccount>>((ref) async {
+  final accounts = await ref.watch(tramXangAllAccountsProvider.future);
+  return accounts.where((a) => a.isParent).toList();
+});
+
+final tramXangLeafAccountsProvider =
+    FutureProvider<List<TramXangAccount>>((ref) async {
+  final accounts = await ref.watch(tramXangAllAccountsProvider.future);
+  return accounts.where((a) => !a.isParent).toList();
+});
+
+final tramXangAccountDefaultsProvider =
+    FutureProvider<List<TramXangAccountDefault>>((ref) {
+  return ref.watch(tramXangIsarServiceProvider).getAllAccountDefaults();
+});
+
+// ---------------------------------------------------------------------------
+// Kế toán: bút toán
+// ---------------------------------------------------------------------------
+final tramXangEntriesByMonthProvider = FutureProvider.family<
+    List<TramXangAccountingEntry>, TramXangSelectedMonth>((ref, sm) {
+  return ref.watch(tramXangIsarServiceProvider).getEntriesByMonth(sm.year, sm.month);
+});
+
+final tramXangAllEntriesProvider =
+    FutureProvider<List<TramXangAccountingEntry>>((ref) {
+  return ref.watch(tramXangIsarServiceProvider).getAllEntries();
+});
+
+final tramXangEntryLinesProvider =
+    FutureProvider.family<List<TramXangAccountingEntryLine>, String>(
+        (ref, journalID) {
+  return ref.watch(tramXangIsarServiceProvider).getEntryLinesByJournal(journalID);
+});
+
+final tramXangAccountingSummaryProvider = FutureProvider.family<
+    Map<String, dynamic>, TramXangSelectedMonth>((ref, sm) {
+  return ref
+      .watch(tramXangIsarServiceProvider)
+      .getAccountingSummary(sm.year, sm.month);
 });
