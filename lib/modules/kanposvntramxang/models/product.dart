@@ -45,6 +45,8 @@ class TramXangProduct {
   
   final category = IsarLink<TramXangCategory>();
 
+  double importPrice = 0; // giá vốn nhập (cho tính giá vốn/công nợ NCC)
+  double retailPrice = 0; // giá bán lẻ hiện tại (snapshot vào SaleLine khi bán)
   double taxRate = 0; // percentage
   String costMethod = 'WEIGHTED_AVERAGE';
   

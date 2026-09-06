@@ -22,6 +22,8 @@ class TramXangTank {
   String name = '';
   
   final product = IsarLink<TramXangProduct>();
+  @Index()
+  String productId = '';
   
   double capacityLiter = 0;
   double safeCapacityLiter = 0;
@@ -106,6 +108,13 @@ class TramXangPumpNozzle {
   final pump = IsarLink<TramXangPump>();
   final product = IsarLink<TramXangProduct>();
   final tank = IsarLink<TramXangTank>();
+  
+  @Index()
+  String pumpId = '';
+  @Index()
+  String productId = '';
+  @Index()
+  String tankId = '';
   
   int nozzleNo = 1;
   

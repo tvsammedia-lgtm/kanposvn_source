@@ -77,28 +77,33 @@ const TramXangTankSchema = CollectionSchema(
       name: r'openingQuantity',
       type: IsarType.double,
     ),
-    r'safeCapacityLiter': PropertySchema(
+    r'productId': PropertySchema(
       id: 12,
+      name: r'productId',
+      type: IsarType.string,
+    ),
+    r'safeCapacityLiter': PropertySchema(
+      id: 13,
       name: r'safeCapacityLiter',
       type: IsarType.double,
     ),
     r'stationId': PropertySchema(
-      id: 13,
+      id: 14,
       name: r'stationId',
       type: IsarType.string,
     ),
     r'tankId': PropertySchema(
-      id: 14,
+      id: 15,
       name: r'tankId',
       type: IsarType.string,
     ),
     r'updatedAt': PropertySchema(
-      id: 15,
+      id: 16,
       name: r'updatedAt',
       type: IsarType.dateTime,
     ),
     r'version': PropertySchema(
-      id: 16,
+      id: 17,
       name: r'version',
       type: IsarType.long,
     )
@@ -117,6 +122,19 @@ const TramXangTankSchema = CollectionSchema(
       properties: [
         IndexPropertySchema(
           name: r'tankId',
+          type: IndexType.hash,
+          caseSensitive: true,
+        )
+      ],
+    ),
+    r'productId': IndexSchema(
+      id: 5580769080710688203,
+      name: r'productId',
+      unique: false,
+      replace: false,
+      properties: [
+        IndexPropertySchema(
+          name: r'productId',
           type: IndexType.hash,
           caseSensitive: true,
         )
@@ -147,6 +165,7 @@ int _tramXangTankEstimateSize(
   bytesCount += 3 + object.code.length * 3;
   bytesCount += 3 + object.deviceId.length * 3;
   bytesCount += 3 + object.name.length * 3;
+  bytesCount += 3 + object.productId.length * 3;
   bytesCount += 3 + object.stationId.length * 3;
   bytesCount += 3 + object.tankId.length * 3;
   return bytesCount;
@@ -170,11 +189,12 @@ void _tramXangTankSerialize(
   writer.writeDouble(offsets[9], object.minLevelLiter);
   writer.writeString(offsets[10], object.name);
   writer.writeDouble(offsets[11], object.openingQuantity);
-  writer.writeDouble(offsets[12], object.safeCapacityLiter);
-  writer.writeString(offsets[13], object.stationId);
-  writer.writeString(offsets[14], object.tankId);
-  writer.writeDateTime(offsets[15], object.updatedAt);
-  writer.writeLong(offsets[16], object.version);
+  writer.writeString(offsets[12], object.productId);
+  writer.writeDouble(offsets[13], object.safeCapacityLiter);
+  writer.writeString(offsets[14], object.stationId);
+  writer.writeString(offsets[15], object.tankId);
+  writer.writeDateTime(offsets[16], object.updatedAt);
+  writer.writeLong(offsets[17], object.version);
 }
 
 TramXangTank _tramXangTankDeserialize(
@@ -197,11 +217,12 @@ TramXangTank _tramXangTankDeserialize(
   object.minLevelLiter = reader.readDouble(offsets[9]);
   object.name = reader.readString(offsets[10]);
   object.openingQuantity = reader.readDouble(offsets[11]);
-  object.safeCapacityLiter = reader.readDouble(offsets[12]);
-  object.stationId = reader.readString(offsets[13]);
-  object.tankId = reader.readString(offsets[14]);
-  object.updatedAt = reader.readDateTime(offsets[15]);
-  object.version = reader.readLong(offsets[16]);
+  object.productId = reader.readString(offsets[12]);
+  object.safeCapacityLiter = reader.readDouble(offsets[13]);
+  object.stationId = reader.readString(offsets[14]);
+  object.tankId = reader.readString(offsets[15]);
+  object.updatedAt = reader.readDateTime(offsets[16]);
+  object.version = reader.readLong(offsets[17]);
   return object;
 }
 
@@ -237,14 +258,16 @@ P _tramXangTankDeserializeProp<P>(
     case 11:
       return (reader.readDouble(offset)) as P;
     case 12:
-      return (reader.readDouble(offset)) as P;
-    case 13:
       return (reader.readString(offset)) as P;
+    case 13:
+      return (reader.readDouble(offset)) as P;
     case 14:
       return (reader.readString(offset)) as P;
     case 15:
-      return (reader.readDateTime(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 16:
+      return (reader.readDateTime(offset)) as P;
+    case 17:
       return (reader.readLong(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -438,6 +461,51 @@ extension TramXangTankQueryWhere
               indexName: r'tankId',
               lower: [],
               upper: [tankId],
+              includeUpper: false,
+            ));
+      }
+    });
+  }
+
+  QueryBuilder<TramXangTank, TramXangTank, QAfterWhereClause> productIdEqualTo(
+      String productId) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.equalTo(
+        indexName: r'productId',
+        value: [productId],
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangTank, TramXangTank, QAfterWhereClause>
+      productIdNotEqualTo(String productId) {
+    return QueryBuilder.apply(this, (query) {
+      if (query.whereSort == Sort.asc) {
+        return query
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'productId',
+              lower: [],
+              upper: [productId],
+              includeUpper: false,
+            ))
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'productId',
+              lower: [productId],
+              includeLower: false,
+              upper: [],
+            ));
+      } else {
+        return query
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'productId',
+              lower: [productId],
+              includeLower: false,
+              upper: [],
+            ))
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'productId',
+              lower: [],
+              upper: [productId],
               includeUpper: false,
             ));
       }
@@ -1385,6 +1453,142 @@ extension TramXangTankQueryFilter
   }
 
   QueryBuilder<TramXangTank, TramXangTank, QAfterFilterCondition>
+      productIdEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'productId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangTank, TramXangTank, QAfterFilterCondition>
+      productIdGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'productId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangTank, TramXangTank, QAfterFilterCondition>
+      productIdLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'productId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangTank, TramXangTank, QAfterFilterCondition>
+      productIdBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'productId',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangTank, TramXangTank, QAfterFilterCondition>
+      productIdStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'productId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangTank, TramXangTank, QAfterFilterCondition>
+      productIdEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'productId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangTank, TramXangTank, QAfterFilterCondition>
+      productIdContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'productId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangTank, TramXangTank, QAfterFilterCondition>
+      productIdMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'productId',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangTank, TramXangTank, QAfterFilterCondition>
+      productIdIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'productId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangTank, TramXangTank, QAfterFilterCondition>
+      productIdIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'productId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangTank, TramXangTank, QAfterFilterCondition>
       safeCapacityLiterEqualTo(
     double value, {
     double epsilon = Query.epsilon,
@@ -2008,6 +2212,18 @@ extension TramXangTankQuerySortBy
     });
   }
 
+  QueryBuilder<TramXangTank, TramXangTank, QAfterSortBy> sortByProductId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'productId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<TramXangTank, TramXangTank, QAfterSortBy> sortByProductIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'productId', Sort.desc);
+    });
+  }
+
   QueryBuilder<TramXangTank, TramXangTank, QAfterSortBy>
       sortBySafeCapacityLiter() {
     return QueryBuilder.apply(this, (query) {
@@ -2237,6 +2453,18 @@ extension TramXangTankQuerySortThenBy
     });
   }
 
+  QueryBuilder<TramXangTank, TramXangTank, QAfterSortBy> thenByProductId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'productId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<TramXangTank, TramXangTank, QAfterSortBy> thenByProductIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'productId', Sort.desc);
+    });
+  }
+
   QueryBuilder<TramXangTank, TramXangTank, QAfterSortBy>
       thenBySafeCapacityLiter() {
     return QueryBuilder.apply(this, (query) {
@@ -2382,6 +2610,13 @@ extension TramXangTankQueryWhereDistinct
     });
   }
 
+  QueryBuilder<TramXangTank, TramXangTank, QDistinct> distinctByProductId(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'productId', caseSensitive: caseSensitive);
+    });
+  }
+
   QueryBuilder<TramXangTank, TramXangTank, QDistinct>
       distinctBySafeCapacityLiter() {
     return QueryBuilder.apply(this, (query) {
@@ -2496,6 +2731,12 @@ extension TramXangTankQueryProperty
       openingQuantityProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'openingQuantity');
+    });
+  }
+
+  QueryBuilder<TramXangTank, String, QQueryOperations> productIdProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'productId');
     });
   }
 
@@ -7558,23 +7799,38 @@ const TramXangPumpNozzleSchema = CollectionSchema(
       name: r'nozzleNo',
       type: IsarType.long,
     ),
-    r'totalizerClose': PropertySchema(
+    r'productId': PropertySchema(
       id: 7,
+      name: r'productId',
+      type: IsarType.string,
+    ),
+    r'pumpId': PropertySchema(
+      id: 8,
+      name: r'pumpId',
+      type: IsarType.string,
+    ),
+    r'tankId': PropertySchema(
+      id: 9,
+      name: r'tankId',
+      type: IsarType.string,
+    ),
+    r'totalizerClose': PropertySchema(
+      id: 10,
       name: r'totalizerClose',
       type: IsarType.double,
     ),
     r'totalizerOpen': PropertySchema(
-      id: 8,
+      id: 11,
       name: r'totalizerOpen',
       type: IsarType.double,
     ),
     r'updatedAt': PropertySchema(
-      id: 9,
+      id: 12,
       name: r'updatedAt',
       type: IsarType.dateTime,
     ),
     r'version': PropertySchema(
-      id: 10,
+      id: 13,
       name: r'version',
       type: IsarType.long,
     )
@@ -7593,6 +7849,45 @@ const TramXangPumpNozzleSchema = CollectionSchema(
       properties: [
         IndexPropertySchema(
           name: r'nozzleId',
+          type: IndexType.hash,
+          caseSensitive: true,
+        )
+      ],
+    ),
+    r'pumpId': IndexSchema(
+      id: -5856964945163718727,
+      name: r'pumpId',
+      unique: false,
+      replace: false,
+      properties: [
+        IndexPropertySchema(
+          name: r'pumpId',
+          type: IndexType.hash,
+          caseSensitive: true,
+        )
+      ],
+    ),
+    r'productId': IndexSchema(
+      id: 5580769080710688203,
+      name: r'productId',
+      unique: false,
+      replace: false,
+      properties: [
+        IndexPropertySchema(
+          name: r'productId',
+          type: IndexType.hash,
+          caseSensitive: true,
+        )
+      ],
+    ),
+    r'tankId': IndexSchema(
+      id: 3441290314583732874,
+      name: r'tankId',
+      unique: false,
+      replace: false,
+      properties: [
+        IndexPropertySchema(
+          name: r'tankId',
           type: IndexType.hash,
           caseSensitive: true,
         )
@@ -7635,6 +7930,9 @@ int _tramXangPumpNozzleEstimateSize(
   bytesCount += 3 + object.deviceId.length * 3;
   bytesCount += 3 + object.meterType.length * 3;
   bytesCount += 3 + object.nozzleId.length * 3;
+  bytesCount += 3 + object.productId.length * 3;
+  bytesCount += 3 + object.pumpId.length * 3;
+  bytesCount += 3 + object.tankId.length * 3;
   return bytesCount;
 }
 
@@ -7651,10 +7949,13 @@ void _tramXangPumpNozzleSerialize(
   writer.writeString(offsets[4], object.meterType);
   writer.writeString(offsets[5], object.nozzleId);
   writer.writeLong(offsets[6], object.nozzleNo);
-  writer.writeDouble(offsets[7], object.totalizerClose);
-  writer.writeDouble(offsets[8], object.totalizerOpen);
-  writer.writeDateTime(offsets[9], object.updatedAt);
-  writer.writeLong(offsets[10], object.version);
+  writer.writeString(offsets[7], object.productId);
+  writer.writeString(offsets[8], object.pumpId);
+  writer.writeString(offsets[9], object.tankId);
+  writer.writeDouble(offsets[10], object.totalizerClose);
+  writer.writeDouble(offsets[11], object.totalizerOpen);
+  writer.writeDateTime(offsets[12], object.updatedAt);
+  writer.writeLong(offsets[13], object.version);
 }
 
 TramXangPumpNozzle _tramXangPumpNozzleDeserialize(
@@ -7672,10 +7973,13 @@ TramXangPumpNozzle _tramXangPumpNozzleDeserialize(
   object.meterType = reader.readString(offsets[4]);
   object.nozzleId = reader.readString(offsets[5]);
   object.nozzleNo = reader.readLong(offsets[6]);
-  object.totalizerClose = reader.readDouble(offsets[7]);
-  object.totalizerOpen = reader.readDouble(offsets[8]);
-  object.updatedAt = reader.readDateTime(offsets[9]);
-  object.version = reader.readLong(offsets[10]);
+  object.productId = reader.readString(offsets[7]);
+  object.pumpId = reader.readString(offsets[8]);
+  object.tankId = reader.readString(offsets[9]);
+  object.totalizerClose = reader.readDouble(offsets[10]);
+  object.totalizerOpen = reader.readDouble(offsets[11]);
+  object.updatedAt = reader.readDateTime(offsets[12]);
+  object.version = reader.readLong(offsets[13]);
   return object;
 }
 
@@ -7701,12 +8005,18 @@ P _tramXangPumpNozzleDeserializeProp<P>(
     case 6:
       return (reader.readLong(offset)) as P;
     case 7:
-      return (reader.readDouble(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 8:
-      return (reader.readDouble(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 9:
-      return (reader.readDateTime(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 10:
+      return (reader.readDouble(offset)) as P;
+    case 11:
+      return (reader.readDouble(offset)) as P;
+    case 12:
+      return (reader.readDateTime(offset)) as P;
+    case 13:
       return (reader.readLong(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -7905,6 +8215,141 @@ extension TramXangPumpNozzleQueryWhere
               indexName: r'nozzleId',
               lower: [],
               upper: [nozzleId],
+              includeUpper: false,
+            ));
+      }
+    });
+  }
+
+  QueryBuilder<TramXangPumpNozzle, TramXangPumpNozzle, QAfterWhereClause>
+      pumpIdEqualTo(String pumpId) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.equalTo(
+        indexName: r'pumpId',
+        value: [pumpId],
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangPumpNozzle, TramXangPumpNozzle, QAfterWhereClause>
+      pumpIdNotEqualTo(String pumpId) {
+    return QueryBuilder.apply(this, (query) {
+      if (query.whereSort == Sort.asc) {
+        return query
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'pumpId',
+              lower: [],
+              upper: [pumpId],
+              includeUpper: false,
+            ))
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'pumpId',
+              lower: [pumpId],
+              includeLower: false,
+              upper: [],
+            ));
+      } else {
+        return query
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'pumpId',
+              lower: [pumpId],
+              includeLower: false,
+              upper: [],
+            ))
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'pumpId',
+              lower: [],
+              upper: [pumpId],
+              includeUpper: false,
+            ));
+      }
+    });
+  }
+
+  QueryBuilder<TramXangPumpNozzle, TramXangPumpNozzle, QAfterWhereClause>
+      productIdEqualTo(String productId) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.equalTo(
+        indexName: r'productId',
+        value: [productId],
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangPumpNozzle, TramXangPumpNozzle, QAfterWhereClause>
+      productIdNotEqualTo(String productId) {
+    return QueryBuilder.apply(this, (query) {
+      if (query.whereSort == Sort.asc) {
+        return query
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'productId',
+              lower: [],
+              upper: [productId],
+              includeUpper: false,
+            ))
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'productId',
+              lower: [productId],
+              includeLower: false,
+              upper: [],
+            ));
+      } else {
+        return query
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'productId',
+              lower: [productId],
+              includeLower: false,
+              upper: [],
+            ))
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'productId',
+              lower: [],
+              upper: [productId],
+              includeUpper: false,
+            ));
+      }
+    });
+  }
+
+  QueryBuilder<TramXangPumpNozzle, TramXangPumpNozzle, QAfterWhereClause>
+      tankIdEqualTo(String tankId) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.equalTo(
+        indexName: r'tankId',
+        value: [tankId],
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangPumpNozzle, TramXangPumpNozzle, QAfterWhereClause>
+      tankIdNotEqualTo(String tankId) {
+    return QueryBuilder.apply(this, (query) {
+      if (query.whereSort == Sort.asc) {
+        return query
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'tankId',
+              lower: [],
+              upper: [tankId],
+              includeUpper: false,
+            ))
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'tankId',
+              lower: [tankId],
+              includeLower: false,
+              upper: [],
+            ));
+      } else {
+        return query
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'tankId',
+              lower: [tankId],
+              includeLower: false,
+              upper: [],
+            ))
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'tankId',
+              lower: [],
+              upper: [tankId],
               includeUpper: false,
             ));
       }
@@ -8575,6 +9020,414 @@ extension TramXangPumpNozzleQueryFilter
   }
 
   QueryBuilder<TramXangPumpNozzle, TramXangPumpNozzle, QAfterFilterCondition>
+      productIdEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'productId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangPumpNozzle, TramXangPumpNozzle, QAfterFilterCondition>
+      productIdGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'productId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangPumpNozzle, TramXangPumpNozzle, QAfterFilterCondition>
+      productIdLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'productId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangPumpNozzle, TramXangPumpNozzle, QAfterFilterCondition>
+      productIdBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'productId',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangPumpNozzle, TramXangPumpNozzle, QAfterFilterCondition>
+      productIdStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'productId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangPumpNozzle, TramXangPumpNozzle, QAfterFilterCondition>
+      productIdEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'productId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangPumpNozzle, TramXangPumpNozzle, QAfterFilterCondition>
+      productIdContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'productId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangPumpNozzle, TramXangPumpNozzle, QAfterFilterCondition>
+      productIdMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'productId',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangPumpNozzle, TramXangPumpNozzle, QAfterFilterCondition>
+      productIdIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'productId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangPumpNozzle, TramXangPumpNozzle, QAfterFilterCondition>
+      productIdIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'productId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangPumpNozzle, TramXangPumpNozzle, QAfterFilterCondition>
+      pumpIdEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'pumpId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangPumpNozzle, TramXangPumpNozzle, QAfterFilterCondition>
+      pumpIdGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'pumpId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangPumpNozzle, TramXangPumpNozzle, QAfterFilterCondition>
+      pumpIdLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'pumpId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangPumpNozzle, TramXangPumpNozzle, QAfterFilterCondition>
+      pumpIdBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'pumpId',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangPumpNozzle, TramXangPumpNozzle, QAfterFilterCondition>
+      pumpIdStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'pumpId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangPumpNozzle, TramXangPumpNozzle, QAfterFilterCondition>
+      pumpIdEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'pumpId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangPumpNozzle, TramXangPumpNozzle, QAfterFilterCondition>
+      pumpIdContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'pumpId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangPumpNozzle, TramXangPumpNozzle, QAfterFilterCondition>
+      pumpIdMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'pumpId',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangPumpNozzle, TramXangPumpNozzle, QAfterFilterCondition>
+      pumpIdIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'pumpId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangPumpNozzle, TramXangPumpNozzle, QAfterFilterCondition>
+      pumpIdIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'pumpId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangPumpNozzle, TramXangPumpNozzle, QAfterFilterCondition>
+      tankIdEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'tankId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangPumpNozzle, TramXangPumpNozzle, QAfterFilterCondition>
+      tankIdGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'tankId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangPumpNozzle, TramXangPumpNozzle, QAfterFilterCondition>
+      tankIdLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'tankId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangPumpNozzle, TramXangPumpNozzle, QAfterFilterCondition>
+      tankIdBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'tankId',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangPumpNozzle, TramXangPumpNozzle, QAfterFilterCondition>
+      tankIdStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'tankId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangPumpNozzle, TramXangPumpNozzle, QAfterFilterCondition>
+      tankIdEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'tankId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangPumpNozzle, TramXangPumpNozzle, QAfterFilterCondition>
+      tankIdContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'tankId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangPumpNozzle, TramXangPumpNozzle, QAfterFilterCondition>
+      tankIdMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'tankId',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangPumpNozzle, TramXangPumpNozzle, QAfterFilterCondition>
+      tankIdIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'tankId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangPumpNozzle, TramXangPumpNozzle, QAfterFilterCondition>
+      tankIdIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'tankId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangPumpNozzle, TramXangPumpNozzle, QAfterFilterCondition>
       totalizerCloseEqualTo(
     double value, {
     double epsilon = Query.epsilon,
@@ -8968,6 +9821,48 @@ extension TramXangPumpNozzleQuerySortBy
   }
 
   QueryBuilder<TramXangPumpNozzle, TramXangPumpNozzle, QAfterSortBy>
+      sortByProductId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'productId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<TramXangPumpNozzle, TramXangPumpNozzle, QAfterSortBy>
+      sortByProductIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'productId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<TramXangPumpNozzle, TramXangPumpNozzle, QAfterSortBy>
+      sortByPumpId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'pumpId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<TramXangPumpNozzle, TramXangPumpNozzle, QAfterSortBy>
+      sortByPumpIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'pumpId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<TramXangPumpNozzle, TramXangPumpNozzle, QAfterSortBy>
+      sortByTankId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'tankId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<TramXangPumpNozzle, TramXangPumpNozzle, QAfterSortBy>
+      sortByTankIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'tankId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<TramXangPumpNozzle, TramXangPumpNozzle, QAfterSortBy>
       sortByTotalizerClose() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'totalizerClose', Sort.asc);
@@ -9139,6 +10034,48 @@ extension TramXangPumpNozzleQuerySortThenBy
   }
 
   QueryBuilder<TramXangPumpNozzle, TramXangPumpNozzle, QAfterSortBy>
+      thenByProductId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'productId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<TramXangPumpNozzle, TramXangPumpNozzle, QAfterSortBy>
+      thenByProductIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'productId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<TramXangPumpNozzle, TramXangPumpNozzle, QAfterSortBy>
+      thenByPumpId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'pumpId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<TramXangPumpNozzle, TramXangPumpNozzle, QAfterSortBy>
+      thenByPumpIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'pumpId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<TramXangPumpNozzle, TramXangPumpNozzle, QAfterSortBy>
+      thenByTankId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'tankId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<TramXangPumpNozzle, TramXangPumpNozzle, QAfterSortBy>
+      thenByTankIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'tankId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<TramXangPumpNozzle, TramXangPumpNozzle, QAfterSortBy>
       thenByTotalizerClose() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'totalizerClose', Sort.asc);
@@ -9247,6 +10184,27 @@ extension TramXangPumpNozzleQueryWhereDistinct
   }
 
   QueryBuilder<TramXangPumpNozzle, TramXangPumpNozzle, QDistinct>
+      distinctByProductId({bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'productId', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<TramXangPumpNozzle, TramXangPumpNozzle, QDistinct>
+      distinctByPumpId({bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'pumpId', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<TramXangPumpNozzle, TramXangPumpNozzle, QDistinct>
+      distinctByTankId({bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'tankId', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<TramXangPumpNozzle, TramXangPumpNozzle, QDistinct>
       distinctByTotalizerClose() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'totalizerClose');
@@ -9327,6 +10285,25 @@ extension TramXangPumpNozzleQueryProperty
   QueryBuilder<TramXangPumpNozzle, int, QQueryOperations> nozzleNoProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'nozzleNo');
+    });
+  }
+
+  QueryBuilder<TramXangPumpNozzle, String, QQueryOperations>
+      productIdProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'productId');
+    });
+  }
+
+  QueryBuilder<TramXangPumpNozzle, String, QQueryOperations> pumpIdProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'pumpId');
+    });
+  }
+
+  QueryBuilder<TramXangPumpNozzle, String, QQueryOperations> tankIdProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'tankId');
     });
   }
 

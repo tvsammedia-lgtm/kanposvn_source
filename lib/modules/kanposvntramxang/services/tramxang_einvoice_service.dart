@@ -1,22 +1,15 @@
+// ignore_for_file: avoid_print
+
 import 'dart:convert';
-import 'package:http/http.dart' as http;
 import '../models/sale.dart';
 
 /// Dịch vụ quản lý Hóa đơn điện tử (E-Invoice) cho trạm xăng
 /// Theo Nghị định 123/2020/NĐ-CP và Thông tư 78/2021/TT-BTC,
 /// trạm xăng phải xuất HĐĐT theo từng lần bán.
 class TramXangEInvoiceService {
-  final String _apiUrl;
-  final String _token; // API Token của nhà cung cấp HĐĐT (Viettel, VNPT, MISA...)
-  final String _taxCode;
-
-  TramXangEInvoiceService({
-    required String apiUrl,
-    required String token,
-    required String taxCode,
-  })  : _apiUrl = apiUrl,
-        _token = token,
-        _taxCode = taxCode;
+  /// placeholder cho môi trường tích hợp thật (Viettel, VNPT, MISA...):
+  /// apiUrl, token, taxCode được cấu hình riêng theo nhà cung cấp.
+  TramXangEInvoiceService();
 
   /// Tạo payload chuẩn theo định dạng XML hoặc JSON của nhà cung cấp
   Map<String, dynamic> _buildInvoicePayload(TramXangSale sale, List<TramXangSaleLine> lines) {

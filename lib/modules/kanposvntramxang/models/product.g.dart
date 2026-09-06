@@ -1675,73 +1675,83 @@ const TramXangProductSchema = CollectionSchema(
       name: r'deviceId',
       type: IsarType.string,
     ),
-    r'isSynced': PropertySchema(
+    r'importPrice': PropertySchema(
       id: 7,
+      name: r'importPrice',
+      type: IsarType.double,
+    ),
+    r'isSynced': PropertySchema(
+      id: 8,
       name: r'isSynced',
       type: IsarType.bool,
     ),
     r'maxStock': PropertySchema(
-      id: 8,
+      id: 9,
       name: r'maxStock',
       type: IsarType.double,
     ),
     r'minStock': PropertySchema(
-      id: 9,
+      id: 10,
       name: r'minStock',
       type: IsarType.double,
     ),
     r'name': PropertySchema(
-      id: 10,
+      id: 11,
       name: r'name',
       type: IsarType.string,
     ),
     r'productId': PropertySchema(
-      id: 11,
+      id: 12,
       name: r'productId',
       type: IsarType.string,
     ),
     r'productType': PropertySchema(
-      id: 12,
+      id: 13,
       name: r'productType',
       type: IsarType.string,
     ),
+    r'retailPrice': PropertySchema(
+      id: 14,
+      name: r'retailPrice',
+      type: IsarType.double,
+    ),
     r'sku': PropertySchema(
-      id: 13,
+      id: 15,
       name: r'sku',
       type: IsarType.string,
     ),
     r'taxRate': PropertySchema(
-      id: 14,
+      id: 16,
       name: r'taxRate',
       type: IsarType.double,
     ),
     r'trackBatch': PropertySchema(
-      id: 15,
+      id: 17,
       name: r'trackBatch',
       type: IsarType.bool,
     ),
     r'trackExpiry': PropertySchema(
-      id: 16,
+      id: 18,
       name: r'trackExpiry',
       type: IsarType.bool,
     ),
     r'trackInventory': PropertySchema(
-      id: 17,
+      id: 19,
       name: r'trackInventory',
       type: IsarType.bool,
     ),
     r'unit': PropertySchema(
-      id: 18,
+      id: 20,
       name: r'unit',
       type: IsarType.string,
     ),
     r'updatedAt': PropertySchema(
-      id: 19,
+      id: 21,
       name: r'updatedAt',
       type: IsarType.dateTime,
     ),
     r'version': PropertySchema(
-      id: 20,
+      id: 22,
       name: r'version',
       type: IsarType.long,
     )
@@ -1812,20 +1822,22 @@ void _tramXangProductSerialize(
   writer.writeDateTime(offsets[4], object.createdAt);
   writer.writeDateTime(offsets[5], object.deletedAt);
   writer.writeString(offsets[6], object.deviceId);
-  writer.writeBool(offsets[7], object.isSynced);
-  writer.writeDouble(offsets[8], object.maxStock);
-  writer.writeDouble(offsets[9], object.minStock);
-  writer.writeString(offsets[10], object.name);
-  writer.writeString(offsets[11], object.productId);
-  writer.writeString(offsets[12], object.productType);
-  writer.writeString(offsets[13], object.sku);
-  writer.writeDouble(offsets[14], object.taxRate);
-  writer.writeBool(offsets[15], object.trackBatch);
-  writer.writeBool(offsets[16], object.trackExpiry);
-  writer.writeBool(offsets[17], object.trackInventory);
-  writer.writeString(offsets[18], object.unit);
-  writer.writeDateTime(offsets[19], object.updatedAt);
-  writer.writeLong(offsets[20], object.version);
+  writer.writeDouble(offsets[7], object.importPrice);
+  writer.writeBool(offsets[8], object.isSynced);
+  writer.writeDouble(offsets[9], object.maxStock);
+  writer.writeDouble(offsets[10], object.minStock);
+  writer.writeString(offsets[11], object.name);
+  writer.writeString(offsets[12], object.productId);
+  writer.writeString(offsets[13], object.productType);
+  writer.writeDouble(offsets[14], object.retailPrice);
+  writer.writeString(offsets[15], object.sku);
+  writer.writeDouble(offsets[16], object.taxRate);
+  writer.writeBool(offsets[17], object.trackBatch);
+  writer.writeBool(offsets[18], object.trackExpiry);
+  writer.writeBool(offsets[19], object.trackInventory);
+  writer.writeString(offsets[20], object.unit);
+  writer.writeDateTime(offsets[21], object.updatedAt);
+  writer.writeLong(offsets[22], object.version);
 }
 
 TramXangProduct _tramXangProductDeserialize(
@@ -1843,20 +1855,22 @@ TramXangProduct _tramXangProductDeserialize(
   object.deletedAt = reader.readDateTimeOrNull(offsets[5]);
   object.deviceId = reader.readString(offsets[6]);
   object.id = id;
-  object.isSynced = reader.readBool(offsets[7]);
-  object.maxStock = reader.readDouble(offsets[8]);
-  object.minStock = reader.readDouble(offsets[9]);
-  object.name = reader.readString(offsets[10]);
-  object.productId = reader.readString(offsets[11]);
-  object.productType = reader.readString(offsets[12]);
-  object.sku = reader.readString(offsets[13]);
-  object.taxRate = reader.readDouble(offsets[14]);
-  object.trackBatch = reader.readBool(offsets[15]);
-  object.trackExpiry = reader.readBool(offsets[16]);
-  object.trackInventory = reader.readBool(offsets[17]);
-  object.unit = reader.readString(offsets[18]);
-  object.updatedAt = reader.readDateTime(offsets[19]);
-  object.version = reader.readLong(offsets[20]);
+  object.importPrice = reader.readDouble(offsets[7]);
+  object.isSynced = reader.readBool(offsets[8]);
+  object.maxStock = reader.readDouble(offsets[9]);
+  object.minStock = reader.readDouble(offsets[10]);
+  object.name = reader.readString(offsets[11]);
+  object.productId = reader.readString(offsets[12]);
+  object.productType = reader.readString(offsets[13]);
+  object.retailPrice = reader.readDouble(offsets[14]);
+  object.sku = reader.readString(offsets[15]);
+  object.taxRate = reader.readDouble(offsets[16]);
+  object.trackBatch = reader.readBool(offsets[17]);
+  object.trackExpiry = reader.readBool(offsets[18]);
+  object.trackInventory = reader.readBool(offsets[19]);
+  object.unit = reader.readString(offsets[20]);
+  object.updatedAt = reader.readDateTime(offsets[21]);
+  object.version = reader.readLong(offsets[22]);
   return object;
 }
 
@@ -1882,13 +1896,13 @@ P _tramXangProductDeserializeProp<P>(
     case 6:
       return (reader.readString(offset)) as P;
     case 7:
-      return (reader.readBool(offset)) as P;
-    case 8:
       return (reader.readDouble(offset)) as P;
+    case 8:
+      return (reader.readBool(offset)) as P;
     case 9:
       return (reader.readDouble(offset)) as P;
     case 10:
-      return (reader.readString(offset)) as P;
+      return (reader.readDouble(offset)) as P;
     case 11:
       return (reader.readString(offset)) as P;
     case 12:
@@ -1898,16 +1912,20 @@ P _tramXangProductDeserializeProp<P>(
     case 14:
       return (reader.readDouble(offset)) as P;
     case 15:
-      return (reader.readBool(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 16:
-      return (reader.readBool(offset)) as P;
+      return (reader.readDouble(offset)) as P;
     case 17:
       return (reader.readBool(offset)) as P;
     case 18:
-      return (reader.readString(offset)) as P;
+      return (reader.readBool(offset)) as P;
     case 19:
-      return (reader.readDateTime(offset)) as P;
+      return (reader.readBool(offset)) as P;
     case 20:
+      return (reader.readString(offset)) as P;
+    case 21:
+      return (reader.readDateTime(offset)) as P;
+    case 22:
       return (reader.readLong(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -2853,6 +2871,72 @@ extension TramXangProductQueryFilter
   }
 
   QueryBuilder<TramXangProduct, TramXangProduct, QAfterFilterCondition>
+      importPriceEqualTo(
+    double value, {
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'importPrice',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangProduct, TramXangProduct, QAfterFilterCondition>
+      importPriceGreaterThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'importPrice',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangProduct, TramXangProduct, QAfterFilterCondition>
+      importPriceLessThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'importPrice',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangProduct, TramXangProduct, QAfterFilterCondition>
+      importPriceBetween(
+    double lower,
+    double upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'importPrice',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangProduct, TramXangProduct, QAfterFilterCondition>
       isSyncedEqualTo(bool value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
@@ -3398,6 +3482,72 @@ extension TramXangProductQueryFilter
       return query.addFilterCondition(FilterCondition.greaterThan(
         property: r'productType',
         value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangProduct, TramXangProduct, QAfterFilterCondition>
+      retailPriceEqualTo(
+    double value, {
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'retailPrice',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangProduct, TramXangProduct, QAfterFilterCondition>
+      retailPriceGreaterThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'retailPrice',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangProduct, TramXangProduct, QAfterFilterCondition>
+      retailPriceLessThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'retailPrice',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangProduct, TramXangProduct, QAfterFilterCondition>
+      retailPriceBetween(
+    double lower,
+    double upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'retailPrice',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        epsilon: epsilon,
       ));
     });
   }
@@ -4001,6 +4151,20 @@ extension TramXangProductQuerySortBy
   }
 
   QueryBuilder<TramXangProduct, TramXangProduct, QAfterSortBy>
+      sortByImportPrice() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'importPrice', Sort.asc);
+    });
+  }
+
+  QueryBuilder<TramXangProduct, TramXangProduct, QAfterSortBy>
+      sortByImportPriceDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'importPrice', Sort.desc);
+    });
+  }
+
+  QueryBuilder<TramXangProduct, TramXangProduct, QAfterSortBy>
       sortByIsSynced() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'isSynced', Sort.asc);
@@ -4080,6 +4244,20 @@ extension TramXangProductQuerySortBy
       sortByProductTypeDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'productType', Sort.desc);
+    });
+  }
+
+  QueryBuilder<TramXangProduct, TramXangProduct, QAfterSortBy>
+      sortByRetailPrice() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'retailPrice', Sort.asc);
+    });
+  }
+
+  QueryBuilder<TramXangProduct, TramXangProduct, QAfterSortBy>
+      sortByRetailPriceDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'retailPrice', Sort.desc);
     });
   }
 
@@ -4301,6 +4479,20 @@ extension TramXangProductQuerySortThenBy
   }
 
   QueryBuilder<TramXangProduct, TramXangProduct, QAfterSortBy>
+      thenByImportPrice() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'importPrice', Sort.asc);
+    });
+  }
+
+  QueryBuilder<TramXangProduct, TramXangProduct, QAfterSortBy>
+      thenByImportPriceDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'importPrice', Sort.desc);
+    });
+  }
+
+  QueryBuilder<TramXangProduct, TramXangProduct, QAfterSortBy>
       thenByIsSynced() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'isSynced', Sort.asc);
@@ -4380,6 +4572,20 @@ extension TramXangProductQuerySortThenBy
       thenByProductTypeDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'productType', Sort.desc);
+    });
+  }
+
+  QueryBuilder<TramXangProduct, TramXangProduct, QAfterSortBy>
+      thenByRetailPrice() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'retailPrice', Sort.asc);
+    });
+  }
+
+  QueryBuilder<TramXangProduct, TramXangProduct, QAfterSortBy>
+      thenByRetailPriceDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'retailPrice', Sort.desc);
     });
   }
 
@@ -4542,6 +4748,13 @@ extension TramXangProductQueryWhereDistinct
   }
 
   QueryBuilder<TramXangProduct, TramXangProduct, QDistinct>
+      distinctByImportPrice() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'importPrice');
+    });
+  }
+
+  QueryBuilder<TramXangProduct, TramXangProduct, QDistinct>
       distinctByIsSynced() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'isSynced');
@@ -4580,6 +4793,13 @@ extension TramXangProductQueryWhereDistinct
       distinctByProductType({bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'productType', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<TramXangProduct, TramXangProduct, QDistinct>
+      distinctByRetailPrice() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'retailPrice');
     });
   }
 
@@ -4692,6 +4912,13 @@ extension TramXangProductQueryProperty
     });
   }
 
+  QueryBuilder<TramXangProduct, double, QQueryOperations>
+      importPriceProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'importPrice');
+    });
+  }
+
   QueryBuilder<TramXangProduct, bool, QQueryOperations> isSyncedProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'isSynced');
@@ -4726,6 +4953,13 @@ extension TramXangProductQueryProperty
       productTypeProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'productType');
+    });
+  }
+
+  QueryBuilder<TramXangProduct, double, QQueryOperations>
+      retailPriceProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'retailPrice');
     });
   }
 

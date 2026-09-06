@@ -5173,88 +5173,98 @@ const TramXangSaleSchema = CollectionSchema(
       name: r'createdBy',
       type: IsarType.string,
     ),
-    r'debt': PropertySchema(
+    r'customerId': PropertySchema(
       id: 2,
+      name: r'customerId',
+      type: IsarType.string,
+    ),
+    r'debt': PropertySchema(
+      id: 3,
       name: r'debt',
       type: IsarType.double,
     ),
     r'deletedAt': PropertySchema(
-      id: 3,
+      id: 4,
       name: r'deletedAt',
       type: IsarType.dateTime,
     ),
     r'deviceId': PropertySchema(
-      id: 4,
+      id: 5,
       name: r'deviceId',
       type: IsarType.string,
     ),
     r'discount': PropertySchema(
-      id: 5,
+      id: 6,
       name: r'discount',
       type: IsarType.double,
     ),
     r'isSynced': PropertySchema(
-      id: 6,
+      id: 7,
       name: r'isSynced',
       type: IsarType.bool,
     ),
     r'paid': PropertySchema(
-      id: 7,
+      id: 8,
       name: r'paid',
       type: IsarType.double,
     ),
     r'paymentMethod': PropertySchema(
-      id: 8,
+      id: 9,
       name: r'paymentMethod',
       type: IsarType.string,
     ),
     r'saleId': PropertySchema(
-      id: 9,
+      id: 10,
       name: r'saleId',
       type: IsarType.string,
     ),
     r'saleNo': PropertySchema(
-      id: 10,
+      id: 11,
       name: r'saleNo',
       type: IsarType.string,
     ),
     r'saleType': PropertySchema(
-      id: 11,
+      id: 12,
       name: r'saleType',
       type: IsarType.string,
     ),
+    r'shiftId': PropertySchema(
+      id: 13,
+      name: r'shiftId',
+      type: IsarType.string,
+    ),
     r'stationId': PropertySchema(
-      id: 12,
+      id: 14,
       name: r'stationId',
       type: IsarType.string,
     ),
     r'status': PropertySchema(
-      id: 13,
+      id: 15,
       name: r'status',
       type: IsarType.string,
     ),
     r'subtotal': PropertySchema(
-      id: 14,
+      id: 16,
       name: r'subtotal',
       type: IsarType.double,
     ),
     r'tax': PropertySchema(
-      id: 15,
+      id: 17,
       name: r'tax',
       type: IsarType.double,
     ),
     r'total': PropertySchema(
-      id: 16,
+      id: 18,
       name: r'total',
       type: IsarType.double,
     ),
     r'updatedAt': PropertySchema(
-      id: 17,
+      id: 19,
       name: r'updatedAt',
       type: IsarType.dateTime,
     ),
     r'version': PropertySchema(
-      id: 18,
+      id: 20,
       name: r'version',
       type: IsarType.long,
     )
@@ -5273,6 +5283,32 @@ const TramXangSaleSchema = CollectionSchema(
       properties: [
         IndexPropertySchema(
           name: r'saleId',
+          type: IndexType.hash,
+          caseSensitive: true,
+        )
+      ],
+    ),
+    r'shiftId': IndexSchema(
+      id: -191327688726841204,
+      name: r'shiftId',
+      unique: false,
+      replace: false,
+      properties: [
+        IndexPropertySchema(
+          name: r'shiftId',
+          type: IndexType.hash,
+          caseSensitive: true,
+        )
+      ],
+    ),
+    r'customerId': IndexSchema(
+      id: 1498639901530368639,
+      name: r'customerId',
+      unique: false,
+      replace: false,
+      properties: [
+        IndexPropertySchema(
+          name: r'customerId',
           type: IndexType.hash,
           caseSensitive: true,
         )
@@ -5307,11 +5343,13 @@ int _tramXangSaleEstimateSize(
 ) {
   var bytesCount = offsets.last;
   bytesCount += 3 + object.createdBy.length * 3;
+  bytesCount += 3 + object.customerId.length * 3;
   bytesCount += 3 + object.deviceId.length * 3;
   bytesCount += 3 + object.paymentMethod.length * 3;
   bytesCount += 3 + object.saleId.length * 3;
   bytesCount += 3 + object.saleNo.length * 3;
   bytesCount += 3 + object.saleType.length * 3;
+  bytesCount += 3 + object.shiftId.length * 3;
   bytesCount += 3 + object.stationId.length * 3;
   bytesCount += 3 + object.status.length * 3;
   return bytesCount;
@@ -5325,23 +5363,25 @@ void _tramXangSaleSerialize(
 ) {
   writer.writeDateTime(offsets[0], object.createdAt);
   writer.writeString(offsets[1], object.createdBy);
-  writer.writeDouble(offsets[2], object.debt);
-  writer.writeDateTime(offsets[3], object.deletedAt);
-  writer.writeString(offsets[4], object.deviceId);
-  writer.writeDouble(offsets[5], object.discount);
-  writer.writeBool(offsets[6], object.isSynced);
-  writer.writeDouble(offsets[7], object.paid);
-  writer.writeString(offsets[8], object.paymentMethod);
-  writer.writeString(offsets[9], object.saleId);
-  writer.writeString(offsets[10], object.saleNo);
-  writer.writeString(offsets[11], object.saleType);
-  writer.writeString(offsets[12], object.stationId);
-  writer.writeString(offsets[13], object.status);
-  writer.writeDouble(offsets[14], object.subtotal);
-  writer.writeDouble(offsets[15], object.tax);
-  writer.writeDouble(offsets[16], object.total);
-  writer.writeDateTime(offsets[17], object.updatedAt);
-  writer.writeLong(offsets[18], object.version);
+  writer.writeString(offsets[2], object.customerId);
+  writer.writeDouble(offsets[3], object.debt);
+  writer.writeDateTime(offsets[4], object.deletedAt);
+  writer.writeString(offsets[5], object.deviceId);
+  writer.writeDouble(offsets[6], object.discount);
+  writer.writeBool(offsets[7], object.isSynced);
+  writer.writeDouble(offsets[8], object.paid);
+  writer.writeString(offsets[9], object.paymentMethod);
+  writer.writeString(offsets[10], object.saleId);
+  writer.writeString(offsets[11], object.saleNo);
+  writer.writeString(offsets[12], object.saleType);
+  writer.writeString(offsets[13], object.shiftId);
+  writer.writeString(offsets[14], object.stationId);
+  writer.writeString(offsets[15], object.status);
+  writer.writeDouble(offsets[16], object.subtotal);
+  writer.writeDouble(offsets[17], object.tax);
+  writer.writeDouble(offsets[18], object.total);
+  writer.writeDateTime(offsets[19], object.updatedAt);
+  writer.writeLong(offsets[20], object.version);
 }
 
 TramXangSale _tramXangSaleDeserialize(
@@ -5353,24 +5393,26 @@ TramXangSale _tramXangSaleDeserialize(
   final object = TramXangSale();
   object.createdAt = reader.readDateTime(offsets[0]);
   object.createdBy = reader.readString(offsets[1]);
-  object.debt = reader.readDouble(offsets[2]);
-  object.deletedAt = reader.readDateTimeOrNull(offsets[3]);
-  object.deviceId = reader.readString(offsets[4]);
-  object.discount = reader.readDouble(offsets[5]);
+  object.customerId = reader.readString(offsets[2]);
+  object.debt = reader.readDouble(offsets[3]);
+  object.deletedAt = reader.readDateTimeOrNull(offsets[4]);
+  object.deviceId = reader.readString(offsets[5]);
+  object.discount = reader.readDouble(offsets[6]);
   object.id = id;
-  object.isSynced = reader.readBool(offsets[6]);
-  object.paid = reader.readDouble(offsets[7]);
-  object.paymentMethod = reader.readString(offsets[8]);
-  object.saleId = reader.readString(offsets[9]);
-  object.saleNo = reader.readString(offsets[10]);
-  object.saleType = reader.readString(offsets[11]);
-  object.stationId = reader.readString(offsets[12]);
-  object.status = reader.readString(offsets[13]);
-  object.subtotal = reader.readDouble(offsets[14]);
-  object.tax = reader.readDouble(offsets[15]);
-  object.total = reader.readDouble(offsets[16]);
-  object.updatedAt = reader.readDateTime(offsets[17]);
-  object.version = reader.readLong(offsets[18]);
+  object.isSynced = reader.readBool(offsets[7]);
+  object.paid = reader.readDouble(offsets[8]);
+  object.paymentMethod = reader.readString(offsets[9]);
+  object.saleId = reader.readString(offsets[10]);
+  object.saleNo = reader.readString(offsets[11]);
+  object.saleType = reader.readString(offsets[12]);
+  object.shiftId = reader.readString(offsets[13]);
+  object.stationId = reader.readString(offsets[14]);
+  object.status = reader.readString(offsets[15]);
+  object.subtotal = reader.readDouble(offsets[16]);
+  object.tax = reader.readDouble(offsets[17]);
+  object.total = reader.readDouble(offsets[18]);
+  object.updatedAt = reader.readDateTime(offsets[19]);
+  object.version = reader.readLong(offsets[20]);
   return object;
 }
 
@@ -5386,19 +5428,19 @@ P _tramXangSaleDeserializeProp<P>(
     case 1:
       return (reader.readString(offset)) as P;
     case 2:
-      return (reader.readDouble(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 3:
-      return (reader.readDateTimeOrNull(offset)) as P;
+      return (reader.readDouble(offset)) as P;
     case 4:
-      return (reader.readString(offset)) as P;
+      return (reader.readDateTimeOrNull(offset)) as P;
     case 5:
-      return (reader.readDouble(offset)) as P;
-    case 6:
-      return (reader.readBool(offset)) as P;
-    case 7:
-      return (reader.readDouble(offset)) as P;
-    case 8:
       return (reader.readString(offset)) as P;
+    case 6:
+      return (reader.readDouble(offset)) as P;
+    case 7:
+      return (reader.readBool(offset)) as P;
+    case 8:
+      return (reader.readDouble(offset)) as P;
     case 9:
       return (reader.readString(offset)) as P;
     case 10:
@@ -5410,14 +5452,18 @@ P _tramXangSaleDeserializeProp<P>(
     case 13:
       return (reader.readString(offset)) as P;
     case 14:
-      return (reader.readDouble(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 15:
-      return (reader.readDouble(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 16:
       return (reader.readDouble(offset)) as P;
     case 17:
-      return (reader.readDateTime(offset)) as P;
+      return (reader.readDouble(offset)) as P;
     case 18:
+      return (reader.readDouble(offset)) as P;
+    case 19:
+      return (reader.readDateTime(offset)) as P;
+    case 20:
       return (reader.readLong(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -5617,6 +5663,96 @@ extension TramXangSaleQueryWhere
       }
     });
   }
+
+  QueryBuilder<TramXangSale, TramXangSale, QAfterWhereClause> shiftIdEqualTo(
+      String shiftId) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.equalTo(
+        indexName: r'shiftId',
+        value: [shiftId],
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangSale, TramXangSale, QAfterWhereClause> shiftIdNotEqualTo(
+      String shiftId) {
+    return QueryBuilder.apply(this, (query) {
+      if (query.whereSort == Sort.asc) {
+        return query
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'shiftId',
+              lower: [],
+              upper: [shiftId],
+              includeUpper: false,
+            ))
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'shiftId',
+              lower: [shiftId],
+              includeLower: false,
+              upper: [],
+            ));
+      } else {
+        return query
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'shiftId',
+              lower: [shiftId],
+              includeLower: false,
+              upper: [],
+            ))
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'shiftId',
+              lower: [],
+              upper: [shiftId],
+              includeUpper: false,
+            ));
+      }
+    });
+  }
+
+  QueryBuilder<TramXangSale, TramXangSale, QAfterWhereClause> customerIdEqualTo(
+      String customerId) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.equalTo(
+        indexName: r'customerId',
+        value: [customerId],
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangSale, TramXangSale, QAfterWhereClause>
+      customerIdNotEqualTo(String customerId) {
+    return QueryBuilder.apply(this, (query) {
+      if (query.whereSort == Sort.asc) {
+        return query
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'customerId',
+              lower: [],
+              upper: [customerId],
+              includeUpper: false,
+            ))
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'customerId',
+              lower: [customerId],
+              includeLower: false,
+              upper: [],
+            ));
+      } else {
+        return query
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'customerId',
+              lower: [customerId],
+              includeLower: false,
+              upper: [],
+            ))
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'customerId',
+              lower: [],
+              upper: [customerId],
+              includeUpper: false,
+            ));
+      }
+    });
+  }
 }
 
 extension TramXangSaleQueryFilter
@@ -5808,6 +5944,142 @@ extension TramXangSaleQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         property: r'createdBy',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangSale, TramXangSale, QAfterFilterCondition>
+      customerIdEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'customerId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangSale, TramXangSale, QAfterFilterCondition>
+      customerIdGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'customerId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangSale, TramXangSale, QAfterFilterCondition>
+      customerIdLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'customerId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangSale, TramXangSale, QAfterFilterCondition>
+      customerIdBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'customerId',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangSale, TramXangSale, QAfterFilterCondition>
+      customerIdStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'customerId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangSale, TramXangSale, QAfterFilterCondition>
+      customerIdEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'customerId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangSale, TramXangSale, QAfterFilterCondition>
+      customerIdContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'customerId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangSale, TramXangSale, QAfterFilterCondition>
+      customerIdMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'customerId',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangSale, TramXangSale, QAfterFilterCondition>
+      customerIdIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'customerId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangSale, TramXangSale, QAfterFilterCondition>
+      customerIdIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'customerId',
         value: '',
       ));
     });
@@ -6821,6 +7093,142 @@ extension TramXangSaleQueryFilter
   }
 
   QueryBuilder<TramXangSale, TramXangSale, QAfterFilterCondition>
+      shiftIdEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'shiftId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangSale, TramXangSale, QAfterFilterCondition>
+      shiftIdGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'shiftId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangSale, TramXangSale, QAfterFilterCondition>
+      shiftIdLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'shiftId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangSale, TramXangSale, QAfterFilterCondition>
+      shiftIdBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'shiftId',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangSale, TramXangSale, QAfterFilterCondition>
+      shiftIdStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'shiftId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangSale, TramXangSale, QAfterFilterCondition>
+      shiftIdEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'shiftId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangSale, TramXangSale, QAfterFilterCondition>
+      shiftIdContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'shiftId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangSale, TramXangSale, QAfterFilterCondition>
+      shiftIdMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'shiftId',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangSale, TramXangSale, QAfterFilterCondition>
+      shiftIdIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'shiftId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangSale, TramXangSale, QAfterFilterCondition>
+      shiftIdIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'shiftId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangSale, TramXangSale, QAfterFilterCondition>
       stationIdEqualTo(
     String value, {
     bool caseSensitive = true,
@@ -7456,6 +7864,19 @@ extension TramXangSaleQuerySortBy
     });
   }
 
+  QueryBuilder<TramXangSale, TramXangSale, QAfterSortBy> sortByCustomerId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'customerId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<TramXangSale, TramXangSale, QAfterSortBy>
+      sortByCustomerIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'customerId', Sort.desc);
+    });
+  }
+
   QueryBuilder<TramXangSale, TramXangSale, QAfterSortBy> sortByDebt() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'debt', Sort.asc);
@@ -7577,6 +7998,18 @@ extension TramXangSaleQuerySortBy
     });
   }
 
+  QueryBuilder<TramXangSale, TramXangSale, QAfterSortBy> sortByShiftId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'shiftId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<TramXangSale, TramXangSale, QAfterSortBy> sortByShiftIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'shiftId', Sort.desc);
+    });
+  }
+
   QueryBuilder<TramXangSale, TramXangSale, QAfterSortBy> sortByStationId() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'stationId', Sort.asc);
@@ -7685,6 +8118,19 @@ extension TramXangSaleQuerySortThenBy
   QueryBuilder<TramXangSale, TramXangSale, QAfterSortBy> thenByCreatedByDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'createdBy', Sort.desc);
+    });
+  }
+
+  QueryBuilder<TramXangSale, TramXangSale, QAfterSortBy> thenByCustomerId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'customerId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<TramXangSale, TramXangSale, QAfterSortBy>
+      thenByCustomerIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'customerId', Sort.desc);
     });
   }
 
@@ -7821,6 +8267,18 @@ extension TramXangSaleQuerySortThenBy
     });
   }
 
+  QueryBuilder<TramXangSale, TramXangSale, QAfterSortBy> thenByShiftId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'shiftId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<TramXangSale, TramXangSale, QAfterSortBy> thenByShiftIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'shiftId', Sort.desc);
+    });
+  }
+
   QueryBuilder<TramXangSale, TramXangSale, QAfterSortBy> thenByStationId() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'stationId', Sort.asc);
@@ -7921,6 +8379,13 @@ extension TramXangSaleQueryWhereDistinct
     });
   }
 
+  QueryBuilder<TramXangSale, TramXangSale, QDistinct> distinctByCustomerId(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'customerId', caseSensitive: caseSensitive);
+    });
+  }
+
   QueryBuilder<TramXangSale, TramXangSale, QDistinct> distinctByDebt() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'debt');
@@ -7984,6 +8449,13 @@ extension TramXangSaleQueryWhereDistinct
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'saleType', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<TramXangSale, TramXangSale, QDistinct> distinctByShiftId(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'shiftId', caseSensitive: caseSensitive);
     });
   }
 
@@ -8052,6 +8524,12 @@ extension TramXangSaleQueryProperty
     });
   }
 
+  QueryBuilder<TramXangSale, String, QQueryOperations> customerIdProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'customerId');
+    });
+  }
+
   QueryBuilder<TramXangSale, double, QQueryOperations> debtProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'debt');
@@ -8109,6 +8587,12 @@ extension TramXangSaleQueryProperty
   QueryBuilder<TramXangSale, String, QQueryOperations> saleTypeProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'saleType');
+    });
+  }
+
+  QueryBuilder<TramXangSale, String, QQueryOperations> shiftIdProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'shiftId');
     });
   }
 
@@ -8206,43 +8690,63 @@ const TramXangSaleLineSchema = CollectionSchema(
       name: r'isSynced',
       type: IsarType.bool,
     ),
-    r'quantity': PropertySchema(
+    r'nozzleId': PropertySchema(
       id: 8,
+      name: r'nozzleId',
+      type: IsarType.string,
+    ),
+    r'productId': PropertySchema(
+      id: 9,
+      name: r'productId',
+      type: IsarType.string,
+    ),
+    r'quantity': PropertySchema(
+      id: 10,
       name: r'quantity',
       type: IsarType.double,
     ),
+    r'saleId': PropertySchema(
+      id: 11,
+      name: r'saleId',
+      type: IsarType.string,
+    ),
     r'saleLineId': PropertySchema(
-      id: 9,
+      id: 12,
       name: r'saleLineId',
       type: IsarType.string,
     ),
+    r'tankId': PropertySchema(
+      id: 13,
+      name: r'tankId',
+      type: IsarType.string,
+    ),
     r'taxAmount': PropertySchema(
-      id: 10,
+      id: 14,
       name: r'taxAmount',
       type: IsarType.double,
     ),
     r'taxRate': PropertySchema(
-      id: 11,
+      id: 15,
       name: r'taxRate',
       type: IsarType.double,
     ),
     r'unit': PropertySchema(
-      id: 12,
+      id: 16,
       name: r'unit',
       type: IsarType.string,
     ),
     r'unitPrice': PropertySchema(
-      id: 13,
+      id: 17,
       name: r'unitPrice',
       type: IsarType.double,
     ),
     r'updatedAt': PropertySchema(
-      id: 14,
+      id: 18,
       name: r'updatedAt',
       type: IsarType.dateTime,
     ),
     r'version': PropertySchema(
-      id: 15,
+      id: 19,
       name: r'version',
       type: IsarType.long,
     )
@@ -8261,6 +8765,58 @@ const TramXangSaleLineSchema = CollectionSchema(
       properties: [
         IndexPropertySchema(
           name: r'saleLineId',
+          type: IndexType.hash,
+          caseSensitive: true,
+        )
+      ],
+    ),
+    r'saleId': IndexSchema(
+      id: -4056742760800787207,
+      name: r'saleId',
+      unique: false,
+      replace: false,
+      properties: [
+        IndexPropertySchema(
+          name: r'saleId',
+          type: IndexType.hash,
+          caseSensitive: true,
+        )
+      ],
+    ),
+    r'productId': IndexSchema(
+      id: 5580769080710688203,
+      name: r'productId',
+      unique: false,
+      replace: false,
+      properties: [
+        IndexPropertySchema(
+          name: r'productId',
+          type: IndexType.hash,
+          caseSensitive: true,
+        )
+      ],
+    ),
+    r'tankId': IndexSchema(
+      id: 3441290314583732874,
+      name: r'tankId',
+      unique: false,
+      replace: false,
+      properties: [
+        IndexPropertySchema(
+          name: r'tankId',
+          type: IndexType.hash,
+          caseSensitive: true,
+        )
+      ],
+    ),
+    r'nozzleId': IndexSchema(
+      id: 2597765280430093668,
+      name: r'nozzleId',
+      unique: false,
+      replace: false,
+      properties: [
+        IndexPropertySchema(
+          name: r'nozzleId',
           type: IndexType.hash,
           caseSensitive: true,
         )
@@ -8307,7 +8863,11 @@ int _tramXangSaleLineEstimateSize(
 ) {
   var bytesCount = offsets.last;
   bytesCount += 3 + object.deviceId.length * 3;
+  bytesCount += 3 + object.nozzleId.length * 3;
+  bytesCount += 3 + object.productId.length * 3;
+  bytesCount += 3 + object.saleId.length * 3;
   bytesCount += 3 + object.saleLineId.length * 3;
+  bytesCount += 3 + object.tankId.length * 3;
   bytesCount += 3 + object.unit.length * 3;
   return bytesCount;
 }
@@ -8326,14 +8886,18 @@ void _tramXangSaleLineSerialize(
   writer.writeString(offsets[5], object.deviceId);
   writer.writeDouble(offsets[6], object.discount);
   writer.writeBool(offsets[7], object.isSynced);
-  writer.writeDouble(offsets[8], object.quantity);
-  writer.writeString(offsets[9], object.saleLineId);
-  writer.writeDouble(offsets[10], object.taxAmount);
-  writer.writeDouble(offsets[11], object.taxRate);
-  writer.writeString(offsets[12], object.unit);
-  writer.writeDouble(offsets[13], object.unitPrice);
-  writer.writeDateTime(offsets[14], object.updatedAt);
-  writer.writeLong(offsets[15], object.version);
+  writer.writeString(offsets[8], object.nozzleId);
+  writer.writeString(offsets[9], object.productId);
+  writer.writeDouble(offsets[10], object.quantity);
+  writer.writeString(offsets[11], object.saleId);
+  writer.writeString(offsets[12], object.saleLineId);
+  writer.writeString(offsets[13], object.tankId);
+  writer.writeDouble(offsets[14], object.taxAmount);
+  writer.writeDouble(offsets[15], object.taxRate);
+  writer.writeString(offsets[16], object.unit);
+  writer.writeDouble(offsets[17], object.unitPrice);
+  writer.writeDateTime(offsets[18], object.updatedAt);
+  writer.writeLong(offsets[19], object.version);
 }
 
 TramXangSaleLine _tramXangSaleLineDeserialize(
@@ -8352,14 +8916,18 @@ TramXangSaleLine _tramXangSaleLineDeserialize(
   object.discount = reader.readDouble(offsets[6]);
   object.id = id;
   object.isSynced = reader.readBool(offsets[7]);
-  object.quantity = reader.readDouble(offsets[8]);
-  object.saleLineId = reader.readString(offsets[9]);
-  object.taxAmount = reader.readDouble(offsets[10]);
-  object.taxRate = reader.readDouble(offsets[11]);
-  object.unit = reader.readString(offsets[12]);
-  object.unitPrice = reader.readDouble(offsets[13]);
-  object.updatedAt = reader.readDateTime(offsets[14]);
-  object.version = reader.readLong(offsets[15]);
+  object.nozzleId = reader.readString(offsets[8]);
+  object.productId = reader.readString(offsets[9]);
+  object.quantity = reader.readDouble(offsets[10]);
+  object.saleId = reader.readString(offsets[11]);
+  object.saleLineId = reader.readString(offsets[12]);
+  object.tankId = reader.readString(offsets[13]);
+  object.taxAmount = reader.readDouble(offsets[14]);
+  object.taxRate = reader.readDouble(offsets[15]);
+  object.unit = reader.readString(offsets[16]);
+  object.unitPrice = reader.readDouble(offsets[17]);
+  object.updatedAt = reader.readDateTime(offsets[18]);
+  object.version = reader.readLong(offsets[19]);
   return object;
 }
 
@@ -8387,20 +8955,28 @@ P _tramXangSaleLineDeserializeProp<P>(
     case 7:
       return (reader.readBool(offset)) as P;
     case 8:
-      return (reader.readDouble(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 9:
       return (reader.readString(offset)) as P;
     case 10:
       return (reader.readDouble(offset)) as P;
     case 11:
-      return (reader.readDouble(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 12:
       return (reader.readString(offset)) as P;
     case 13:
-      return (reader.readDouble(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 14:
-      return (reader.readDateTime(offset)) as P;
+      return (reader.readDouble(offset)) as P;
     case 15:
+      return (reader.readDouble(offset)) as P;
+    case 16:
+      return (reader.readString(offset)) as P;
+    case 17:
+      return (reader.readDouble(offset)) as P;
+    case 18:
+      return (reader.readDateTime(offset)) as P;
+    case 19:
       return (reader.readLong(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -8600,6 +9176,186 @@ extension TramXangSaleLineQueryWhere
               indexName: r'saleLineId',
               lower: [],
               upper: [saleLineId],
+              includeUpper: false,
+            ));
+      }
+    });
+  }
+
+  QueryBuilder<TramXangSaleLine, TramXangSaleLine, QAfterWhereClause>
+      saleIdEqualTo(String saleId) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.equalTo(
+        indexName: r'saleId',
+        value: [saleId],
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangSaleLine, TramXangSaleLine, QAfterWhereClause>
+      saleIdNotEqualTo(String saleId) {
+    return QueryBuilder.apply(this, (query) {
+      if (query.whereSort == Sort.asc) {
+        return query
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'saleId',
+              lower: [],
+              upper: [saleId],
+              includeUpper: false,
+            ))
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'saleId',
+              lower: [saleId],
+              includeLower: false,
+              upper: [],
+            ));
+      } else {
+        return query
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'saleId',
+              lower: [saleId],
+              includeLower: false,
+              upper: [],
+            ))
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'saleId',
+              lower: [],
+              upper: [saleId],
+              includeUpper: false,
+            ));
+      }
+    });
+  }
+
+  QueryBuilder<TramXangSaleLine, TramXangSaleLine, QAfterWhereClause>
+      productIdEqualTo(String productId) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.equalTo(
+        indexName: r'productId',
+        value: [productId],
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangSaleLine, TramXangSaleLine, QAfterWhereClause>
+      productIdNotEqualTo(String productId) {
+    return QueryBuilder.apply(this, (query) {
+      if (query.whereSort == Sort.asc) {
+        return query
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'productId',
+              lower: [],
+              upper: [productId],
+              includeUpper: false,
+            ))
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'productId',
+              lower: [productId],
+              includeLower: false,
+              upper: [],
+            ));
+      } else {
+        return query
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'productId',
+              lower: [productId],
+              includeLower: false,
+              upper: [],
+            ))
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'productId',
+              lower: [],
+              upper: [productId],
+              includeUpper: false,
+            ));
+      }
+    });
+  }
+
+  QueryBuilder<TramXangSaleLine, TramXangSaleLine, QAfterWhereClause>
+      tankIdEqualTo(String tankId) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.equalTo(
+        indexName: r'tankId',
+        value: [tankId],
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangSaleLine, TramXangSaleLine, QAfterWhereClause>
+      tankIdNotEqualTo(String tankId) {
+    return QueryBuilder.apply(this, (query) {
+      if (query.whereSort == Sort.asc) {
+        return query
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'tankId',
+              lower: [],
+              upper: [tankId],
+              includeUpper: false,
+            ))
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'tankId',
+              lower: [tankId],
+              includeLower: false,
+              upper: [],
+            ));
+      } else {
+        return query
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'tankId',
+              lower: [tankId],
+              includeLower: false,
+              upper: [],
+            ))
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'tankId',
+              lower: [],
+              upper: [tankId],
+              includeUpper: false,
+            ));
+      }
+    });
+  }
+
+  QueryBuilder<TramXangSaleLine, TramXangSaleLine, QAfterWhereClause>
+      nozzleIdEqualTo(String nozzleId) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.equalTo(
+        indexName: r'nozzleId',
+        value: [nozzleId],
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangSaleLine, TramXangSaleLine, QAfterWhereClause>
+      nozzleIdNotEqualTo(String nozzleId) {
+    return QueryBuilder.apply(this, (query) {
+      if (query.whereSort == Sort.asc) {
+        return query
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'nozzleId',
+              lower: [],
+              upper: [nozzleId],
+              includeUpper: false,
+            ))
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'nozzleId',
+              lower: [nozzleId],
+              includeLower: false,
+              upper: [],
+            ));
+      } else {
+        return query
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'nozzleId',
+              lower: [nozzleId],
+              includeLower: false,
+              upper: [],
+            ))
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'nozzleId',
+              lower: [],
+              upper: [nozzleId],
               includeUpper: false,
             ));
       }
@@ -9206,6 +9962,278 @@ extension TramXangSaleLineQueryFilter
   }
 
   QueryBuilder<TramXangSaleLine, TramXangSaleLine, QAfterFilterCondition>
+      nozzleIdEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'nozzleId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangSaleLine, TramXangSaleLine, QAfterFilterCondition>
+      nozzleIdGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'nozzleId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangSaleLine, TramXangSaleLine, QAfterFilterCondition>
+      nozzleIdLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'nozzleId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangSaleLine, TramXangSaleLine, QAfterFilterCondition>
+      nozzleIdBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'nozzleId',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangSaleLine, TramXangSaleLine, QAfterFilterCondition>
+      nozzleIdStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'nozzleId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangSaleLine, TramXangSaleLine, QAfterFilterCondition>
+      nozzleIdEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'nozzleId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangSaleLine, TramXangSaleLine, QAfterFilterCondition>
+      nozzleIdContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'nozzleId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangSaleLine, TramXangSaleLine, QAfterFilterCondition>
+      nozzleIdMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'nozzleId',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangSaleLine, TramXangSaleLine, QAfterFilterCondition>
+      nozzleIdIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'nozzleId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangSaleLine, TramXangSaleLine, QAfterFilterCondition>
+      nozzleIdIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'nozzleId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangSaleLine, TramXangSaleLine, QAfterFilterCondition>
+      productIdEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'productId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangSaleLine, TramXangSaleLine, QAfterFilterCondition>
+      productIdGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'productId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangSaleLine, TramXangSaleLine, QAfterFilterCondition>
+      productIdLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'productId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangSaleLine, TramXangSaleLine, QAfterFilterCondition>
+      productIdBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'productId',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangSaleLine, TramXangSaleLine, QAfterFilterCondition>
+      productIdStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'productId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangSaleLine, TramXangSaleLine, QAfterFilterCondition>
+      productIdEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'productId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangSaleLine, TramXangSaleLine, QAfterFilterCondition>
+      productIdContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'productId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangSaleLine, TramXangSaleLine, QAfterFilterCondition>
+      productIdMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'productId',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangSaleLine, TramXangSaleLine, QAfterFilterCondition>
+      productIdIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'productId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangSaleLine, TramXangSaleLine, QAfterFilterCondition>
+      productIdIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'productId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangSaleLine, TramXangSaleLine, QAfterFilterCondition>
       quantityEqualTo(
     double value, {
     double epsilon = Query.epsilon,
@@ -9267,6 +10295,142 @@ extension TramXangSaleLineQueryFilter
         upper: upper,
         includeUpper: includeUpper,
         epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangSaleLine, TramXangSaleLine, QAfterFilterCondition>
+      saleIdEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'saleId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangSaleLine, TramXangSaleLine, QAfterFilterCondition>
+      saleIdGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'saleId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangSaleLine, TramXangSaleLine, QAfterFilterCondition>
+      saleIdLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'saleId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangSaleLine, TramXangSaleLine, QAfterFilterCondition>
+      saleIdBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'saleId',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangSaleLine, TramXangSaleLine, QAfterFilterCondition>
+      saleIdStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'saleId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangSaleLine, TramXangSaleLine, QAfterFilterCondition>
+      saleIdEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'saleId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangSaleLine, TramXangSaleLine, QAfterFilterCondition>
+      saleIdContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'saleId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangSaleLine, TramXangSaleLine, QAfterFilterCondition>
+      saleIdMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'saleId',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangSaleLine, TramXangSaleLine, QAfterFilterCondition>
+      saleIdIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'saleId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangSaleLine, TramXangSaleLine, QAfterFilterCondition>
+      saleIdIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'saleId',
+        value: '',
       ));
     });
   }
@@ -9402,6 +10566,142 @@ extension TramXangSaleLineQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         property: r'saleLineId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangSaleLine, TramXangSaleLine, QAfterFilterCondition>
+      tankIdEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'tankId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangSaleLine, TramXangSaleLine, QAfterFilterCondition>
+      tankIdGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'tankId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangSaleLine, TramXangSaleLine, QAfterFilterCondition>
+      tankIdLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'tankId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangSaleLine, TramXangSaleLine, QAfterFilterCondition>
+      tankIdBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'tankId',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangSaleLine, TramXangSaleLine, QAfterFilterCondition>
+      tankIdStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'tankId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangSaleLine, TramXangSaleLine, QAfterFilterCondition>
+      tankIdEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'tankId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangSaleLine, TramXangSaleLine, QAfterFilterCondition>
+      tankIdContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'tankId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangSaleLine, TramXangSaleLine, QAfterFilterCondition>
+      tankIdMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'tankId',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangSaleLine, TramXangSaleLine, QAfterFilterCondition>
+      tankIdIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'tankId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangSaleLine, TramXangSaleLine, QAfterFilterCondition>
+      tankIdIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'tankId',
         value: '',
       ));
     });
@@ -10031,6 +11331,34 @@ extension TramXangSaleLineQuerySortBy
   }
 
   QueryBuilder<TramXangSaleLine, TramXangSaleLine, QAfterSortBy>
+      sortByNozzleId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'nozzleId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<TramXangSaleLine, TramXangSaleLine, QAfterSortBy>
+      sortByNozzleIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'nozzleId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<TramXangSaleLine, TramXangSaleLine, QAfterSortBy>
+      sortByProductId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'productId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<TramXangSaleLine, TramXangSaleLine, QAfterSortBy>
+      sortByProductIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'productId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<TramXangSaleLine, TramXangSaleLine, QAfterSortBy>
       sortByQuantity() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'quantity', Sort.asc);
@@ -10045,6 +11373,20 @@ extension TramXangSaleLineQuerySortBy
   }
 
   QueryBuilder<TramXangSaleLine, TramXangSaleLine, QAfterSortBy>
+      sortBySaleId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'saleId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<TramXangSaleLine, TramXangSaleLine, QAfterSortBy>
+      sortBySaleIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'saleId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<TramXangSaleLine, TramXangSaleLine, QAfterSortBy>
       sortBySaleLineId() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'saleLineId', Sort.asc);
@@ -10055,6 +11397,20 @@ extension TramXangSaleLineQuerySortBy
       sortBySaleLineIdDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'saleLineId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<TramXangSaleLine, TramXangSaleLine, QAfterSortBy>
+      sortByTankId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'tankId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<TramXangSaleLine, TramXangSaleLine, QAfterSortBy>
+      sortByTankIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'tankId', Sort.desc);
     });
   }
 
@@ -10270,6 +11626,34 @@ extension TramXangSaleLineQuerySortThenBy
   }
 
   QueryBuilder<TramXangSaleLine, TramXangSaleLine, QAfterSortBy>
+      thenByNozzleId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'nozzleId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<TramXangSaleLine, TramXangSaleLine, QAfterSortBy>
+      thenByNozzleIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'nozzleId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<TramXangSaleLine, TramXangSaleLine, QAfterSortBy>
+      thenByProductId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'productId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<TramXangSaleLine, TramXangSaleLine, QAfterSortBy>
+      thenByProductIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'productId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<TramXangSaleLine, TramXangSaleLine, QAfterSortBy>
       thenByQuantity() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'quantity', Sort.asc);
@@ -10284,6 +11668,20 @@ extension TramXangSaleLineQuerySortThenBy
   }
 
   QueryBuilder<TramXangSaleLine, TramXangSaleLine, QAfterSortBy>
+      thenBySaleId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'saleId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<TramXangSaleLine, TramXangSaleLine, QAfterSortBy>
+      thenBySaleIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'saleId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<TramXangSaleLine, TramXangSaleLine, QAfterSortBy>
       thenBySaleLineId() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'saleLineId', Sort.asc);
@@ -10294,6 +11692,20 @@ extension TramXangSaleLineQuerySortThenBy
       thenBySaleLineIdDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'saleLineId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<TramXangSaleLine, TramXangSaleLine, QAfterSortBy>
+      thenByTankId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'tankId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<TramXangSaleLine, TramXangSaleLine, QAfterSortBy>
+      thenByTankIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'tankId', Sort.desc);
     });
   }
 
@@ -10440,9 +11852,30 @@ extension TramXangSaleLineQueryWhereDistinct
   }
 
   QueryBuilder<TramXangSaleLine, TramXangSaleLine, QDistinct>
+      distinctByNozzleId({bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'nozzleId', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<TramXangSaleLine, TramXangSaleLine, QDistinct>
+      distinctByProductId({bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'productId', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<TramXangSaleLine, TramXangSaleLine, QDistinct>
       distinctByQuantity() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'quantity');
+    });
+  }
+
+  QueryBuilder<TramXangSaleLine, TramXangSaleLine, QDistinct> distinctBySaleId(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'saleId', caseSensitive: caseSensitive);
     });
   }
 
@@ -10450,6 +11883,13 @@ extension TramXangSaleLineQueryWhereDistinct
       distinctBySaleLineId({bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'saleLineId', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<TramXangSaleLine, TramXangSaleLine, QDistinct> distinctByTankId(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'tankId', caseSensitive: caseSensitive);
     });
   }
 
@@ -10555,9 +11995,27 @@ extension TramXangSaleLineQueryProperty
     });
   }
 
+  QueryBuilder<TramXangSaleLine, String, QQueryOperations> nozzleIdProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'nozzleId');
+    });
+  }
+
+  QueryBuilder<TramXangSaleLine, String, QQueryOperations> productIdProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'productId');
+    });
+  }
+
   QueryBuilder<TramXangSaleLine, double, QQueryOperations> quantityProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'quantity');
+    });
+  }
+
+  QueryBuilder<TramXangSaleLine, String, QQueryOperations> saleIdProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'saleId');
     });
   }
 
@@ -10565,6 +12023,12 @@ extension TramXangSaleLineQueryProperty
       saleLineIdProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'saleLineId');
+    });
+  }
+
+  QueryBuilder<TramXangSaleLine, String, QQueryOperations> tankIdProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'tankId');
     });
   }
 
@@ -10648,48 +12112,63 @@ const TramXangPumpTransactionSchema = CollectionSchema(
       name: r'isSynced',
       type: IsarType.bool,
     ),
-    r'quantity': PropertySchema(
+    r'nozzleId': PropertySchema(
       id: 6,
+      name: r'nozzleId',
+      type: IsarType.string,
+    ),
+    r'pumpId': PropertySchema(
+      id: 7,
+      name: r'pumpId',
+      type: IsarType.string,
+    ),
+    r'quantity': PropertySchema(
+      id: 8,
       name: r'quantity',
       type: IsarType.double,
     ),
+    r'saleId': PropertySchema(
+      id: 9,
+      name: r'saleId',
+      type: IsarType.string,
+    ),
     r'stationId': PropertySchema(
-      id: 7,
+      id: 10,
       name: r'stationId',
       type: IsarType.string,
     ),
     r'totalizerAfter': PropertySchema(
-      id: 8,
+      id: 11,
       name: r'totalizerAfter',
       type: IsarType.double,
     ),
     r'totalizerBefore': PropertySchema(
-      id: 9,
+      id: 12,
       name: r'totalizerBefore',
       type: IsarType.double,
     ),
     r'transactionId': PropertySchema(
-      id: 10,
+      id: 13,
       name: r'transactionId',
       type: IsarType.string,
     ),
     r'transactionTime': PropertySchema(
-      id: 11,
+      id: 14,
       name: r'transactionTime',
       type: IsarType.dateTime,
     ),
     r'unitPrice': PropertySchema(
-      id: 12,
+      id: 15,
       name: r'unitPrice',
       type: IsarType.double,
     ),
     r'updatedAt': PropertySchema(
-      id: 13,
+      id: 16,
       name: r'updatedAt',
       type: IsarType.dateTime,
     ),
     r'version': PropertySchema(
-      id: 14,
+      id: 17,
       name: r'version',
       type: IsarType.long,
     )
@@ -10708,6 +12187,45 @@ const TramXangPumpTransactionSchema = CollectionSchema(
       properties: [
         IndexPropertySchema(
           name: r'transactionId',
+          type: IndexType.hash,
+          caseSensitive: true,
+        )
+      ],
+    ),
+    r'pumpId': IndexSchema(
+      id: -5856964945163718727,
+      name: r'pumpId',
+      unique: false,
+      replace: false,
+      properties: [
+        IndexPropertySchema(
+          name: r'pumpId',
+          type: IndexType.hash,
+          caseSensitive: true,
+        )
+      ],
+    ),
+    r'nozzleId': IndexSchema(
+      id: 2597765280430093668,
+      name: r'nozzleId',
+      unique: false,
+      replace: false,
+      properties: [
+        IndexPropertySchema(
+          name: r'nozzleId',
+          type: IndexType.hash,
+          caseSensitive: true,
+        )
+      ],
+    ),
+    r'saleId': IndexSchema(
+      id: -4056742760800787207,
+      name: r'saleId',
+      unique: false,
+      replace: false,
+      properties: [
+        IndexPropertySchema(
+          name: r'saleId',
           type: IndexType.hash,
           caseSensitive: true,
         )
@@ -10749,6 +12267,9 @@ int _tramXangPumpTransactionEstimateSize(
   var bytesCount = offsets.last;
   bytesCount += 3 + object.deviceId.length * 3;
   bytesCount += 3 + object.employeeId.length * 3;
+  bytesCount += 3 + object.nozzleId.length * 3;
+  bytesCount += 3 + object.pumpId.length * 3;
+  bytesCount += 3 + object.saleId.length * 3;
   bytesCount += 3 + object.stationId.length * 3;
   bytesCount += 3 + object.transactionId.length * 3;
   return bytesCount;
@@ -10766,15 +12287,18 @@ void _tramXangPumpTransactionSerialize(
   writer.writeString(offsets[3], object.deviceId);
   writer.writeString(offsets[4], object.employeeId);
   writer.writeBool(offsets[5], object.isSynced);
-  writer.writeDouble(offsets[6], object.quantity);
-  writer.writeString(offsets[7], object.stationId);
-  writer.writeDouble(offsets[8], object.totalizerAfter);
-  writer.writeDouble(offsets[9], object.totalizerBefore);
-  writer.writeString(offsets[10], object.transactionId);
-  writer.writeDateTime(offsets[11], object.transactionTime);
-  writer.writeDouble(offsets[12], object.unitPrice);
-  writer.writeDateTime(offsets[13], object.updatedAt);
-  writer.writeLong(offsets[14], object.version);
+  writer.writeString(offsets[6], object.nozzleId);
+  writer.writeString(offsets[7], object.pumpId);
+  writer.writeDouble(offsets[8], object.quantity);
+  writer.writeString(offsets[9], object.saleId);
+  writer.writeString(offsets[10], object.stationId);
+  writer.writeDouble(offsets[11], object.totalizerAfter);
+  writer.writeDouble(offsets[12], object.totalizerBefore);
+  writer.writeString(offsets[13], object.transactionId);
+  writer.writeDateTime(offsets[14], object.transactionTime);
+  writer.writeDouble(offsets[15], object.unitPrice);
+  writer.writeDateTime(offsets[16], object.updatedAt);
+  writer.writeLong(offsets[17], object.version);
 }
 
 TramXangPumpTransaction _tramXangPumpTransactionDeserialize(
@@ -10791,15 +12315,18 @@ TramXangPumpTransaction _tramXangPumpTransactionDeserialize(
   object.employeeId = reader.readString(offsets[4]);
   object.id = id;
   object.isSynced = reader.readBool(offsets[5]);
-  object.quantity = reader.readDouble(offsets[6]);
-  object.stationId = reader.readString(offsets[7]);
-  object.totalizerAfter = reader.readDouble(offsets[8]);
-  object.totalizerBefore = reader.readDouble(offsets[9]);
-  object.transactionId = reader.readString(offsets[10]);
-  object.transactionTime = reader.readDateTime(offsets[11]);
-  object.unitPrice = reader.readDouble(offsets[12]);
-  object.updatedAt = reader.readDateTime(offsets[13]);
-  object.version = reader.readLong(offsets[14]);
+  object.nozzleId = reader.readString(offsets[6]);
+  object.pumpId = reader.readString(offsets[7]);
+  object.quantity = reader.readDouble(offsets[8]);
+  object.saleId = reader.readString(offsets[9]);
+  object.stationId = reader.readString(offsets[10]);
+  object.totalizerAfter = reader.readDouble(offsets[11]);
+  object.totalizerBefore = reader.readDouble(offsets[12]);
+  object.transactionId = reader.readString(offsets[13]);
+  object.transactionTime = reader.readDateTime(offsets[14]);
+  object.unitPrice = reader.readDouble(offsets[15]);
+  object.updatedAt = reader.readDateTime(offsets[16]);
+  object.version = reader.readLong(offsets[17]);
   return object;
 }
 
@@ -10823,22 +12350,28 @@ P _tramXangPumpTransactionDeserializeProp<P>(
     case 5:
       return (reader.readBool(offset)) as P;
     case 6:
-      return (reader.readDouble(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 7:
       return (reader.readString(offset)) as P;
     case 8:
       return (reader.readDouble(offset)) as P;
     case 9:
-      return (reader.readDouble(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 10:
       return (reader.readString(offset)) as P;
     case 11:
-      return (reader.readDateTime(offset)) as P;
+      return (reader.readDouble(offset)) as P;
     case 12:
       return (reader.readDouble(offset)) as P;
     case 13:
-      return (reader.readDateTime(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 14:
+      return (reader.readDateTime(offset)) as P;
+    case 15:
+      return (reader.readDouble(offset)) as P;
+    case 16:
+      return (reader.readDateTime(offset)) as P;
+    case 17:
       return (reader.readLong(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -11042,6 +12575,141 @@ extension TramXangPumpTransactionQueryWhere on QueryBuilder<
               indexName: r'transactionId',
               lower: [],
               upper: [transactionId],
+              includeUpper: false,
+            ));
+      }
+    });
+  }
+
+  QueryBuilder<TramXangPumpTransaction, TramXangPumpTransaction,
+      QAfterWhereClause> pumpIdEqualTo(String pumpId) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.equalTo(
+        indexName: r'pumpId',
+        value: [pumpId],
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangPumpTransaction, TramXangPumpTransaction,
+      QAfterWhereClause> pumpIdNotEqualTo(String pumpId) {
+    return QueryBuilder.apply(this, (query) {
+      if (query.whereSort == Sort.asc) {
+        return query
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'pumpId',
+              lower: [],
+              upper: [pumpId],
+              includeUpper: false,
+            ))
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'pumpId',
+              lower: [pumpId],
+              includeLower: false,
+              upper: [],
+            ));
+      } else {
+        return query
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'pumpId',
+              lower: [pumpId],
+              includeLower: false,
+              upper: [],
+            ))
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'pumpId',
+              lower: [],
+              upper: [pumpId],
+              includeUpper: false,
+            ));
+      }
+    });
+  }
+
+  QueryBuilder<TramXangPumpTransaction, TramXangPumpTransaction,
+      QAfterWhereClause> nozzleIdEqualTo(String nozzleId) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.equalTo(
+        indexName: r'nozzleId',
+        value: [nozzleId],
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangPumpTransaction, TramXangPumpTransaction,
+      QAfterWhereClause> nozzleIdNotEqualTo(String nozzleId) {
+    return QueryBuilder.apply(this, (query) {
+      if (query.whereSort == Sort.asc) {
+        return query
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'nozzleId',
+              lower: [],
+              upper: [nozzleId],
+              includeUpper: false,
+            ))
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'nozzleId',
+              lower: [nozzleId],
+              includeLower: false,
+              upper: [],
+            ));
+      } else {
+        return query
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'nozzleId',
+              lower: [nozzleId],
+              includeLower: false,
+              upper: [],
+            ))
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'nozzleId',
+              lower: [],
+              upper: [nozzleId],
+              includeUpper: false,
+            ));
+      }
+    });
+  }
+
+  QueryBuilder<TramXangPumpTransaction, TramXangPumpTransaction,
+      QAfterWhereClause> saleIdEqualTo(String saleId) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.equalTo(
+        indexName: r'saleId',
+        value: [saleId],
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangPumpTransaction, TramXangPumpTransaction,
+      QAfterWhereClause> saleIdNotEqualTo(String saleId) {
+    return QueryBuilder.apply(this, (query) {
+      if (query.whereSort == Sort.asc) {
+        return query
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'saleId',
+              lower: [],
+              upper: [saleId],
+              includeUpper: false,
+            ))
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'saleId',
+              lower: [saleId],
+              includeLower: false,
+              upper: [],
+            ));
+      } else {
+        return query
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'saleId',
+              lower: [saleId],
+              includeLower: false,
+              upper: [],
+            ))
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'saleId',
+              lower: [],
+              upper: [saleId],
               includeUpper: false,
             ));
       }
@@ -11590,6 +13258,282 @@ extension TramXangPumpTransactionQueryFilter on QueryBuilder<
   }
 
   QueryBuilder<TramXangPumpTransaction, TramXangPumpTransaction,
+      QAfterFilterCondition> nozzleIdEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'nozzleId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangPumpTransaction, TramXangPumpTransaction,
+      QAfterFilterCondition> nozzleIdGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'nozzleId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangPumpTransaction, TramXangPumpTransaction,
+      QAfterFilterCondition> nozzleIdLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'nozzleId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangPumpTransaction, TramXangPumpTransaction,
+      QAfterFilterCondition> nozzleIdBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'nozzleId',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangPumpTransaction, TramXangPumpTransaction,
+      QAfterFilterCondition> nozzleIdStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'nozzleId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangPumpTransaction, TramXangPumpTransaction,
+      QAfterFilterCondition> nozzleIdEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'nozzleId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangPumpTransaction, TramXangPumpTransaction,
+          QAfterFilterCondition>
+      nozzleIdContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'nozzleId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangPumpTransaction, TramXangPumpTransaction,
+          QAfterFilterCondition>
+      nozzleIdMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'nozzleId',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangPumpTransaction, TramXangPumpTransaction,
+      QAfterFilterCondition> nozzleIdIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'nozzleId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangPumpTransaction, TramXangPumpTransaction,
+      QAfterFilterCondition> nozzleIdIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'nozzleId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangPumpTransaction, TramXangPumpTransaction,
+      QAfterFilterCondition> pumpIdEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'pumpId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangPumpTransaction, TramXangPumpTransaction,
+      QAfterFilterCondition> pumpIdGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'pumpId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangPumpTransaction, TramXangPumpTransaction,
+      QAfterFilterCondition> pumpIdLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'pumpId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangPumpTransaction, TramXangPumpTransaction,
+      QAfterFilterCondition> pumpIdBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'pumpId',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangPumpTransaction, TramXangPumpTransaction,
+      QAfterFilterCondition> pumpIdStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'pumpId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangPumpTransaction, TramXangPumpTransaction,
+      QAfterFilterCondition> pumpIdEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'pumpId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangPumpTransaction, TramXangPumpTransaction,
+          QAfterFilterCondition>
+      pumpIdContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'pumpId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangPumpTransaction, TramXangPumpTransaction,
+          QAfterFilterCondition>
+      pumpIdMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'pumpId',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangPumpTransaction, TramXangPumpTransaction,
+      QAfterFilterCondition> pumpIdIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'pumpId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangPumpTransaction, TramXangPumpTransaction,
+      QAfterFilterCondition> pumpIdIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'pumpId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangPumpTransaction, TramXangPumpTransaction,
       QAfterFilterCondition> quantityEqualTo(
     double value, {
     double epsilon = Query.epsilon,
@@ -11651,6 +13595,144 @@ extension TramXangPumpTransactionQueryFilter on QueryBuilder<
         upper: upper,
         includeUpper: includeUpper,
         epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangPumpTransaction, TramXangPumpTransaction,
+      QAfterFilterCondition> saleIdEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'saleId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangPumpTransaction, TramXangPumpTransaction,
+      QAfterFilterCondition> saleIdGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'saleId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangPumpTransaction, TramXangPumpTransaction,
+      QAfterFilterCondition> saleIdLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'saleId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangPumpTransaction, TramXangPumpTransaction,
+      QAfterFilterCondition> saleIdBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'saleId',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangPumpTransaction, TramXangPumpTransaction,
+      QAfterFilterCondition> saleIdStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'saleId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangPumpTransaction, TramXangPumpTransaction,
+      QAfterFilterCondition> saleIdEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'saleId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangPumpTransaction, TramXangPumpTransaction,
+          QAfterFilterCondition>
+      saleIdContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'saleId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangPumpTransaction, TramXangPumpTransaction,
+          QAfterFilterCondition>
+      saleIdMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'saleId',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangPumpTransaction, TramXangPumpTransaction,
+      QAfterFilterCondition> saleIdIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'saleId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<TramXangPumpTransaction, TramXangPumpTransaction,
+      QAfterFilterCondition> saleIdIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'saleId',
+        value: '',
       ));
     });
   }
@@ -12433,6 +14515,34 @@ extension TramXangPumpTransactionQuerySortBy
   }
 
   QueryBuilder<TramXangPumpTransaction, TramXangPumpTransaction, QAfterSortBy>
+      sortByNozzleId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'nozzleId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<TramXangPumpTransaction, TramXangPumpTransaction, QAfterSortBy>
+      sortByNozzleIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'nozzleId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<TramXangPumpTransaction, TramXangPumpTransaction, QAfterSortBy>
+      sortByPumpId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'pumpId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<TramXangPumpTransaction, TramXangPumpTransaction, QAfterSortBy>
+      sortByPumpIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'pumpId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<TramXangPumpTransaction, TramXangPumpTransaction, QAfterSortBy>
       sortByQuantity() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'quantity', Sort.asc);
@@ -12443,6 +14553,20 @@ extension TramXangPumpTransactionQuerySortBy
       sortByQuantityDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'quantity', Sort.desc);
+    });
+  }
+
+  QueryBuilder<TramXangPumpTransaction, TramXangPumpTransaction, QAfterSortBy>
+      sortBySaleId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'saleId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<TramXangPumpTransaction, TramXangPumpTransaction, QAfterSortBy>
+      sortBySaleIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'saleId', Sort.desc);
     });
   }
 
@@ -12660,6 +14784,34 @@ extension TramXangPumpTransactionQuerySortThenBy on QueryBuilder<
   }
 
   QueryBuilder<TramXangPumpTransaction, TramXangPumpTransaction, QAfterSortBy>
+      thenByNozzleId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'nozzleId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<TramXangPumpTransaction, TramXangPumpTransaction, QAfterSortBy>
+      thenByNozzleIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'nozzleId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<TramXangPumpTransaction, TramXangPumpTransaction, QAfterSortBy>
+      thenByPumpId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'pumpId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<TramXangPumpTransaction, TramXangPumpTransaction, QAfterSortBy>
+      thenByPumpIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'pumpId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<TramXangPumpTransaction, TramXangPumpTransaction, QAfterSortBy>
       thenByQuantity() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'quantity', Sort.asc);
@@ -12670,6 +14822,20 @@ extension TramXangPumpTransactionQuerySortThenBy on QueryBuilder<
       thenByQuantityDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'quantity', Sort.desc);
+    });
+  }
+
+  QueryBuilder<TramXangPumpTransaction, TramXangPumpTransaction, QAfterSortBy>
+      thenBySaleId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'saleId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<TramXangPumpTransaction, TramXangPumpTransaction, QAfterSortBy>
+      thenBySaleIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'saleId', Sort.desc);
     });
   }
 
@@ -12831,9 +14997,30 @@ extension TramXangPumpTransactionQueryWhereDistinct on QueryBuilder<
   }
 
   QueryBuilder<TramXangPumpTransaction, TramXangPumpTransaction, QDistinct>
+      distinctByNozzleId({bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'nozzleId', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<TramXangPumpTransaction, TramXangPumpTransaction, QDistinct>
+      distinctByPumpId({bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'pumpId', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<TramXangPumpTransaction, TramXangPumpTransaction, QDistinct>
       distinctByQuantity() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'quantity');
+    });
+  }
+
+  QueryBuilder<TramXangPumpTransaction, TramXangPumpTransaction, QDistinct>
+      distinctBySaleId({bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'saleId', caseSensitive: caseSensitive);
     });
   }
 
@@ -12945,10 +15132,31 @@ extension TramXangPumpTransactionQueryProperty on QueryBuilder<
     });
   }
 
+  QueryBuilder<TramXangPumpTransaction, String, QQueryOperations>
+      nozzleIdProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'nozzleId');
+    });
+  }
+
+  QueryBuilder<TramXangPumpTransaction, String, QQueryOperations>
+      pumpIdProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'pumpId');
+    });
+  }
+
   QueryBuilder<TramXangPumpTransaction, double, QQueryOperations>
       quantityProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'quantity');
+    });
+  }
+
+  QueryBuilder<TramXangPumpTransaction, String, QQueryOperations>
+      saleIdProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'saleId');
     });
   }
 

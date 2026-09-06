@@ -80,6 +80,11 @@ class TramXangSale {
   final shift = IsarLink<TramXangShift>();
   final customer = IsarLink<TramXangCustomer>();
   
+  @Index()
+  String shiftId = '';
+  @Index()
+  String customerId = '';
+  
   String saleType = 'FUEL'; // FUEL, GROCERY
   String paymentMethod = 'CASH'; // CASH, TRANSFER, QR
   
@@ -112,6 +117,15 @@ class TramXangSaleLine {
   final product = IsarLink<TramXangProduct>();
   final tank = IsarLink<TramXangTank>();
   final pumpNozzle = IsarLink<TramXangPumpNozzle>();
+  
+  @Index()
+  String saleId = '';
+  @Index()
+  String productId = '';
+  @Index()
+  String tankId = '';
+  @Index()
+  String nozzleId = '';
   
   double quantity = 0;
   String unit = '';
@@ -146,6 +160,13 @@ class TramXangPumpTransaction {
   final pump = IsarLink<TramXangPump>();
   final nozzle = IsarLink<TramXangPumpNozzle>();
   final sale = IsarLink<TramXangSale>();
+  
+  @Index()
+  String pumpId = '';
+  @Index()
+  String nozzleId = '';
+  @Index()
+  String saleId = '';
   
   DateTime transactionTime = DateTime.now();
   
