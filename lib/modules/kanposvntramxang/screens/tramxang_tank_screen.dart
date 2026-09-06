@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/inventory.dart';
 import '../models/product.dart';
@@ -100,8 +100,8 @@ class _TramXangTankScreenState extends ConsumerState<TramXangTankScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('Tồn: ${_L(tank.currentQuantity)} L '
-                    '/ ${_L(tank.capacityLiter)} L '
+                Text('Tồn: ${_formatMetric(tank.currentQuantity)} L '
+                    '/ ${_formatMetric(tank.capacityLiter)} L '
                     '(${(pct * 100).toStringAsFixed(1)}%)'),
                 if (critical)
                   const Text('CẦN NHẬP KHẨN CẤP', style: TextStyle(color: Colors.red))
@@ -132,12 +132,12 @@ class _TramXangTankScreenState extends ConsumerState<TramXangTankScreen> {
     );
   }
 
-  String _L(double v) {
+  String _formatMetric(double v) {
     return v == v.roundToDouble() ? v.toStringAsFixed(0) : v.toStringAsFixed(1);
   }
 
   Future<void> _openReadingDialog(TramXangTank tank) async {
-    final qty = TextEditingController(text: _L(tank.currentQuantity));
+    final qty = TextEditingController(text: _formatMetric(tank.currentQuantity));
     final temp = TextEditingController(text: '30');
     final result = await showDialog<bool>(
       context: context,

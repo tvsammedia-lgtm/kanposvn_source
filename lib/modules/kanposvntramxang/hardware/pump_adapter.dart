@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
+
 /// Cấu hình kết nối phần cứng của trụ bơm
 class PumpConfig {
   final String ipAddress;
@@ -67,12 +69,12 @@ abstract class PumpAdapter {
 
 /// 1. Giao thức TATSUNO (Phổ biến nhất tại VN)
 class TatsunoPumpAdapter extends PumpAdapter {
-  TatsunoPumpAdapter(PumpConfig config) : super(config);
+  TatsunoPumpAdapter(super.config);
 
   @override
   Future<bool> connect() async {
     // TODO: Mở Serial Port hoặc TCP Socket theo Tatsuno Protocol
-    print('Đang kết nối trụ Tatsuno tại ${config.comPort} / ${config.ipAddress}...');
+    debugPrint('Đang kết nối trụ Tatsuno tại ${config.comPort} / ${config.ipAddress}...');
     await Future.delayed(const Duration(milliseconds: 500));
     isConnected = true;
     return true;
@@ -101,30 +103,30 @@ class TatsunoPumpAdapter extends PumpAdapter {
   @override
   Future<bool> setUnitPrice(int nozzleId, double price) async {
     // Gửi command đổi giá
-    print('Tatsuno: Đổi giá vòi $nozzleId thành $price');
+    debugPrint('Tatsuno: Đổi giá vòi $nozzleId thành $price');
     return true;
   }
 
   @override
   Future<bool> preset(int nozzleId, {double? volume, double? amount}) async {
-    print('Tatsuno: Preset vòi $nozzleId - Số lít: $volume, Số tiền: $amount');
+    debugPrint('Tatsuno: Preset vòi $nozzleId - Số lít: $volume, Số tiền: $amount');
     return true;
   }
 
   @override
   Future<bool> stop(int nozzleId) async {
-    print('Tatsuno: Dừng khẩn cấp vòi $nozzleId');
+    debugPrint('Tatsuno: Dừng khẩn cấp vòi $nozzleId');
     return true;
   }
 }
 
 /// 2. Giao thức GILBARCO
 class GilbarcoPumpAdapter extends PumpAdapter {
-  GilbarcoPumpAdapter(PumpConfig config) : super(config);
+  GilbarcoPumpAdapter(super.config);
 
   @override
   Future<bool> connect() async {
-    print('Đang kết nối trụ Gilbarco 2-wire...');
+    debugPrint('Đang kết nối trụ Gilbarco 2-wire...');
     isConnected = true;
     return true;
   }

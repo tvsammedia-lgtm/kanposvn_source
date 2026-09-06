@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:isar/isar.dart';
 
@@ -249,16 +250,16 @@ void main() {
       }
     }
 
-    print('=== TỔNG KẾT TEST KANPOSVNTRUYENTHONG ===');
-    print('Danh mục: ${categories.length}');
-    print('Đơn vị: ${units.length}');
-    print('Sản phẩm: ${products.length}');
-    print('Khách hàng: ${customers.length}');
-    print('Nhà cung cấp: ${suppliers.length}');
-    print('Quy tắc điểm: ${loyaltyRules.length}');
-    print('Nhóm chi phí: ${expenseCategories.length}');
-    print('Lô hàng: ${stockLots.length}');
-    print('Movement: ${stockMovements.length}');
-    print('===============================');
+    debugPrint('=== TỔNG KẾT TEST KANPOSVNTRUYENTHONG ===');
+    debugPrint('Danh mục: ${categories.length}');
+    debugPrint('Đơn vị: ${units.length}');
+    debugPrint('Sản phẩm: ${products.length}');
+    debugPrint('Khách hàng: ${customers.length}');
+    debugPrint('Nhà cung cấp: ${suppliers.length}');
+    debugPrint('Quy tắc điểm: ${loyaltyRules.length}');
+    debugPrint('Nhóm chi phí: ${expenseCategories.length}');
+    debugPrint('Lô hàng: ${stockLots.length}');
+    debugPrint('Movement: ${stockMovements.length}');
+    debugPrint('===============================');
   });
 }

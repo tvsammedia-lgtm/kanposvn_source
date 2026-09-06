@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 import '../db/database_service.dart';
@@ -78,7 +79,7 @@ class QrSyncService {
         }
       }
     } catch (e) {
-      print('QR Sync Error: $e');
+      debugPrint('QR Sync Error: $e');
     } finally {
       _isSyncing = false;
     }

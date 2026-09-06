@@ -4,7 +4,6 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:isar/isar.dart';
 import 'package:kanposvn/modules/kanposvntramxang/models/accounting_entry.dart';
-import 'package:kanposvn/modules/kanposvntramxang/models/core.dart';
 import 'package:kanposvn/modules/kanposvntramxang/models/product.dart';
 import 'package:kanposvn/modules/kanposvntramxang/services/tramxang_isar_service.dart';
 import 'package:kanposvn/modules/kanposvntramxang/services/tramxang_report_service.dart';

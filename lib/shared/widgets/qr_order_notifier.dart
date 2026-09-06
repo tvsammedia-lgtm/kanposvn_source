@@ -5,13 +5,13 @@ import '../../core/db/database_service.dart';
 class QrOrderNotifier extends ConsumerStatefulWidget {
   final Widget child;
 
-  const QrOrderNotifier({Key? key, required this.child}) : super(key: key);
+  const QrOrderNotifier({super.key, required this.child});
 
   @override
-  _QrOrderNotifierState createState() => _QrOrderNotifierState();
+  QrOrderNotifierState createState() => QrOrderNotifierState();
 }
 
-class _QrOrderNotifierState extends ConsumerState<QrOrderNotifier> {
+class QrOrderNotifierState extends ConsumerState<QrOrderNotifier> {
   int _lastOrderCount = 0;
 
   @override
