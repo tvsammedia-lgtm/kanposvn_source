@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Local Flutter AI Assistant</title>
+  <link rel="stylesheet" href="/assets/styles.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='80' font-size='80'>🤖</text></svg>" />
+</head>
+<body>
+  <header>
+    <h1>Local Flutter AI Assistant</h1>
+    <div class="statusbar" id="statusbar">
+      <span id="st-ollama" class="chip">Ollama …</span>
+      <span id="st-net" class="chip">Mạng …</span>
+      <span id="st-git" class="chip">git …</span>
+    </div>
+  </header>
+
+  <nav>
+    <button class="tab active" data-tab="assistant">Assistant</button>
+    <button class="tab" data-tab="review">Code Review</button>
+    <button class="tab" data-tab="analyzer">Analyzer</button>
+    <button class="tab" data-tab="backup">Backup</button>
+    <button class="tab" data-tab="security">Bảo mật</button>
+  </nav>
+
+  <main>
+    <!-- ============ ASSISTANT ============ -->
+    <section id="tab-assistant" class="panel active">
+      <div class="row">
+        <textarea id="prompt" rows="3"
+          placeholder="VD: flutter analyze đang báo lỗi ở lib/modules/kanposvnphongkham, hãy sửa và chạy test"></textarea>
+      </div>
+      <div class="row opts">
+        <label><input type="checkbox" id="auto-fix" checked /> Tự sửa + backup + rollback</label>
+        <button id="btn-chat">Gửi yêu cầu</button>
+      </div>
+      <div id="chat-log" class="log"></div>
+      <div id="chat-result" class="result"></div>
+      <div class="row">
+        <button id="btn-cli" class="secondary">🖥 CLI (chạy thử nhanh)</button>
+      </div>
+    </section>
+
+    <!-- ============ REVIEW ============ -->
+    <section id="tab-review" class="panel">
+      <div class="row">
+        <input id="rev-path" placeholder="Đường dẫn file cần review (rỗng = dựa vào git diff)" />
+        <button id="btn-review">Review</button>
+      </div>
+      <div id="review-log" class="log"></div>
+    </section>
+
+    <!-- ============ ANALYZER ============ -->
+    <section id="tab-analyzer" class="panel">
+      <div class="row">
+        <button id="btn-ana-dart">dart analyze lib test</button>
+        <button id="btn-ana-flutter">flutter analyze</button>
+        <button id="btn-ana-test">flutter test</button>
+      </div>
+      <pre id="ana-output" class="output">…</pre>
+    </section>
+
+    <!-- ============ BACKUP ============ -->
+    <section id="tab-backup" class="panel">
+      <div class="row">
+        <button id="btn-backup">+ Backup bây giờ</button>
+        <span id="bk-note"></span>
+      </div>
+      <table class="table">
+        <thead><tr>
+          <th>ID</th><th>TG tạo</th><th>Yêu cầu</th><th>git sha</th><th>Trạng thái</th><th></th>
+        </tr></thead>
+        <tbody id="bk-body"></tbody>
+      </table>
+    </section>
+
+    <!-- ============ SECURITY ============ -->
+    <section id="tab-security" class="panel">
+      <div class="row">
+        <button id="btn-sec">Chạy kiểm tra Bảo mật</button>
+        <button id="btn-sec-lock" class="danger">🔒 Mở lockdown.ps1 (Admin)</button>
+      </div>
+      <table class="table">
+        <thead><tr><th>Kiểm tra</th><th>Kết quả</th><th>Chi tiết</th></tr></thead>
+        <tbody id="sec-body"></tbody>
+      </table>
+    </section>
+  </main>
+
+  <script src="/assets/app.js"></script>
+</body>
+</html>

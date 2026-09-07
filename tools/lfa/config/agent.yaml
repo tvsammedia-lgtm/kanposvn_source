@@ -1,0 +1,62 @@
+# Cấu hình Local Flutter AI Assistant
+#
+# repo_root rỗng = thư mục gốc của repo (cha của tools/lfa).
+# KHÔNG chỉ trỏ repo_root ra ngoài máy này — netlock + patcher chỉ hoạt động trong đây.
+#
+# GHÉP VỚI PHẦN CỨNG MÁY (i7-2620M Sandy Bridge, 2C/4T, 16GB RAM, KHÔNG AVX/AVX2):
+#   - CPU không có AVX -> Ollama chạy 100% CPU trên code path scalar, ~1.6-2.2 token/s.
+#   - Vì vậy mỗi lượt LLM mất vài phút. QUY ƯỚC: chỉ dùng cho TÁC VỤ NHỎ
+#     (review 1-3 dòng, fix lint đơn lẻ, tạo hàm nhỏ). Đừng giao tác vụ lớn.
+#   - Ngữ cảnh + num_ctx giữ nhỏ để kịp; timeout_sec đủ cho 1 vòng CPU.
+#   - Muốn chất lượng cao hơn (nếu máy mạnh hơn): đổi model -> lfa-qwen3 (8B).
+
+model: "lfa-qwen3"                # mặc định chất lượng (8B); lfa-qwen3-4b nhanh hơn trên máy này
+ollama_base: "http://127.0.0.1:11434"
+ui_host: "127.0.0.1"
+ui_port: 8790
+repo_root: ""                      # mặc định: ../../ (gốc repo)
+
+llm:
+  temperature: 0.2
+  num_ctx: 2048                 # giữ nhỏ: prompt ngắn -> eval nhanh hơn
+  max_tokens: 800               # plan JSON ngắn, đủ cho task nhỏ
+  timeout_sec: 2400            # máy CPU cũ: đủ cho eval+gen một vòng
+
+context:
+  max_chars: 3500               # ngữ cảnh tối thiểu, giữ round ngắn
+  tree_depth: 1
+  tree_max_items: 40
+  include_git_diff: true
+
+auto_fix:
+  analyze_after_patch: true        # tự chạy dart analyze sau khi sửa
+  test_after_patch: true           # tự chạy flutter test (nếu flutter có)
+  rollback_on_fail: true           # tự rollback khi analyze/test lỗi
+  # Các test đã biết fail TỪ TRƯỚC (không coi là hồi quy) — không tự rollback vì chúng:
+  known_fail_tests:
+    - "hrpayroll_seed_isar_test.dart"
+
+analyze_cmds:
+  dart: ["dart", "analyze", "lib", "test"]
+  flutter: ["flutter", "analyze", "--no-fatal-infos"]
+  test: ["flutter", "test"]
+
+backup:
+  retention: 30
+  excludes:
+    - ".git"
+    - ".dart_tool"
+    - ".gradle"
+    - "build"
+    - "node_modules"
+    - ".next"
+    - "downloads"
+    - "windows"
+    - "backups"
+    - ".venv"
+    - "__pycache__"
+    - ".idea"
+    - ".vscode"
+
+security:
+  checksum_netlock: true           # cảnh báo nếu netlock.py bị sửa đổi

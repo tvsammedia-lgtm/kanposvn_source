@@ -1,0 +1,32 @@
+:root { --blue:#0d6efd; --bg:#0f172a; --panel:#1e293b; --line:#334155; --txt:#e2e8f0; --muted:#94a3b8; }
+* { box-sizing: border-box; }
+body { margin:0; font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--txt); }
+header { padding: 14px 20px; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center; }
+h1 { font-size: 18px; margin: 0; }
+.statusbar { display: flex; gap: 8px; }
+.chip { font-size: 12px; padding: 4px 10px; border-radius: 999px; background: var(--panel); color: var(--muted); border: 1px solid var(--line); }
+.chip.ok { color: #86efac; border-color: #16a34a; }
+.chip.bad { color: #fca5a5; border-color: #b91c1c; }
+nav { display: flex; gap: 4px; padding: 10px 20px 0; }
+button.tab { background: transparent; border: 1px solid transparent; color: var(--muted); padding: 8px 14px; border-radius: 8px 8px 0 0; cursor: pointer; }
+button.tab.active { background: var(--panel); color: var(--txt); border-color: var(--line); }
+main { padding: 16px 20px; }
+.panel { display: none; }
+.panel.active { display: block; }
+.row { display: flex; gap: 10px; align-items: center; margin: 8px 0; flex-wrap: wrap; }
+textarea, input { width: 100%; background: var(--panel); color: var(--txt); border: 1px solid var(--line); border-radius: 8px; padding: 10px; font-size: 14px; font-family: inherit; }
+button { background: var(--blue); color: #fff; border: none; border-radius: 8px; padding: 10px 16px; cursor: pointer; font-size: 14px; font-weight: 600; }
+button.secondary { background: var(--panel); border: 1px solid var(--line); color: var(--txt); }
+button.danger { background: #b91c1c; }
+button:disabled { opacity: .5; cursor: wait; }
+.log { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 10px; font-size: 13px; max-height: 240px; overflow: auto; font-family: Consolas, monospace; white-space: pre-wrap; }
+.log .info { color: var(--muted); }
+.log .llm { color: #93c5fd; }
+.log .err { color: #fca5a5; }
+.log .ok { color: #86efac; }
+.output, .result { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 10px; font-size: 12px; max-height: 360px; overflow: auto; white-space: pre-wrap; font-family: Consolas, monospace; }
+.result pre { margin: 0; }
+.table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.table th, .table td { text-align: left; padding: 8px; border-bottom: 1px solid var(--line); }
+.table th { color: var(--muted); font-weight: 600; }
+.pass { color: #86efac; } .fail { color: #fca5a5; } .skip { color: #fcd34d; }
