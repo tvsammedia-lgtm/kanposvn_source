@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 
-type ModuleOption = { id: string; app_code: string; app_name: string; price: number | null };
+type ModuleOption = { id: string; app_code: string; app_name: string; description: string; price: number | null };
 type BranchInput = { name: string; phone: string; address: string };
 type PickedModule = { app_code: string; app_name: string; branches: BranchInput[] };
 type RequestRow = {
@@ -57,12 +57,15 @@ export default function BuyMorePage() {
     try { return JSON.parse(p); } catch { return {}; }
   };
 
+  const moduleLabel = (m: { app_name: string; description?: string }) =>
+    m.description && m.description.trim() ? m.description.trim() : m.app_name;
+
   const toggleModule = (m: ModuleOption) => {
     const exists = picked.some((x) => x.app_code === m.app_code);
     if (exists) {
       setPicked(picked.filter((x) => x.app_code !== m.app_code));
     } else {
-      setPicked([...picked, { app_code: m.app_code, app_name: m.app_name, branches: [{ name: '', phone: '', address: '' }] }]);
+      setPicked([...picked, { app_code: m.app_code, app_name: moduleLabel(m), branches: [{ name: '', phone: '', address: '' }] }]);
     }
   };
 
@@ -151,7 +154,7 @@ export default function BuyMorePage() {
                 background: on ? '#e7f0ff' : '#fff', cursor: 'pointer', textAlign: 'left',
               }}
             >
-              <div style={{ fontWeight: 600 }}>{m.app_name}</div>
+              <div style={{ fontWeight: 600 }}>{moduleLabel(m)}</div>
               {on ? <div style={{ color: '#0d6efd', fontSize: 13 }}>Đã chọn · bấm để bỏ</div> : null}
             </button>
           );

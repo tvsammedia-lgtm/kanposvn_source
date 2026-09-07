@@ -25,7 +25,7 @@ export async function GET(req: NextRequest) {
   const registration = req.nextUrl.searchParams.get('registration') === '1';
   if (registration) {
     const apps = await sql`
-      SELECT id, app_code, app_name, show_in_registration, price
+      SELECT id, app_code, app_name, description, show_in_registration, price
       FROM apps
       WHERE show_in_registration = true
       ORDER BY app_name
