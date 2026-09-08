@@ -28,6 +28,33 @@ class _KanPosVNVlxdShellState extends ConsumerState<KanPosVNVlxdShell> {
   int _selectedIndex = 0;
   bool _isInit = false;
 
+  // Thanh tab dọc dùng SingleChildScrollView (KHÔNG dùng NavigationRail
+  // scrollable): cửa sổ thấp sẽ cắt mất tab cuối và vùng bấm nằm ngoài giới
+  // hạn — lỗi "bấm tab bên cạnh không tác dụng". Tự cuộn tab đang chọn vào
+  // giữa khung.
+  final ScrollController _railController = ScrollController();
+  static const double _itemExtent = 58;
+
+  @override
+  void dispose() {
+    _railController.dispose();
+    super.dispose();
+  }
+
+  /// Giữ tab đang chọn luôn nằm trong tầm nhìn (giữa khung) của thanh tab.
+  void _scrollSelectedIntoView(int selectedIndex) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || !_railController.hasClients) return;
+      final position = _railController.position;
+      final target = (selectedIndex * _itemExtent) -
+          position.viewportDimension / 2 +
+          _itemExtent / 2;
+      _railController.jumpTo(
+        target.clamp(0.0, position.maxScrollExtent),
+      );
+    });
+  }
+
   @override
   void initState() {
     super.initState();
@@ -115,7 +142,9 @@ class _KanPosVNVlxdShellState extends ConsumerState<KanPosVNVlxdShell> {
       );
     }).toList();
     final safeIndex = tabs.isNotEmpty ? (_selectedIndex < tabs.length ? _selectedIndex : 0) : 0;
+    final moduleColor = auth.currentModule?.color ?? const Color(0xFF6366F1);
     final isDesktop = MediaQuery.of(context).size.width > 600;
+    _scrollSelectedIntoView(safeIndex);
 
     if (tabs.isEmpty) {
       return Scaffold(
@@ -131,7 +160,7 @@ class _KanPosVNVlxdShellState extends ConsumerState<KanPosVNVlxdShell> {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: auth.currentModule?.color ?? const Color(0xFF6366F1),
+        backgroundColor: moduleColor,
         foregroundColor: Colors.white,
         title: const Text('KanPosVN - Vật Liệu Xây Dựng',
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
@@ -142,22 +171,33 @@ class _KanPosVNVlxdShellState extends ConsumerState<KanPosVNVlxdShell> {
       body: Row(
         children: [
           if (isDesktop)
-            NavigationRail(
-              scrollable: true,
-              selectedIndex: safeIndex,
-              onDestinationSelected: (index) {
-                setState(() {
-                  _selectedIndex = index;
-                });
-              },
-              labelType: NavigationRailLabelType.all,
-              destinations: [
-                for (final t in tabs)
-                  NavigationRailDestination(
-                    icon: Icon(t.icon),
-                    label: Text(t.label),
+            Container(
+              key: const ValueKey('vlxd_tab_rail'),
+              width: 100,
+              color: const Color(0xFF111827),
+              child: Scrollbar(
+                controller: _railController,
+                thumbVisibility: true,
+                child: SingleChildScrollView(
+                  controller: _railController,
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      for (var i = 0; i < tabs.length; i++)
+                        _RailItem(
+                          label: tabs[i].label,
+                          icon: tabs[i].icon,
+                          selected: i == safeIndex,
+                          color: moduleColor,
+                          onTap: () {
+                            setState(() => _selectedIndex = i);
+                          },
+                        ),
+                    ],
                   ),
-              ],
+                ),
+              ),
             ),
           if (isDesktop) const VerticalDivider(thickness: 1, width: 1),
           Expanded(
@@ -185,6 +225,56 @@ class _KanPosVNVlxdShellState extends ConsumerState<KanPosVNVlxdShell> {
                   ),
               ],
             ),
+    );
+  }
+}
+
+/// Mục tab dọc gọn (icon + label) dùng cho thanh tab desktop có thể cuộn.
+class _RailItem extends StatelessWidget {
+  final String label;
+  final IconData icon;
+  final bool selected;
+  final Color color;
+  final VoidCallback onTap;
+
+  const _RailItem({
+    required this.label,
+    required this.icon,
+    required this.selected,
+    required this.color,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        width: 88,
+        height: _KanPosVNVlxdShellState._itemExtent,
+        margin: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+        decoration: BoxDecoration(
+          color: selected ? color.withValues(alpha: 0.18) : Colors.transparent,
+          borderRadius: BorderRadius.circular(12),
+          border: selected ? Border.all(color: color.withValues(alpha: 0.45)) : null,
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, size: 20, color: selected ? color : Colors.grey),
+            const SizedBox(height: 3),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 10,
+                color: selected ? color : Colors.grey,
+                fontWeight: selected ? FontWeight.bold : FontWeight.normal,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
