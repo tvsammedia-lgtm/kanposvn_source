@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:isar/isar.dart';
 import '../../../core/providers.dart';
@@ -41,12 +39,16 @@ abstract class GaraSafeNotifier<T> extends StateNotifier<T> {
 /// Isar service theo CHI NHÁNH hiện tại của thiết bị. Khi đổi chi nhánh
 /// (`auth.branchId` thay đổi) provider được tạo lại → toàn bộ các notifier
 /// phụ thuộc reload dữ liệu từ DB riêng của chi nhánh mới.
-final garaIsarServiceProvider = Provider.autoDispose<GaraIsarService>((ref) {
+///
+/// KHÔNG dùng `autoDispose` + `onDispose(dispose())`: đóng Isar ngay khi không
+/// còn listener khiến nó bị `close()` giữa lúc `_initData`/seed/load đang chạy
+/// → use-after-free native trong isar.dll (Windows crash 0xc0000005, mất kết
+/// nối thiết bị, Dart onError im lặng). Giữ instance mở suốt phiên như các
+/// module mới chuẩn (tramxang/congtrinh/nongsan); `openDB()` tái dùng instance
+/// theo tên nên đổi chi nhánh vẫn tạo DB riêng đúng.
+final garaIsarServiceProvider = Provider<GaraIsarService>((ref) {
   final branchId = ref.watch(authServiceProvider.select((a) => a.branchId));
   final service = GaraIsarService(branchId: branchId);
-  ref.onDispose(() {
-    unawaited(service.dispose());
-  });
   return service;
 });
 

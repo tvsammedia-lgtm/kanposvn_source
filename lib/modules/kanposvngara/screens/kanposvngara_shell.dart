@@ -32,12 +32,18 @@ class _KanPosVNGaraShellState extends ConsumerState<KanPosVNGaraShell> {
   }
 
   Future<void> _initData() async {
-    final isarService = ref.read(garaIsarServiceProvider);
-    await GaraSeedData.seedIfEmpty(isarService);
-    ref.read(garaProductsProvider.notifier).loadProducts();
-    setState(() {
-      _isInit = true;
-    });
+    try {
+      final isarService = ref.read(garaIsarServiceProvider);
+      await GaraSeedData.seedIfEmpty(isarService);
+      ref.read(garaProductsProvider.notifier).loadProducts();
+    } catch (_) {
+      // DB schema mismatch hoặc lỗi khác → vẫn cho vào shell (tab sẽ báo lỗi nếu cần)
+    }
+    if (mounted) {
+      setState(() {
+        _isInit = true;
+      });
+    }
   }
 
   static final Map<String, Set<String>> _roleTabs = {
