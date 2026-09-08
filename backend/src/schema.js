@@ -4,7 +4,7 @@
 const db = require('./db');
 
 // Danh sách app_code của MỌI module trong app KanPosVN (module_enum/appCode)
-// + KANPOS-VN (app code đăng nhập local của module KanPosVN Account).
+// + KANPOS-VN (app code đăng nhập local của phần Account trong module kanposvncrm).
 const APPS = [
   'kanposvncafe', 'kanposvnkhachsan', 'nhansu', 'kanposvnvlxd', 'kanposvngara',
   'kanposvnnhathuoc', 'kanposvnqlcd', 'kanposvnnbatdongsan', 'kanposvnbanvevantai',

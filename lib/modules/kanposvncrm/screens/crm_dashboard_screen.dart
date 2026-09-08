@@ -13,6 +13,7 @@ import 'crm_sale_screen.dart';
 import 'crm_cloud_customers_screen.dart';
 import 'crm_addon_requests_screen.dart';
 import 'crm_backup_screen.dart';
+import '../account/screens/account_login_screen.dart';
 
 class CrmDashboardScreen extends ConsumerWidget {
   const CrmDashboardScreen({super.key});
@@ -93,6 +94,16 @@ class CrmDashboardScreen extends ConsumerWidget {
               onTap: () {
                 Navigator.pop(context);
                 Navigator.push(context, MaterialPageRoute(builder: (_) => const CrmTicketScreen()));
+              },
+            ),
+            const Divider(),
+            ListTile(
+              leading: const Icon(Icons.login, color: Color(0xFFE11D48)),
+              title: const Text('Đăng nhập Account (Hybrid)'),
+              subtitle: const Text('Cloud (Admin Web) / Local (Express/SQLite)'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(context, MaterialPageRoute(builder: (_) => const AccountLoginScreen()));
               },
             ),
             const Divider(),

@@ -7,7 +7,7 @@ const router = express.Router();
 // Đăng nhập GIỐNG admin-web trên Vercel (dùng cho chế độ Ngoại tuyến).
 // - Nhận: email/phone (app KanPosVN) hoặc username (module Account), + password.
 // - Trả về: {user, token, permissions, storeId, storeName, storePhone, appCode,...}
-//   + data.access_token/refresh_token (tương thích module KanPosVN Account).
+//   + data.access_token/refresh_token (tương thích phần Account trong module kanposvncrm).
 router.post('/login', async (req, res) => {
   const { email, phone, username, password, app_code } = req.body;
 
@@ -123,7 +123,7 @@ router.post('/login', async (req, res) => {
       trial: true,
       forever: false,
       expiresAt: null,
-      // Tương thích module KanPosVN Account (đăng nhập local).
+      // Tương thích phần Account trong module kanposvncrm (đăng nhập local).
       data: {
         access_token: token,
         refresh_token: 'mock-refresh-token',
