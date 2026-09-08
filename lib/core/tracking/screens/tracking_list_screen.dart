@@ -57,8 +57,15 @@ class _TrackingListScreenState extends State<TrackingListScreen> {
   }
 
   Future<void> _init() async {
-    await _controller.init();
-    if (mounted) setState(() => _loading = false);
+    try {
+      await _controller.init();
+    } catch (e) {
+      // Phòng trường hợp Isar.init mở live bị lỗi: KHÔNG để spinner treo vĩnh
+      // viễn — vẫn hiển thị empty state để người dùng có thể tiếp tục dùng.
+      debugPrint('TrackingListScreen._init error: $e');
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
   }
 
   Future<void> _sync() async {

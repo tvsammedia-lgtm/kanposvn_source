@@ -39,12 +39,14 @@ class MockTrackingLocationSource implements TrackingLocationSource {
   @override
   Future<void> start() async {
     if (_timer != null) return;
-    // Đi vòng nhỏ quanh điểm trung tâm để thấy marker di chuyển.
+    // Đi thẳng về hướng Đông theo đường thật + nhấp nhô nhẹ: mỗi 2 giây di
+    // chuyển ~30–40 m, polyline trên map dài ra rõ ràng thay vì đi vòng quanh
+    // 1 điểm trung tâm (mắt thường khó nhận thấy → map "đứng im").
     _timer = Timer.periodic(const Duration(seconds: 2), (_) {
       _step++;
-      final radians = _step * 0.2;
-      final nextLat = 10.762622 + 0.0015 * sin(radians);
-      final nextLng = 106.660172 + 0.0015 * cos(radians);
+      final wiggle = 0.00008 * sin(_step * 0.5);
+      final nextLat = 10.762622 + wiggle;
+      final nextLng = 106.660172 + _step * 0.0003;
       lat = nextLat;
       lng = nextLng;
       _controller.add(TrackPoint(
@@ -53,8 +55,8 @@ class MockTrackingLocationSource implements TrackingLocationSource {
         latitude: nextLat,
         longitude: nextLng,
         accuracy: 5,
-        speed: _step.isEven ? 28.0 : 35.0,
-        heading: radians * 180 / 3.14159,
+        speed: _step.isOdd ? 30.0 : 36.0,
+        heading: 90, // hướng Đông
         timestamp: DateTime.now(),
       ));
     });

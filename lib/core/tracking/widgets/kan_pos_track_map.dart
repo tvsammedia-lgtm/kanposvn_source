@@ -37,7 +37,19 @@ class KanPosTrackMap extends StatefulWidget {
 
 class _KanPosTrackMapState extends State<KanPosTrackMap> {
   final MapController _mapController = MapController();
+
+  // Dùng chung 1 provider cho vòng đời widget: nếu mất mạng/server chặn, tile
+  // lỗi bị bỏ qua thầm lặng → nền sáng + đường đi + marker vẫn hiển thị (map
+  // không bị "đứng im" vì treo tile).
+  final TileProvider _tileProvider = NetworkTileProvider(silenceExceptions: true);
+
   bool _ready = false;
+
+  @override
+  void dispose() {
+    _tileProvider.dispose();
+    super.dispose();
+  }
 
   LatLng? get _currentLatLng => widget.current == null
       ? null
@@ -117,6 +129,7 @@ class _KanPosTrackMapState extends State<KanPosTrackMap> {
           userAgentPackageName: 'com.kanposvn.tracking',
           maxNativeZoom: 19,
           maxZoom: 19,
+          tileProvider: _tileProvider,
         ),
         if (centerForRadius != null)
           CircleLayer<int>(circles: [
