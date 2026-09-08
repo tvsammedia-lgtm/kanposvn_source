@@ -31,6 +31,10 @@ class RestaurantTable {
 
   int capacity = 4; // Sức chứa (số khách)
 
+  // Tránh hiển thị giá trị sức chứa rác (vd: 9223372036854775808 từ dữ liệu
+  // cloud) trên sơ đồ bàn.
+  bool get hasValidCapacity => capacity >= 1 && capacity <= 100;
+
   @enumerated
   RestaurantTableStatus status = RestaurantTableStatus.EMPTY;
 }

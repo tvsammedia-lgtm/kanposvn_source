@@ -13,22 +13,24 @@ import '../services/restaurant_business_logic.dart';
 import '../services/restaurant_einvoice_settings.dart';
 import '../services/restaurant_qr_bridge.dart';
 
-final restaurantIsarServiceProvider = Provider((ref) => RestaurantIsarService());
+final restaurantIsarServiceProvider = Provider(
+  (ref) => RestaurantIsarService(),
+);
 
 // Settings
 final restaurantEinvoiceSettingsProvider =
     ChangeNotifierProvider<RestaurantEinvoiceSettingsStore>((ref) {
-  final store = RestaurantEinvoiceSettingsStore();
-  store.load();
-  return store;
-});
+      final store = RestaurantEinvoiceSettingsStore();
+      store.load();
+      return store;
+    });
 
 // Tables
 class RestaurantTablesNotifier
     extends StateNotifier<AsyncValue<List<RestaurantTable>>> {
   final RestaurantIsarService _isarService;
   RestaurantTablesNotifier(this._isarService)
-      : super(const AsyncValue.loading()) {
+    : super(const AsyncValue.loading()) {
     loadTables();
   }
 
@@ -37,6 +39,17 @@ class RestaurantTablesNotifier
       await _isarService.run((db) async {
         state = const AsyncValue.loading();
         final data = await db.restaurantTables.where().findAll();
+        // Tự làm sạch capacity rác (vd: 9223372036854775808 kéo về từ sync
+        // cloud) ngay khi nạp bàn, để không hiển thị/đẩy lại giá trị vô lý.
+        final bad = data.where((t) => !t.hasValidCapacity).toList();
+        if (bad.isNotEmpty) {
+          await db.writeTxn(() async {
+            for (final t in bad) {
+              t.capacity = t.capacity.clamp(1, 100);
+              await db.restaurantTables.put(t);
+            }
+          });
+        }
         data.sort((a, b) => a.name.compareTo(b.name));
         state = AsyncValue.data(data);
       });
@@ -46,7 +59,9 @@ class RestaurantTablesNotifier
   }
 
   Future<void> setTableStatus(
-      RestaurantTable table, RestaurantTableStatus status) async {
+    RestaurantTable table,
+    RestaurantTableStatus status,
+  ) async {
     await _isarService.run((db) async {
       await db.writeTxn(() async {
         table.status = status;
@@ -56,18 +71,21 @@ class RestaurantTablesNotifier
     await loadTables();
   }
 }
+
 final restaurantTablesProvider =
-    StateNotifierProvider<RestaurantTablesNotifier, AsyncValue<List<RestaurantTable>>>(
-        (ref) {
-  return RestaurantTablesNotifier(ref.watch(restaurantIsarServiceProvider));
-});
+    StateNotifierProvider<
+      RestaurantTablesNotifier,
+      AsyncValue<List<RestaurantTable>>
+    >((ref) {
+      return RestaurantTablesNotifier(ref.watch(restaurantIsarServiceProvider));
+    });
 
 // Menu Items
 class RestaurantMenuNotifier
     extends StateNotifier<AsyncValue<List<RestaurantMenuItem>>> {
   final RestaurantIsarService _isarService;
   RestaurantMenuNotifier(this._isarService)
-      : super(const AsyncValue.loading()) {
+    : super(const AsyncValue.loading()) {
     loadMenu();
   }
 
@@ -84,18 +102,21 @@ class RestaurantMenuNotifier
     }
   }
 }
+
 final restaurantMenuProvider =
-    StateNotifierProvider<RestaurantMenuNotifier, AsyncValue<List<RestaurantMenuItem>>>(
-        (ref) {
-  return RestaurantMenuNotifier(ref.watch(restaurantIsarServiceProvider));
-});
+    StateNotifierProvider<
+      RestaurantMenuNotifier,
+      AsyncValue<List<RestaurantMenuItem>>
+    >((ref) {
+      return RestaurantMenuNotifier(ref.watch(restaurantIsarServiceProvider));
+    });
 
 // Promotions
 class RestaurantPromotionsNotifier
     extends StateNotifier<AsyncValue<List<RestaurantPromotion>>> {
   final RestaurantIsarService _isarService;
   RestaurantPromotionsNotifier(this._isarService)
-      : super(const AsyncValue.loading()) {
+    : super(const AsyncValue.loading()) {
     load();
   }
 
@@ -110,18 +131,23 @@ class RestaurantPromotionsNotifier
     }
   }
 }
-final restaurantPromotionsProvider = StateNotifierProvider<
-    RestaurantPromotionsNotifier,
-    AsyncValue<List<RestaurantPromotion>>>((ref) {
-  return RestaurantPromotionsNotifier(ref.watch(restaurantIsarServiceProvider));
-});
+
+final restaurantPromotionsProvider =
+    StateNotifierProvider<
+      RestaurantPromotionsNotifier,
+      AsyncValue<List<RestaurantPromotion>>
+    >((ref) {
+      return RestaurantPromotionsNotifier(
+        ref.watch(restaurantIsarServiceProvider),
+      );
+    });
 
 // Orders
 class RestaurantOrdersNotifier
     extends StateNotifier<AsyncValue<List<RestaurantOrder>>> {
   final RestaurantIsarService _isarService;
   RestaurantOrdersNotifier(this._isarService)
-      : super(const AsyncValue.loading()) {
+    : super(const AsyncValue.loading()) {
     loadOrders();
   }
 
@@ -200,10 +226,14 @@ class RestaurantOrdersNotifier
 
   /// XIX. Chuyển bàn: dời order sang bàn khác.
   Future<bool> transferTable(
-      RestaurantOrder order, RestaurantTable newTable) async {
+    RestaurantOrder order,
+    RestaurantTable newTable,
+  ) async {
     final active = await findActiveOrderOnTable(newTable);
     if (!RestaurantBusinessLogic.canTransferToTable(
-        newTableActiveOrder: active, currentOrderId: order.orderId)) {
+      newTableActiveOrder: active,
+      currentOrderId: order.orderId,
+    )) {
       return false;
     }
     await _isarService.run((isar) async {
@@ -228,20 +258,27 @@ class RestaurantOrdersNotifier
 
   /// XIX. Gộp bàn: gộp toàn bộ món của [source] vào [target], xóa [source].
   Future<void> mergeOrders(
-      RestaurantOrder source, RestaurantOrder target) async {
+    RestaurantOrder source,
+    RestaurantOrder target,
+  ) async {
     await _isarService.run((db) async {
       final sourceTable = source.table.value;
       await db.writeTxn(() async {
         RestaurantBusinessLogic.mergeDetails(source: source, target: target);
-        target.totalAmount = RestaurantBusinessLogic.recalculateTotal(target.details);
+        target.totalAmount = RestaurantBusinessLogic.recalculateTotal(
+          target.details,
+        );
         target.discountAmount = 0;
         target.promotionName = '';
         await db.restaurantOrders.put(target);
-        final savedSource =
-            await db.restaurantOrders.filter().orderIdEqualTo(source.orderId).findFirst();
-        if (savedSource != null) await db.restaurantOrders.delete(savedSource.id);
-        if (sourceTable != null &&
-            sourceTable.id != target.table.value?.id) {
+        final savedSource = await db.restaurantOrders
+            .filter()
+            .orderIdEqualTo(source.orderId)
+            .findFirst();
+        if (savedSource != null) {
+          await db.restaurantOrders.delete(savedSource.id);
+        }
+        if (sourceTable != null && sourceTable.id != target.table.value?.id) {
           sourceTable.status = RestaurantTableStatus.EMPTY;
           await db.restaurantTables.put(sourceTable);
         }
@@ -254,10 +291,14 @@ class RestaurantOrdersNotifier
 
   /// XIX. Tách hóa đơn: chuyển các món được chọn sang order mới cùng bàn.
   Future<RestaurantOrder?> splitOrder(
-      RestaurantOrder order, Set<String> detailIdsToMove) async {
+    RestaurantOrder order,
+    Set<String> detailIdsToMove,
+  ) async {
     if (detailIdsToMove.isEmpty || order.details.length <= 1) return null;
     final (kept, moved) = RestaurantBusinessLogic.splitDetails(
-        order.details, detailIdsToMove);
+      order.details,
+      detailIdsToMove,
+    );
     if (kept.isEmpty || moved.isEmpty) return null;
 
     final newOrder = RestaurantOrder()
@@ -286,7 +327,10 @@ class RestaurantOrdersNotifier
 
   Future<RestaurantOrder?> findActiveOrderOnTable(RestaurantTable table) async {
     final all = await _isarService.run((db) async {
-      return db.restaurantOrders.filter().statusEqualTo(RestaurantOrderStatus.SERVING).findAll();
+      return db.restaurantOrders
+          .filter()
+          .statusEqualTo(RestaurantOrderStatus.SERVING)
+          .findAll();
     });
     for (final o in all) {
       await o.table.load();
@@ -317,8 +361,9 @@ class RestaurantOrdersNotifier
           order.customerName = customer.name;
           order.customerPhone = customer.phone;
           final finalAmount = order.totalAmount - order.discountAmount;
-          order.earnedPoints =
-              RestaurantBusinessLogic.pointsEarnedFor(finalAmount);
+          order.earnedPoints = RestaurantBusinessLogic.pointsEarnedFor(
+            finalAmount,
+          );
           customer.points += order.earnedPoints;
 
           // Thanh toán bằng công nợ -> tăng nợ khách nếu trả thiếu
@@ -345,21 +390,25 @@ class RestaurantOrdersNotifier
     ref.read(restaurantCustomersProvider.notifier).loadCustomers();
   }
 }
+
 final restaurantOrdersProvider =
-    StateNotifierProvider<RestaurantOrdersNotifier, AsyncValue<List<RestaurantOrder>>>(
-        (ref) {
-  final notifier =
-      RestaurantOrdersNotifier(ref.watch(restaurantIsarServiceProvider));
-  notifier.setRef(ref);
-  return notifier;
-});
+    StateNotifierProvider<
+      RestaurantOrdersNotifier,
+      AsyncValue<List<RestaurantOrder>>
+    >((ref) {
+      final notifier = RestaurantOrdersNotifier(
+        ref.watch(restaurantIsarServiceProvider),
+      );
+      notifier.setRef(ref);
+      return notifier;
+    });
 
 // VI. Đặt bàn
 class RestaurantReservationsNotifier
     extends StateNotifier<AsyncValue<List<RestaurantReservation>>> {
   final RestaurantIsarService _isarService;
   RestaurantReservationsNotifier(this._isarService)
-      : super(const AsyncValue.loading()) {
+    : super(const AsyncValue.loading()) {
     load();
   }
 
@@ -369,7 +418,10 @@ class RestaurantReservationsNotifier
   Future<void> load() async {
     try {
       await _isarService.run((db) async {
-        final data = await db.restaurantReservations.where().sortByTime().findAll();
+        final data = await db.restaurantReservations
+            .where()
+            .sortByTime()
+            .findAll();
         state = AsyncValue.data(data);
       });
     } catch (e, st) {
@@ -403,7 +455,10 @@ class RestaurantReservationsNotifier
 
         // Bàn trống & giờ đặt trong hôm nay -> đánh dấu Đặt trước
         final now = DateTime.now();
-        final isToday = time.year == now.year && time.month == now.month && time.day == now.day;
+        final isToday =
+            time.year == now.year &&
+            time.month == now.month &&
+            time.day == now.day;
         if (isToday && table.status == RestaurantTableStatus.EMPTY) {
           table.status = RestaurantTableStatus.RESERVED;
           await db.restaurantTables.put(table);
@@ -415,7 +470,9 @@ class RestaurantReservationsNotifier
   }
 
   Future<void> setStatus(
-      RestaurantReservation res, RestaurantReservationStatus status) async {
+    RestaurantReservation res,
+    RestaurantReservationStatus status,
+  ) async {
     await _isarService.run((db) async {
       await db.writeTxn(() async {
         res.status = status;
@@ -441,21 +498,25 @@ class RestaurantReservationsNotifier
     ref.read(restaurantTablesProvider.notifier).loadTables();
   }
 }
-final restaurantReservationsProvider = StateNotifierProvider<
-    RestaurantReservationsNotifier,
-    AsyncValue<List<RestaurantReservation>>>((ref) {
-  final notifier = RestaurantReservationsNotifier(
-      ref.watch(restaurantIsarServiceProvider));
-  notifier.setRef(ref);
-  return notifier;
-});
+
+final restaurantReservationsProvider =
+    StateNotifierProvider<
+      RestaurantReservationsNotifier,
+      AsyncValue<List<RestaurantReservation>>
+    >((ref) {
+      final notifier = RestaurantReservationsNotifier(
+        ref.watch(restaurantIsarServiceProvider),
+      );
+      notifier.setRef(ref);
+      return notifier;
+    });
 
 // XV. Khách hàng
 class RestaurantCustomersNotifier
     extends StateNotifier<AsyncValue<List<RestaurantCustomer>>> {
   final RestaurantIsarService _isarService;
   RestaurantCustomersNotifier(this._isarService)
-      : super(const AsyncValue.loading()) {
+    : super(const AsyncValue.loading()) {
     loadCustomers();
   }
 
@@ -490,18 +551,23 @@ class RestaurantCustomersNotifier
     await loadCustomers();
   }
 }
-final restaurantCustomersProvider = StateNotifierProvider<
-    RestaurantCustomersNotifier,
-    AsyncValue<List<RestaurantCustomer>>>((ref) {
-  return RestaurantCustomersNotifier(ref.watch(restaurantIsarServiceProvider));
-});
+
+final restaurantCustomersProvider =
+    StateNotifierProvider<
+      RestaurantCustomersNotifier,
+      AsyncValue<List<RestaurantCustomer>>
+    >((ref) {
+      return RestaurantCustomersNotifier(
+        ref.watch(restaurantIsarServiceProvider),
+      );
+    });
 
 // XIV. Nhà cung cấp
 class RestaurantSuppliersNotifier
     extends StateNotifier<AsyncValue<List<RestaurantSupplier>>> {
   final RestaurantIsarService _isarService;
   RestaurantSuppliersNotifier(this._isarService)
-      : super(const AsyncValue.loading()) {
+    : super(const AsyncValue.loading()) {
     loadSuppliers();
   }
 
@@ -535,18 +601,23 @@ class RestaurantSuppliersNotifier
     await loadSuppliers();
   }
 }
-final restaurantSuppliersProvider = StateNotifierProvider<
-    RestaurantSuppliersNotifier,
-    AsyncValue<List<RestaurantSupplier>>>((ref) {
-  return RestaurantSuppliersNotifier(ref.watch(restaurantIsarServiceProvider));
-});
+
+final restaurantSuppliersProvider =
+    StateNotifierProvider<
+      RestaurantSuppliersNotifier,
+      AsyncValue<List<RestaurantSupplier>>
+    >((ref) {
+      return RestaurantSuppliersNotifier(
+        ref.watch(restaurantIsarServiceProvider),
+      );
+    });
 
 // XXV. Chi phí
 class RestaurantExpensesNotifier
     extends StateNotifier<AsyncValue<List<RestaurantExpense>>> {
   final RestaurantIsarService _isarService;
   RestaurantExpensesNotifier(this._isarService)
-      : super(const AsyncValue.loading()) {
+    : super(const AsyncValue.loading()) {
     loadExpenses();
   }
 
@@ -556,8 +627,10 @@ class RestaurantExpensesNotifier
   Future<void> loadExpenses() async {
     try {
       await _isarService.run((db) async {
-        final data =
-            await db.restaurantExpenses.where().sortByCreatedAtDesc().findAll();
+        final data = await db.restaurantExpenses
+            .where()
+            .sortByCreatedAtDesc()
+            .findAll();
         state = AsyncValue.data(data);
       });
     } catch (e, st) {
@@ -565,8 +638,11 @@ class RestaurantExpensesNotifier
     }
   }
 
-  Future<void> addExpense(RestaurantExpenseCategory category, double amount,
-      String note) async {
+  Future<void> addExpense(
+    RestaurantExpenseCategory category,
+    double amount,
+    String note,
+  ) async {
     await _isarService.run((db) async {
       await db.writeTxn(() async {
         final e = RestaurantExpense()
@@ -582,21 +658,25 @@ class RestaurantExpensesNotifier
     ref.read(restaurantDashboardProvider.notifier).loadDashboard();
   }
 }
-final restaurantExpensesProvider = StateNotifierProvider<
-    RestaurantExpensesNotifier,
-    AsyncValue<List<RestaurantExpense>>>((ref) {
-  final notifier =
-      RestaurantExpensesNotifier(ref.watch(restaurantIsarServiceProvider));
-  notifier.setRef(ref);
-  return notifier;
-});
+
+final restaurantExpensesProvider =
+    StateNotifierProvider<
+      RestaurantExpensesNotifier,
+      AsyncValue<List<RestaurantExpense>>
+    >((ref) {
+      final notifier = RestaurantExpensesNotifier(
+        ref.watch(restaurantIsarServiceProvider),
+      );
+      notifier.setRef(ref);
+      return notifier;
+    });
 
 // III. Dashboard theo PRD: hôm nay / tháng / năm
 class RestaurantDashboardNotifier
     extends StateNotifier<AsyncValue<Map<String, dynamic>>> {
   final RestaurantIsarService _isarService;
   RestaurantDashboardNotifier(this._isarService)
-      : super(const AsyncValue.loading()) {
+    : super(const AsyncValue.loading()) {
     loadDashboard();
   }
 
@@ -650,14 +730,16 @@ class RestaurantDashboardNotifier
         }
 
         final servingCount = tables
-            .where((t) =>
-                t.status == RestaurantTableStatus.SERVING ||
-                t.status == RestaurantTableStatus.WAITING_PAYMENT)
+            .where(
+              (t) =>
+                  t.status == RestaurantTableStatus.SERVING ||
+                  t.status == RestaurantTableStatus.WAITING_PAYMENT,
+            )
             .length;
-        final reservedCount =
-            tables.where((t) => t.status == RestaurantTableStatus.RESERVED).length;
-        final totalDebt =
-            customers.fold<double>(0, (s, c) => s + c.debt);
+        final reservedCount = tables
+            .where((t) => t.status == RestaurantTableStatus.RESERVED)
+            .length;
+        final totalDebt = customers.fold<double>(0, (s, c) => s + c.debt);
 
         state = AsyncValue.data({
           'revenue': revToday,
@@ -681,18 +763,26 @@ class RestaurantDashboardNotifier
     }
   }
 }
-final restaurantDashboardProvider = StateNotifierProvider<
-    RestaurantDashboardNotifier,
-    AsyncValue<Map<String, dynamic>>>((ref) {
-  return RestaurantDashboardNotifier(ref.watch(restaurantIsarServiceProvider));
-});
+
+final restaurantDashboardProvider =
+    StateNotifierProvider<
+      RestaurantDashboardNotifier,
+      AsyncValue<Map<String, dynamic>>
+    >((ref) {
+      return RestaurantDashboardNotifier(
+        ref.watch(restaurantIsarServiceProvider),
+      );
+    });
 
 // QR Order Online
 final restaurantQrBridgeProvider = Provider<RestaurantQrBridge>((ref) {
   final isar = ref.watch(restaurantIsarServiceProvider);
-  return RestaurantQrBridge(isar, onLocalRefresh: () async {
-    await ref.read(restaurantOrdersProvider.notifier).loadOrders();
-    await ref.read(restaurantTablesProvider.notifier).loadTables();
-    await ref.read(restaurantDashboardProvider.notifier).loadDashboard();
-  });
+  return RestaurantQrBridge(
+    isar,
+    onLocalRefresh: () async {
+      await ref.read(restaurantOrdersProvider.notifier).loadOrders();
+      await ref.read(restaurantTablesProvider.notifier).loadTables();
+      await ref.read(restaurantDashboardProvider.notifier).loadDashboard();
+    },
+  );
 });

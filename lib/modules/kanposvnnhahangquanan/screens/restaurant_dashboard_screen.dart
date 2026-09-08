@@ -2,7 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../providers/restaurant_providers.dart';
+import '../../../core/widgets/dashboard_nav_grid.dart';
 import '../../../core/widgets/owner_info_bar.dart';
+import 'bill_search_screen.dart';
+import 'restaurant_expenses_screen.dart';
+import 'restaurant_inventory_screen.dart';
+import 'restaurant_kitchen_screen.dart';
+import 'restaurant_partners_screen.dart';
+import 'restaurant_reports_screen.dart';
+import 'restaurant_reservations_screen.dart';
+import 'restaurant_settings_screen.dart';
+import 'restaurant_tables_screen.dart';
 
 class RestaurantDashboardScreen extends ConsumerWidget {
   const RestaurantDashboardScreen({super.key});
@@ -153,6 +163,28 @@ class RestaurantDashboardScreen extends ConsumerWidget {
                       Colors.blue, icon: Icons.calendar_month),
                 ],
               ),
+              const SizedBox(height: 24),
+              Text('CHỨC NĂNG NHANH',
+                  style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.orange[800])),
+              const SizedBox(height: 16),
+              DashboardNavGrid(
+                crossAxisCount: MediaQuery.sizeOf(context).width > 1000 ? 5 : 3,
+                padding: EdgeInsets.zero,
+                items: [
+                  DashboardNavItem(label: 'Bàn', icon: Icons.table_restaurant, color: Colors.orange, onTap: () => _push(context, const RestaurantTablesScreen())),
+                  DashboardNavItem(label: 'Đặt Trước', icon: Icons.event_available, color: Colors.indigo, onTap: () => _push(context, const RestaurantReservationsScreen())),
+                  DashboardNavItem(label: 'Bếp', icon: Icons.kitchen, color: Colors.deepOrange, onTap: () => _push(context, const RestaurantKitchenScreen())),
+                  DashboardNavItem(label: 'Kho Hàng', icon: Icons.inventory_2, color: Colors.purple, onTap: () => _push(context, const RestaurantInventoryScreen())),
+                  DashboardNavItem(label: 'KH & NCC', icon: Icons.people, color: Colors.teal, onTap: () => _push(context, const RestaurantPartnersScreen())),
+                  DashboardNavItem(label: 'Chi Phí', icon: Icons.money_off, color: Colors.red, onTap: () => _push(context, const RestaurantExpensesScreen())),
+                  DashboardNavItem(label: 'Tra Cứu HĐ', icon: Icons.search, color: Colors.blue, onTap: () => _push(context, const BillSearchScreen())),
+                  DashboardNavItem(label: 'Báo Cáo', icon: Icons.bar_chart, color: Colors.brown, onTap: () => _push(context, const RestaurantReportsScreen())),
+                  DashboardNavItem(label: 'Cài Đặt', icon: Icons.settings, color: Colors.blueGrey, onTap: () => _push(context, const RestaurantSettingsScreen())),
+                ],
+              ),
             ],
           );
         },
@@ -160,5 +192,9 @@ class RestaurantDashboardScreen extends ConsumerWidget {
         error: (err, st) => Center(child: Text('Lỗi: $err')),
       ),
     );
+  }
+
+  void _push(BuildContext context, Widget screen) {
+    Navigator.push(context, MaterialPageRoute(builder: (_) => screen));
   }
 }

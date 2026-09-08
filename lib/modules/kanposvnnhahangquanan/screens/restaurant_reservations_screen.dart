@@ -39,111 +39,151 @@ class _RestaurantReservationsScreenState
           content: SizedBox(
             width: 400,
             child: SingleChildScrollView(
-              child: Column(mainAxisSize: MainAxisSize.min, children: [
-                DropdownButtonFormField<RestaurantTable>(
-                  value: picked,
-                  isExpanded: true,
-                  decoration: const InputDecoration(
-                      labelText: 'Bàn *', border: OutlineInputBorder()),
-                  items: tables
-                      .map((t) => DropdownMenuItem(
-                          value: t,
-                          child:
-                              Text('${t.name} - ${t.zone} (${t.capacity} chỗ)')))
-                      .toList(),
-                  onChanged: (v) => setD(() => picked = v),
-                ),
-                const SizedBox(height: 8),
-                TextField(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  DropdownButtonFormField<RestaurantTable>(
+                    value: picked,
+                    isExpanded: true,
+                    decoration: const InputDecoration(
+                      labelText: 'Bàn *',
+                      border: OutlineInputBorder(),
+                    ),
+                    items: tables
+                        .map(
+                          (t) => DropdownMenuItem(
+                            value: t,
+                            child: Text(
+                              t.hasValidCapacity
+                                  ? '${t.name} - ${t.zone} (${t.capacity} chỗ)'
+                                  : '${t.name} - ${t.zone}',
+                            ),
+                          ),
+                        )
+                        .toList(),
+                    onChanged: (v) => setD(() => picked = v),
+                  ),
+                  const SizedBox(height: 8),
+                  TextField(
                     controller: nameCtrl,
                     autofocus: true,
                     decoration: const InputDecoration(
-                        labelText: 'Tên khách *',
-                        border: OutlineInputBorder())),
-                const SizedBox(height: 8),
-                TextField(
+                      labelText: 'Tên khách *',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  TextField(
                     controller: phoneCtrl,
                     keyboardType: TextInputType.phone,
                     decoration: const InputDecoration(
-                        labelText: 'Điện thoại',
-                        border: OutlineInputBorder())),
-                const SizedBox(height: 8),
-                ListTile(
-                  contentPadding: EdgeInsets.zero,
-                  leading: const Icon(Icons.event),
-                  title:
-                      Text('Thời gian: ${time.toString().substring(0, 16)}'),
-                  onTap: () async {
-                    final date = await showDatePicker(
+                      labelText: 'Điện thoại',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    leading: const Icon(Icons.event),
+                    title: Text(
+                      'Thời gian: ${time.toString().substring(0, 16)}',
+                    ),
+                    onTap: () async {
+                      final date = await showDatePicker(
                         context: ctx,
                         initialDate: time,
                         firstDate: DateTime.now(),
-                        lastDate:
-                            DateTime.now().add(const Duration(days: 60)));
-                    if (date != null && ctx.mounted) {
-                      final t = await showTimePicker(
+                        lastDate: DateTime.now().add(const Duration(days: 60)),
+                      );
+                      if (date != null && ctx.mounted) {
+                        final t = await showTimePicker(
                           context: ctx,
-                          initialTime: TimeOfDay.fromDateTime(time));
-                      if (t != null) {
-                        setD(() => time = DateTime(
-                            date.year, date.month, date.day, t.hour, t.minute));
+                          initialTime: TimeOfDay.fromDateTime(time),
+                        );
+                        if (t != null) {
+                          setD(
+                            () => time = DateTime(
+                              date.year,
+                              date.month,
+                              date.day,
+                              t.hour,
+                              t.minute,
+                            ),
+                          );
+                        }
                       }
-                    }
-                  },
-                ),
-                Row(children: [
-                  Expanded(
-                    child: DropdownButtonFormField<int>(
-                      value: guests.clamp(1, 20),
-                      decoration: const InputDecoration(
-                          labelText: 'Số người', border: OutlineInputBorder()),
-                      items: List.generate(20, (i) => i + 1)
-                          .map((n) => DropdownMenuItem(
-                              value: n, child: Text('$n người')))
-                          .toList(),
-                      onChanged: (v) => guests = v ?? 2,
-                    ),
+                    },
                   ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: TextFormField(
-                      initialValue: '',
-                      keyboardType: TextInputType.number,
-                      decoration: InputDecoration(
-                          labelText: 'Đặt cọc (đ)',
-                          hintText: '0',
-                          helperText:
-                              deposit > 0 ? 'Cọc: ${deposit.toStringAsFixed(0)}' : null,
-                          border: const OutlineInputBorder()),
-                      onChanged: (v) =>
-                          deposit = double.tryParse(v.trim()) ?? 0,
-                    ),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: DropdownButtonFormField<int>(
+                          value: guests.clamp(1, 20),
+                          decoration: const InputDecoration(
+                            labelText: 'Số người',
+                            border: OutlineInputBorder(),
+                          ),
+                          items: List.generate(20, (i) => i + 1)
+                              .map(
+                                (n) => DropdownMenuItem(
+                                  value: n,
+                                  child: Text('$n người'),
+                                ),
+                              )
+                              .toList(),
+                          onChanged: (v) => guests = v ?? 2,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: TextFormField(
+                          initialValue: '',
+                          keyboardType: TextInputType.number,
+                          decoration: InputDecoration(
+                            labelText: 'Đặt cọc (đ)',
+                            hintText: '0',
+                            helperText: deposit > 0
+                                ? 'Cọc: ${deposit.toStringAsFixed(0)}'
+                                : null,
+                            border: const OutlineInputBorder(),
+                          ),
+                          onChanged: (v) =>
+                              deposit = double.tryParse(v.trim()) ?? 0,
+                        ),
+                      ),
+                    ],
                   ),
-                ]),
-                const SizedBox(height: 8),
-                TextField(
+                  const SizedBox(height: 8),
+                  TextField(
                     controller: noteCtrl,
                     decoration: const InputDecoration(
-                        labelText: 'Ghi chú', border: OutlineInputBorder())),
-              ]),
+                      labelText: 'Ghi chú',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
           actions: [
             TextButton(
-                onPressed: () => Navigator.pop(ctx, false),
-                child: const Text('Hủy')),
+              onPressed: () => Navigator.pop(ctx, false),
+              child: const Text('Hủy'),
+            ),
             FilledButton(
-                onPressed: picked == null ||
-                        nameCtrl.text.trim().isEmpty
-                    ? null
-                    : () => Navigator.pop(ctx, true),
-                child: const Text('Lưu')),
+              onPressed: picked == null || nameCtrl.text.trim().isEmpty
+                  ? null
+                  : () => Navigator.pop(ctx, true),
+              child: const Text('Lưu'),
+            ),
           ],
         ),
       ),
     );
     if (ok != true || picked == null || !mounted) return;
-    await ref.read(restaurantReservationsProvider.notifier).addReservation(
+    await ref
+        .read(restaurantReservationsProvider.notifier)
+        .addReservation(
           table: picked!,
           customerName: nameCtrl.text.trim(),
           phone: phoneCtrl.text.trim(),
@@ -189,10 +229,12 @@ class _RestaurantReservationsScreenState
           final list = _showAll
               ? reservations
               : reservations
-                  .where((r) =>
-                      !r.time.isBefore(startToday) &&
-                      r.time.isBefore(endToday))
-                  .toList();
+                    .where(
+                      (r) =>
+                          !r.time.isBefore(startToday) &&
+                          r.time.isBefore(endToday),
+                    )
+                    .toList();
           if (list.isEmpty) {
             return const Center(child: Text('Không có lịch đặt bàn nào.'));
           }
@@ -212,15 +254,18 @@ class _RestaurantReservationsScreenState
                 elevation: 2,
                 child: ListTile(
                   leading: CircleAvatar(
-                      backgroundColor: color,
-                      child: const Icon(Icons.event_seat, color: Colors.white)),
+                    backgroundColor: color,
+                    child: const Icon(Icons.event_seat, color: Colors.white),
+                  ),
                   title: Text(
-                      '${r.customerName} • ${r.tableName} • ${r.guests} người',
-                      style: const TextStyle(fontWeight: FontWeight.bold)),
+                    '${r.customerName} • ${r.tableName} • ${r.guests} người',
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
                   subtitle: Text(
-                      '${r.time.toString().substring(0, 16)} • SĐT: ${r.phone.isEmpty ? "-" : r.phone}'
-                      '${r.deposit > 0 ? " • Cọc: ${r.deposit.toStringAsFixed(0)}đ" : ""}'
-                      '${r.note.isNotEmpty ? "\nGhi chú: ${r.note}" : ""}\n${r.status.label}'),
+                    '${r.time.toString().substring(0, 16)} • SĐT: ${r.phone.isEmpty ? "-" : r.phone}'
+                    '${r.deposit > 0 ? " • Cọc: ${r.deposit.toStringAsFixed(0)}đ" : ""}'
+                    '${r.note.isNotEmpty ? "\nGhi chú: ${r.note}" : ""}\n${r.status.label}',
+                  ),
                   isThreeLine: true,
                   trailing: r.status == RestaurantReservationStatus.BOOKED
                       ? PopupMenuButton<String>(
@@ -228,24 +273,27 @@ class _RestaurantReservationsScreenState
                             ref
                                 .read(restaurantReservationsProvider.notifier)
                                 .setStatus(
-                                    r,
-                                    v == 'seated'
-                                        ? RestaurantReservationStatus.SEATED
-                                        : v == 'cancel'
-                                            ? RestaurantReservationStatus
-                                                .CANCELLED
-                                            : RestaurantReservationStatus
-                                                .NO_SHOW);
+                                  r,
+                                  v == 'seated'
+                                      ? RestaurantReservationStatus.SEATED
+                                      : v == 'cancel'
+                                      ? RestaurantReservationStatus.CANCELLED
+                                      : RestaurantReservationStatus.NO_SHOW,
+                                );
                           },
                           itemBuilder: (_) => const [
                             PopupMenuItem(
-                                value: 'seated',
-                                child: Text('Khách đã đến (vào bàn)')),
+                              value: 'seated',
+                              child: Text('Khách đã đến (vào bàn)'),
+                            ),
                             PopupMenuItem(
-                                value: 'noshow',
-                                child: Text('Khách không đến')),
+                              value: 'noshow',
+                              child: Text('Khách không đến'),
+                            ),
                             PopupMenuItem(
-                                value: 'cancel', child: Text('Hủy đặt bàn')),
+                              value: 'cancel',
+                              child: Text('Hủy đặt bàn'),
+                            ),
                           ],
                         )
                       : Chip(label: Text(r.status.label)),
