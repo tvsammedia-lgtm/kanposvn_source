@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:kanposvn/core/tracking/screens/tracking_list_screen.dart';
+import 'customer_list_screen.dart';
 import 'order_list_screen.dart';
+import 'order_tq_settings_screen.dart';
 import '../providers/sync_provider.dart';
 
 class DashboardScreen extends ConsumerWidget {
@@ -49,32 +52,59 @@ class DashboardScreen extends ConsumerWidget {
         crossAxisSpacing: 16.0,
         mainAxisSpacing: 16.0,
         children: [
-          _buildMenuCard(context, Icons.list_alt, 'Đơn Hàng', Colors.blue, '/orders'),
-          _buildMenuCard(context, Icons.map, 'Bản Đồ Tracking', Colors.green, '/map'),
-          _buildMenuCard(context, Icons.people, 'Khách Hàng', Colors.orange, '/customers'),
-          _buildMenuCard(context, Icons.settings, 'Cài Đặt Mode', Colors.grey, '/settings'),
+          _buildMenuCard(
+            context,
+            Icons.list_alt,
+            'Đơn Hàng',
+            Colors.blue,
+            () => Navigator.push(context,
+                MaterialPageRoute(builder: (_) => const OrderListScreen())),
+          ),
+          _buildMenuCard(
+            context,
+            Icons.map,
+            'Bản Đồ Tracking',
+            Colors.green,
+            () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => const TrackingListScreen(
+                  appCode: 'kanposvnordertq',
+                  accentColor: Color(0xFFEF4444),
+                  unitLabel: 'Xe',
+                  moduleTitle: 'Tracking — Order TQ',
+                ),
+              ),
+            ),
+          ),
+          _buildMenuCard(
+            context,
+            Icons.people,
+            'Khách Hàng',
+            Colors.orange,
+            () => Navigator.push(context,
+                MaterialPageRoute(builder: (_) => const CustomerListScreen())),
+          ),
+          _buildMenuCard(
+            context,
+            Icons.settings,
+            'Cài Đặt Mode',
+            Colors.grey,
+            () => Navigator.push(context,
+                MaterialPageRoute(builder: (_) => const OrderTqSettingsScreen())),
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildMenuCard(BuildContext context, IconData icon, String title, Color color, String route) {
+  Widget _buildMenuCard(
+      BuildContext context, IconData icon, String title, Color color, VoidCallback onTap) {
     return Card(
       elevation: 4,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: InkWell(
-        onTap: () {
-          if (title == 'Đơn Hàng') {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const OrderListScreen()),
-            );
-          } else {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Chức năng $title đang được xây dựng!')),
-            );
-          }
-        },
+        onTap: onTap,
         borderRadius: BorderRadius.circular(16),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,

@@ -6,6 +6,7 @@ import '../../kanposvnride/providers/ride_isar_provider.dart';
 import '../../../core/tracking/screens/tracking_list_screen.dart';
 import '../providers/airbook_isar_provider.dart';
 import '../services/airbook_seed_data.dart';
+import 'airbook_home_screen.dart';
 import 'flight_search_screen.dart';
 import 'my_bookings_screen.dart';
 import 'commission_report_screen.dart';
@@ -53,6 +54,9 @@ class _KanPosVnAirbookShellState extends ConsumerState<KanPosVnAirbookShell> {
       body: IndexedStack(
         index: _tabIndex,
         children: [
+          AirbookHomeScreen(
+            onNavigate: (i) => setState(() => _tabIndex = i),
+          ),
           const FlightSearchScreen(),
           const MyBookingsScreen(),
           const CommissionReportScreen(),
@@ -70,6 +74,7 @@ class _KanPosVnAirbookShellState extends ConsumerState<KanPosVnAirbookShell> {
         indicatorColor: AppTheme.primaryBlue.withValues(alpha: 0.15),
         onDestinationSelected: (i) => setState(() => _tabIndex = i),
         destinations: const [
+          NavigationDestination(icon: Icon(Icons.home_outlined), selectedIcon: Icon(Icons.home), label: 'Trang chủ'),
           NavigationDestination(icon: Icon(Icons.flight_takeoff_outlined), selectedIcon: Icon(Icons.flight_takeoff), label: 'Đặt vé'),
           NavigationDestination(icon: Icon(Icons.confirmation_num_outlined), selectedIcon: Icon(Icons.confirmation_num), label: 'Vé của tôi'),
           NavigationDestination(icon: Icon(Icons.bar_chart_outlined), selectedIcon: Icon(Icons.bar_chart), label: 'Hoa hồng'),

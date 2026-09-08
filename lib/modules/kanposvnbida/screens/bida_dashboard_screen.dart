@@ -1,7 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/bida_providers.dart';
+import '../../../core/widgets/dashboard_nav_grid.dart';
 import '../../../core/widgets/owner_info_bar.dart';
+import 'bida_active_sessions_screen.dart';
+import 'bida_bill_search_screen.dart';
+import 'bida_customer_screen.dart';
+import 'bida_dat_ban_screen.dart';
+import 'bida_finance_screen.dart';
+import 'bida_inventory_screen.dart';
+import 'bida_reports_screen.dart';
+import 'bida_settings_screen.dart';
+import 'bida_tables_screen.dart';
 
 class BidaDashboardScreen extends ConsumerWidget {
   const BidaDashboardScreen({super.key});
@@ -45,6 +55,24 @@ class BidaDashboardScreen extends ConsumerWidget {
               children: [
                 const OwnerInfoBar(),
                 const SizedBox(height: 12),
+                const Text('CHỨC NĂNG NHANH', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.blue)),
+                const SizedBox(height: 12),
+                DashboardNavGrid(
+                  crossAxisCount: MediaQuery.sizeOf(context).width > 1000 ? 5 : 3,
+                  padding: EdgeInsets.zero,
+                  items: [
+                    DashboardNavItem(label: 'Bàn Cầu', icon: Icons.sports_baseball, color: Colors.teal, onTap: () => _push(context, const BidaTablesScreen())),
+                    DashboardNavItem(label: 'Đặt Bàn', icon: Icons.event_available, color: Colors.amber, onTap: () => _push(context, const BidaDatBanScreen())),
+                    DashboardNavItem(label: 'Phiên Chơi', icon: Icons.timer, color: Colors.orange, onTap: () => _push(context, const BidaActiveSessionsScreen())),
+                    DashboardNavItem(label: 'Khách Hàng', icon: Icons.people, color: Colors.pink, onTap: () => _push(context, const BidaCustomerScreen())),
+                    DashboardNavItem(label: 'Kho Hàng', icon: Icons.inventory_2, color: Colors.purple, onTap: () => _push(context, const BidaInventoryScreen())),
+                    DashboardNavItem(label: 'Kế Toán', icon: Icons.account_balance_wallet, color: Colors.green, onTap: () => _push(context, const BidaFinanceScreen())),
+                    DashboardNavItem(label: 'Tra Cứu HĐ', icon: Icons.search, color: Colors.indigo, onTap: () => _push(context, const BidaBillSearchScreen())),
+                    DashboardNavItem(label: 'Báo Cáo', icon: Icons.bar_chart, color: Colors.brown, onTap: () => _push(context, const BidaReportsScreen())),
+                    DashboardNavItem(label: 'Cài Đặt', icon: Icons.settings, color: Colors.blueGrey, onTap: () => _push(context, const BidaSettingsScreen())),
+                  ],
+                ),
+                const SizedBox(height: 24),
                 const Text('TỔNG QUAN DOANH THU', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.blue)),
                 const SizedBox(height: 24),
                 Row(
@@ -75,5 +103,9 @@ class BidaDashboardScreen extends ConsumerWidget {
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (err, st) => Center(child: Text('Lỗi: $err')),
       );
+  }
+
+  void _push(BuildContext context, Widget screen) {
+    Navigator.push(context, MaterialPageRoute(builder: (_) => screen));
   }
 }

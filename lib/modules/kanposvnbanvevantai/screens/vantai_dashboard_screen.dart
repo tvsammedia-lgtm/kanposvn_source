@@ -3,7 +3,18 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
 import '../providers/vantai_providers.dart';
+import '../../../core/tracking/screens/tracking_list_screen.dart';
+import '../../../core/widgets/dashboard_nav_grid.dart';
 import '../../../core/widgets/owner_info_bar.dart';
+import 'vantai_accounting_screen.dart';
+import 'vantai_dispatch_screen.dart';
+import 'vantai_drivers_screen.dart';
+import 'vantai_fleet_screen.dart';
+import 'vantai_partners_screen.dart';
+import 'vantai_reports_screen.dart';
+import 'vantai_settings_screen.dart';
+import 'vantai_shipment_screen.dart';
+import 'vantai_ticketing_screen.dart';
 
 /// PRD mục 1: Dashboard vận tải.
 class VantaiDashboardScreen extends ConsumerWidget {
@@ -43,6 +54,88 @@ class VantaiDashboardScreen extends ConsumerWidget {
             children: [
               const OwnerInfoBar(),
               const SizedBox(height: 12),
+              Text('CHỨC NĂNG NHANH',
+                  style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.teal[800])),
+              const SizedBox(height: 4),
+              DashboardNavGrid(
+                crossAxisCount: MediaQuery.sizeOf(context).width > 1100 ? 5 : 3,
+                padding: EdgeInsets.zero,
+                cardHeight: 100,
+                items: [
+                  DashboardNavItem(
+                    label: 'Bán Vé',
+                    icon: Icons.airplane_ticket,
+                    color: Colors.orange,
+                    onTap: () => _push(context, const VantaiTicketingScreen()),
+                  ),
+                  DashboardNavItem(
+                    label: 'Điều Xe',
+                    icon: Icons.departure_board,
+                    color: Colors.blue,
+                    onTap: () => _push(context, const VantaiDispatchScreen()),
+                  ),
+                  DashboardNavItem(
+                    label: 'Nhận Hàng',
+                    icon: Icons.inventory_2,
+                    color: Colors.purple,
+                    onTap: () => _push(context, const VantaiShipmentScreen()),
+                  ),
+                  DashboardNavItem(
+                    label: 'Tuyến & Xe',
+                    icon: Icons.alt_route,
+                    color: Colors.indigo,
+                    onTap: () => _push(context, const VantaiFleetScreen()),
+                  ),
+                  DashboardNavItem(
+                    label: 'Tài Xế',
+                    icon: Icons.badge,
+                    color: Colors.teal,
+                    onTap: () => _push(context, const VantaiDriversScreen()),
+                  ),
+                  DashboardNavItem(
+                    label: 'KH & NCC',
+                    icon: Icons.people,
+                    color: Colors.pink,
+                    onTap: () => _push(context, const VantaiPartnersScreen()),
+                  ),
+                  DashboardNavItem(
+                    label: 'Kế Toán',
+                    icon: Icons.account_balance_wallet,
+                    color: Colors.green,
+                    onTap: () => _push(context, const VantaiAccountingScreen()),
+                  ),
+                  DashboardNavItem(
+                    label: 'Báo Cáo',
+                    icon: Icons.bar_chart,
+                    color: Colors.brown,
+                    onTap: () => _push(context, const VantaiReportsScreen()),
+                  ),
+                  DashboardNavItem(
+                    label: 'Bản Đồ Tracking',
+                    icon: Icons.map,
+                    color: const Color(0xFF0891B2),
+                    onTap: () => _push(
+                      context,
+                      const TrackingListScreen(
+                        appCode: 'kanposvnbanvevantai',
+                        accentColor: Color(0xFF0891B2),
+                        unitLabel: 'Xe',
+                        moduleTitle: 'Tracking — Vận tải & Vé',
+                      ),
+                    ),
+                  ),
+                  DashboardNavItem(
+                    label: 'Cài Đặt',
+                    icon: Icons.settings,
+                    color: Colors.blueGrey,
+                    onTap: () => _push(context, const VantaiSettingsScreen()),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
               Text('TỔNG QUAN HÔM NAY',
                   style: TextStyle(
                       fontSize: 20,
@@ -237,5 +330,9 @@ class VantaiDashboardScreen extends ConsumerWidget {
         ]),
       ),
     );
+  }
+
+  void _push(BuildContext context, Widget screen) {
+    Navigator.push(context, MaterialPageRoute(builder: (_) => screen));
   }
 }

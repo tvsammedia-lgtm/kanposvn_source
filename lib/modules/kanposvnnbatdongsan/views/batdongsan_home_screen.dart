@@ -1,8 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/tracking/screens/tracking_list_screen.dart';
+import '../../../core/widgets/dashboard_nav_grid.dart';
 import '../providers/batdongsan_providers.dart';
 import '../services/batdongsan_business_logic.dart';
+import 'batdongsan_finance_screen.dart';
+import 'batdongsan_match_screen.dart';
+import 'batdongsan_settings_screen.dart';
+import 'bds_reports_screen.dart';
+import 'broker_list_screen.dart';
+import 'customer_list_screen.dart';
+import 'property_list_screen.dart';
+import 'transaction_list_screen.dart';
 
 /// Màn hình Tổng quan — 9 chỉ số theo PRD kanbatdongsan.md mục 4.1.
 class BatDongSanHomeScreen extends ConsumerWidget {
@@ -39,6 +49,22 @@ class BatDongSanHomeScreen extends ConsumerWidget {
           return ListView(
             padding: const EdgeInsets.all(12),
             children: [
+              DashboardNavGrid(
+                crossAxisCount: MediaQuery.sizeOf(context).width > 1100 ? 5 : 3,
+                padding: EdgeInsets.zero,
+                items: [
+                  DashboardNavItem(label: 'Danh Sách BĐS', icon: Icons.home_work, color: const Color(0xFF0284C7), onTap: () => _push(context, const PropertyListScreen())),
+                  DashboardNavItem(label: 'Khách Hàng', icon: Icons.people, color: const Color(0xFF059669), onTap: () => _push(context, const CustomerListScreen())),
+                  DashboardNavItem(label: 'Môi Giới', icon: Icons.badge, color: const Color(0xFF7C3AED), onTap: () => _push(context, const BrokerListScreen())),
+                  DashboardNavItem(label: 'Giao Dịch', icon: Icons.handshake, color: const Color(0xFFDC2626), onTap: () => _push(context, const TransactionListScreen())),
+                  DashboardNavItem(label: 'So Khớp', icon: Icons.join_inner, color: const Color(0xFFEA580C), onTap: () => _push(context, const BatDongSanMatchScreen())),
+                  DashboardNavItem(label: 'Phí Sàn', icon: Icons.account_balance_wallet, color: const Color(0xFF0891B2), onTap: () => _push(context, const BatDongSanFinanceScreen())),
+                  DashboardNavItem(label: 'Báo Cáo', icon: Icons.bar_chart, color: const Color(0xFF16A34A), onTap: () => _push(context, const BdsReportsScreen())),
+                  DashboardNavItem(label: 'Bản Đồ Tracking', icon: Icons.map, color: const Color(0xFFDB2777), onTap: () => _push(context, const TrackingListScreen(appCode: 'kanposvnnbatdongsan', accentColor: Color(0xFFDB2777), unitLabel: 'NV', moduleTitle: 'Tracking — BĐS'))),
+                  DashboardNavItem(label: 'Cài Đặt', icon: Icons.settings, color: Colors.blueGrey, onTap: () => _push(context, const BatDongSanSettingsScreen())),
+                ],
+              ),
+              const SizedBox(height: 16),
               GridView.count(
                 crossAxisCount: MediaQuery.of(context).size.width > 900 ? 3 : 2,
                 shrinkWrap: true,
@@ -123,6 +149,10 @@ class BatDongSanHomeScreen extends ConsumerWidget {
         },
       ),
     );
+  }
+
+  void _push(BuildContext context, Widget screen) {
+    Navigator.push(context, MaterialPageRoute(builder: (_) => screen));
   }
 }
 

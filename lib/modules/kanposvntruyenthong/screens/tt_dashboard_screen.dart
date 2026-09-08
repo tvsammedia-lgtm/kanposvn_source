@@ -2,8 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/providers.dart';
 import '../../../core/router/module_selector_screen.dart' show selectedModuleProvider;
+import '../../../core/widgets/dashboard_nav_grid.dart';
 import '../../../core/widgets/owner_info_bar.dart';
 import '../providers/tt_providers.dart';
+import 'tt_customers_screen.dart';
+import 'tt_finance_screen.dart';
+import 'tt_inventory_screen.dart';
+import 'tt_loyalty_screen.dart';
+import 'tt_pos_screen.dart';
+import 'tt_purchase_screen.dart';
+import 'tt_reports_screen.dart';
+import 'tt_settings_screen.dart';
+import 'tt_suppliers_screen.dart';
 
 String ttFmtVnd(double value) {
   final isNegative = value < 0;
@@ -86,6 +96,24 @@ class TtDashboardScreen extends ConsumerWidget {
               children: [
                 const OwnerInfoBar(),
                 const SizedBox(height: 16),
+                _buildSectionTitle('CHỨC NĂNG NHANH', const Color(0xFF16A34A)),
+                const SizedBox(height: 12),
+                DashboardNavGrid(
+                  crossAxisCount: MediaQuery.sizeOf(context).width > 1100 ? 5 : 3,
+                  padding: EdgeInsets.zero,
+                  items: [
+                    DashboardNavItem(label: 'Bán Hàng (POS)', icon: Icons.point_of_sale, color: const Color(0xFF16A34A), onTap: () => _push(context, const TtPosScreen())),
+                    DashboardNavItem(label: 'Nhập Hàng', icon: Icons.shopping_cart, color: Colors.blue, onTap: () => _push(context, const TtPurchaseScreen())),
+                    DashboardNavItem(label: 'Kho Hàng', icon: Icons.inventory_2, color: Colors.purple, onTap: () => _push(context, const TtInventoryScreen())),
+                    DashboardNavItem(label: 'Khách Hàng', icon: Icons.people, color: Colors.pink, onTap: () => _push(context, const TtCustomersScreen())),
+                    DashboardNavItem(label: 'NCC', icon: Icons.local_shipping, color: Colors.brown, onTap: () => _push(context, const TtSuppliersScreen())),
+                    DashboardNavItem(label: 'Kế Toán', icon: Icons.account_balance_wallet, color: const Color(0xFF0891B2), onTap: () => _push(context, const TtFinanceScreen())),
+                    DashboardNavItem(label: 'Tích Điểm', icon: Icons.stars, color: Colors.amber, onTap: () => _push(context, const TtLoyaltyScreen())),
+                    DashboardNavItem(label: 'Báo Cáo', icon: Icons.bar_chart, color: const Color(0xFFD97706), onTap: () => _push(context, const TtReportsScreen())),
+                    DashboardNavItem(label: 'Cài Đặt', icon: Icons.settings, color: Colors.blueGrey, onTap: () => _push(context, const TtSettingsScreen())),
+                  ],
+                ),
+                const SizedBox(height: 24),
                 _buildSectionTitle('TỔNG QUAN DOANH THU', const Color(0xFF16A34A)),
                 const SizedBox(height: 12),
                 LayoutBuilder(
@@ -183,5 +211,9 @@ class TtDashboardScreen extends ConsumerWidget {
         error: (err, st) => Center(child: Text('Lỗi: $err')),
       ),
     );
+  }
+
+  void _push(BuildContext context, Widget screen) {
+    Navigator.push(context, MaterialPageRoute(builder: (_) => screen));
   }
 }
