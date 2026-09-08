@@ -8,6 +8,7 @@ import '../models/vantai_customer.dart';
 import '../models/vantai_trip.dart';
 import '../models/vantai_vehicle.dart';
 import '../services/vantai_business_logic.dart';
+import '../services/vantai_ticket_printer.dart';
 
 /// PRD mục 7-8: Bán vé + sơ đồ ghế (trống/đã bán/giữ chỗ, không bán trùng).
 class VantaiTicketingScreen extends ConsumerStatefulWidget {
@@ -136,6 +137,14 @@ class _VantaiTicketingScreenState extends ConsumerState<VantaiTicketingScreen> {
     ticket.customer.value = customer;
 
     await ref.read(vantaiTicketsProvider.notifier).bookTicket(ticket);
+    if (ok == 'paid') {
+      // In vé ra PDF ngay sau khi thu tiền xong.
+      try {
+        await printVantaiTicketPdf(ticket);
+      } catch (_) {
+        // Lỗi in PDF không chặn luồng bán vé; chỉ báo nhẹ.
+      }
+    }
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text(ok == 'paid'
