@@ -3,7 +3,7 @@ import 'package:dio/dio.dart';
 import '../config/account_config.dart';
 import '../services/account_auth_service.dart';
 
-/// ApiClient dùng chung cho module KanPosVN Account: tự đính token (Bearer) vào
+/// ApiClient dùng chung cho phần Account của kanposvncrm: tự đính token (Bearer) vào
 /// mọi request. Base URL được chọn theo [AccountConfig.defaultMode]:
 ///  - online  -> cloud Vercel (Admin Web).
 ///  - offline -> local server Express (SQLite) trên localhost:3000.

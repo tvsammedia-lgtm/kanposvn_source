@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../network/api_client.dart';
 import '../services/account_auth_service.dart';
 
-/// Provider singleton dịch vụ auth hybrid cho module KanPosVN Account.
+/// Provider singleton dịch vụ auth hybrid cho phần Account của kanposvncrm.
 ///  - App thật: lưu token bằng [SecureTokenStore].
 ///  - Test: ghi đè `store` bằng [InMemoryTokenStore] hoặc mock AuthService.
 final accountAuthServiceProvider = Provider<AccountAuthService>((ref) {

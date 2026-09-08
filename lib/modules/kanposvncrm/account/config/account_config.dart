@@ -1,4 +1,4 @@
-/// Cấu hình mô hình login HYBRID cho module KanPosVN Account.
+/// Cấu hình mô hình login HYBRID cho phần Account của module kanposvncrm.
 ///
 /// online  -> đăng nhập qua cloud Vercel (Admin Web / PostgreSQL).
 /// offline -> đăng nhập qua local server Express (SQLite) trên LAN/localhost.

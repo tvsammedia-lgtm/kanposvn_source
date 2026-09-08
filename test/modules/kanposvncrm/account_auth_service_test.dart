@@ -4,8 +4,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart' as http_mock;
 
-import 'package:kanposvn/modules/kanposvnaccount/config/account_config.dart';
-import 'package:kanposvn/modules/kanposvnaccount/services/account_auth_service.dart';
+import 'package:kanposvn/modules/kanposvncrm/account/config/account_config.dart';
+import 'package:kanposvn/modules/kanposvncrm/account/services/account_auth_service.dart';
 
 /// Tạo JWT mock hợp lệ (header.payload.signature) với role truyền vào.
 String _mockJwt(String role) {

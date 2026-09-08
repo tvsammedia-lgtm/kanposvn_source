@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../config/account_config.dart';
 import '../providers/account_providers.dart';
 
-/// Màn hình đăng nhập dùng chung cho mô hình login HYBRID:
+/// Màn hình đăng nhập phần Account của kanposvncrm — mô hình login HYBRID:
 ///  - online cloud (Vercel)  -> đăng nhập bằng SĐT hoặc email.
 ///  - offline local (localhost:3000) -> đăng nhập bằng username.
 class AccountLoginScreen extends ConsumerStatefulWidget {
@@ -57,7 +57,7 @@ class _AccountLoginScreenState extends ConsumerState<AccountLoginScreen> {
       AccountServerMode.auto => 'Auto (Cloud → Local)',
     };
     return Scaffold(
-      appBar: AppBar(title: const Text('Đăng nhập KanPosVN Account')),
+      appBar: AppBar(title: const Text('Đăng nhập Account (KanPosVN CRM)')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
