@@ -107,16 +107,17 @@ void main() {
 
     test('seeded entities have expected counts', () async {
       await service.seedIfEmpty();
-      expect(await isar.orderLocals.count(), 6);
+      expect(await isar.orderLocals.count(), 10);
       expect(await isar.customerLocals.count(), 3);
       expect(await isar.vehicleLocals.count(), 3);
-      expect(await isar.tripLocals.count(), 3);
+      expect(await isar.tripLocals.count(), 5);
       expect(await isar.driverLocals.count(), 2);
       expect(await isar.userLocals.count(), 7);
-      expect(await isar.locationLocals.count(), 5);
-      expect(await isar.paymentLocals.count(), 5);
-      expect(await isar.notificationLocals.count(), 3);
-      expect(await isar.auditLogLocals.count(), 3);
+      expect(await isar.locationLocals.count(), 7);
+      expect(await isar.paymentLocals.count(), 7);
+      expect(await isar.notificationLocals.count(), 5);
+      expect(await isar.auditLogLocals.count(), 5);
+      expect(await isar.incidentLocals.count(), 2);
     });
   });
 
@@ -128,6 +129,8 @@ void main() {
       expect(ord1.status, 'CONFIRMED');
       expect(ord1.debtAmount, 875000);
       expect(ord1.paidAmount, 500000);
+      final ord8 = orders.firstWhere((o) => o.orderId == 'ord_008');
+      expect(ord8.status, 'PROBLEM');
     });
 
     test('sample contains trips with GPS history', () async {
@@ -221,9 +224,9 @@ void main() {
     test('getOrders filters by customer/status', () async {
       await OrderTQSeedData.seedSampleData(isar);
       final all = await service.getOrders();
-      expect(all.length, 6);
+      expect(all.length, 10);
       final forNam = await service.getOrders(customerId: 'cust_nam_01');
-      expect(forNam.length, 3);
+      expect(forNam.length, 4);
       final confirmed = await service.getOrders(status: 'CONFIRMED');
       expect(confirmed.length, 1);
     });
@@ -239,13 +242,14 @@ void main() {
     test('getCustomerDebt computes totals', () async {
       await OrderTQSeedData.seedSampleData(isar);
       final debt = await service.getCustomerDebt('cust_nam_01');
-      expect(debt['total_debt'], 1210000); // 875000 (ord_001) + 0 (ord_002) + 335000 (ord_006)
-      expect(debt['order_count'], 3);
+      // 875000 (ord_001) + 0 (ord_002) + 335000 (ord_006) + 448000 (ord_008)
+      expect(debt['total_debt'], 1658000);
+      expect(debt['order_count'], 4);
     });
   });
 
   group('OrderTQ Trips', () {
-    test('trip full lifecycle PLANNED -> IN_TRANSIT -> ARRIVED -> COMPLETED', () async {
+    test('trip full lifecycle PLANNED -> READY -> DEPARTED -> IN_TRANSIT -> STOPPED -> ARRIVED -> COMPLETED', () async {
       await OrderTQSeedData.seedSampleData(isar);
       final tripId = await service.createTrip(
         vehicleId: 'veh_02',
@@ -256,7 +260,15 @@ void main() {
       );
       final trip = await service.getTrip(tripId);
       expect(trip!.status, 'PLANNED');
+      await service.readyTrip(tripId, userId: 'driver02', role: 'DRIVER');
+      expect((await service.getTrip(tripId))!.status, 'READY');
       await service.departTrip(tripId, userId: 'driver02', role: 'DRIVER');
+      expect((await service.getTrip(tripId))!.status, 'DEPARTED');
+      await service.startTrip(tripId, userId: 'driver02', role: 'DRIVER');
+      expect((await service.getTrip(tripId))!.status, 'IN_TRANSIT');
+      await service.stopTrip(tripId, userId: 'driver02', role: 'DRIVER');
+      expect((await service.getTrip(tripId))!.status, 'STOPPED');
+      await service.startTrip(tripId, userId: 'driver02', role: 'DRIVER');
       expect((await service.getTrip(tripId))!.status, 'IN_TRANSIT');
       await service.arriveTrip(tripId, userId: 'driver02', role: 'DRIVER');
       expect((await service.getTrip(tripId))!.status, 'ARRIVED');
@@ -276,9 +288,18 @@ void main() {
     test('trip cannot depart from wrong status', () async {
       await OrderTQSeedData.seedSampleData(isar);
       final tripId = await service.createTrip(vehicleId: 'veh_02', driverId: 'driver_02', createdBy: 'admin');
+      // PLANNED -> READY -> DEPARTED
+      await service.readyTrip(tripId, userId: 'driver02', role: 'DRIVER');
       await service.departTrip(tripId, userId: 'driver02', role: 'DRIVER');
+      // DEPARTED -> DEPARTED invalid
       await expectLater(
         service.departTrip(tripId, userId: 'driver02', role: 'DRIVER'),
+        throwsA(isA<StateError>()),
+      );
+      // PLANNED -> DEPARTED trực tiếp cũng invalid (phải qua READY)
+      final trip2 = await service.createTrip(vehicleId: 'veh_02', driverId: 'driver_02', createdBy: 'admin');
+      await expectLater(
+        service.departTrip(trip2, userId: 'driver02', role: 'DRIVER'),
         throwsA(isA<StateError>()),
       );
     });
@@ -427,8 +448,15 @@ void main() {
         description: 'Va chạm nhẹ', reportedBy: 'driver01',
       );
       final incidents = await service.getIncidents(tripId: 'trip_001');
-      expect(incidents.length, 1);
-      expect(incidents.first.type, 'ACCIDENT');
+      // Seed có sẵn inc_001 (TRAFFIC); thêm mới ACCIDENT -> có 2
+      expect(incidents.any((i) => i.type == 'ACCIDENT' && i.description == 'Va chạm nhẹ'), isTrue);
+    });
+
+    test('seed contains incidents with severity', () async {
+      await OrderTQSeedData.seedSampleData(isar);
+      final incidents = await service.getIncidents();
+      expect(incidents.length, 2);
+      expect(incidents.any((i) => i.severity == 'HIGH'), isTrue);
     });
   });
 
@@ -500,10 +528,13 @@ void main() {
       await OrderTQSeedData.seedSampleData(isar);
       final stats = await service.getOrderStatsByStatus();
       expect(stats['CONFIRMED'], 1);
-      expect(stats['SHIPPED'], 1);
-      expect(stats['IN_TRANSIT'], 1);
+      expect(stats['SELLER_SHIPPED'], 1);
+      expect(stats['ON_TRUCK'], 1);
       expect(stats['DELIVERED'], 1);
       expect(stats['DRAFT'], 1);
+      expect(stats['PROBLEM'], 1);
+      expect(stats['COMPLETED'], 1);
+      expect(stats['CANCELLED'], 1);
     });
   });
 

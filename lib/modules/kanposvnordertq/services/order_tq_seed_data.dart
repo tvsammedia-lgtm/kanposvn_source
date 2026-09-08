@@ -12,6 +12,7 @@ import '../models/payment_local.dart';
 import '../models/notification_local.dart';
 import '../models/shipment_local.dart';
 import '../models/trip_order_local.dart';
+import '../models/incident_local.dart';
 import '../models/audit_log_local.dart';
 
 class OrderTQSeedData {
@@ -65,11 +66,15 @@ class OrderTQSeedData {
 
     // ── Orders ──
     final order1 = _order('ord_001', 'ORD-2026-00001', 'cust_nam_01', 'CONFIRMED', 'CNY', 3500, 1200000, 150000, 25000, 1375000, 500000, 875000, now);
-    final order2 = _order('ord_002', 'ORD-2026-00002', 'cust_nam_01', 'SHIPPED', 'CNY', 3500, 850000, 120000, 20000, 990000, 990000, 0, now);
+    final order2 = _order('ord_002', 'ORD-2026-00002', 'cust_nam_01', 'SELLER_SHIPPED', 'CNY', 3500, 850000, 120000, 20000, 990000, 990000, 0, now);
     final order3 = _order('ord_003', 'ORD-2026-00003', 'cust_nam_02', 'PENDING_CONFIRM', 'CNY', 3500, 2500000, 200000, 50000, 2750000, 0, 2750000, now);
     final order4 = _order('ord_004', 'ORD-2026-00004', 'cust_nam_02', 'DELIVERED', 'CNY', 3500, 500000, 50000, 10000, 560000, 560000, 0, now);
-    final order5 = _order('ord_005', 'ORD-2026-00005', 'cust_nam_03', 'IN_TRANSIT', 'CNY', 3500, 1800000, 180000, 30000, 2010000, 1000000, 1010000, now);
+    final order5 = _order('ord_005', 'ORD-2026-00005', 'cust_nam_03', 'ON_TRUCK', 'CNY', 3500, 1800000, 180000, 30000, 2010000, 1000000, 1010000, now);
     final order6 = _order('ord_006', 'ORD-2026-00006', 'cust_nam_01', 'DRAFT', 'CNY', 3500, 300000, 30000, 5000, 335000, 0, 335000, now);
+    final order7 = _order('ord_007', 'ORD-2026-00007', 'cust_nam_03', 'VN_WAREHOUSE', 'CNY', 3500, 900000, 100000, 20000, 1020000, 500000, 520000, now.subtract(const Duration(days: 1)));
+    final order8 = _order('ord_008', 'ORD-2026-00008', 'cust_nam_01', 'PROBLEM', 'CNY', 3500, 400000, 40000, 8000, 448000, 0, 448000, now.subtract(const Duration(days: 2)));
+    final order9 = _order('ord_009', 'ORD-2026-00009', 'cust_nam_02', 'COMPLETED', 'CNY', 3500, 1200000, 120000, 30000, 1350000, 1350000, 0, now.subtract(const Duration(days: 3)));
+    final order10 = _order('ord_010', 'ORD-2026-00010', 'cust_nam_03', 'CANCELLED', 'CNY', 3500, 200000, 20000, 5000, 225000, 0, 225000, now.subtract(const Duration(days: 4)));
 
     // ── Order Items ──
     final orderItems = [
@@ -81,18 +86,26 @@ class OrderTQSeedData {
       _orderItem('ord_004_item_0', 'ord_004', 'Đèn bàn LED', 'SKU-DN-001', 10, 50000, 'CNY', 500000, 0.6, 0.01),
       _orderItem('ord_005_item_0', 'ord_005', 'Máy lọc nước mini', 'SKU-MLN-001', 5, 350000, 'CNY', 1750000, 2.5, 0.04),
       _orderItem('ord_006_item_0', 'ord_006', 'Gối đỡ cổ', 'SKU-GN-001', 25, 12000, 'CNY', 300000, 0.3, 0.008),
+      _orderItem('ord_007_item_0', 'ord_007', 'Robot hút bụi', 'SKU-RB-001', 3, 300000, 'CNY', 900000, 3.0, 0.05),
+      _orderItem('ord_008_item_0', 'ord_008', 'Chuột không dây', 'SKU-CT-001', 40, 10000, 'CNY', 400000, 0.1, 0.002),
+      _orderItem('ord_009_item_0', 'ord_009', 'Tủ lạnh mini', 'SKU-TL-001', 2, 600000, 'CNY', 1200000, 8.0, 0.12),
+      _orderItem('ord_010_item_0', 'ord_010', 'Đèn trang trí', 'SKU-DT-001', 20, 10000, 'CNY', 200000, 0.4, 0.01),
     ];
 
     // ── Trips ──
     final trip1 = _trip('trip_001', 'TRIP-2026-00001', 'veh_01', 'driver_01', 'TP.HCM', 'Hà Nội', 'IN_TRANSIT', now.subtract(const Duration(hours: 6)), now.subtract(const Duration(hours: 5)));
     final trip2 = _trip('trip_002', 'TRIP-2026-00002', 'veh_02', 'driver_02', 'Hà Nội', 'Đà Nẵng', 'PLANNED', now.add(const Duration(hours: 2)), now.add(const Duration(hours: 8)));
     final trip3 = _trip('trip_003', 'TRIP-2026-00003', 'veh_01', 'driver_01', 'Hà Nội', 'TP.HCM', 'ARRIVED', now.subtract(const Duration(days: 1)), now.subtract(const Duration(hours: 18)));
+    final trip4 = _trip('trip_004', 'TRIP-2026-00004', 'veh_02', 'driver_02', 'TP.HCM', 'Cần Thơ', 'COMPLETED', now.subtract(const Duration(days: 2)), now.subtract(const Duration(days: 1)));
+    final trip5 = _trip('trip_005', 'TRIP-2026-00005', 'veh_03', 'driver_01', 'Đà Nẵng', 'Huế', 'STOPPED', now.subtract(const Duration(hours: 3)), now.add(const Duration(hours: 2)));
 
     // ── TripOrders ──
     final tripOrders = [
       _tripOrder('trip_001', 'ord_002'),
       _tripOrder('trip_001', 'ord_005'),
       _tripOrder('trip_003', 'ord_004'),
+      _tripOrder('trip_004', 'ord_009'),
+      _tripOrder('trip_005', 'ord_007'),
     ];
 
     // ── Shipments ──
@@ -100,15 +113,19 @@ class OrderTQSeedData {
       _shipment('shp_001', 'ord_002', 'CN-2026-00001', 'Quảng Châu', 'TP.HCM', 'SF Express', 'trip_001', 'IN_TRANSIT', now.subtract(const Duration(days: 2)), now.add(const Duration(days: 1))),
       _shipment('shp_002', 'ord_005', 'CN-2026-00002', 'Thâm Quyến', 'Đà Nẵng', 'YTO Express', 'trip_001', 'IN_TRANSIT', now.subtract(const Duration(days: 1)), now.add(const Duration(days: 2))),
       _shipment('shp_003', 'ord_004', 'CN-2026-00003', 'Bắc Kinh', 'Hà Nội', 'ZTO Express', 'trip_003', 'DELIVERED', now.subtract(const Duration(days: 3)), now.subtract(const Duration(days: 1))),
+      _shipment('shp_004', 'ord_009', 'CN-2026-00004', 'Quảng Châu', 'TP.HCM', 'SF Express', 'trip_004', 'DELIVERED', now.subtract(const Duration(days: 3)), now.subtract(const Duration(days: 1))),
+      _shipment('shp_005', 'ord_007', 'CN-2026-00005', 'Thâm Quyến', 'Huế', 'ZTO Express', 'trip_005', 'ASSIGNED', now.subtract(const Duration(days: 1)), now.add(const Duration(days: 1))),
     ];
 
-    // ── Locations (GPS for trip_001) ──
+    // ── Locations (GPS cho trip_001 và trip_005) ──
     final locations = [
       _location('loc_001', 'trip_001', 'veh_01', 'driver_01', 10.7769, 106.7009, 15.0, 0.0, now.subtract(const Duration(hours: 5))),
       _location('loc_002', 'trip_001', 'veh_01', 'driver_01', 10.8231, 106.6297, 10.0, 45.5, now.subtract(const Duration(hours: 4))),
       _location('loc_003', 'trip_001', 'veh_01', 'driver_01', 11.3167, 106.1000, 12.0, 52.3, now.subtract(const Duration(hours: 3))),
       _location('loc_004', 'trip_001', 'veh_01', 'driver_01', 12.2500, 107.0500, 8.0, 60.1, now.subtract(const Duration(hours: 2))),
       _location('loc_005', 'trip_001', 'veh_01', 'driver_01', 14.0583, 108.2772, 15.0, 55.8, now.subtract(const Duration(hours: 1))),
+      _location('loc_006', 'trip_005', 'veh_03', 'driver_01', 16.0471, 108.2069, 10.0, 0.0, now.subtract(const Duration(hours: 2))),
+      _location('loc_007', 'trip_005', 'veh_03', 'driver_01', 16.0678, 108.2208, 9.0, 40.2, now.subtract(const Duration(hours: 1))),
     ];
 
     // ── Payments ──
@@ -118,13 +135,23 @@ class OrderTQSeedData {
       _payment('pay_003', 'cust_nam_01', 'ord_001', 500000, 'QR', 'QR-20260905-003', now.subtract(const Duration(days: 5))),
       _payment('pay_004', 'cust_nam_02', 'ord_004', 560000, 'CASH', 'TM-20260901-004', now.subtract(const Duration(days: 7))),
       _payment('pay_005', 'cust_nam_03', 'ord_005', 1000000, 'BANK_TRANSFER', 'CK-20260905-005', now.subtract(const Duration(days: 3))),
+      _payment('pay_006', 'cust_nam_02', 'ord_009', 1350000, 'BANK_TRANSFER', 'CK-20260902-006', now.subtract(const Duration(days: 3))),
+      _payment('pay_007', 'cust_nam_03', 'ord_007', 500000, 'QR', 'QR-20260906-007', now.subtract(const Duration(days: 1))),
     ];
 
     // ── Notifications ──
     final notifications = [
       _notif('ntf_001', 'cust_nam_01', 'ORDER_CONFIRMED', 'Đơn hàng ORD-2026-00001 đã xác nhận', now.subtract(const Duration(days: 5))),
-      _notif('ntf_002', 'cust_nam_01', 'ORDER_SHIPPED', 'Đơn hàng ORD-2026-00002 đã giao vận', now.subtract(const Duration(days: 2))),
+      _notif('ntf_002', 'cust_nam_01', 'ORDER_SHIPPED', 'Đơn hàng ORD-2026-00002 đã được người bán giao', now.subtract(const Duration(days: 2))),
       _notif('ntf_003', 'cust_nam_02', 'ETA_CHANGED', 'ETA đơn ORD-2026-00005 cập nhật: +2 giờ', now.subtract(const Duration(hours: 1))),
+      _notif('ntf_004', 'cust_nam_03', 'ORDER_VN_WAREHOUSE', 'Đơn ORD-2026-00007 đã vào kho Việt Nam', now.subtract(const Duration(days: 1))),
+      _notif('ntf_005', 'cust_nam_01', 'ORDER_PROBLEM', 'Đơn ORD-2026-00008 có sự cố', now.subtract(const Duration(days: 2))),
+    ];
+
+    // ── Incidents ──
+    final incidents = [
+      _incident('inc_001', 'trip_001', 'ord_005', 'TRAFFIC', 'LOW', 'Tắc đường tại cửa khẩu', 'REPORTED', 'driver01', now.subtract(const Duration(hours: 2))),
+      _incident('inc_002', 'trip_005', 'ord_007', 'BREAKDOWN', 'HIGH', 'Xe hỏng lốp, đang dừng bảo dưỡng', 'RESOLVED', 'driver01', now.subtract(const Duration(hours: 1))),
     ];
 
     // ── Audit Logs ──
@@ -132,6 +159,8 @@ class OrderTQSeedData {
       _audit('audit_001', 'admin', 'ORDER_CREATED', 'ORDER', 'ord_001', null, 'DRAFT', now.subtract(const Duration(days: 5))),
       _audit('audit_002', 'admin', 'ORDER_STATUS_CHANGED', 'ORDER', 'ord_001', 'DRAFT', 'CONFIRMED', now.subtract(const Duration(days: 5))),
       _audit('audit_003', 'driver01', 'TRIP_DEPARTED', 'TRIP', 'trip_001', null, 'IN_TRANSIT', now.subtract(const Duration(hours: 5))),
+      _audit('audit_004', 'admin', 'ORDER_STATUS_CHANGED', 'ORDER', 'ord_008', 'CN_WAREHOUSE', 'PROBLEM', now.subtract(const Duration(days: 2))),
+      _audit('audit_005', 'driver01', 'INCIDENT_REPORTED', 'INCIDENT', 'inc_002', null, 'REPORTED', now.subtract(const Duration(hours: 1))),
     ];
 
     await isar.writeTxn(() async {
@@ -140,14 +169,15 @@ class OrderTQSeedData {
       await isar.driverLocals.putAll(drivers);
       await isar.customerLocals.putAll(customers);
       await isar.vehicleLocals.putAll(vehicles);
-      await isar.orderLocals.putAll([order1, order2, order3, order4, order5, order6]);
+      await isar.orderLocals.putAll([order1, order2, order3, order4, order5, order6, order7, order8, order9, order10]);
       await isar.orderItemLocals.putAll(orderItems);
-      await isar.tripLocals.putAll([trip1, trip2, trip3]);
+      await isar.tripLocals.putAll([trip1, trip2, trip3, trip4, trip5]);
       await isar.tripOrderLocals.putAll(tripOrders);
       await isar.shipmentLocals.putAll(shipments);
       await isar.locationLocals.putAll(locations);
       await isar.paymentLocals.putAll(payments);
       await isar.notificationLocals.putAll(notifications);
+      await isar.incidentLocals.putAll(incidents);
       await isar.auditLogLocals.putAll(auditLogs);
     });
   }
@@ -304,4 +334,18 @@ class OrderTQSeedData {
     ..oldValue = oldVal
     ..newValue = newVal
     ..createdAt = now;
+
+  static IncidentLocal _incident(String id, String? tripId, String? orderId, String type, String severity,
+      String description, String status, String reportedBy, DateTime reportedAt) => IncidentLocal()
+    ..incidentId = id
+    ..tripId = tripId
+    ..orderId = orderId
+    ..type = type
+    ..severity = severity
+    ..description = description
+    ..status = status
+    ..reportedBy = reportedBy
+    ..reportedAt = reportedAt
+    ..createdAt = reportedAt
+    ..updatedAt = reportedAt;
 }

@@ -1,6 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/order_local.dart';
 import '../models/order_item_local.dart';
+import '../models/trip_local.dart';
+import '../models/vehicle_local.dart';
+import '../models/customer_local.dart';
 import '../repositories/order_repository.dart';
 import '../services/order_tq_isar_service.dart';
 
@@ -50,10 +53,30 @@ class IsarOrderRepository implements OrderRepository {
   }
 }
 
+final orderListProvider = FutureProvider<List<OrderLocal>>((ref) async {
+  final service = ref.watch(orderBucketServiceProvider);
+  return service.getOrders();
+});
+
 final orderDetailProvider = FutureProvider.family<({OrderLocal? order, List<OrderItemLocal> items}), String>((ref, orderId) async {
   final service = ref.watch(orderBucketServiceProvider);
   final order = await service.getOrder(orderId);
   if (order == null) return (order: null, items: <OrderItemLocal>[]);
   final items = await service.getOrderItems(orderId);
   return (order: order, items: items);
+});
+
+/// Provider danh sách chuyến xe. Nhận service làm tham số (để override/test).
+final tripListProvider = FutureProvider.autoDispose.family<List<TripLocal>, OrderTQIsarService>((ref, service) {
+  return service.getTrips();
+});
+
+/// Provider danh sách xe. Nhận service làm tham số (để override/test).
+final vehicleListProvider = FutureProvider.autoDispose.family<List<VehicleLocal>, OrderTQIsarService>((ref, service) {
+  return service.getVehicles();
+});
+
+/// Provider danh sách khách hàng.
+final customerListProvider = FutureProvider.autoDispose.family<List<CustomerLocal>, OrderTQIsarService>((ref, service) {
+  return service.getCustomers();
 });

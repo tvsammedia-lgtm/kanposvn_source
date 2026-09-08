@@ -2,13 +2,16 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:http/http.dart' as http;
 import '../theme/app_colors.dart';
 import '../providers.dart';
 import '../module_enum.dart';
 import '../l10n/translations.dart';
 import '../sync/sync_providers.dart';
+import '../sync/api_config.dart';
 import '../auth/auth_service.dart';
 import '../auth/employee_auth.dart';
+import '../modes/operation_mode.dart';
 import 'module_selector_screen.dart';
 import 'branch_selector_screen.dart';
 
@@ -25,11 +28,18 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   bool _obscurePassword = true;
   bool _isLoading = false;
   String? _error;
+  AppOperationMode _mode = AppOperationMode.online;
 
   @override
   void initState() {
     super.initState();
-    ref.read(authServiceProvider).warmUp();
+    // Khôi phục chế độ người dùng đã chọn lần trước (mặc định Online).
+    loadOperationMode().then((mode) {
+      if (mounted) setState(() => _mode = mode);
+    });
+    if (_mode == AppOperationMode.online) {
+      ref.read(authServiceProvider).warmUp();
+    }
   }
 
   @override
@@ -37,6 +47,21 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     _identifierController.dispose();
     _passwordController.dispose();
     super.dispose();
+  }
+
+  Future<void> _setMode(AppOperationMode mode) async {
+    if (mode == _mode) return;
+    setState(() => _mode = mode);
+    await saveOperationMode(mode);
+    ref.read(appOperationModeProvider.notifier).state = mode;
+    // Ở chế độ Offline tắt warm-up mạng định kỳ; bật lại khi chuyển Online.
+    if (mode == AppOperationMode.online) {
+      ref.read(authServiceProvider).warmUp();
+    }
+    // Báo hiệu cho SyncEngine biết đang offline để trì hoãn đồng bộ.
+    try {
+      ref.read(syncEngineProvider).setOnlineStatus(mode == AppOperationMode.online);
+    } catch (_) {}
   }
 
   Future<void> _login() async {
@@ -49,6 +74,17 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       _isLoading = true;
       _error = null;
     });
+
+    // ── Chế độ OFFLINE: xác thực qua WEBSITE LOCALHOST (giống admin-web Vercel)
+    // chạy ngay trên máy này (http://127.0.0.1:3000). KHÔNG gọi Cloud, KHÔNG có
+    // fallback Isar: máy không có web localhost chạy → chặn đăng nhập.
+    if (_mode == AppOperationMode.offline) {
+      final offlineError = await _tryOfflineServerLogin();
+      if (!mounted) return;
+      setState(() => _isLoading = false);
+      if (offlineError != null) setState(() => _error = offlineError);
+      return;
+    }
 
     try {
       final auth = ref.read(authServiceProvider);
@@ -116,33 +152,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         );
       }
 
-      final modules = auth.accessibleModules;
-
-      // User gán nhiều module → hiện màn hình chọn module (kể cả user cửa hàng).
-      if (modules.length > 1) {
-        if (mounted) {
-          setState(() {
-            _isLoading = false;
-          });
-        }
-        return;
-      }
-
-      // Cửa hàng (đăng ký qua Web/Zalo): vào thẳng POS, không cần chọn module.
-      if (auth.isStoreUser) {
-        await _initStoreLogin();
-        return;
-      }
-
-      if (modules.isEmpty) {
-        setState(() {
-          _isLoading = false;
-          _error = 'Liên hệ Admin để biết thêm thông tin.';
-        });
-        return;
-      }
-
-      await _selectModule(modules.first);
+      await _continueAfterSignIn();
     } catch (e) {
       // ignore login errors
       if (!mounted) return;
@@ -151,6 +161,39 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         _error = 'Đăng nhập gặp lỗi. Vui lòng thử lại: $e';
       });
     }
+  }
+
+  /// Xử lý chung sau khi `signIn` thành công (dùng cho cả Online và Offline):
+  /// quyết định vào màn hình chọn module / POS cửa hàng / module duy nhất.
+  Future<void> _continueAfterSignIn() async {
+    final auth = ref.read(authServiceProvider);
+    if (!mounted) return;
+    setState(() {
+      _isLoading = false;
+    });
+    final modules = auth.accessibleModules;
+
+    // User gán nhiều module → hiện màn hình chọn module (kể cả user cửa hàng).
+    if (modules.length > 1) {
+      return;
+    }
+
+    // Cửa hàng (đăng ký qua Web/Zalo): vào thẳng POS, không cần chọn module.
+    if (auth.isStoreUser) {
+      await _initStoreLogin();
+      return;
+    }
+
+    if (modules.isEmpty) {
+      if (mounted) {
+        setState(() {
+          _error = 'Liên hệ Admin để biết thêm thông tin.';
+        });
+      }
+      return;
+    }
+
+    await _selectModule(modules.first);
   }
 
   /// Thử đăng nhập tài khoản nhân viên nội bộ (Isar của cửa hàng).
@@ -226,6 +269,55 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     }
   }
 
+/// Đăng nhập ở chế độ Ngoại tuyến (Offline) bằng WEBSITE LOCALHOST.
+///
+/// Xác thực qua web localhost (bản admin-web chạy ngay trên máy: port 3000)
+/// — áp dụng cho MỌI module trong app. Nếu máy không có web localhost đang
+/// chạy thì đăng nhập Offline BỊ CHẶN (không có fallback dữ liệu Isar).
+///
+/// Trả về chuỗi lỗi nếu không thể đăng nhập ngoại tuyến; ngược lại trả về
+/// `null` (đã chuyển sang màn hình chọn module hoặc vào thẳng module).
+  Future<String?> _tryOfflineServerLogin() async {
+    final identifier = _identifierController.text.trim();
+    final password = _passwordController.text;
+
+    // Web localhost phải đang chạy trên máy này, nếu không thì chặn đăng nhập.
+    if (!await _isLocalWebRunning()) {
+      return 'Không tìm thấy Web Localhost (localhost:3000) đang chạy trên máy '
+          'này. Hãy bật Web Localhost để đăng nhập chế độ Ngoại tuyến (Offline).';
+    }
+
+    try {
+      final auth = ref.read(authServiceProvider);
+      final success = await auth.signIn(
+        identifier: identifier,
+        password: password,
+        baseUrl: ApiConfig.offlineBaseUrl,
+        networkErrorMessage: 'Không kết nối được Web Localhost (localhost:3000). '
+            'Kiểm tra Web Localhost đang bật trên máy này.',
+      );
+      if (!success) {
+        return auth.errorMessage ?? 'Đăng nhập ngoại tuyến thất bại.';
+      }
+      await _continueAfterSignIn();
+      return null;
+    } catch (e) {
+      return 'Không thể đăng nhập offline: $e';
+    }
+  }
+
+  /// Kiểm tra Web Localhost (localhost:3000) có đang chạy trên máy này không.
+  Future<bool> _isLocalWebRunning() async {
+    try {
+      final res = await http
+          .get(Uri.parse('${ApiConfig.offlineBaseUrl}/api/health'))
+          .timeout(const Duration(seconds: 3));
+      return res.statusCode == 200;
+    } catch (_) {
+      return false;
+    }
+  }
+
   Future<void> _initStoreLogin() async {
     try {
       final db = ref.read(databaseServiceProvider);
@@ -240,8 +332,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         return;
       }
       await db.initStore(storeId: storeId, module: auth.defaultStoreModule);
+      final isOnline = _mode == AppOperationMode.online;
       // Mô hình 1 module = nhiều chi nhánh: cửa hàng có chi nhánh → chọn chi nhánh.
-      final branches = await auth.fetchBranches(auth.defaultStoreModule.appCode);
+      // Offline: bỏ qua fetch branch để không treo chờ mạng.
+      final branches = isOnline
+          ? await auth.fetchBranches(auth.defaultStoreModule.appCode)
+          : <Map<String, dynamic>>[];
       if (!mounted) return;
       if (branches.isNotEmpty) {
         setState(() => _isLoading = false);
@@ -290,9 +386,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       // đang mở thay vì màn hình "Đang xác thực...".
       await db.init(module: module);
       await auth.switchModule(module);
+      final isOnline = _mode == AppOperationMode.online;
 
       // Mô hình 1 module = nhiều chi nhánh: module có chi nhánh → chọn chi nhánh.
-      final branches = await auth.fetchBranches(module.appCode);
+      // Offline: bỏ qua fetch branch để không treo chờ mạng.
+      final branches = isOnline
+          ? await auth.fetchBranches(module.appCode)
+          : <Map<String, dynamic>>[];
       if (!mounted) return;
       if (branches.isNotEmpty) {
         setState(() => _isLoading = false);
@@ -320,6 +420,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   }
 
   void _autoSyncAfterLogin(AppModule module) {
+    if (_mode == AppOperationMode.offline) return;
     if (!_usesSharedSync(module)) return;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
@@ -329,6 +430,92 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   bool _usesSharedSync(AppModule module) {
     return module.appCode == 'kanposvncafe' || module.appCode == 'nhansu';
+  }
+
+  Widget _buildModeToggle() {
+    return Container(
+      padding: const EdgeInsets.all(4),
+      decoration: BoxDecoration(
+        color: AppColors.sidebarBg,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: AppColors.border.withValues(alpha: 0.2),
+        ),
+      ),
+      child: Row(
+        children: [
+          _buildModeOption(
+            mode: AppOperationMode.online,
+            icon: Icons.cloud_done_outlined,
+            label: 'Online',
+            subtitle: 'Có internet',
+          ),
+          const SizedBox(width: 4),
+          _buildModeOption(
+            mode: AppOperationMode.offline,
+            icon: Icons.cloud_off_outlined,
+            label: 'Offline',
+            subtitle: 'Ngoại tuyến',
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildModeOption({
+    required AppOperationMode mode,
+    required IconData icon,
+    required String label,
+    required String subtitle,
+  }) {
+    final selected = _mode == mode;
+    return Expanded(
+      child: InkWell(
+        onTap: _isLoading ? null : () => _setMode(mode),
+        borderRadius: BorderRadius.circular(8),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+          decoration: BoxDecoration(
+            color: selected ? AppColors.primary : Colors.transparent,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                icon,
+                size: 18,
+                color: selected ? Colors.white : AppColors.textMuted,
+              ),
+              const SizedBox(width: 8),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    label,
+                    style: TextStyle(
+                      color: selected ? Colors.white : AppColors.textLight,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  Text(
+                    subtitle,
+                    style: TextStyle(
+                      color: selected
+                          ? Colors.white.withValues(alpha: 0.85)
+                          : AppColors.textMuted,
+                      fontSize: 10,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   @override
@@ -380,7 +567,44 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   'login_subtitle'.tr,
                   style: TextStyle(color: AppColors.textMuted, fontSize: 14),
                 ),
-                const SizedBox(height: 32),
+                const SizedBox(height: 24),
+                _buildModeToggle(),
+                if (_mode == AppOperationMode.offline) ...[
+                  const SizedBox(height: 12),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 10,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.warning.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.cloud_off_outlined,
+                          color: AppColors.warning,
+                          size: 16,
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            'Đang ở chế độ Ngoại tuyến: đăng nhập qua Web Localhost '
+                            '(localhost:3000) chạy ngay trên máy này. Không bật '
+                            'Web Localhost thì không sử dụng được.',
+                            style: TextStyle(
+                              color: AppColors.warning,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+                const SizedBox(height: 16),
                 TextField(
                   controller: _identifierController,
                   keyboardType: TextInputType.emailAddress,

@@ -66,18 +66,37 @@ class GpsThresholds {
   });
 }
 
-/// Order status transitions allowed per spec.
+/// Order status transitions allowed per spec (Quy trình Order Trung Quốc).
+/// Trạng thái ngoại lệ: CANCELLED, LOST, DAMAGED, RETURNED, PROBLEM.
 const Map<String, List<String>> orderStatusTransitions = {
   'DRAFT': ['PENDING_CONFIRM'],
   'PENDING_CONFIRM': ['CONFIRMED', 'CANCELLED'],
-  'CONFIRMED': ['PROCESSING', 'CANCELLED'],
-  'PROCESSING': ['READY_TO_SHIP', 'CANCELLED'],
-  'READY_TO_SHIP': ['SHIPPED'],
-  'SHIPPED': ['IN_TRANSIT'],
-  'IN_TRANSIT': ['CUSTOMS_HOLD', 'DELIVERED', 'LOST', 'DAMAGED'],
-  'CUSTOMS_HOLD': ['IN_TRANSIT', 'DELIVERED'],
-  'DELIVERED': ['COMPLETED'],
+  'CONFIRMED': ['ORDERED_CN', 'CANCELLED'],
+  'ORDERED_CN': ['SELLER_SHIPPED', 'PROBLEM'],
+  'SELLER_SHIPPED': ['CN_WAREHOUSE', 'PROBLEM'],
+  'CN_WAREHOUSE': ['CHECKING', 'PROBLEM'],
+  'CHECKING': ['PACKED', 'PROBLEM'],
+  'PACKED': ['WAITING_EXPORT', 'PROBLEM'],
+  'WAITING_EXPORT': ['ON_TRUCK', 'PROBLEM'],
+  'ON_TRUCK': ['BORDER', 'PROBLEM', 'LOST', 'DAMAGED'],
+  'BORDER': ['VN_WAREHOUSE', 'PROBLEM', 'LOST', 'DAMAGED'],
+  'VN_WAREHOUSE': ['DELIVERING', 'PROBLEM'],
+  'DELIVERING': ['DELIVERED', 'PROBLEM', 'RETURNED'],
+  'DELIVERED': ['COMPLETED', 'RETURNED'],
   'COMPLETED': ['RETURNED'],
+  'PROBLEM': ['DRAFT', 'CANCELLED'],
+};
+
+/// Trip status transitions allowed per spec (Chuyến xe).
+const Map<String, List<String>> tripStatusTransitions = {
+  'PLANNED': ['READY', 'CANCELLED'],
+  'READY': ['DEPARTED', 'CANCELLED'],
+  'DEPARTED': ['IN_TRANSIT', 'STOPPED', 'CANCELLED'],
+  'IN_TRANSIT': ['STOPPED', 'ARRIVED'],
+  'STOPPED': ['IN_TRANSIT', 'ARRIVED', 'CANCELLED'],
+  'ARRIVED': ['COMPLETED'],
+  'COMPLETED': ['CANCELLED'],
+  'CANCELLED': [],
 };
 
 class OrderTQIsarService {
@@ -89,6 +108,7 @@ class OrderTQIsarService {
     SyncApiClient? syncClient,
     String? deviceId,
     Isar? isar,
+    String directory = '.',
   })  : _syncClient = syncClient ?? MockSyncApiClient(),
         _deviceId = deviceId ?? 'device_001' {
     if (isar != null) {
@@ -115,7 +135,7 @@ class OrderTQIsarService {
           SyncCursorSchema,
           AppSettingSchema,
         ],
-        directory: '.',
+        directory: directory,
         name: 'kanposvnordertq',
       );
     }
@@ -271,10 +291,22 @@ class OrderTQIsarService {
     await _addAuditLog(isar, userId: userId, action: 'ORDER_STATUS_CHANGED', entity: 'ORDER', entityId: orderId, oldValue: oldStatus, newValue: newStatus, note: note);
     final typeMap = {
       'CONFIRMED': ('ORDER_CONFIRMED', 'Đơn hàng đã xác nhận'),
-      'SHIPPED': ('ORDER_SHIPPED', 'Đơn hàng đã giao vận'),
-      'IN_TRANSIT': ('ORDER_IN_TRANSIT', 'Đơn hàng đang vận chuyển'),
+      'ORDERED_CN': ('ORDER_ORDERED_CN', 'Đã đặt hàng Trung Quốc'),
+      'SELLER_SHIPPED': ('ORDER_SHIPPED', 'Người bán đã giao hàng'),
+      'CN_WAREHOUSE': ('ORDER_CN_WAREHOUSE', 'Hàng đã vào kho Trung Quốc'),
+      'CHECKING': ('ORDER_CHECKING', 'Hàng đang kiểm tra'),
+      'PACKED': ('ORDER_PACKED', 'Hàng đã đóng gói'),
+      'WAITING_EXPORT': ('ORDER_WAITING_EXPORT', 'Hàng chờ xuất'),
+      'ON_TRUCK': ('ORDER_ON_TRUCK', 'Hàng đã lên xe'),
+      'BORDER': ('ORDER_BORDER', 'Hàng qua cửa khẩu'),
+      'VN_WAREHOUSE': ('ORDER_VN_WAREHOUSE', 'Hàng đã vào kho Việt Nam'),
+      'DELIVERING': ('ORDER_IN_TRANSIT', 'Đơn hàng đang giao'),
       'DELIVERED': ('ORDER_DELIVERED', 'Đơn hàng đã giao hàng'),
       'COMPLETED': ('ORDER_COMPLETED', 'Đơn hàng hoàn thành'),
+      'PROBLEM': ('ORDER_PROBLEM', 'Đơn hàng có sự cố'),
+      'RETURNED': ('ORDER_RETURNED', 'Đơn hàng đã trả hàng'),
+      'LOST': ('ORDER_LOST', 'Đơn hàng thất lạc'),
+      'DAMAGED': ('ORDER_DAMAGED', 'Đơn hàng hư hỏng'),
     };
     if (typeMap.containsKey(newStatus)) {
       final (type, msg) = typeMap[newStatus]!;
@@ -446,48 +478,91 @@ class OrderTQIsarService {
     await enqueueSync(isar, entity: 'TripOrder', entityId: '${tripId}_$orderId', operation: 'CREATE');
   }
 
+  Future<void> readyTrip(String tripId, {required String userId, required String role}) async {
+    await _transitionTrip(tripId, 'READY', userId: userId, role: role,
+        onTransition: (trip) {
+      trip.updatedAt = DateTime.now();
+      trip.syncedAt = null;
+    });
+  }
+
   Future<void> departTrip(String tripId, {required String userId, required String role}) async {
-    final isar = await db;
-    final trip = await isar.tripLocals.where().tripIdEqualTo(tripId).findFirst();
-    if (trip == null) throw StateError('Trip $tripId not found');
-    if (!hasPermission(role, 'trip.update')) throw StateError('FORBIDDEN');
-    if (trip.status != 'PLANNED') throw StateError('Invalid status: ${trip.status}');
-    trip.status = 'IN_TRANSIT';
-    trip.actualDeparture = DateTime.now();
-    trip.updatedAt = DateTime.now();
-    trip.syncedAt = null;
-    await isar.writeTxn(() async => await isar.tripLocals.put(trip));
-    await _addAuditLog(isar, userId: userId, action: 'TRIP_DEPARTED', entity: 'TRIP', entityId: tripId);
-    await enqueueSync(isar, entity: 'Trip', entityId: tripId, operation: 'UPDATE', payload: jsonEncode({'status': 'IN_TRANSIT'}));
+    await _transitionTrip(tripId, 'DEPARTED', userId: userId, role: role,
+        action: 'TRIP_DEPARTED',
+        onTransition: (trip) {
+      trip.actualDeparture = DateTime.now();
+      trip.updatedAt = DateTime.now();
+      trip.syncedAt = null;
+    });
+  }
+
+  Future<void> startTrip(String tripId, {required String userId, required String role}) async {
+    // IN_TRANSIT: xe đang chạy (sau DEPARTED). Có thể gọi trực tiếp từ DEPARTED.
+    await _transitionTrip(tripId, 'IN_TRANSIT', userId: userId, role: role,
+        onTransition: (trip) {
+      trip.updatedAt = DateTime.now();
+      trip.syncedAt = null;
+    });
+  }
+
+  Future<void> stopTrip(String tripId, {required String userId, required String role}) async {
+    await _transitionTrip(tripId, 'STOPPED', userId: userId, role: role,
+        onTransition: (trip) {
+      trip.updatedAt = DateTime.now();
+      trip.syncedAt = null;
+    });
   }
 
   Future<void> arriveTrip(String tripId, {required String userId, required String role}) async {
-    final isar = await db;
-    final trip = await isar.tripLocals.where().tripIdEqualTo(tripId).findFirst();
-    if (trip == null) throw StateError('Trip $tripId not found');
-    if (!hasPermission(role, 'trip.update')) throw StateError('FORBIDDEN');
-    if (trip.status != 'IN_TRANSIT') throw StateError('Invalid status: ${trip.status}');
-    trip.status = 'ARRIVED';
-    trip.actualArrival = DateTime.now();
-    trip.updatedAt = DateTime.now();
-    trip.syncedAt = null;
-    await isar.writeTxn(() async => await isar.tripLocals.put(trip));
-    await _addAuditLog(isar, userId: userId, action: 'TRIP_ARRIVED', entity: 'TRIP', entityId: tripId);
-    await enqueueSync(isar, entity: 'Trip', entityId: tripId, operation: 'UPDATE');
+    await _transitionTrip(tripId, 'ARRIVED', userId: userId, role: role,
+        action: 'TRIP_ARRIVED',
+        onTransition: (trip) {
+      trip.actualArrival = DateTime.now();
+      trip.updatedAt = DateTime.now();
+      trip.syncedAt = null;
+    });
   }
 
   Future<void> completeTrip(String tripId, {required String userId, required String role}) async {
+    await _transitionTrip(tripId, 'COMPLETED', userId: userId, role: role,
+        action: 'TRIP_COMPLETED',
+        onTransition: (trip) {
+      trip.updatedAt = DateTime.now();
+      trip.syncedAt = null;
+    });
+  }
+
+  Future<void> cancelTrip(String tripId, {required String userId, required String role, String? reason}) async {
+    await _transitionTrip(tripId, 'CANCELLED', userId: userId, role: role,
+        action: 'TRIP_CANCELLED', note: reason,
+        onTransition: (trip) {
+      trip.updatedAt = DateTime.now();
+      trip.syncedAt = null;
+    });
+  }
+
+  Future<void> _transitionTrip(String tripId, String newStatus,
+      {required String userId, required String role, String? action, String? note,
+      void Function(TripLocal trip)? onTransition}) async {
     final isar = await db;
     final trip = await isar.tripLocals.where().tripIdEqualTo(tripId).findFirst();
     if (trip == null) throw StateError('Trip $tripId not found');
     if (!hasPermission(role, 'trip.update')) throw StateError('FORBIDDEN');
-    if (trip.status != 'ARRIVED') throw StateError('Invalid status: ${trip.status}');
-    trip.status = 'COMPLETED';
-    trip.updatedAt = DateTime.now();
-    trip.syncedAt = null;
+    final allowed = tripStatusTransitions[trip.status];
+    if (allowed == null || !allowed.contains(newStatus)) {
+      throw StateError('Invalid transition: ${trip.status} -> $newStatus');
+    }
+    final oldStatus = trip.status;
+    onTransition?.call(trip);
+    if (trip.status != newStatus) {
+      trip.status = newStatus;
+      trip.updatedAt = DateTime.now();
+      trip.syncedAt = null;
+    }
     await isar.writeTxn(() async => await isar.tripLocals.put(trip));
-    await _addAuditLog(isar, userId: userId, action: 'TRIP_COMPLETED', entity: 'TRIP', entityId: tripId);
-    await enqueueSync(isar, entity: 'Trip', entityId: tripId, operation: 'UPDATE');
+    await _addAuditLog(isar, userId: userId, action: action ?? 'TRIP_STATUS_CHANGED',
+        entity: 'TRIP', entityId: tripId, oldValue: oldStatus, newValue: newStatus, note: note);
+    await enqueueSync(isar, entity: 'Trip', entityId: tripId, operation: 'UPDATE', payload: jsonEncode({'status': newStatus}));
   }
 
   Future<TripLocal?> getTrip(String tripId) async {

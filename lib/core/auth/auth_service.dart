@@ -52,6 +52,11 @@ class AuthService extends ChangeNotifier {
 
   final http.Client _client = http.Client();
 
+  /// Base URL đang hoạt động: Cloud (Vercel) khi Online, Web Localhost
+  /// (127.0.0.1:3000) khi đăng nhập Offline. Được `signIn` đặt lại mỗi lần login.
+  String _activeBaseUrl = ApiConfig.baseUrl;
+  String get activeBaseUrl => _activeBaseUrl;
+
   Map<String, dynamic>? _user;
   Map<String, dynamic>? get user => _user;
 
@@ -202,12 +207,15 @@ class AuthService extends ChangeNotifier {
     required String identifier,
     required String password,
     AppModule? module,
+    String? baseUrl,
+    String? networkErrorMessage,
   }) async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
     try {
-      final url = '${ApiConfig.baseUrl}/api/auth/login';
+      _activeBaseUrl = baseUrl ?? ApiConfig.baseUrl;
+      final url = '$_activeBaseUrl/api/auth/login';
       debugPrint('LOGIN-DEBUG: POST $url module=$module');
       final body = <String, dynamic>{'password': password};
       if (identifier.contains('@')) {
@@ -277,6 +285,7 @@ class AuthService extends ChangeNotifier {
       // ignore login error
       debugPrint('LOGIN-DEBUG: signIn CATCH e=$e\n$st');
       _errorMessage =
+          networkErrorMessage ??
           'Không thể kết nối Admin Web. Vui lòng kiểm tra kết nối mạng hoặc liên hệ Admin.';
       _isLoading = false;
       notifyListeners();
@@ -818,7 +827,7 @@ class AuthService extends ChangeNotifier {
       if (branchId != null && branchId.isNotEmpty) params['branch_id'] = branchId;
       final res = await _client
           .get(
-            Uri.parse('${ApiConfig.baseUrl}/api/owner/info').replace(
+            Uri.parse('$_activeBaseUrl/api/owner/info').replace(
               queryParameters: params,
             ),
             headers: {'Authorization': 'Bearer $_token'},
@@ -860,7 +869,7 @@ class AuthService extends ChangeNotifier {
     try {
       final res = await _client
           .get(
-            Uri.parse('${ApiConfig.baseUrl}/api/owner/branches').replace(
+            Uri.parse('$_activeBaseUrl/api/owner/branches').replace(
               queryParameters: {'app_code': appCode},
             ),
             headers: {'Authorization': 'Bearer $_token'},
@@ -924,7 +933,7 @@ class AuthService extends ChangeNotifier {
       }
       final res = await _client
           .get(
-            Uri.parse('${ApiConfig.baseUrl}/api/owner/warehouses').replace(
+            Uri.parse('$_activeBaseUrl/api/owner/warehouses').replace(
               queryParameters: params,
             ),
             headers: {'Authorization': 'Bearer $_token'},

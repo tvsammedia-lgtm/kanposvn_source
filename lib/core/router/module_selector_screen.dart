@@ -4,6 +4,7 @@ import '../module_enum.dart';
 import '../theme/app_colors.dart';
 import '../providers.dart';
 import '../l10n/translations.dart';
+import '../modes/operation_mode.dart';
 import '../sync/sync_providers.dart';
 import 'branch_selector_screen.dart';
 
@@ -129,14 +130,18 @@ class _ModuleSelectorScreenState extends ConsumerState<ModuleSelectorScreen> {
 
       await auth.switchModule(module);
 
-      if (module.appCode == 'kanposvncafe' || module.appCode == 'nhansu') {
+      // Chỉ đồng bộ khi có internet và store dùng shared sync.
+      final isOnline = ref.read(appOperationModeProvider) == AppOperationMode.online;
+      if (isOnline && (module.appCode == 'kanposvncafe' || module.appCode == 'nhansu')) {
         ref.read(syncEngineProvider).triggerSync();
       }
 
       // Mô hình 1 module = nhiều chi nhánh: nếu module có CHI NHÁNH (user được
       // cấp quyền) thì vào màn hình chọn chi nhánh trước, KHÔNG vào shell ngay.
       // Module không có chi nhánh (cửa hàng đăng ký Web/Zalo cũ) → vào thẳng.
-      final branches = await auth.fetchBranches(module.appCode);
+      // Offline: bỏ qua fetch branch để không treo chờ mạng — người dùng sẽ
+      // chọn chi nhánh lần Online sau khi đồng bộ.
+      final branches = isOnline ? await auth.fetchBranches(module.appCode) : <Map<String, dynamic>>[];
       if (branches.isNotEmpty) {
         ref.read(branchSelectorModuleProvider.notifier).state = module;
         ref.read(moduleSelectingProvider.notifier).state = false;

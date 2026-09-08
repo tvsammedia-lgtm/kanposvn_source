@@ -237,7 +237,7 @@ class PhongKhamIsarService {
   }) async {
     _check(role, 'patient.create');
     final isar = await db;
-    final code = patientCode ?? 'BN${(await isar.patients.count()) + 1000}';
+    final code = patientCode ?? await _nextPatientCode(isar);
     final uuid = 'pat_${DateTime.now().millisecondsSinceEpoch}';
     final p = Patient()
       ..uuid = uuid
@@ -266,6 +266,20 @@ class PhongKhamIsarService {
     await _enqueueSync(entityType: 'Patient', entityId: uuid, operation: 'upsert');
     await _addAuditLog(userId: createdBy, action: 'PATIENT_CREATE', details: '${p.fullName} $code');
     return uuid;
+  }
+
+  /// Mã bệnh nhân tăng dần (BNxxxx), không trùng kể cả khi có bệnh nhân bị xóa mềm.
+  Future<String> _nextPatientCode(Isar isar) async {
+    final all = await isar.patients.where().findAll();
+    var maxNum = 999;
+    for (final p in all) {
+      final m = RegExp(r'^BN(\d+)$').firstMatch(p.patientCode ?? '');
+      if (m != null) {
+        final n = int.tryParse(m.group(1)!) ?? 0;
+        if (n > maxNum) maxNum = n;
+      }
+    }
+    return 'BN${maxNum + 1}';
   }
 
   Future<Patient?> getPatient(String uuid) async {
@@ -411,7 +425,11 @@ class PhongKhamIsarService {
     if (!allowed.contains('checked_in')) {
       throw StateError('Không thể check-in từ trạng thái ${a.status}');
     }
-    final ticketNumber = number ?? (await isar.auditLogs.count()) + 1;
+    var maxTicketNumber = 0;
+    for (final t in await isar.queueTickets.where().findAll()) {
+      if ((t.number ?? 0) > maxTicketNumber) maxTicketNumber = t.number ?? 0;
+    }
+    final ticketNumber = number ?? (maxTicketNumber + 1);
     final ticket = QueueTicket()
       ..uuid = 'qt_${DateTime.now().millisecondsSinceEpoch}'
       ..patientId = a.patientId
@@ -581,6 +599,82 @@ class PhongKhamIsarService {
     await _addAuditLog(userId: userId, action: 'DIAGNOSIS_CREATE', details: '$encounterId | $diagnosis');
   }
 
+  Future<void> savePhysicalExamination({
+    required String encounterId,
+    required String text,
+    required String userId,
+    required String role,
+  }) async {
+    _check(role, 'encounter.update');
+    final isar = await db;
+    final e = await getEncounter(encounterId);
+    if (e == null) throw StateError('Encounter $encounterId không tồn tại');
+    e.physicalExamination = text;
+    e.updatedAt = DateTime.now();
+    await isar.writeTxn(() async => await isar.encounters.put(e));
+    await _addAuditLog(userId: userId, action: 'PHYSICAL_EXAM', details: encounterId);
+  }
+
+  /// Tái khám (§4): bác sĩ lập yêu cầu tái khám -> tạo lịch hẹn trạng thái requested,
+  /// lễ tân xác nhận sau. Bác sĩ chỉ cần quyền `followup.create`.
+  Future<String> createFollowUp({
+    required String patientId,
+    required String encounterId,
+    required String doctorId,
+    DateTime? returnDate,
+    String? reason,
+    String? specialtyId,
+    String? roomId,
+    required String createdBy,
+    required String role,
+  }) async {
+    _check(role, 'followup.create');
+    final isar = await db;
+    final uuid = 'apt_${DateTime.now().millisecondsSinceEpoch}';
+    final a = Appointment()
+      ..uuid = uuid
+      ..clinicId = _clinicId
+      ..tenantId = _clinicId
+      ..branchId = _branchId
+      ..patientId = patientId
+      ..doctorId = doctorId
+      ..specialtyId = specialtyId
+      ..roomId = roomId
+      ..appointmentDate = returnDate ?? DateTime.now().add(const Duration(days: 14))
+      ..startTime = returnDate ?? DateTime.now().add(const Duration(days: 14))
+      ..reason = reason == null ? 'Tái khám' : 'Tái khám: $reason'
+      ..note = 'Follow-up từ lượt khám $encounterId'
+      ..status = 'requested'
+      ..reminderStatus = 'none'
+      ..createdAt = DateTime.now()
+      ..updatedAt = DateTime.now()
+      ..version = 1
+      ..syncStatus = 'pending_sync'
+      ..deviceId = _deviceId;
+    await isar.writeTxn(() async => await isar.appointments.put(a));
+    await _enqueueSync(entityType: 'Appointment', entityId: uuid, operation: 'upsert');
+    await _addAuditLog(userId: createdBy, action: 'FOLLOWUP_CREATE', details: '$uuid <- encounter $encounterId');
+    return uuid;
+  }
+
+  /// Lịch sử khám của bệnh nhân (§3): hẹn, lượt khám, đơn thuốc, xét nghiệm, hóa đơn.
+  Future<Map<String, dynamic>> getPatientHistory(String patientId) async {
+    final isar = await db;
+    final appointments = await listAppointments(patientId: patientId);
+    final encounters = await listEncounters(patientId: patientId);
+    final prescriptions = await isar.prescriptions.where().findAll();
+    final labOrders = await listLabOrders(patientId: patientId);
+    final invoices = await isar.invoices.where().findAll();
+    return {
+      'patientId': patientId,
+      'appointments': appointments.where((a) => a.deletedAt == null).length,
+      'encounters': encounters.length,
+      'prescriptions': prescriptions.where((r) => r.patientId == patientId).length,
+      'labOrders': labOrders.length,
+      'invoices': invoices.where((i) => i.patientId == patientId && i.status != 'cancelled').length,
+    };
+  }
+
   // ------------------------------------------------------------- prescriptions
   Future<String> createPrescription({
     required String patientId,
@@ -595,6 +689,9 @@ class PhongKhamIsarService {
   }) async {
     _check(role, 'prescription.create');
     final isar = await db;
+    if (status != 'draft' && status != 'doctor_review') {
+      throw StateError('Prescription phải tạo ở trạng thái draft hoặc doctor_review (nhận: $status)');
+    }
     if (!prescriptionStatuses.contains(status)) {
       throw StateError('Invalid prescription status: $status');
     }
@@ -679,10 +776,14 @@ class PhongKhamIsarService {
       if (drug == null) continue;
       final drugName = drug.name?.toLowerCase() ?? '';
       final ingredient = drug.activeIngredient?.toLowerCase() ?? '';
+      final contraindication = drug.contraindications?.toLowerCase() ?? '';
       for (final allergy in patient?.allergies ?? const <String>[]) {
         if (drugName.contains(allergy.toLowerCase()) ||
             ingredient.contains(allergy.toLowerCase())) {
           warnings.add('Dị ứng: $drugName ($allergy)');
+        }
+        if (contraindication.contains(allergy.toLowerCase())) {
+          warnings.add('Chống chỉ định: $drugName (dị ứng $allergy)');
         }
       }
       for (final other in items) {
@@ -722,11 +823,25 @@ class PhongKhamIsarService {
     required String userId,
     required String role,
   }) async {
+    // Món thuốc chưa ấn định lô: tự chọn lô theo FEFO (hạn dùng sớm nhất) trước khi duyệt.
+    final isar = await db;
+    final items = await getPrescriptionItems(rxId);
+    for (final item in items) {
+      final hasBatch = item.batchId != null && item.batchId!.isNotEmpty;
+      if (!hasBatch && item.drugId != null) {
+        final fefo = await findFEFOBatch(item.drugId!);
+        if (fefo != null) {
+          await isar.writeTxn(() async {
+            item.batchId = fefo.uuid;
+            await isar.prescriptionItems.put(item);
+          });
+        }
+      }
+    }
     final warnings = await validatePrescription(rxId, userId: userId, role: role);
     if (warnings.isNotEmpty) {
       throw StateError('Prescription safety check failed: ${warnings.join('; ')}');
     }
-    final isar = await db;
     final rx = await getPrescription(rxId);
     if (rx == null) throw StateError('Prescription $rxId không tồn tại');
     if (rx.status != 'draft' && rx.status != 'doctor_review') {
@@ -756,7 +871,18 @@ class PhongKhamIsarService {
     }
     final items = await getPrescriptionItems(rxId);
     for (final item in items) {
-      final batchId = item.batchId;
+      var batchId = item.batchId;
+      if (batchId == null || batchId.isEmpty) {
+        final drugId = item.drugId;
+        if (drugId == null) continue;
+        final fefo = await findFEFOBatch(drugId);
+        if (fefo == null || fefo.uuid == null) continue;
+        batchId = fefo.uuid;
+        await isar.writeTxn(() async {
+          item.batchId = batchId;
+          await isar.prescriptionItems.put(item);
+        });
+      }
       if (batchId == null) continue;
       await stockOut(
         batchId: batchId,
@@ -956,9 +1082,11 @@ class PhongKhamIsarService {
       throw StateError('Tồn kho không đủ: ${batch.quantity} < $quantity');
     }
     batch.quantity = (batch.quantity ?? 0) - quantity;
+    late String txnUuid;
     await isar.writeTxn(() async {
       await isar.drugBatchs.put(batch);
       final t = StockTransaction()
+        ..uuid = 'stxn_${DateTime.now().microsecondsSinceEpoch}'
         ..warehouseId = batch.warehouseId
         ..batchId = batchId
         ..type = type
@@ -971,9 +1099,10 @@ class PhongKhamIsarService {
         ..version = 1
         ..syncStatus = 'pending_sync'
         ..deviceId = _deviceId;
+      txnUuid = t.uuid!;
       await isar.stockTransactions.put(t);
     });
-    await _enqueueSync(entityType: 'StockTransaction', entityId: batchId, operation: 'upsert');
+    await _enqueueSync(entityType: 'StockTransaction', entityId: txnUuid, operation: 'upsert');
     await _addAuditLog(userId: createdBy, action: 'STOCK_ADJUST', details: '$batchId -$quantity');
   }
 
@@ -990,9 +1119,11 @@ class PhongKhamIsarService {
     final batch = await getDrugBatch(batchId);
     if (batch == null) throw StateError('Batch $batchId không tồn tại');
     batch.quantity = (batch.quantity ?? 0) + quantity;
+    late String txnUuid;
     await isar.writeTxn(() async {
       await isar.drugBatchs.put(batch);
       final t = StockTransaction()
+        ..uuid = 'stxn_${DateTime.now().microsecondsSinceEpoch}'
         ..warehouseId = batch.warehouseId
         ..batchId = batchId
         ..type = type
@@ -1005,8 +1136,11 @@ class PhongKhamIsarService {
         ..version = 1
         ..syncStatus = 'pending_sync'
         ..deviceId = _deviceId;
+      txnUuid = t.uuid!;
       await isar.stockTransactions.put(t);
     });
+    await _enqueueSync(entityType: 'StockTransaction', entityId: txnUuid, operation: 'upsert');
+    await _addAuditLog(userId: createdBy, action: 'STOCK_ADJUST', details: '$batchId +$quantity');
   }
 
   Future<List<StockTransaction>> listStockTransactions({String? batchId}) async {
@@ -1337,16 +1471,23 @@ class PhongKhamIsarService {
     final patients = await isar.patients.where().findAll();
     final appointments = await isar.appointments.where().findAll();
     final encounters = await isar.encounters.where().findAll();
+    final tickets = await isar.queueTickets.where().findAll();
     final todayAppointments = appointments.where((a) =>
         a.appointmentDate != null &&
         a.appointmentDate!.year == today.year &&
         a.appointmentDate!.month == today.month &&
         a.appointmentDate!.day == today.day).length;
+    final waitingQueue = tickets.where((t) => t.status == 'waiting').length;
+    final inProgress = appointments.where((a) => a.status == 'in_progress').length;
     return {
-      'patients': patients.length,
-      'appointments': appointments.length,
+      'patients': patients.where((p) => p.deletedAt == null).length,
+      'appointments': appointments.where((a) => a.deletedAt == null).length,
       'todayAppointments': todayAppointments,
       'encounters': encounters.length,
+      'waitingQueue': waitingQueue,
+      'inProgress': inProgress,
+      'expiringSoon': (await listExpiringBatches(withinDays: 90)).length,
+      'lowStock': (await listLowStock()).length,
       'revenue': (await getRevenueReport())['revenue'],
       'debts': await listCustomerDebts(),
     };
@@ -1411,11 +1552,18 @@ class PhongKhamIsarService {
       ..rejectedItemsJson = jsonEncode(rejectedItems ?? const [])
       ..editedItemsJson = jsonEncode(editedItems ?? const []);
     await isar.writeTxn(() async => await isar.aIRequests.put(req));
-    await _addAuditLog(
-      userId: userId,
-      action: action == 'accepted' ? 'AI_SUGGESTION_ACCEPT' : 'AI_SUGGESTION_REJECT',
-      details: aiRequestId,
-    );
+    String auditAction;
+    switch (action) {
+      case 'accepted':
+        auditAction = 'AI_SUGGESTION_ACCEPT';
+      case 'rejected':
+        auditAction = 'AI_SUGGESTION_REJECT';
+      case 'edited':
+        auditAction = 'AI_SUGGESTION_EDITED';
+      default:
+        auditAction = 'AI_REQUEST';
+    }
+    await _addAuditLog(userId: userId, action: auditAction, details: aiRequestId);
   }
 
   Future<List<AIRequest>> listAiRequests({String? requestType}) async {
@@ -1466,7 +1614,50 @@ class PhongKhamIsarService {
   Future<Map<String, dynamic>> pullSync({String? cursor}) async {
     final result = await _syncClient.pull(deviceId: _deviceId, lastCursor: cursor);
     final updates = (result['updates'] as List<dynamic>?) ?? const [];
+    final isar = await db;
+    for (final u in updates) {
+      if (u is! Map<String, dynamic>) continue;
+      final entityType = u['entityType'] as String? ?? u['entity'] as String?;
+      final entityId = u['id'] as String? ?? u['uuid'] as String?;
+      if (entityType == null || entityId == null) continue;
+      final pending =
+          await isar.syncQueues.where().entityIdEqualTo(entityId).findFirst();
+      if (pending != null && pending.status == 'pending') {
+        // Xung đột: entity có thay đổi local chưa đẩy lên, remote lại có bản mới.
+        final existing = await isar.syncConflicts
+            .where()
+            .entityIdEqualTo(entityId)
+            .findAll();
+        if (!existing.any((c) => c.status == 'unresolved')) {
+          final conflict = SyncConflict()
+            ..entityType = entityType
+            ..entityId = entityId
+            ..remoteDataJson = jsonEncode(u)
+            ..status = 'unresolved'
+            ..createdAt = DateTime.now();
+          await isar.writeTxn(() async => await isar.syncConflicts.put(conflict));
+        }
+      }
+    }
     return {'status': 'ok', 'received': updates.length};
+  }
+
+  Future<List<SyncConflict>> getSyncConflicts({String? status}) async {
+    final isar = await db;
+    final all = await isar.syncConflicts.where().findAll();
+    return all
+        .where((c) => status == null || c.status == status)
+        .toList();
+  }
+
+  Future<void> resolveSyncConflict(
+    SyncConflict conflict, {
+    required String resolveTo, // 'local' hoặc 'remote'
+  }) async {
+    final isar = await db;
+    conflict.status = resolveTo == 'local' ? 'resolved_local' : 'resolved_remote';
+    conflict.resolvedAt = DateTime.now();
+    await isar.writeTxn(() async => await isar.syncConflicts.put(conflict));
   }
 
   // ----------------------------------------------------------------- seeding

@@ -55,3 +55,10 @@ app.*.map.json
 
 # Build artifacts
 kanposvn-windows-x64.zip
+
+# Backend (Node)
+backend/node_modules/
+
+# Local secrets (kept in backups, not tracked in git)
+.env
+.env*.local

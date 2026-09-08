@@ -32,7 +32,9 @@ enum AppModule {
   kanposvntruyenthong('KanPosVN Truyền Thống', Icons.shopping_basket, Color(0xFF16A34A)),
   kanposvndoichieuketoan('KanPosVN Đối Chiếu Kế Toán', Icons.compare_arrows, Color(0xFF8B5CF6)),
   kanposvntramxang('KanPosVN Trạm Xăng', Icons.local_gas_station, Color(0xFFF59E0B)),
-  kanposvncongtrinh('KanPosVN Công Trình', Icons.request_quote, Color(0xFF4F46E5));
+  kanposvncongtrinh('KanPosVN Công Trình', Icons.request_quote, Color(0xFF4F46E5)),
+  kanposvnordertq('KanPosVN Order', Icons.local_shipping, Color(0xFFEF4444)),
+  kanposvndailynongsan('Đại Lý Nông Sản', Icons.agriculture, Color(0xFF4CAF50));
 
   final String label;
   final IconData icon;
@@ -73,6 +75,8 @@ enum AppModule {
       case AppModule.kanposvndoichieuketoan: return 'kanposvndoichieuketoan';
       case AppModule.kanposvntramxang: return 'kanposvntramxang';
       case AppModule.kanposvncongtrinh: return 'kanposvncongtrinh';
+      case AppModule.kanposvnordertq: return 'kanposvnordertq';
+      case AppModule.kanposvndailynongsan: return 'kanposvndailynongsan';
     }
   }
 
@@ -110,6 +114,8 @@ enum AppModule {
       case AppModule.kanposvndoichieuketoan: return AppModuleType.kanposvndoichieuketoan;
       case AppModule.kanposvntramxang: return AppModuleType.kanposvntramxang;
       case AppModule.kanposvncongtrinh: return AppModuleType.kanposvncongtrinh;
+      case AppModule.kanposvnordertq: return AppModuleType.kanposvnordertq;
+      case AppModule.kanposvndailynongsan: return AppModuleType.kanposvndailynongsan;
     }
   }
 
@@ -150,7 +156,9 @@ enum AppModuleType {
   kanposvntruyenthong('Sạp Rau Củ Quả', Icons.shopping_basket),
   kanposvndoichieuketoan('Đối Chiếu Kế Toán', Icons.compare_arrows),
   kanposvntramxang('Trạm Xăng & Tạp Hóa', Icons.local_gas_station),
-  kanposvncongtrinh('Công Trình & Dự Toán', Icons.request_quote);
+  kanposvncongtrinh('Công Trình & Dự Toán', Icons.request_quote),
+  kanposvnordertq('KanPosVN Order (Vận Chuyển)', Icons.local_shipping),
+  kanposvndailynongsan('Đại Lý Nông Sản', Icons.agriculture);
 
   final String label;
   final IconData icon;

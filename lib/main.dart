@@ -4,6 +4,7 @@ import 'dart:ui' show PlatformDispatcher;
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:path_provider/path_provider.dart';
 import 'core/theme/app_theme.dart';
 import 'core/db/database_service.dart';
 import 'core/module_enum.dart';
@@ -46,6 +47,10 @@ import 'modules/kanposvntruyenthong/screens/kanposvntruyenthong_shell.dart';
 import 'modules/kanposvndoichieuketoan/screens/kanposvndoichieuketoan_shell.dart';
 import 'modules/kanposvntramxang/screens/kanposvntramxang_shell.dart';
 import 'modules/kanposvncongtrinh/screens/kanposvncongtrinh_shell.dart';
+import 'modules/kanposvnordertq/views/kanposvnordertq_shell.dart';
+import 'modules/kanposvnordertq/providers/order_provider.dart';
+import 'modules/kanposvnordertq/services/order_tq_isar_service.dart';
+import 'modules/kanposvndailynongsan/screens/kanposvndailynongsan_shell.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -63,10 +68,13 @@ void main() async {
   try {
     final db = DatabaseService.instance;
     await DatabaseService.openIsar();
+    final ordertqDir = (await getApplicationDocumentsDirectory()).path;
+    final ordertqService = OrderTQIsarService(directory: ordertqDir);
     runApp(
       ProviderScope(
         overrides: [
           databaseServiceProvider.overrideWith((ref) => db),
+          orderBucketServiceProvider.overrideWith((ref) => ordertqService),
         ],
         child: const KanPosVNApp(),
       ),
@@ -325,6 +333,10 @@ class _MainShell extends ConsumerWidget {
         return const KanPosVNTramXangShell();
       case AppModuleType.kanposvncongtrinh:
         return const KanPosVNCongTrinhShell();
+      case AppModuleType.kanposvnordertq:
+        return const KanPosVNOrderTqShell();
+      case AppModuleType.kanposvndailynongsan:
+        return const KanPosVnDailyNongSanShell();
     }
   }
 
