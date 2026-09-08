@@ -25,21 +25,104 @@ class AppShell extends StatelessWidget {
   }
 }
 
-/// Shell desktop: tab menu cuộn được giống KanPosVN VLXD
-/// (`NavigationRail` + `scrollable: true` + toàn bộ mục trong [navItems]).
-class _DesktopShell extends ConsumerWidget {
+/// Shell desktop: tab menu cuộn được giống KanPosVN VLXD.
+///
+/// KHÔNG dùng `NavigationRail(scrollable: true)` vì khi cửa sổ thấp các tab
+/// cuối bị cắt khỏi màn hình và vùng bấm nằm ngoài giới hạn — lỗi "bấm sang
+/// tab bên cạnh tracking không tác dụng". Thay bằng danh sách dọc gọn (icon +
+/// label) có Scrollbar + tự cuộn tab đang chọn vào giữa khung.
+class _DesktopShell extends ConsumerStatefulWidget {
   final Widget child;
   const _DesktopShell({required this.child});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<_DesktopShell> createState() => _DesktopShellState();
+}
+
+class _DesktopShellState extends ConsumerState<_DesktopShell> {
+  static const double _itemExtent = 58;
+
+  final ScrollController _railController = ScrollController();
+
+  @override
+  void dispose() {
+    _railController.dispose();
+    super.dispose();
+  }
+
+  /// Giữ tab đang chọn luôn nằm trong tầm nhìn (giữa khung) của thanh tab.
+  void _scrollSelectedIntoView(int selectedIndex) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || !_railController.hasClients) return;
+      final position = _railController.position;
+      final target = (selectedIndex * _itemExtent) -
+          position.viewportDimension / 2 +
+          _itemExtent / 2;
+      _railController.jumpTo(
+        target.clamp(0.0, position.maxScrollExtent),
+      );
+    });
+  }
+
+  Widget _railItem(
+    BuildContext context,
+    NavItem item,
+    NavItem selectedItem,
+    VoidCallback onTap,
+  ) {
+    final selected = item.path == selectedItem.path;
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        width: 88,
+        height: _itemExtent,
+        margin: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+        decoration: BoxDecoration(
+          color: selected
+              ? AppTheme.primaryLight.withValues(alpha: 0.18)
+              : Colors.transparent,
+          borderRadius: BorderRadius.circular(12),
+          border: selected
+              ? Border.all(
+                  color: AppTheme.primaryLight.withValues(alpha: 0.45))
+              : null,
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              selected ? item.activeIcon : item.icon,
+              size: 20,
+              color: selected ? AppTheme.primaryLight : AppTheme.textSecondary,
+            ),
+            const SizedBox(height: 3),
+            Text(
+              item.label,
+              style: TextStyle(
+                fontSize: 10,
+                color:
+                    selected ? AppTheme.primaryLight : AppTheme.textSecondary,
+                fontWeight: selected ? FontWeight.bold : FontWeight.normal,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final location = GoRouterState.of(context).uri.path;
     final selectedIndex = navItems.indexWhere(
       (item) => location.startsWith(item.path),
     );
     final safeIndex = selectedIndex < 0 ? 0 : selectedIndex;
+    final selectedItem = navItems[safeIndex];
     final moduleColor =
         ref.watch(authServiceProvider).currentModule?.color ?? _moduleColor;
+    _scrollSelectedIntoView(safeIndex);
 
     return Scaffold(
       backgroundColor: AppTheme.bg900,
@@ -59,26 +142,34 @@ class _DesktopShell extends ConsumerWidget {
       ),
       body: Row(
         children: [
-          // Tab menu cuộn được (copy từ kanposvnvlxd_shell.dart)
-          NavigationRail(
-            backgroundColor: AppTheme.bg800,
-            scrollable: true,
-            selectedIndex: safeIndex,
-            onDestinationSelected: (index) => context.go(navItems[index].path),
-            labelType: NavigationRailLabelType.all,
-            destinations: [
-              for (final item in navItems)
-                NavigationRailDestination(
-                  icon: Icon(item.icon),
-                  selectedIcon:
-                      Icon(item.activeIcon, color: AppTheme.primaryLight),
-                  label: Text(item.label),
+          Container(
+            key: const ValueKey('hrpayroll_tab_rail'),
+            width: 100,
+            color: AppTheme.bg800,
+            child: Scrollbar(
+              controller: _railController,
+              thumbVisibility: true,
+              child: SingleChildScrollView(
+                controller: _railController,
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    for (var i = 0; i < navItems.length; i++)
+                      _railItem(
+                        context,
+                        navItems[i],
+                        selectedItem,
+                        () => context.go(navItems[i].path),
+                      ),
+                  ],
                 ),
-            ],
+              ),
+            ),
           ),
           const VerticalDivider(width: 1),
           Expanded(
-            child: ClipRect(child: child),
+            child: ClipRect(child: widget.child),
           ),
         ],
       ),
