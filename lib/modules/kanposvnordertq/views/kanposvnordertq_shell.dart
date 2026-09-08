@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/auth/employee_role_policy.dart';
+import '../../../core/providers.dart';
 import '../../../core/router/module_selector_screen.dart';
 import '../../../core/widgets/account_switcher_button.dart';
 import '../providers/order_provider.dart';
+import 'order_tq_role_config.dart';
 import 'dashboard_screen.dart';
 import 'admin_dashboard_screen.dart';
 import 'order_list_screen.dart';
@@ -72,10 +75,51 @@ class _KanPosVNOrderTqShellState extends ConsumerState<KanPosVNOrderTqShell> {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
-    final tabs = _allTabs;
-    final safeIndex = _selectedIndex < tabs.length ? _selectedIndex : 0;
+    final auth = ref.watch(authServiceProvider);
+    final customTabs = auth.employeeAllowedTabs;
+    // Lọc tab theo quyền nhân viên (giống kanposvnvlxd): Owner/Manager xem hết,
+    // nhân viên chỉ xem tab được cấp — ghi đè riêng trong "Quản Lý NV" nếu có.
+    final tabs = _allTabs.where((t) {
+      if (auth.isManager) return true;
+      if (customTabs != null) return customTabs.contains(t.id);
+      return EmployeeRolePolicy.isAllowed(
+        isManager: false,
+        role: auth.employeeRole,
+        tabId: t.id,
+        roleTabs: ordertqRoleTabs,
+      );
+    }).toList();
+    final safeIndex =
+        tabs.isNotEmpty ? (_selectedIndex < tabs.length ? _selectedIndex : 0) : 0;
     final isDesktop = MediaQuery.of(context).size.width > 600;
     final moduleColor = const Color(0xFFEF4444);
+
+    if (tabs.isEmpty) {
+      return Scaffold(
+        appBar: AppBar(
+          backgroundColor: moduleColor,
+          foregroundColor: Colors.white,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            tooltip: 'Quay lại',
+            onPressed: () {
+              ref.read(selectedModuleProvider.notifier).state = null;
+            },
+          ),
+          title: const Text('KanPosVN - Order Trung Quốc',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+          actions: const [
+            AccountSwitcherButton(foregroundColor: Colors.white),
+          ],
+        ),
+        body: const Center(
+          child: Text(
+            'Không có quyền truy cập tab nào.\nLiên hệ quản trị viên để được cấp quyền.',
+            textAlign: TextAlign.center,
+          ),
+        ),
+      );
+    }
 
     return Scaffold(
       appBar: AppBar(

@@ -51,6 +51,31 @@ class NongSanJournalEntry {
     '511', '632', '641', '642', '515', '635', '711', '811', '911', '421',
   ];
 
+  /// Tên tài khoản theo Chế độ kế toán doanh nghiệp (TT133) — dùng cho tab
+  /// Kế toán (Hệ thống TK, nhập bút toán, sổ cái).
+  static const Map<String, String> accountNames = {
+    '111': 'Tiền mặt',
+    '112': 'Tiền gửi ngân hàng',
+    '131': 'Phải thu khách hàng',
+    '133': 'Thuế GTGT được khấu trừ',
+    '156': 'Hàng hóa',
+    '331': 'Phải trả người bán',
+    '333': 'Thuế và các khoản phải nộp Nhà nước',
+    '511': 'Doanh thu bán hàng và cung cấp dịch vụ',
+    '632': 'Giá vốn hàng bán',
+    '641': 'Chi phí bán hàng',
+    '642': 'Chi phí quản lý doanh nghiệp',
+    '515': 'Doanh thu hoạt động tài chính',
+    '635': 'Chi phí tài chính',
+    '711': 'Thu nhập khác',
+    '811': 'Chi phí khác',
+    '911': 'Xác định kết quả kinh doanh',
+    '421': 'Lợi nhuận sau thuế chưa phân phối',
+  };
+
+  static String accountNameOf(String code) =>
+      accountNames[code] ?? (code.isEmpty ? '—' : 'Tài khoản $code');
+
   final String id;
   final int entryNumber; // Số bút toán tăng dần
   final DateTime entryDate;

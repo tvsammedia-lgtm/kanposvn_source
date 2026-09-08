@@ -1,21 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../core/auth/employee_auth.dart';
 import '../../../core/auth/employee_management_screen.dart';
 import '../../../core/widgets/generic_backup_restore_screen.dart';
 import '../providers/order_provider.dart';
-
-/// Bản sao phân quyền tab mặc định của module Order Trung Quốc.
-/// (đồng bộ với `_tabDefs` trong `kanposvnordertq_shell.dart`).
-final Map<String, Set<String>> _ordertqRoleTabs = {
-  EmployeeRoles.manager: const {
-    'dashboard', 'orders', 'admin', 'map', 'settings',
-  },
-  EmployeeRoles.sale: const {'dashboard', 'orders', 'map'},
-  EmployeeRoles.warehouse: const {'orders', 'map', 'admin'},
-  EmployeeRoles.accountant: const {'dashboard', 'orders', 'admin', 'settings'},
-};
+import 'order_tq_role_config.dart';
 
 /// Danh sách tab hiển thị khi cấu hình quyền nhân viên.
 const List<(String, String)> _ordertqTabOptions = [
@@ -157,7 +146,7 @@ class _OrderTqSettingsScreenState extends ConsumerState<OrderTqSettingsScreen> {
                         for (final (id, label) in _ordertqTabOptions)
                           EmployeeTabOption(id: id, label: label),
                       ],
-                      roleTabs: _ordertqRoleTabs,
+                      roleTabs: ordertqRoleTabs,
                     ),
                   ),
                 );
