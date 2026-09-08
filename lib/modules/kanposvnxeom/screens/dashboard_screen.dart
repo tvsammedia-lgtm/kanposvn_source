@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../providers/statistics_provider.dart';
+import '../../../core/tracking/screens/tracking_list_screen.dart';
 import '../../../core/widgets/owner_info_bar.dart';
 import 'revenue_report_screen.dart';
 
@@ -50,6 +51,25 @@ class DashboardScreen extends ConsumerWidget {
                   icon: const Icon(Icons.bar_chart),
                   label: const Text('XEM BÁO CÁO CHI TIẾT'),
                   style: ElevatedButton.styleFrom(minimumSize: const Size(double.infinity, 50)),
+                ),
+                const SizedBox(height: 12),
+                OutlinedButton.icon(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const TrackingListScreen(
+                          appCode: 'kanposvnxeom',
+                          accentColor: Color(0xFFF97316),
+                          unitLabel: 'Xe',
+                          moduleTitle: 'Tracking — Xe Ôm',
+                        ),
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.map),
+                  label: const Text('BẢN ĐỒ TRACKING GPS (OSM)'),
+                  style: OutlinedButton.styleFrom(minimumSize: const Size(double.infinity, 50)),
                 )
               ],
             ),

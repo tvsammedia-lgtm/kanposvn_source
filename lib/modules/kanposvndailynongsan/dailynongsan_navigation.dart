@@ -6,6 +6,7 @@ enum DailyNongSanTab {
   inventory('Kho', Icons.inventory),
   sales('Bán hàng', Icons.point_of_sale),
   accounting('Kế toán', Icons.account_balance),
+  tracking('Tracking', Icons.map),
   settings('Cài đặt', Icons.settings);
 
   final String label;

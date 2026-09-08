@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/auth/employee_auth.dart';
 import '../../../core/auth/employee_role_policy.dart';
+import '../../../core/tracking/screens/tracking_list_screen.dart';
 import '../../../core/widgets/account_switcher_button.dart';
 import '../../../core/widgets/owner_info_bar.dart';
 
@@ -59,7 +60,7 @@ class _BatDongSanDashboardState extends ConsumerState<BatDongSanDashboard> {
   }
 
   static final Map<String, Set<String>> _roleTabs = {
-    EmployeeRoles.cashier: const {'home', 'transactions', 'finance', 'report'},
+    EmployeeRoles.cashier: const {'home', 'transactions', 'finance', 'report', 'tracking'},
     EmployeeRoles.sale: const {
       'home',
       'properties',
@@ -68,8 +69,9 @@ class _BatDongSanDashboardState extends ConsumerState<BatDongSanDashboard> {
       'transactions',
       'match',
       'report',
+      'tracking',
     },
-    EmployeeRoles.warehouse: const {'home', 'properties'},
+    EmployeeRoles.warehouse: const {'home', 'properties', 'tracking'},
     EmployeeRoles.accountant: const {
       'home',
       'finance',
@@ -77,6 +79,7 @@ class _BatDongSanDashboardState extends ConsumerState<BatDongSanDashboard> {
       'brokers',
       'report',
       'settings',
+      'tracking',
     },
   };
 
@@ -89,6 +92,7 @@ class _BatDongSanDashboardState extends ConsumerState<BatDongSanDashboard> {
     'match': (icon: Icons.join_inner, label: 'So Khớp'),
     'finance': (icon: Icons.account_balance_wallet, label: 'Phí Sàn'),
     'report': (icon: Icons.bar_chart, label: 'Báo Cáo'),
+    'tracking': (icon: Icons.map, label: 'Tracking'),
     'settings': (icon: Icons.settings, label: 'Cài Đặt'),
   };
 
@@ -101,6 +105,11 @@ class _BatDongSanDashboardState extends ConsumerState<BatDongSanDashboard> {
     'match': () => const BatDongSanMatchScreen(),
     'finance': () => const BatDongSanFinanceScreen(),
     'report': () => const BdsReportsScreen(),
+    'tracking': () => const TrackingListScreen(
+        appCode: 'kanposvnnbatdongsan',
+        accentColor: Color(0xFFDB2777),
+        unitLabel: 'NV',
+        moduleTitle: 'Tracking — BĐS'),
     'settings': () => const BatDongSanSettingsScreen(),
   };
 

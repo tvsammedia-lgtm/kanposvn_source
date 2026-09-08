@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/auth/employee_role_policy.dart';
 import '../../../core/providers.dart';
 import '../../../core/router/module_selector_screen.dart';
+import '../../../core/tracking/screens/tracking_list_screen.dart';
+import '../../../core/tracking/tracking_controller.dart';
 import '../../../core/widgets/account_switcher_button.dart';
 import '../providers/order_provider.dart';
 import 'order_tq_role_config.dart';
@@ -10,7 +12,6 @@ import 'dashboard_screen.dart';
 import 'admin_dashboard_screen.dart';
 import 'order_list_screen.dart';
 import 'order_tq_settings_screen.dart';
-import 'order_tq_tracking_list_screen.dart';
 
 class KanPosVNOrderTqShell extends ConsumerStatefulWidget {
   const KanPosVNOrderTqShell({super.key});
@@ -23,10 +24,19 @@ class _KanPosVNOrderTqShellState extends ConsumerState<KanPosVNOrderTqShell> {
   int _selectedIndex = 0;
   bool _isInit = false;
 
+  late final TrackingController _trackingController;
+
   @override
   void initState() {
     super.initState();
+    _trackingController = TrackingController(appCode: 'kanposvnordertq');
     _initData();
+  }
+
+  @override
+  void dispose() {
+    _trackingController.dispose();
+    super.dispose();
   }
 
   Future<void> _initData() async {
@@ -50,24 +60,37 @@ class _KanPosVNOrderTqShellState extends ConsumerState<KanPosVNOrderTqShell> {
     'settings': (icon: Icons.settings, label: 'Cài Đặt'),
   };
 
-  static final Map<String, Widget Function()> _tabScreens = {
-    'dashboard': () => const DashboardScreen(),
-    'orders': () => const OrderListScreen(),
-    'admin': () => const AdminDashboardScreen(),
-    'map': () => const OrderTqTrackingListScreen(),
-    'settings': () => const OrderTqSettingsScreen(),
-  };
+  List<({String id, Widget screen, IconData icon, String label})> get _allTabs => [
+        for (final e in _tabDefs.entries)
+          (
+            id: e.key,
+            screen: _buildTabScreen(e.key),
+            icon: e.value.icon,
+            label: e.value.label,
+          ),
+      ];
 
-  static final List<({String id, Widget screen, IconData icon, String label})>
-      _allTabs = [
-    for (final e in _tabDefs.entries)
-      (
-        id: e.key,
-        screen: _tabScreens[e.key]!(),
-        icon: e.value.icon,
-        label: e.value.label,
-      ),
-  ];
+  Widget _buildTabScreen(String id) {
+    switch (id) {
+      case 'dashboard':
+        return const DashboardScreen();
+      case 'orders':
+        return const OrderListScreen();
+      case 'admin':
+        return const AdminDashboardScreen();
+      case 'map':
+        return TrackingListScreen(
+          controller: _trackingController,
+          accentColor: const Color(0xFFEF4444),
+          unitLabel: 'Xe',
+          moduleTitle: 'Tracking — Order TQ',
+        );
+      case 'settings':
+        return const OrderTqSettingsScreen();
+      default:
+        return const SizedBox.shrink();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {

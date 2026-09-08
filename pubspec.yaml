@@ -41,6 +41,9 @@ dependencies:
   blue_thermal_printer: ^1.2.3
   esc_pos_utils_plus: 2.0.4
   audioplayers: ^6.1.0
+  flutter_map: ^8.1.1
+  geolocator: ^14.0.2
+  latlong2: ^0.9.1
 
 dev_dependencies:
   flutter_test:

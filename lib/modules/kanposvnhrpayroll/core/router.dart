@@ -23,6 +23,7 @@ import '../screens/settings/payroll_settings_screen.dart';
 import '../screens/shell/app_shell.dart';
 import '../services/auth_service.dart';
 import '../../../core/auth/employee_management_screen.dart';
+import '../../../core/tracking/screens/tracking_list_screen.dart';
 
 final appRouter = GoRouter(
   initialLocation: '/dashboard',
@@ -172,6 +173,17 @@ final appRouter = GoRouter(
           pageBuilder: (c, s) =>
               const NoTransitionPage(child: ReportsScreen()),
         ),
+        GoRoute(
+          path: '/tracking',
+          pageBuilder: (c, s) => const NoTransitionPage(
+            child: TrackingListScreen(
+              appCode: 'kanposvnhrpayroll',
+              accentColor: Color(0xFF0EA5E9),
+              unitLabel: 'Xe',
+              moduleTitle: 'Tracking — HR Payroll',
+            ),
+          ),
+        ),
 
       ],
     ),
@@ -253,6 +265,12 @@ const navItems = [
     icon: Icons.bar_chart_outlined,
     activeIcon: Icons.bar_chart,
     label: 'Báo cáo',
+  ),
+  NavItem(
+    path: '/tracking',
+    icon: Icons.map_outlined,
+    activeIcon: Icons.map,
+    label: 'Tracking',
   ),
   NavItem(
     path: '/settings',

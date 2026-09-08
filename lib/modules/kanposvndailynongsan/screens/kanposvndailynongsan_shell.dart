@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/router/module_selector_screen.dart';
+import '../../../core/tracking/screens/tracking_list_screen.dart';
+import '../../../core/tracking/tracking_controller.dart';
 import '../../../core/widgets/account_switcher_button.dart';
 import '../dailynongsan_navigation.dart';
 import '../providers/nongsan_providers.dart';
@@ -31,10 +33,21 @@ class _KanPosVnDailyNongSanShellState
   DailyNongSanTab _currentTab = DailyNongSanTab.dashboard;
   bool _isInit = false;
 
+  late final TrackingController _trackingController;
+
   @override
   void initState() {
     super.initState();
+    _trackingController = TrackingController(
+      appCode: 'kanposvndailynongsan',
+    );
     _initData();
+  }
+
+  @override
+  void dispose() {
+    _trackingController.dispose();
+    super.dispose();
   }
 
   Future<void> _initData() async {
@@ -124,6 +137,13 @@ class _KanPosVnDailyNongSanShellState
         return const Center(child: Text('Module Bán hàng (Đang phát triển)'));
       case DailyNongSanTab.accounting:
         return const NongSanAccountingScreen();
+      case DailyNongSanTab.tracking:
+        return TrackingListScreen(
+          controller: _trackingController,
+          accentColor: _moduleColor,
+          unitLabel: 'Xe',
+          moduleTitle: 'Tracking — Nông sản',
+        );
       case DailyNongSanTab.settings:
         return const NongSanSettingsScreen();
     }

@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/auth/employee_auth.dart';
 import '../../../core/auth/employee_role_policy.dart';
 import '../../../core/providers.dart';
+import '../../../core/tracking/screens/tracking_list_screen.dart';
+import '../../../core/tracking/tracking_controller.dart';
 import '../../../core/widgets/account_switcher_button.dart';
 import '../providers/vantai_providers.dart';
 import '../services/vantai_seed_data.dart';
@@ -28,10 +30,19 @@ class _KanPosVNBanvevantaiShellState extends ConsumerState<KanPosVNBanvevantaiSh
   int _selectedIndex = 0;
   bool _isInit = false;
 
+  late final TrackingController _trackingController;
+
   @override
   void initState() {
     super.initState();
+    _trackingController = TrackingController(appCode: 'kanposvnbanvevantai');
     _initData();
+  }
+
+  @override
+  void dispose() {
+    _trackingController.dispose();
+    super.dispose();
   }
 
   Future<void> _initData() async {
@@ -59,19 +70,19 @@ class _KanPosVNBanvevantaiShellState extends ConsumerState<KanPosVNBanvevantaiSh
   }
 
   static final Map<String, Set<String>> _roleTabs = {
-    EmployeeRoles.cashier: const {'ticketing', 'dispatch', 'partners'},
-    EmployeeRoles.sale: const {'ticketing', 'dispatch'},
-    EmployeeRoles.warehouse: const {'shipment', 'fleet', 'partners'},
+    EmployeeRoles.cashier: const {'ticketing', 'dispatch', 'partners', 'tracking'},
+    EmployeeRoles.sale: const {'ticketing', 'dispatch', 'tracking'},
+    EmployeeRoles.warehouse: const {'shipment', 'fleet', 'partners', 'tracking'},
     EmployeeRoles.accountant: const {
       'dashboard',
       'accounting',
       'partners',
-      'settings'
+      'settings',
+      'tracking',
     },
   };
 
-  static final List<({String id, Widget screen, IconData icon, String label})>
-      _allTabs = [
+  List<({String id, Widget screen, IconData icon, String label})> get _allTabs => [
     (id: 'dashboard', screen: const VantaiDashboardScreen(), icon: Icons.dashboard, label: 'Dashboard'),
     (id: 'ticketing', screen: const VantaiTicketingScreen(), icon: Icons.airplane_ticket, label: 'Bán Vé'),
     (id: 'dispatch', screen: const VantaiDispatchScreen(), icon: Icons.departure_board, label: 'Điều Xe'),
@@ -82,6 +93,12 @@ class _KanPosVNBanvevantaiShellState extends ConsumerState<KanPosVNBanvevantaiSh
     (id: 'accounting', screen: const VantaiAccountingScreen(), icon: Icons.account_balance_wallet, label: 'Kế Toán'),
     (id: 'settings', screen: const VantaiSettingsScreen(), icon: Icons.settings, label: 'Cài Đặt'),
     (id: 'report', screen: const VantaiReportsScreen(), icon: Icons.bar_chart, label: 'Báo Cáo'),
+    (id: 'tracking', screen: TrackingListScreen(
+        controller: _trackingController,
+        accentColor: const Color(0xFF0891B2),
+        unitLabel: 'Xe',
+        moduleTitle: 'Tracking — Vận tải & Vé'),
+      icon: Icons.map, label: 'Tracking'),
   ];
 
   @override
