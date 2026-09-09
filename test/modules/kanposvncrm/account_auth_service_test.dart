@@ -19,15 +19,15 @@ String _mockJwt(String role) {
 }
 
 void main() {
-  late AccountServerMode _savedMode;
+  late AccountServerMode savedMode;
 
   setUp(() {
-    _savedMode = AccountConfig.defaultMode;
+    savedMode = AccountConfig.defaultMode;
     AccountConfig.defaultMode = AccountServerMode.offline;
   });
 
   tearDown(() {
-    AccountConfig.defaultMode = _savedMode;
+    AccountConfig.defaultMode = savedMode;
   });
 
   group('AccountAuthService offline login', () {

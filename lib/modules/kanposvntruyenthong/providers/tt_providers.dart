@@ -161,9 +161,8 @@ class TtSalesNotifier extends StateNotifier<AsyncValue<List<TtSalesInvoice>>> {
           ..quantity = -d.quantity
           ..unitCost = d.costPrice
           ..totalCost = -d.amount;
-        if (lot != null) {
-          mov.lot.value = lot;
-        }
+        mov.lot.value = lot;
+        await mov.lot.save();
         await db.ttStockMovements.put(mov);
         if (product != null) {
           mov.product.value = product;
@@ -309,10 +308,8 @@ class TtPurchasesNotifier extends StateNotifier<AsyncValue<List<TtPurchaseInvoic
           mov.product.value = product;
           await mov.product.save();
         }
-        if (lot != null) {
-          mov.lot.value = lot;
-          await mov.lot.save();
-        }
+        mov.lot.value = lot;
+        await mov.lot.save();
       }
       if (supplier != null) {
         final s = supplier;

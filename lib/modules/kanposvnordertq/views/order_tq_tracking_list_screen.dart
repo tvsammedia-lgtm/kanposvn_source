@@ -32,7 +32,7 @@ class OrderTqTrackingListScreen extends ConsumerWidget {
                     backgroundColor: _statusColor(trip.status),
                     child: const Icon(Icons.local_shipping, color: Colors.white),
                   ),
-                  title: Text('${trip.tripCode ?? trip.tripId}'),
+                  title: Text(trip.tripCode ?? trip.tripId),
                   subtitle: Text(
                     '${trip.origin ?? ''} → ${trip.destination ?? ''}\n'
                     'Trạng thái: ${trip.status ?? ''}',
