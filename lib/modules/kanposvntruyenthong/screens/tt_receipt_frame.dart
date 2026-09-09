@@ -17,10 +17,22 @@ class TtReceiptFrame {
     String? footer,
     Map<String, String>? meta,
   }) async {
+    pw.Font? font;
+    pw.Font? fontBold;
+    try {
+      font = await PdfGoogleFonts.robotoRegular();
+      fontBold = await PdfGoogleFonts.robotoBold();
+    } catch (_) {
+      font = pw.Font.helvetica();
+      fontBold = pw.Font.helveticaBold();
+    }
+    final theme = pw.ThemeData.withFont(base: font, bold: fontBold);
+
     final pdf = pw.Document();
     pdf.addPage(
       pw.MultiPage(
         pageFormat: PdfPageFormat(58 * PdfPageFormat.mm, 297 * PdfPageFormat.mm),
+        theme: theme,
         build: (context) => [
           pw.Center(
             child: pw.Text(storeName, style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 13)),

@@ -72,12 +72,23 @@ class _BillSearchScreenState extends ConsumerState<BillSearchScreen> {
     final storeName = await AuthService.loadSavedStoreName();
     final ownerName = await AuthService.loadSavedOwnerName();
     final storePhone = await AuthService.loadSavedStorePhone();
+    pw.Font? font;
+    pw.Font? fontBold;
+    try {
+      font = await PdfGoogleFonts.robotoRegular();
+      fontBold = await PdfGoogleFonts.robotoBold();
+    } catch (_) {
+      font = pw.Font.helvetica();
+      fontBold = pw.Font.helveticaBold();
+    }
+    final theme = pw.ThemeData.withFont(base: font, bold: fontBold);
     final pdf = pw.Document();
 
     pdf.addPage(
       pw.Page(
         pageFormat: PdfPageFormat(58 * PdfPageFormat.mm, 297 * PdfPageFormat.mm),
         margin: const pw.EdgeInsets.all(10),
+        theme: theme,
         build: (pw.Context context) {
           return pw.Column(
             crossAxisAlignment: pw.CrossAxisAlignment.start,

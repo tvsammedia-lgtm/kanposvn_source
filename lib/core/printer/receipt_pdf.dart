@@ -18,7 +18,10 @@ Future<void> printReceiptPdf(
   try {
     font = await PdfGoogleFonts.robotoRegular();
     fontBold = await PdfGoogleFonts.robotoBold();
-  } catch (_) {}
+  } catch (_) {
+    // Fallback: helvetica (no Vietnamese support). For Vietnamese support,
+    // ensure internet access is available or add a custom TTF font asset.
+  }
   final theme = pw.ThemeData.withFont(
     base: font ?? pw.Font.helvetica(),
     bold: fontBold ?? pw.Font.helveticaBold(),
@@ -214,7 +217,7 @@ Future<void> printReceiptPdf(
               ),
               pw.SizedBox(height: 3),
               pw.Center(
-                child: pw.Text('Quét mã QR để tra cứy hóa đơn',
+                child: pw.Text('Quét mã QR để tra cứu hóa đơn',
                     style: pw.TextStyle(fontSize: 8)),
               ),
               if (receipt.orderCode != null && receipt.orderCode!.isNotEmpty)
@@ -243,5 +246,4 @@ Future<void> printReceiptPdf(
   await Printing.layoutPdf(
     onLayout: (format) async => pdf.save(),
     name: filename ?? 'HoaDon_${receipt.orderCode ?? DateTime.now().millisecondsSinceEpoch}.pdf',
-  );
-}
+  );  }

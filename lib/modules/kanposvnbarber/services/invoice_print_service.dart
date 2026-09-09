@@ -7,12 +7,24 @@ import '../models/barber_invoice_detail.dart';
 
 class InvoicePrintService {
   static Future<void> printInvoice(BarberInvoice invoice, List<BarberInvoiceDetail> details) async {
+    pw.Font? font;
+    pw.Font? fontBold;
+    try {
+      font = await PdfGoogleFonts.robotoRegular();
+      fontBold = await PdfGoogleFonts.robotoBold();
+    } catch (_) {
+      font = pw.Font.helvetica();
+      fontBold = pw.Font.helveticaBold();
+    }
+    final theme = pw.ThemeData.withFont(base: font, bold: fontBold);
+
     final pdf = pw.Document();
     final currencyFormatter = NumberFormat.currency(locale: 'vi_VN', symbol: 'đ');
 
     pdf.addPage(
       pw.Page(
         pageFormat: PdfPageFormat(58 * PdfPageFormat.mm, 297 * PdfPageFormat.mm),
+        theme: theme,
         build: (pw.Context context) {
           return pw.Column(
             crossAxisAlignment: pw.CrossAxisAlignment.center,
