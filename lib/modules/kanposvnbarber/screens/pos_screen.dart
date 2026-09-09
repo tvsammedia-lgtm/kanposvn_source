@@ -150,21 +150,23 @@ class _PosScreenState extends ConsumerState<PosScreen> {
                       Container(
                         padding: const EdgeInsets.all(12),
                         color: Colors.white,
-                        child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-                          _total('Tạm tính:', posState.subTotal, fmt),
-                          _total('Giảm giá:', posState.invoice.discount, fmt),
-                          const Divider(),
-                          _total('Tổng cộng:', posState.total, fmt, bold: true),
-                          const SizedBox(height: 12),
-                          ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(vertical: 14), backgroundColor: Colors.green),
-                            onPressed: posState.details.isEmpty ? null : () {
-                              Navigator.push(context, MaterialPageRoute(builder: (_) => const CheckoutScreen()));
-                            },
-                            child: const Text('THANH TOÁN', style: TextStyle(fontSize: 16, color: Colors.white)),
-                          ),
-                        ]),
+                        child: SingleChildScrollView(
+                          child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+                            _total('Tạm tính:', posState.subTotal, fmt),
+                            _total('Giảm giá:', posState.invoice.discount, fmt),
+                            const Divider(),
+                            _total('Tổng cộng:', posState.total, fmt, bold: true),
+                            const SizedBox(height: 12),
+                            ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                padding: const EdgeInsets.symmetric(vertical: 14), backgroundColor: Colors.green),
+                              onPressed: posState.details.isEmpty ? null : () {
+                                Navigator.push(context, MaterialPageRoute(builder: (_) => const CheckoutScreen()));
+                              },
+                              child: const Text('THANH TOÁN', style: TextStyle(fontSize: 16, color: Colors.white)),
+                            ),
+                          ]),
+                        ),
                       ),
                     ]),
                   ),
@@ -179,12 +181,24 @@ class _PosScreenState extends ConsumerState<PosScreen> {
       onTap: () => ref.read(posProvider.notifier).addItem(id, name, type, price),
       child: Card(
         color: color,
-        child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-          Text(name, textAlign: TextAlign.center, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
-          const SizedBox(height: 4),
-          Text(NumberFormat.currency(locale: 'vi_VN', symbol: 'đ').format(price), style: const TextStyle(fontSize: 12)),
-          if (subtitle != null) Text(subtitle, style: TextStyle(fontSize: 10, color: Colors.grey[600])),
-        ]),
+        child: Padding(
+          padding: const EdgeInsets.all(6),
+          child: Center(
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text(name, textAlign: TextAlign.center, maxLines: 2, overflow: TextOverflow.ellipsis, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                  const SizedBox(height: 4),
+                  Text(NumberFormat.currency(locale: 'vi_VN', symbol: 'đ').format(price), style: const TextStyle(fontSize: 12)),
+                  if (subtitle != null) Text(subtitle, style: TextStyle(fontSize: 10, color: Colors.grey[600])),
+                ],
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }

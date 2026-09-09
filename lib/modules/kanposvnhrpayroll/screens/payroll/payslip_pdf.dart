@@ -1,26 +1,16 @@
 import 'package:intl/intl.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
-import 'package:printing/printing.dart';
 import '../../models/payroll.dart';
+import '../../../../core/printer/pdf_print.dart';
+import '../../../../core/printer/pdf_vietnamese_theme.dart';
 
 final _currency = NumberFormat.currency(locale: 'vi_VN', symbol: 'đ');
 
 String _fmt(double v) => _currency.format(v.roundToDouble());
 
 /// Load Roboto fonts to support Vietnamese diacritics.
-Future<(pw.Font, pw.Font)> _loadFonts() async {
-  pw.Font? font;
-  pw.Font? fontBold;
-  try {
-    font = await PdfGoogleFonts.robotoRegular();
-    fontBold = await PdfGoogleFonts.robotoBold();
-  } catch (_) {}
-  return (
-    font ?? pw.Font.helvetica(),
-    fontBold ?? pw.Font.helveticaBold(),
-  );
-}
+Future<(pw.Font, pw.Font)> _loadFonts() => loadVietnamesePdfFonts();
 
 /// Tạo PDF phiếu lương cho 1 nhân viên.
 Future<pw.Document> buildSinglePayslipPdf(Payroll p) async {
@@ -53,8 +43,8 @@ Future<pw.Document> buildBatchPayslipPdf(List<Payroll> payrolls) async {
 /// In phiếu lương 1 người — mở dialog preview/máy in.
 Future<void> printPayslip(Payroll p) async {
   final pdf = await buildSinglePayslipPdf(p);
-  await Printing.layoutPdf(
-    onLayout: (_) async => pdf.save(),
+  await printPdfSafely(
+    document: pdf,
     name: 'PhieuLuong_${p.employeeCode}_${p.month}_${p.year}.pdf',
   );
 }
@@ -62,8 +52,8 @@ Future<void> printPayslip(Payroll p) async {
 /// In tất cả phiếu lương — mở dialog preview/máy in.
 Future<void> printAllPayslips(List<Payroll> payrolls) async {
   final pdf = await buildBatchPayslipPdf(payrolls);
-  await Printing.layoutPdf(
-    onLayout: (_) async => pdf.save(),
+  await printPdfSafely(
+    document: pdf,
     name: 'PhieuLuong_${payrolls.first.month}_${payrolls.first.year}.pdf',
   );
 }

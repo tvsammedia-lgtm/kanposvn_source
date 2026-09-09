@@ -349,24 +349,25 @@ class _SpaPosScreenState extends ConsumerState<SpaPosScreen> {
                   child: Container(
                     color: Colors.grey[100],
                     padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(Icons.spa, size: 100, color: Colors.pink),
-                        const SizedBox(height: 24),
-                        Text('Khách hàng: ${_selectedCustomer?.name ?? "Chưa chọn"}', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.blue)),
-                        Text('Dịch vụ: ${_selectedService?.name ?? "Chưa chọn"}', style: const TextStyle(fontSize: 18)),
-                        Text('KTV: ${_selectedTech?.name ?? "Chưa chọn"}', style: const TextStyle(fontSize: 18)),
-                        const Spacer(),
-                        ElevatedButton(
-                          style: ElevatedButton.styleFrom(backgroundColor: Colors.pink, padding: const EdgeInsets.all(24)),
-                          onPressed: (_selectedCustomer != null && _selectedService != null && _selectedTech != null) ? () {
-                            ref.read(spaSessionsProvider.notifier).openSession(widget.bed, _selectedService!, _selectedTech!, _selectedCustomer!);
-                          } : null,
-                          child: const Text('BẮT ĐẦU DỊCH VỤ', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
-                        ),
-                      ],
+                    child: SingleChildScrollView(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          const Icon(Icons.spa, size: 100, color: Colors.pink),
+                          const SizedBox(height: 24),
+                          Text('Khách hàng: ${_selectedCustomer?.name ?? "Chưa chọn"}', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.blue)),
+                          Text('Dịch vụ: ${_selectedService?.name ?? "Chưa chọn"}', style: const TextStyle(fontSize: 18)),
+                          Text('KTV: ${_selectedTech?.name ?? "Chưa chọn"}', style: const TextStyle(fontSize: 18)),
+                          const SizedBox(height: 24),
+                          ElevatedButton(
+                            style: ElevatedButton.styleFrom(backgroundColor: Colors.pink, padding: const EdgeInsets.all(24)),
+                            onPressed: (_selectedCustomer != null && _selectedService != null && _selectedTech != null) ? () {
+                              ref.read(spaSessionsProvider.notifier).openSession(widget.bed, _selectedService!, _selectedTech!, _selectedCustomer!);
+                            } : null,
+                            child: const Text('BẮT ĐẦU DỊCH VỤ', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 )
@@ -383,11 +384,12 @@ class _SpaPosScreenState extends ConsumerState<SpaPosScreen> {
           final cus = activeSession.customer.value;
 
           return Center(
-            child: Container(
-              padding: const EdgeInsets.all(32),
-              width: 500,
-              child: Card(
-                elevation: 4,
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(16),
+              child: Container(
+                constraints: const BoxConstraints(maxWidth: 500),
+                child: Card(
+                  elevation: 4,
                 child: Padding(
                   padding: const EdgeInsets.all(32.0),
                   child: Column(
@@ -493,6 +495,7 @@ class _SpaPosScreenState extends ConsumerState<SpaPosScreen> {
                   ),
                 ),
               ),
+            ),
             ),
           );
         },

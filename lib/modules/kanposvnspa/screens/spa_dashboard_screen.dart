@@ -15,24 +15,51 @@ class SpaDashboardScreen extends ConsumerWidget {
     return Card(
       elevation: 3,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, color: color, size: 28),
-            const SizedBox(height: 8),
-            Text(value,
-                style: TextStyle(
-                    fontSize: 20, fontWeight: FontWeight.bold, color: color),
-                textAlign: TextAlign.center),
-            const SizedBox(height: 4),
-            Text(title,
-                style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-                textAlign: TextAlign.center),
-          ],
+      child: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(10),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(icon, color: color, size: 26),
+              const SizedBox(height: 8),
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(value,
+                    style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: color),
+                    textAlign: TextAlign.center),
+              ),
+              const SizedBox(height: 4),
+              Text(title,
+                  style: TextStyle(fontSize: 11, color: Colors.grey[600]),
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis),
+            ],
+          ),
         ),
       ),
+    );
+  }
+
+  Widget _metricGrid(List<Widget> children) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final width = constraints.maxWidth;
+        final crossAxisCount = width >= 700 ? 4 : (width >= 480 ? 3 : 2);
+        return GridView.count(
+          crossAxisCount: crossAxisCount,
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          mainAxisSpacing: 10,
+          crossAxisSpacing: 10,
+          childAspectRatio: crossAxisCount >= 3 ? 1.4 : 1.6,
+          children: children,
+        );
+      },
     );
   }
 
@@ -55,26 +82,18 @@ class SpaDashboardScreen extends ConsumerWidget {
                       fontWeight: FontWeight.bold,
                       color: Colors.pink)),
               const SizedBox(height: 12),
-              GridView.count(
-                crossAxisCount: 4,
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                mainAxisSpacing: 10,
-                crossAxisSpacing: 10,
-                childAspectRatio: 1.5,
-                children: [
-                  _metric('Doanh thu hôm nay',
-                      _currency.format(m['revenueToday'] ?? 0), Colors.pink,
-                      Icons.attach_money),
-                  _metric('Doanh thu tháng',
-                      _currency.format(m['revenueMonth'] ?? 0), Colors.deepPurple,
-                      Icons.calendar_month),
-                  _metric('Ca hoàn thành', '${m['completedToday'] ?? 0} ca',
-                      Colors.green, Icons.check_circle),
-                  _metric('Đang phục vụ', '${m['servingCustomers'] ?? 0} khách',
-                      Colors.orange, Icons.self_improvement),
-                ],
-              ),
+              _metricGrid([
+                _metric('Doanh thu hôm nay',
+                    _currency.format(m['revenueToday'] ?? 0), Colors.pink,
+                    Icons.attach_money),
+                _metric('Doanh thu tháng',
+                    _currency.format(m['revenueMonth'] ?? 0), Colors.deepPurple,
+                    Icons.calendar_month),
+                _metric('Ca hoàn thành', '${m['completedToday'] ?? 0} ca',
+                    Colors.green, Icons.check_circle),
+                _metric('Đang phục vụ', '${m['servingCustomers'] ?? 0} khách',
+                    Colors.orange, Icons.self_improvement),
+              ]),
               const SizedBox(height: 16),
               const Text('GIƯỜNG & KHÁCH HÀNG',
                   style: TextStyle(
@@ -82,26 +101,18 @@ class SpaDashboardScreen extends ConsumerWidget {
                       fontWeight: FontWeight.bold,
                       color: Colors.pink)),
               const SizedBox(height: 12),
-              GridView.count(
-                crossAxisCount: 4,
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                mainAxisSpacing: 10,
-                crossAxisSpacing: 10,
-                childAspectRatio: 1.5,
-                children: [
-                  _metric('Giường đang dùng',
-                      '${m['bedsInUse'] ?? 0}/${m['bedTotal'] ?? 0}',
-                      Colors.purple, Icons.bed),
-                  _metric('Giường trống', '${m['bedsEmpty'] ?? 0}',
-                      Colors.teal, Icons.event_seat),
-                  _metric('Khách mới hôm nay',
-                      '${m['newCustomersToday'] ?? 0}', Colors.blue,
-                      Icons.person_add),
-                  _metric('Tổng khách hàng', '${m['customerTotal'] ?? 0}',
-                      Colors.indigo, Icons.groups),
-                ],
-              ),
+              _metricGrid([
+                _metric('Giường đang dùng',
+                    '${m['bedsInUse'] ?? 0}/${m['bedTotal'] ?? 0}',
+                    Colors.purple, Icons.bed),
+                _metric('Giường trống', '${m['bedsEmpty'] ?? 0}',
+                    Colors.teal, Icons.event_seat),
+                _metric('Khách mới hôm nay',
+                    '${m['newCustomersToday'] ?? 0}', Colors.blue,
+                    Icons.person_add),
+                _metric('Tổng khách hàng', '${m['customerTotal'] ?? 0}',
+                    Colors.indigo, Icons.groups),
+              ]),
               const SizedBox(height: 16),
               const Text('PHÂN TÍCH',
                   style: TextStyle(

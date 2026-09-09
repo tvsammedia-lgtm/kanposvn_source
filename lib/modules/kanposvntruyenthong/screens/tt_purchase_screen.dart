@@ -275,7 +275,6 @@ class _TtPurchaseScreenState extends ConsumerState<TtPurchaseScreen> {
     );
 
     final formPanel = Container(
-      width: isDesktop ? 340 : double.infinity,
       color: const Color(0xFFF0FDF4),
       padding: const EdgeInsets.all(12),
       child: Column(
@@ -397,6 +396,25 @@ class _TtPurchaseScreenState extends ConsumerState<TtPurchaseScreen> {
       ),
     );
 
+    final productColumn = Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(12),
+          color: Colors.white,
+          child: TextField(
+            controller: _searchCtrl,
+            decoration: InputDecoration(
+              hintText: 'Tìm sản phẩm để nhập...',
+              prefixIcon: const Icon(Icons.search),
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+            onChanged: (v) => setState(() => _query = v),
+          ),
+        ),
+        Expanded(child: list),
+      ],
+    );
+
     return Scaffold(
       backgroundColor: const Color(0xFFF6F7F9),
       appBar: AppBar(
@@ -404,33 +422,21 @@ class _TtPurchaseScreenState extends ConsumerState<TtPurchaseScreen> {
         foregroundColor: Colors.white,
         title: const Text('Nhập Hàng', style: TextStyle(fontWeight: FontWeight.bold)),
       ),
-      body: Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Expanded(
-            child: Column(
+      body: isDesktop
+          ? Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  color: Colors.white,
-                  child: TextField(
-                    controller: _searchCtrl,
-                    decoration: InputDecoration(
-                      hintText: 'Tìm sản phẩm để nhập...',
-                      prefixIcon: const Icon(Icons.search),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                    ),
-                    onChanged: (v) => setState(() => _query = v),
-                  ),
-                ),
-                Expanded(child: list),
+                Expanded(child: productColumn),
+                const VerticalDivider(thickness: 1, width: 1),
+                SizedBox(width: 340, child: formPanel),
+              ],
+            )
+          : Column(
+              children: [
+                Expanded(child: productColumn),
+                SizedBox(height: 320, child: formPanel),
               ],
             ),
-          ),
-          if (isDesktop) const VerticalDivider(thickness: 1, width: 1),
-          formPanel,
-        ],
-      ),
     );
   }
 }

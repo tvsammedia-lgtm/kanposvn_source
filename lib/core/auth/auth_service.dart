@@ -264,6 +264,20 @@ class AuthService extends ChangeNotifier {
           _currentAppCode = null;
           _currentModule = null;
         }
+        // Xóa branch prefs cũ từ cửa hàng trước đó (nếu có) để bill header
+        // không hiển thị nhầm tên SĐT cửa hàng cũ. refreshBranchInfo / selectBranch
+        // sẽ tái tạo lại nếu cửa hàng mới có chi nhánh.
+        _branchName = null;
+        _branchPhone = null;
+        _branchAddress = null;
+        _branchId = null;
+        {
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.remove(_kBranchNameKey);
+          await prefs.remove(_kBranchPhoneKey);
+          await prefs.remove(_kBranchAddressKey);
+          await prefs.remove(_kBranchIdKey);
+        }
         await _persistSession();
         _isLoading = false;
         notifyListeners();
@@ -331,6 +345,16 @@ class AuthService extends ChangeNotifier {
     }
     await prefs.remove(_kOwnerNameKey);
     await prefs.remove(_kOwnerPhoneKey);
+    // Xóa branch prefs cũ — nhân viên không có chi nhánh riêng, bill header
+    // nên hiển thị tên cửa hàng (storeName) thay vì branch cũ từ cửa hàng khác.
+    _branchName = null;
+    _branchPhone = null;
+    _branchAddress = null;
+    _branchId = null;
+    await prefs.remove(_kBranchNameKey);
+    await prefs.remove(_kBranchPhoneKey);
+    await prefs.remove(_kBranchAddressKey);
+    await prefs.remove(_kBranchIdKey);
     // Nhân viên chỉ được vào các module mà Owner đã tạo user local cho họ trong
     // "Quản lý nhân viên" của module đó. Ưu tiên danh sách module tìm được lúc
     // đăng nhập; fallback về danh sách module employee đã lưu (dữ liệu cũ).

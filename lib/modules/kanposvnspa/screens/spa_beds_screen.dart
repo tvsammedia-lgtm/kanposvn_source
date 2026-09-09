@@ -66,11 +66,11 @@ class SpaBedsScreen extends ConsumerWidget {
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
                           gridDelegate:
-                              const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 5,
+                              const SliverGridDelegateWithMaxCrossAxisExtent(
+                            maxCrossAxisExtent: 120,
                             crossAxisSpacing: 12,
                             mainAxisSpacing: 12,
-                            childAspectRatio: 1.2,
+                            childAspectRatio: 1.0,
                           ),
                           itemCount: room.value.length,
                           itemBuilder: (context, i) {
@@ -100,32 +100,38 @@ class SpaBedsScreen extends ConsumerWidget {
                                         offset: Offset(2, 2))
                                   ],
                                 ),
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Icon(
-                                      switch (bed.status) {
-                                        SpaBedStatus.MAINTENANCE =>
-                                          Icons.build,
-                                        SpaBedStatus.CLEANING =>
-                                          Icons.cleaning_services,
-                                        _ => Icons.bed,
-                                      },
-                                      size: 36,
-                                      color: Colors.white,
+                                child: Padding(
+                                  padding: const EdgeInsets.all(4),
+                                  child: FittedBox(
+                                    fit: BoxFit.scaleDown,
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Icon(
+                                          switch (bed.status) {
+                                            SpaBedStatus.MAINTENANCE =>
+                                              Icons.build,
+                                            SpaBedStatus.CLEANING =>
+                                              Icons.cleaning_services,
+                                            _ => Icons.bed,
+                                          },
+                                          size: 32,
+                                          color: Colors.white,
+                                        ),
+                                        const SizedBox(height: 4),
+                                        Text(bed.name,
+                                            style: const TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.white,
+                                                fontSize: 14)),
+                                        Text(bed.status.label,
+                                            style: const TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.yellowAccent,
+                                                fontSize: 11)),
+                                      ],
                                     ),
-                                    const SizedBox(height: 6),
-                                    Text(bed.name,
-                                        style: const TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.white,
-                                            fontSize: 16)),
-                                    Text(bed.status.label,
-                                        style: const TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.yellowAccent,
-                                            fontSize: 12)),
-                                  ],
+                                  ),
                                 ),
                               ),
                             );

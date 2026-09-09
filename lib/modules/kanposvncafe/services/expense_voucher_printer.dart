@@ -1,8 +1,9 @@
 import 'package:intl/intl.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
-import 'package:printing/printing.dart';
 import '../../../core/auth/auth_service.dart';
+import '../../../core/printer/pdf_print.dart';
+import '../../../core/printer/pdf_vietnamese_theme.dart';
 import '../models/cafe_finance_accounting.dart';
 
 final _currency = NumberFormat.currency(locale: 'vi_VN', symbol: 'đ');
@@ -12,16 +13,8 @@ Future<void> printExpenseVoucher(CashTransaction tx) async {
   final storeName = await AuthService.loadSavedStoreName();
   final ownerName = await AuthService.loadSavedOwnerName();
   final storePhone = await AuthService.loadSavedStorePhone();
-  pw.Font? font;
-  pw.Font? fontBold;
-  try {
-    font = await PdfGoogleFonts.robotoRegular();
-    fontBold = await PdfGoogleFonts.robotoBold();
-  } catch (_) {}
-  final theme = pw.ThemeData.withFont(
-    base: font ?? pw.Font.helvetica(),
-    bold: fontBold ?? pw.Font.helveticaBold(),
-  );
+  final (font, fontBold) = await loadVietnamesePdfFonts();
+  final theme = pw.ThemeData.withFont(base: font, bold: fontBold);
 
   const int width = 32;
   String fmtRow(String left, String right) {
@@ -125,8 +118,8 @@ Future<void> printExpenseVoucher(CashTransaction tx) async {
     ),
   );
 
-  await Printing.layoutPdf(
-    onLayout: (format) async => pdf.save(),
+  await printPdfSafely(
+    document: pdf,
     name: 'Phieu chi ${_voucherCode(tx)}',
   );
 }
@@ -139,16 +132,8 @@ Future<void> printExpenseSummary({
   final storeName = await AuthService.loadSavedStoreName();
   final ownerName = await AuthService.loadSavedOwnerName();
   final storePhone = await AuthService.loadSavedStorePhone();
-  pw.Font? font;
-  pw.Font? fontBold;
-  try {
-    font = await PdfGoogleFonts.robotoRegular();
-    fontBold = await PdfGoogleFonts.robotoBold();
-  } catch (_) {}
-  final theme = pw.ThemeData.withFont(
-    base: font ?? pw.Font.helvetica(),
-    bold: fontBold ?? pw.Font.helveticaBold(),
-  );
+  final (font, fontBold) = await loadVietnamesePdfFonts();
+  final theme = pw.ThemeData.withFont(base: font, bold: fontBold);
 
   final endOfDay = DateTime(to.year, to.month, to.day, 23, 59, 59);
   final filtered = txs
@@ -328,8 +313,8 @@ Future<void> printExpenseSummary({
     ),
   );
 
-  await Printing.layoutPdf(
-    onLayout: (format) async => pdf.save(),
+  await printPdfSafely(
+    document: pdf,
     name: 'Tong hop phieu chi ${DateFormat('ddMMyyyy').format(from)}-${DateFormat('ddMMyyyy').format(to)}',
   );
 }

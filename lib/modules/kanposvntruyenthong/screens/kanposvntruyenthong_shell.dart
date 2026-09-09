@@ -38,7 +38,6 @@ class _KanPosVNTruyenthongShellState extends ConsumerState<KanPosVNTruyenthongSh
     try {
       final isarService = ref.read(ttIsarServiceProvider);
       await TtSeedData.seedIfEmpty(isarService);
-      ref.read(ttProductsProvider.notifier).loadProducts();
     } catch (_) {
       // DB schema mismatch hoặc lỗi khác → vẫn cho vào shell (tab sẽ báo lỗi nếu cần)
     }

@@ -1,9 +1,10 @@
 import 'package:intl/intl.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
-import 'package:printing/printing.dart';
 
 import '../../../core/printer/pdf_owner_header.dart';
+import '../../../core/printer/pdf_print.dart';
+import '../../../core/printer/pdf_vietnamese_theme.dart';
 import '../models/vantai_ticket.dart';
 
 final _money =
@@ -24,16 +25,8 @@ Future<void> printVantaiTicketPdf(VantaiTicket ticket) async {
   final vehicle = ticket.vehicle.value;
   final trip = ticket.trip.value;
 
-  pw.Font? font;
-  pw.Font? fontBold;
-  try {
-    font = await PdfGoogleFonts.robotoRegular();
-    fontBold = await PdfGoogleFonts.robotoBold();
-  } catch (_) {}
-  final theme = pw.ThemeData.withFont(
-    base: font ?? pw.Font.helvetica(),
-    bold: fontBold ?? pw.Font.helveticaBold(),
-  );
+  final (font, fontBold) = await loadVietnamesePdfFonts();
+  final theme = pw.ThemeData.withFont(base: font, bold: fontBold);
 
   final shopName = 'KANPOSVN VẬN TẢI';
   final ownerHeader = await buildOwnerHeaderLine();
@@ -211,8 +204,8 @@ Future<void> printVantaiTicketPdf(VantaiTicket ticket) async {
     ),
   );
 
-  await Printing.layoutPdf(
-    onLayout: (format) async => pdf.save(),
+  await printPdfSafely(
+    document: pdf,
     name: 'Ve_${ticket.ticketCode}.pdf',
   );
 }

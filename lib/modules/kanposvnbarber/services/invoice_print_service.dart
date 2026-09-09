@@ -1,22 +1,14 @@
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
-import 'package:printing/printing.dart';
 import 'package:intl/intl.dart';
 import '../models/barber_invoice.dart';
 import '../models/barber_invoice_detail.dart';
+import '../../../core/printer/pdf_print.dart';
+import '../../../core/printer/pdf_vietnamese_theme.dart';
 
 class InvoicePrintService {
   static Future<void> printInvoice(BarberInvoice invoice, List<BarberInvoiceDetail> details) async {
-    pw.Font? font;
-    pw.Font? fontBold;
-    try {
-      font = await PdfGoogleFonts.robotoRegular();
-      fontBold = await PdfGoogleFonts.robotoBold();
-    } catch (_) {
-      font = pw.Font.helvetica();
-      fontBold = pw.Font.helveticaBold();
-    }
-    final theme = pw.ThemeData.withFont(base: font, bold: fontBold);
+    final theme = await buildVietnamesePdfTheme();
 
     final pdf = pw.Document();
     final currencyFormatter = NumberFormat.currency(locale: 'vi_VN', symbol: 'đ');
@@ -94,6 +86,9 @@ class InvoicePrintService {
       ),
     );
 
-    await Printing.layoutPdf(onLayout: (PdfPageFormat format) async => pdf.save());
+    await printPdfSafely(
+      document: pdf,
+      name: 'HoaDon_${invoice.invoiceId}.pdf',
+    );
   }
 }

@@ -2,15 +2,15 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
-import 'package:printing/printing.dart';
 import 'package:qr/qr.dart';
 import 'package:share_plus/share_plus.dart';
 import '../../../core/auth/auth_service.dart';
+import '../../../core/printer/pdf_print.dart';
+import '../../../core/printer/pdf_vietnamese_theme.dart';
 import '../models/cafe_order.dart';
 
 final _currency = NumberFormat.currency(locale: 'vi_VN', symbol: 'đ');
@@ -23,16 +23,8 @@ Future<void> printBillPdf(
   final storeName = await AuthService.loadSavedStoreName();
   final ownerName = await AuthService.loadSavedOwnerName();
   final storePhone = await AuthService.loadSavedStorePhone();
-  pw.Font? font;
-  pw.Font? fontBold;
-  try {
-    font = await PdfGoogleFonts.robotoRegular();
-    fontBold = await PdfGoogleFonts.robotoBold();
-  } catch (_) {}
-  final theme = pw.ThemeData.withFont(
-    base: font ?? pw.Font.helvetica(),
-    bold: fontBold ?? pw.Font.helveticaBold(),
-  );
+  final (font, fontBold) = await loadVietnamesePdfFonts();
+  final theme = pw.ThemeData.withFont(base: font, bold: fontBold);
 
   const int width = 32;
 
@@ -262,40 +254,12 @@ Future<void> printBillPdf(
     if (createPdfFileFirst && defaultTargetPlatform == TargetPlatform.android) {
       await _openAndroidPdfFile(pdfBytes, cart.orderCode);
     }
+  } catch (_) {}
 
-    await Printing.layoutPdf(
-      onLayout: (format) async => pdfBytes,
-      name: 'Hóa đơn ${cart.orderCode}',
-    );
-  } on PlatformException catch (_) {
-    if (context != null) {
-      try {
-        final messenger = ScaffoldMessenger.maybeOf(context);
-        if (messenger != null && context.mounted) {
-          messenger.showSnackBar(
-            const SnackBar(
-              content: Text(
-                'Không thể mở chức năng in trên thiết bị này. Vui lòng kiểm tra thiết bị hỗ trợ in hoặc chọn phương thức khác.',
-              ),
-            ),
-          );
-        }
-      } catch (_) {}
-    }
-  } catch (_) {
-    if (context != null) {
-      try {
-        final messenger = ScaffoldMessenger.maybeOf(context);
-        if (messenger != null && context.mounted) {
-          messenger.showSnackBar(
-            const SnackBar(
-              content: Text('In hóa đơn thất bại. Vui lòng thử lại sau.'),
-            ),
-          );
-        }
-      } catch (_) {}
-    }
-  }
+  await printPdfSafely(
+    document: pdf,
+    name: 'Hóa đơn ${cart.orderCode}',
+  );
 }
 
 Future<bool> _openAndroidPdfFile(List<int> pdfBytes, String orderCode) async {

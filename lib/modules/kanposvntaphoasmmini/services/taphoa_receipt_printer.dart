@@ -1,9 +1,10 @@
 import 'package:intl/intl.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
-import 'package:printing/printing.dart';
 import 'package:qr/qr.dart';
 import '../../../core/auth/auth_service.dart';
+import '../../../core/printer/pdf_print.dart';
+import '../../../core/printer/pdf_vietnamese_theme.dart';
 import '../../../core/printer/receipt_data.dart';
 import '../models/invoice.dart';
 
@@ -65,16 +66,8 @@ Future<void> printTapHoaReceiptPdf(
   final storeName = await AuthService.loadSavedStoreName();
   final ownerName = await AuthService.loadSavedOwnerName();
   final storePhone = await AuthService.loadSavedStorePhone();
-  pw.Font? font;
-  pw.Font? fontBold;
-  try {
-    font = await PdfGoogleFonts.robotoRegular();
-    fontBold = await PdfGoogleFonts.robotoBold();
-  } catch (_) {}
-  final theme = pw.ThemeData.withFont(
-    base: font ?? pw.Font.helvetica(),
-    bold: fontBold ?? pw.Font.helveticaBold(),
-  );
+  final (font, fontBold) = await loadVietnamesePdfFonts();
+  final theme = pw.ThemeData.withFont(base: font, bold: fontBold);
 
   const int width = 32;
 
@@ -164,8 +157,8 @@ Future<void> printTapHoaReceiptPdf(
     ),
   );
 
-  await Printing.layoutPdf(
-    onLayout: (format) async => pdf.save(),
+  await printPdfSafely(
+    document: pdf,
     name: 'Hóa đơn ${invoice.invoiceNumber}',
   );
 }

@@ -1,9 +1,10 @@
 import 'package:intl/intl.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
-import 'package:printing/printing.dart';
 
 import 'pdf_owner_header.dart';
+import 'pdf_print.dart';
+import 'pdf_vietnamese_theme.dart';
 import 'receipt_data.dart';
 
 final _currency = NumberFormat.currency(locale: 'vi_VN', symbol: 'đ');
@@ -13,19 +14,8 @@ Future<void> printReceiptPdf(
   ReceiptData receipt, {
   String? filename,
 }) async {
-  pw.Font? font;
-  pw.Font? fontBold;
-  try {
-    font = await PdfGoogleFonts.robotoRegular();
-    fontBold = await PdfGoogleFonts.robotoBold();
-  } catch (_) {
-    // Fallback: helvetica (no Vietnamese support). For Vietnamese support,
-    // ensure internet access is available or add a custom TTF font asset.
-  }
-  final theme = pw.ThemeData.withFont(
-    base: font ?? pw.Font.helvetica(),
-    bold: fontBold ?? pw.Font.helveticaBold(),
-  );
+  final theme = await buildVietnamesePdfTheme();
+  final fontBold = theme.defaultTextStyle.fontBold ?? theme.defaultTextStyle.font;
 
   const int width = 32;
 
@@ -243,7 +233,9 @@ Future<void> printReceiptPdf(
     ),
   );
 
-  await Printing.layoutPdf(
-    onLayout: (format) async => pdf.save(),
-    name: filename ?? 'HoaDon_${receipt.orderCode ?? DateTime.now().millisecondsSinceEpoch}.pdf',
-  );  }
+await printPdfSafely(
+    document: pdf,
+    name: filename ??
+        'HoaDon_${receipt.orderCode ?? DateTime.now().millisecondsSinceEpoch}.pdf',
+  );
+}

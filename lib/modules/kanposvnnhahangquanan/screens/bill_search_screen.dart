@@ -5,10 +5,11 @@ import '../providers/restaurant_providers.dart';
 import '../models/restaurant_order.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
-import 'package:printing/printing.dart';
 import '../../../core/auth/auth_service.dart';
 import '../../../core/printer/printer_actions.dart';
 import '../../../core/printer/printer_service.dart';
+import '../../../core/printer/pdf_print.dart';
+import '../../../core/printer/pdf_vietnamese_theme.dart';
 import '../../../core/printer/receipt_data.dart';
 
 class BillSearchScreen extends ConsumerStatefulWidget {
@@ -72,16 +73,7 @@ class _BillSearchScreenState extends ConsumerState<BillSearchScreen> {
     final storeName = await AuthService.loadSavedStoreName();
     final ownerName = await AuthService.loadSavedOwnerName();
     final storePhone = await AuthService.loadSavedStorePhone();
-    pw.Font? font;
-    pw.Font? fontBold;
-    try {
-      font = await PdfGoogleFonts.robotoRegular();
-      fontBold = await PdfGoogleFonts.robotoBold();
-    } catch (_) {
-      font = pw.Font.helvetica();
-      fontBold = pw.Font.helveticaBold();
-    }
-    final theme = pw.ThemeData.withFont(base: font, bold: fontBold);
+    final theme = await buildVietnamesePdfTheme();
     final pdf = pw.Document();
 
     pdf.addPage(
@@ -174,8 +166,8 @@ class _BillSearchScreenState extends ConsumerState<BillSearchScreen> {
       ),
     );
 
-    await Printing.layoutPdf(
-      onLayout: (PdfPageFormat format) async => pdf.save(),
+    await printPdfSafely(
+      document: pdf,
       name: 'HoaDon_${order.orderId.substring(0, 8)}.pdf',
     );
   }

@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
-import 'package:printing/printing.dart';
+import '../../../core/printer/pdf_print.dart';
+import '../../../core/printer/pdf_vietnamese_theme.dart';
 
 /// Khung chứng từ in (hóa đơn bán, phiếu nhập, phiếu thu/chi).
 class TtReceiptFrame {
@@ -17,16 +18,7 @@ class TtReceiptFrame {
     String? footer,
     Map<String, String>? meta,
   }) async {
-    pw.Font? font;
-    pw.Font? fontBold;
-    try {
-      font = await PdfGoogleFonts.robotoRegular();
-      fontBold = await PdfGoogleFonts.robotoBold();
-    } catch (_) {
-      font = pw.Font.helvetica();
-      fontBold = pw.Font.helveticaBold();
-    }
-    final theme = pw.ThemeData.withFont(base: font, bold: fontBold);
+    final theme = await buildVietnamesePdfTheme();
 
     final pdf = pw.Document();
     pdf.addPage(
@@ -66,7 +58,10 @@ class TtReceiptFrame {
       ),
     );
     try {
-      await Printing.layoutPdf(onLayout: (format) async => pdf.save());
+      await printPdfSafely(
+        document: pdf,
+        name: '${title}_$number.pdf',
+      );
     } catch (_) {}
   }
 }

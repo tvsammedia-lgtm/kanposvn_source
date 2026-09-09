@@ -4,6 +4,7 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 import '../../../../../core/auth/auth_service.dart';
+import '../../../../../core/printer/pdf_vietnamese_theme.dart';
 import '../../../data/models/cut_detail.dart';
 import '../../../data/repositories/garment_repository.dart';
 
@@ -18,16 +19,7 @@ class TicketPreviewScreen extends ConsumerWidget {
     final storePhone = await AuthService.loadSavedStorePhone();
     final pdf = pw.Document();
 
-    pw.Font? font;
-    pw.Font? fontBold;
-    try {
-      font = await PdfGoogleFonts.robotoRegular();
-      fontBold = await PdfGoogleFonts.robotoBold();
-    } catch (_) {}
-    final theme = pw.ThemeData.withFont(
-      base: font ?? pw.Font.helvetica(),
-      bold: fontBold ?? pw.Font.helveticaBold(),
-    );
+    final theme = await buildVietnamesePdfTheme();
 
     // 2 tem / dòng = khoảng 180x40mm, layout dạng A4 nhiều dòng
     // Ở đây ta mô phỏng một trang in danh sách liên tục
