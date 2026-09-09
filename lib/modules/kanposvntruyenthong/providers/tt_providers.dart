@@ -128,15 +128,20 @@ class TtSalesNotifier extends StateNotifier<AsyncValue<List<TtSalesInvoice>>> {
     double redeemPoints = 0,
   }) async {
     final db = await _isarService.db;
+    final customer = invoice.customer.value;
     await db.writeTxn(() async {
       await db.ttSalesInvoices.put(invoice);
-      if (invoice.customer.value != null) {
+      if (customer != null) {
         await invoice.customer.save();
       }
       for (final d in items) {
+        final product = d.product.value;
         await db.ttSalesItems.put(d);
         await d.invoice.save();
-        await d.product.save();
+        if (product != null) {
+          d.product.value = product;
+          await d.product.save();
+        }
         // Giảm tồn lô
         TtStockLot? lot;
         if (d.lotId.isNotEmpty) {
@@ -150,7 +155,7 @@ class TtSalesNotifier extends StateNotifier<AsyncValue<List<TtSalesInvoice>>> {
         // Ghi nhận movement SALE
         final mov = TtStockMovement()
           ..movementId = DateTime.now().microsecondsSinceEpoch.toString()
-          ..product.value = d.product.value
+          ..product.value = product
           ..movementType = TtMovementType.SALE
           ..referenceId = invoice.invoiceNumber
           ..quantity = -d.quantity
@@ -160,14 +165,18 @@ class TtSalesNotifier extends StateNotifier<AsyncValue<List<TtSalesInvoice>>> {
           mov.lot.value = lot;
         }
         await db.ttStockMovements.put(mov);
-        await mov.product.save();
+        if (product != null) {
+          mov.product.value = product;
+          await mov.product.save();
+        }
         if (lot != null) {
+          mov.lot.value = lot;
           await mov.lot.save();
         }
       }
       // Công nợ khách
-      if (invoice.customer.value != null) {
-        final c = invoice.customer.value!;
+      if (customer != null) {
+        final c = customer;
         c.totalPurchase += invoice.totalAmount;
         c.totalPayment += invoice.paidAmount;
         c.currentDebt += invoice.debtAmount;
@@ -248,15 +257,17 @@ class TtPurchasesNotifier extends StateNotifier<AsyncValue<List<TtPurchaseInvoic
     List<TtSupplier> suppliers,
   ) async {
     final db = await _isarService.db;
+    final supplier = invoice.supplier.value;
     await db.writeTxn(() async {
       await db.ttPurchaseInvoices.put(invoice);
-      if (invoice.supplier.value != null) {
+      if (supplier != null) {
         await invoice.supplier.save();
       }
       for (final d in items) {
+        final product = d.product.value;
         // Tạo lô
         final lot = TtStockLot()
-          ..lotId = '${DateTime.now().microsecondsSinceEpoch}${d.product.value?.id ?? 0}'
+          ..lotId = '${DateTime.now().microsecondsSinceEpoch}${product?.id ?? 0}'
           ..lotNumber = 'L${invoice.invoiceNumber}'
           ..purchaseDate = invoice.purchaseDate
           ..expiryDate = d.expiryDate
@@ -264,20 +275,29 @@ class TtPurchasesNotifier extends StateNotifier<AsyncValue<List<TtPurchaseInvoic
           ..quantityOut = 0
           ..quantityRemaining = d.quantity
           ..unitCost = d.unitPrice
-          ..product.value = d.product.value
-          ..supplier.value = invoice.supplier.value;
+          ..product.value = product
+          ..supplier.value = supplier;
         await db.ttStockLots.put(lot);
-        await lot.product.save();
-        await lot.supplier.save();
+        if (product != null) {
+          lot.product.value = product;
+          await lot.product.save();
+        }
+        if (supplier != null) {
+          lot.supplier.value = supplier;
+          await lot.supplier.save();
+        }
         d.lot.value = lot;
         await db.ttPurchaseItems.put(d);
-        await d.product.save();
+        if (product != null) {
+          d.product.value = product;
+          await d.product.save();
+        }
         await d.lot.save();
         await d.purchaseInvoice.save();
         // Ghi nhận movement PURCHASE
         final mov = TtStockMovement()
           ..movementId = DateTime.now().microsecondsSinceEpoch.toString()
-          ..product.value = d.product.value
+          ..product.value = product
           ..lot.value = lot
           ..movementType = TtMovementType.PURCHASE
           ..referenceId = invoice.invoiceNumber
@@ -285,11 +305,17 @@ class TtPurchasesNotifier extends StateNotifier<AsyncValue<List<TtPurchaseInvoic
           ..unitCost = d.unitPrice
           ..totalCost = d.amount;
         await db.ttStockMovements.put(mov);
-        await mov.product.save();
-        await mov.lot.save();
+        if (product != null) {
+          mov.product.value = product;
+          await mov.product.save();
+        }
+        if (lot != null) {
+          mov.lot.value = lot;
+          await mov.lot.save();
+        }
       }
-      if (invoice.supplier.value != null) {
-        final s = invoice.supplier.value!;
+      if (supplier != null) {
+        final s = supplier;
         s.currentDebt += invoice.debtAmount;
         await db.ttSuppliers.put(s);
       }

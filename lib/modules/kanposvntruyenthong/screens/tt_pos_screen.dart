@@ -3,13 +3,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:isar/isar.dart';
 import 'package:uuid/uuid.dart';
 
-import '../../../core/auth/auth_service.dart';
+import '../../../core/printer/printer_actions.dart';
+import '../../../core/printer/receipt_print_mode.dart';
 import '../models/tt_order.dart';
 import '../models/tt_partner.dart';
 import '../models/tt_product.dart';
 import '../models/tt_stock.dart';
 import '../providers/tt_providers.dart';
-import 'tt_receipt_frame.dart';
+import '../services/tt_receipt_printer.dart';
 
 class TtPosScreen extends ConsumerStatefulWidget {
   const TtPosScreen({super.key});
@@ -60,84 +61,56 @@ class _TtPosScreenState extends ConsumerState<TtPosScreen> {
     super.dispose();
   }
 
-  Future<void> _checkout() async {
+  Future<void> _checkout(ReceiptPrintMode mode) async {
     if (_cart.isEmpty) return;
-    if (_method == TtPaymentMethod.DEBT) {
-      if (_customer == null) {
-        _showMsg('Ghi công nợ cần chọn khách hàng.');
-        return;
+    if (_method == TtPaymentMethod.DEBT && _customer == null) {
+      _showMsg('Ghi công nợ cần chọn khách hàng.');
+      return;
+    }
+
+    try {
+      if (_method == TtPaymentMethod.DEBT) {
+        _paid = _total * 0.3; // Thanh toán min 30%
+      } else if (_paid <= 0) {
+        _paid = _total;
       }
-      _paid = _total * 0.3; // Thanh toán min 30%
-    } else if (_paid <= 0) {
-      _paid = _total;
-    }
 
-    final db = await ref.read(ttIsarServiceProvider).db;
-    final uuid = const Uuid();
-    final salesNo = (await db.ttSalesInvoices.count()) + 1;
-    final invoiceNumber = 'HDB${salesNo.toString().padLeft(4, '0')}';
-    final totalCost = _cart.fold<double>(0, (s, l) => s + l.costPrice * l.quantity);
+      final db = await ref.read(ttIsarServiceProvider).db;
+      final uuid = const Uuid();
+      final salesNo = (await db.ttSalesInvoices.count()) + 1;
+      final invoiceNumber = 'HDB${salesNo.toString().padLeft(4, '0')}';
+      final totalCost = _cart.fold<double>(0, (s, l) => s + l.costPrice * l.quantity);
 
-    final invoice = TtSalesInvoice()
-      ..invoiceId = uuid.v4()
-      ..invoiceNumber = invoiceNumber
-      ..saleDate = DateTime.now()
-      ..subtotal = _subtotal
-      ..discount = _discount
-      ..loyaltyDiscount = _loyaltyDiscount
-      ..totalAmount = _total
-      ..costAmount = totalCost
-      ..paidAmount = _paid
-      ..debtAmount = _debt
-      ..paymentMethod = _method
-      ..status = _debt > 0 ? TtSaleStatus.DEBT : TtSaleStatus.COMPLETED
-      ..note = _note
-      ..createdBy = 'pos';
-    if (_customer != null) {
-      invoice.customer.value = _customer;
-    }
+      final invoice = TtSalesInvoice()
+        ..invoiceId = uuid.v4()
+        ..invoiceNumber = invoiceNumber
+        ..saleDate = DateTime.now()
+        ..subtotal = _subtotal
+        ..discount = _discount
+        ..loyaltyDiscount = _loyaltyDiscount
+        ..totalAmount = _total
+        ..costAmount = totalCost
+        ..paidAmount = _paid
+        ..debtAmount = _debt
+        ..paymentMethod = _method
+        ..status = _debt > 0 ? TtSaleStatus.DEBT : TtSaleStatus.COMPLETED
+        ..note = _note
+        ..createdBy = 'pos';
+      if (_customer != null) {
+        invoice.customer.value = _customer;
+      }
 
-    final items = <TtSalesItem>[];
-    for (final line in _cart) {
-      double remainingToFulfill = line.quantity;
-      final lots = await db.ttStockLots.filter()
-          .product((p) => p.idEqualTo(line.product.id))
-          .quantityRemainingGreaterThan(0)
-          .sortByPurchaseDate()
-          .findAll();
+      final items = <TtSalesItem>[];
+      for (final line in _cart) {
+        double remainingToFulfill = line.quantity;
+        final lots = await db.ttStockLots.filter()
+            .product((p) => p.idEqualTo(line.product.id))
+            .quantityRemainingGreaterThan(0)
+            .sortByPurchaseDate()
+            .findAll();
 
-      if (lots.isEmpty) {
-        // Nếu không có tồn kho lô nào, cứ tạo 1 item không có lotId (cho phép xuất âm hoặc cảnh báo)
-        final item = TtSalesItem()
-          ..quantity = remainingToFulfill
-          ..unit = line.unit
-          ..unitPrice = line.unitPrice
-          ..costPrice = line.costPrice
-          ..discount = 0
-          ..amount = remainingToFulfill * line.unitPrice;
-        item.product.value = line.product;
-        items.add(item);
-      } else {
-        for (final lot in lots) {
-          if (remainingToFulfill <= 0) break;
-          final takeQty = remainingToFulfill <= lot.quantityRemaining ? remainingToFulfill : lot.quantityRemaining;
-          
-          final item = TtSalesItem()
-            ..quantity = takeQty
-            ..unit = line.unit
-            ..unitPrice = line.unitPrice
-            ..costPrice = lot.unitCost // Lấy giá vốn của lô
-            ..discount = 0
-            ..amount = takeQty * line.unitPrice
-            ..lotId = lot.lotId;
-          item.product.value = line.product;
-          items.add(item);
-
-          remainingToFulfill -= takeQty;
-        }
-        
-        // Nếu vẫn còn thiếu (tức là tổng tồn kho nhỏ hơn số lượng bán)
-        if (remainingToFulfill > 0) {
+        if (lots.isEmpty) {
+          // Nếu không có tồn kho lô nào, cứ tạo 1 item không có lotId (cho phép xuất âm hoặc cảnh báo)
           final item = TtSalesItem()
             ..quantity = remainingToFulfill
             ..unit = line.unit
@@ -147,81 +120,82 @@ class _TtPosScreenState extends ConsumerState<TtPosScreen> {
             ..amount = remainingToFulfill * line.unitPrice;
           item.product.value = line.product;
           items.add(item);
+        } else {
+          for (final lot in lots) {
+            if (remainingToFulfill <= 0) break;
+            final takeQty = remainingToFulfill <= lot.quantityRemaining ? remainingToFulfill : lot.quantityRemaining;
+
+            final item = TtSalesItem()
+              ..quantity = takeQty
+              ..unit = line.unit
+              ..unitPrice = line.unitPrice
+              ..costPrice = lot.unitCost // Lấy giá vốn của lô
+              ..discount = 0
+              ..amount = takeQty * line.unitPrice
+              ..lotId = lot.lotId;
+            item.product.value = line.product;
+            items.add(item);
+
+            remainingToFulfill -= takeQty;
+          }
+
+          // Nếu vẫn còn thiếu (tức là tổng tồn kho nhỏ hơn số lượng bán)
+          if (remainingToFulfill > 0) {
+            final item = TtSalesItem()
+              ..quantity = remainingToFulfill
+              ..unit = line.unit
+              ..unitPrice = line.unitPrice
+              ..costPrice = line.costPrice
+              ..discount = 0
+              ..amount = remainingToFulfill * line.unitPrice;
+            item.product.value = line.product;
+            items.add(item);
+          }
         }
       }
-    }
 
-    final buyers = <TtCustomer>[];
-    if (_customer != null) buyers.add(_customer!);
-    final created = await ref.read(ttSalesProvider.notifier).createSale(
-      invoice,
-      items,
-      buyers,
-      redeemPoints: _customer != null ? _redeemPoints : 0,
-    );
-
-    final printed = await showDialog<bool>(
-      context: context,
-      builder: (context) => TtReceiptPreviewDialog(
-        title: 'HÓA ĐƠN BÁN LẺ',
-        number: invoiceNumber,
-        lines: [
-          for (final line in _cart)
-            '${line.product.name}  ${formatQty(line.quantity)} ${line.unit} × ${formatMoney(line.unitPrice)} = ${formatMoney(line.amount)}',
-        ],
-        totals: {
-          'Tạm tính': _subtotal,
-          'Giảm giá': _discount,
-          'Điểm thưởng (${_redeemPoints.round()} đ)': _loyaltyDiscount,
-          'Tổng tiền': _total,
-          'Đã trả ($_method.label)': _paid,
-          if (_debt > 0) 'Còn nợ': _debt,
-        },
-        customer: _customer?.name,
-        footer: 'Cảm ơn quý khách!',
-        meta: {
-          'ID': created.invoiceId,
-          'Số HĐ': invoiceNumber,
-        },
-      ),
-    );
-    if (printed == true) {
-      await TtReceiptFrame.printReceipt(
-        storeName: await _storeName(),
-        title: 'HÓA ĐƠN BÁN LẺ',
-        number: invoiceNumber,
-        lines: [
-          for (final line in _cart)
-            '${line.product.name}  ${formatQty(line.quantity)} ${line.unit} × ${formatMoney(line.unitPrice)} = ${formatMoney(line.amount)}',
-        ],
-        totals: {
-          'Tạm tính': _subtotal,
-          'Giảm giá': _discount,
-          'Điểm thưởng (${_redeemPoints.round()} đ)': _loyaltyDiscount,
-          'Tổng tiền': _total,
-          'Đã trả ($_method.label)': _paid,
-          if (_debt > 0) 'Còn nợ': _debt,
-        },
-        customer: _customer?.name,
+      final buyers = <TtCustomer>[];
+      if (_customer != null) buyers.add(_customer!);
+      final created = await ref.read(ttSalesProvider.notifier).createSale(
+        invoice,
+        items,
+        buyers,
+        redeemPoints: _customer != null ? _redeemPoints : 0,
       );
-    }
 
-    setState(() {
-      _cart.clear();
-      _customer = null;
-      _discount = 0;
-      _paid = 0;
-      _redeemPoints = 0;
-      _note = '';
-    });
-  }
+      if (mounted) {
+        try {
+          await printReceiptByMode(
+            context,
+            ref,
+            await buildTtReceiptData(
+              created,
+              items,
+              customerName: _customer?.name,
+            ),
+            mode,
+            pdfFilename: 'HoaDon_$invoiceNumber.pdf',
+          );
+        } catch (e) {
+          _showMsg('In hóa đơn thất bại: $e');
+        }
+        _showMsg('Đã thanh toán $created.invoiceNumber — $created.totalAmount đ');
+      }
 
-  Future<String> _storeName() async {
-    try {
-      final n = await AuthService.loadSavedStoreName();
-      return n ?? 'SẠP RAU CỦ QUẢ';
-    } catch (_) {
-      return 'SẠP RAU CỦ QUẢ';
+      if (mounted) {
+        setState(() {
+          _cart.clear();
+          _customer = null;
+          _discount = 0;
+          _paid = 0;
+          _redeemPoints = 0;
+          _note = '';
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        _showMsg('Thanh toán thất bại: $e');
+      }
     }
   }
 
@@ -513,7 +487,7 @@ class _TtPosScreenState extends ConsumerState<TtPosScreen> {
           ),
           const SizedBox(height: 8),
           TextField(
-            decoration: const InputDecoration(labelText: 'Khách đưa (Tiền mặt)', isDense: true),
+            decoration: const InputDecoration(labelText: 'Khách đưa', isDense: true),
             keyboardType: TextInputType.number,
             onChanged: (v) {
               if (_method != TtPaymentMethod.DEBT) {
@@ -527,12 +501,48 @@ class _TtPosScreenState extends ConsumerState<TtPosScreen> {
               child: Text('Ghi công nợ: thanh toán 30% ngay', style: TextStyle(color: Colors.orange, fontSize: 12)),
             ),
           const SizedBox(height: 8),
+          Row(
+            children: [
+              Expanded(
+                child: SizedBox(
+                  height: 40,
+                  child: ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.orange,
+                        foregroundColor: Colors.white),
+                    onPressed: _cart.isEmpty
+                        ? null
+                        : () => _checkout(ReceiptPrintMode.thermal80),
+                    icon: const Icon(Icons.print, size: 14),
+                    label: const Text('IN 80mm', style: TextStyle(fontSize: 11)),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 4),
+              Expanded(
+                child: SizedBox(
+                  height: 40,
+                  child: ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red,
+                        foregroundColor: Colors.white),
+                    onPressed: _cart.isEmpty
+                        ? null
+                        : () => _checkout(ReceiptPrintMode.pdf),
+                    icon: const Icon(Icons.picture_as_pdf, size: 14),
+                    label: const Text('IN PDF', style: TextStyle(fontSize: 11)),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 4),
           SizedBox(
             width: double.infinity,
             height: 46,
             child: FilledButton.icon(
               style: FilledButton.styleFrom(backgroundColor: const Color(0xFF16A34A)),
-              onPressed: _cart.isEmpty ? null : _checkout,
+              onPressed: _cart.isEmpty ? null : () => _checkout(ReceiptPrintMode.pdf),
               icon: const Icon(Icons.point_of_sale),
               label: const Text('THANH TOÁN', style: TextStyle(fontWeight: FontWeight.bold)),
             ),

@@ -25,7 +25,7 @@ class PaperSizeOption {
 class PrinterSettings {
   const PrinterSettings({
     this.type = PrinterType.wifi,
-    this.paper = PaperSizeOption.mm80,
+    this.paper = PaperSizeOption.mm58,
     this.encoding = TextEncodingMode.cp1258,
     this.name = '',
     this.address = '',

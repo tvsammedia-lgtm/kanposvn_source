@@ -8,7 +8,7 @@ import 'receipt_data.dart';
 
 final _currency = NumberFormat.currency(locale: 'vi_VN', symbol: 'đ');
 
-/// In hóa đơn ra PDF khổ giấy 80mm (roll) từ dữ liệu [ReceiptData].
+/// In hóa đơn ra PDF khổ giấy 58mm (roll) từ dữ liệu [ReceiptData].
 Future<void> printReceiptPdf(
   ReceiptData receipt, {
   String? filename,
@@ -24,7 +24,7 @@ Future<void> printReceiptPdf(
     bold: fontBold ?? pw.Font.helveticaBold(),
   );
 
-  const int width = 42;
+  const int width = 32;
 
   String fmtRow(String left, String right) {
     final int avail = width - left.length - right.length;
@@ -43,7 +43,7 @@ Future<void> printReceiptPdf(
 
   pdf.addPage(
     pw.MultiPage(
-      pageFormat: PdfPageFormat(80 * PdfPageFormat.mm, 297 * PdfPageFormat.mm),
+      pageFormat: PdfPageFormat(58 * PdfPageFormat.mm, 297 * PdfPageFormat.mm),
       margin: const pw.EdgeInsets.symmetric(horizontal: 5, vertical: 5),
       theme: theme,
       build: (ctx) => [

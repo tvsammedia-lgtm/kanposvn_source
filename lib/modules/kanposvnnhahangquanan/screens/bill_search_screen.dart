@@ -76,7 +76,7 @@ class _BillSearchScreenState extends ConsumerState<BillSearchScreen> {
 
     pdf.addPage(
       pw.Page(
-        pageFormat: PdfPageFormat.roll80,
+        pageFormat: PdfPageFormat(58 * PdfPageFormat.mm, 297 * PdfPageFormat.mm),
         margin: const pw.EdgeInsets.all(10),
         build: (pw.Context context) {
           return pw.Column(

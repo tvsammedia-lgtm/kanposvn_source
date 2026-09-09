@@ -34,7 +34,7 @@ Future<void> printBillPdf(
     bold: fontBold ?? pw.Font.helveticaBold(),
   );
 
-  const int width = 42;
+  const int width = 32;
 
   String fmtRow(String left, String right) {
     final int avail = width - left.length - right.length;
@@ -46,7 +46,7 @@ Future<void> printBillPdf(
 
   pdf.addPage(
     pw.Page(
-      pageFormat: PdfPageFormat(80 * PdfPageFormat.mm, 297 * PdfPageFormat.mm),
+      pageFormat: PdfPageFormat(58 * PdfPageFormat.mm, 297 * PdfPageFormat.mm),
       margin: const pw.EdgeInsets.symmetric(horizontal: 5, vertical: 5),
       theme: theme,
       build: (ctx) => pw.Column(
