@@ -1,7 +1,8 @@
 /// Cấu hình mô hình login HYBRID cho phần Account của module kanposvncrm.
 ///
 /// online  -> đăng nhập qua cloud Vercel (Admin Web / PostgreSQL).
-/// offline -> đăng nhập qua local server Express (SQLite) trên LAN/localhost.
+/// offline -> đăng nhập qua Admin Web (Next.js + PostgreSQL) chạy localhost:3000,
+///            giao thức y hệt online — không còn dùng Express + SQLite.
 /// auto    -> thử online trước; thất bại (mất mạng) thì chuyển offline local.
 enum AccountServerMode { online, offline, auto }
 
@@ -13,10 +14,10 @@ class AccountConfig {
   static const String onlineLoginUrl =
       'https://kanposvn-admin.vercel.app/api/auth/login';
 
-  /// Local login — Express + SQLite (`backend/src/index.js`, port 3000).
+  /// Local login — Admin Web chạy trên máy này (Next.js + PostgreSQL, port 3000).
   static const String offlineLoginUrl = 'http://127.0.0.1:3000/api/auth/login';
 
-  /// App code khi đăng nhập local (backend seed: KANPOS-VN).
+  /// (Giữ lại vì tương thích) App code của backend Express + SQLite cũ.
   static const String localAppCode = 'KANPOS-VN';
 
   static const Duration timeout = Duration(seconds: 10);

@@ -6,7 +6,7 @@ import '../services/account_auth_service.dart';
 /// ApiClient dùng chung cho phần Account của kanposvncrm: tự đính token (Bearer) vào
 /// mọi request. Base URL được chọn theo [AccountConfig.defaultMode]:
 ///  - online  -> cloud Vercel (Admin Web).
-///  - offline -> local server Express (SQLite) trên localhost:3000.
+///  - offline -> Admin Web chạy local (Next.js + PostgreSQL) trên localhost:3000.
 class AccountApiClient {
   final Dio _dio;
   final TokenStore _store;

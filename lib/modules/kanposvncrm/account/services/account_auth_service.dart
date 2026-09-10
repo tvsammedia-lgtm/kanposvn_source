@@ -158,35 +158,35 @@ class AccountAuthService {
   }
 
   Future<AccountSession> _loginOffline(String username, String password) async {
+    // Đăng nhập local qua Admin Web chạy trên máy này (localhost:3000) — giao
+    // thức y hệt online (email/phone + password → {token, user}), chỉ khác base
+    // URL. Không còn dùng protocol riêng của Express + SQLite.
+    final body = <String, dynamic>{'password': password};
+    if (username.contains('@')) {
+      body['email'] = username.trim();
+    } else {
+      body['phone'] = username.trim();
+    }
     final response = await _http
         .post(
           Uri.parse(AccountConfig.offlineLoginUrl),
           headers: {'Content-Type': 'application/json'},
-          body: jsonEncode({
-            'username': username,
-            'password': password,
-            'app_code': localAppCode,
-          }),
+          body: jsonEncode(body),
         )
         .timeout(AccountConfig.timeout);
     if (response.statusCode != 200) {
       return _sessionFromJsonError(username, response.bodyBytes);
     }
     final json = _decodeBody(response.bodyBytes);
-    final data = json?['data'] is Map<String, dynamic>
-        ? json!['data'] as Map<String, dynamic>
-        : null;
-    final token = data?['access_token'];
+    final token = json?['token'];
+    final role = json?['user']?['role']?.toString() ?? 'user';
     if (token is! String || token.isEmpty) {
       return const AccountSession(success: false, error: 'Server trả token rỗng.');
     }
-    final refreshToken = data?['refresh_token']?.toString();
-    final role = decodeJwtPayload(token)?['role']?.toString() ?? 'user';
-    await _persist(username, token, refreshToken, role, 'offline');
+    await _persist(username, token, null, role, 'offline');
     return AccountSession(
       success: true,
       accessToken: token,
-      refreshToken: refreshToken,
       userIdentifier: username,
       role: role,
     );

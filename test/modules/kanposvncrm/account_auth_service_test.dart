@@ -31,19 +31,17 @@ void main() {
   });
 
   group('AccountAuthService offline login', () {
-    test('POST /api/auth/login -> 200, access_token + role JWT', () async {
+    test('POST /api/auth/login -> 200, token + role JWT', () async {
       final mockHttp = http_mock.MockClient((req) async {
         expect(req.method, 'POST');
         expect(req.url.path, contains('/auth/login'));
         final body = jsonDecode(req.body) as Map<String, dynamic>;
-        expect(body['username'], 'admin');
-        expect(body['app_code'], AccountConfig.localAppCode);
+        expect(body.containsKey('username'), isFalse);
+        expect(body['phone'], 'admin');
+        expect(body.containsKey('app_code'), isFalse);
         return http.Response(jsonEncode({
-          'success': true,
-          'data': {
-            'access_token': _mockJwt('ADMIN'),
-            'refresh_token': 'mock-refresh',
-          },
+          'token': _mockJwt('ADMIN'),
+          'user': {'role': 'ADMIN'},
         }), 200);
       });
 
@@ -101,11 +99,8 @@ void main() {
         // offline endpoint
         expect(callCount, 2);
         return http.Response(jsonEncode({
-          'success': true,
-          'data': {
-            'access_token': _mockJwt('STAFF'),
-            'refresh_token': null,
-          },
+          'token': _mockJwt('STAFF'),
+          'user': {'role': 'STAFF'},
         }), 200);
       });
 

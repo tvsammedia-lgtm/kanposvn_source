@@ -100,7 +100,7 @@ class CrmDashboardScreen extends ConsumerWidget {
             ListTile(
               leading: const Icon(Icons.login, color: Color(0xFFE11D48)),
               title: const Text('Đăng nhập Account (Hybrid)'),
-              subtitle: const Text('Cloud (Admin Web) / Local (Express/SQLite)'),
+              subtitle: const Text('Cloud (Admin Web) / Local (Admin Web + PostgreSQL)'),
               onTap: () {
                 Navigator.pop(context);
                 Navigator.push(context, MaterialPageRoute(builder: (_) => const AccountLoginScreen()));
