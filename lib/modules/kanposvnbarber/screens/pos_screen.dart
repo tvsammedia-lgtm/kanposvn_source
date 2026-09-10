@@ -43,6 +43,114 @@ class _PosScreenState extends ConsumerState<PosScreen> {
   Widget build(BuildContext context) {
     final posState = ref.watch(posProvider);
     final fmt = NumberFormat.currency(locale: 'vi_VN', symbol: 'đ');
+    final isDesktop = MediaQuery.of(context).size.width > 600;
+
+    final productColumn = DefaultTabController(
+      length: 2,
+      child: Column(
+        children: [
+          const TabBar(tabs: [
+            Tab(text: 'DỊCH VỤ'),
+            Tab(text: 'SẢN PHẨM'),
+          ]),
+          Expanded(
+            child: TabBarView(children: [
+              // Services tab
+              GridView.builder(
+                padding: const EdgeInsets.all(12),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 3, childAspectRatio: 1.6, crossAxisSpacing: 10, mainAxisSpacing: 10),
+                itemCount: _services.length,
+                itemBuilder: (ctx, i) => _itemCard(
+                  id: _services[i].serviceId,
+                  name: _services[i].name,
+                  price: _services[i].price,
+                  type: 'Service',
+                  color: Colors.blue.shade100,
+                  subtitle: '${_services[i].durationMinutes} phút',
+                ),
+              ),
+              // Products tab
+              GridView.builder(
+                padding: const EdgeInsets.all(12),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 3, childAspectRatio: 1.6, crossAxisSpacing: 10, mainAxisSpacing: 10),
+                itemCount: _products.length,
+                itemBuilder: (ctx, i) => _itemCard(
+                  id: _products[i].productId,
+                  name: _products[i].name,
+                  price: _products[i].sellingPrice,
+                  type: 'Product',
+                  color: Colors.orange.shade100,
+                  subtitle: 'Kho: ${_products[i].stock}',
+                ),
+              ),
+            ]),
+          ),
+        ],
+      ),
+    );
+
+    final cartPanel = Container(
+      color: Colors.grey.shade100,
+      child: Column(children: [
+        Container(
+          padding: const EdgeInsets.all(12),
+          color: Colors.white,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text('Khách hàng:', style: TextStyle(fontWeight: FontWeight.bold)),
+              TextButton(
+                onPressed: () => ref.read(posProvider.notifier).setCustomer('CUST-01', 'Khách lẻ'),
+                child: Text(posState.invoice.customerName ?? 'Khách lẻ'),
+              ),
+            ],
+          ),
+        ),
+        const Divider(height: 1),
+        Expanded(
+          child: ListView.builder(
+            itemCount: posState.details.length,
+            itemBuilder: (ctx, i) {
+              final item = posState.details[i];
+              return ListTile(
+                title: Text(item.itemName, style: const TextStyle(fontSize: 13)),
+                subtitle: Text('${item.quantity.toInt()} x ${fmt.format(item.unitPrice)}'),
+                trailing: Row(mainAxisSize: MainAxisSize.min, children: [
+                  Text(fmt.format(item.total), style: const TextStyle(fontSize: 12)),
+                  IconButton(
+                    icon: const Icon(Icons.remove_circle, color: Colors.red, size: 18),
+                    onPressed: () => ref.read(posProvider.notifier).removeItem(item.itemId),
+                  ),
+                ]),
+              );
+            },
+          ),
+        ),
+        Container(
+          padding: const EdgeInsets.all(12),
+          color: Colors.white,
+          child: SingleChildScrollView(
+            child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+              _total('Tạm tính:', posState.subTotal, fmt),
+              _total('Giảm giá:', posState.invoice.discount, fmt),
+              const Divider(),
+              _total('Tổng cộng:', posState.total, fmt, bold: true),
+              const SizedBox(height: 12),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 14), backgroundColor: Colors.green),
+                onPressed: posState.details.isEmpty ? null : () {
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => const CheckoutScreen()));
+                },
+                child: const Text('THANH TOÁN', style: TextStyle(fontSize: 16, color: Colors.white)),
+              ),
+            ]),
+          ),
+        ),
+      ]),
+    );
 
     return Scaffold(
       appBar: AppBar(
@@ -56,123 +164,21 @@ class _PosScreenState extends ConsumerState<PosScreen> {
       ),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
-          : Row(
-              children: [
-                // Left: Services & Products
-                Expanded(
-                  flex: 2,
-                  child: DefaultTabController(
-                    length: 2,
-                    child: Column(
-                      children: [
-                        const TabBar(tabs: [
-                          Tab(text: 'DỊCH VỤ'),
-                          Tab(text: 'SẢN PHẨM'),
-                        ]),
-                        Expanded(
-                          child: TabBarView(children: [
-                            // Services tab
-                            GridView.builder(
-                              padding: const EdgeInsets.all(12),
-                              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: 3, childAspectRatio: 1.6, crossAxisSpacing: 10, mainAxisSpacing: 10),
-                              itemCount: _services.length,
-                              itemBuilder: (ctx, i) => _itemCard(
-                                id: _services[i].serviceId,
-                                name: _services[i].name,
-                                price: _services[i].price,
-                                type: 'Service',
-                                color: Colors.blue.shade100,
-                                subtitle: '${_services[i].durationMinutes} phút',
-                              ),
-                            ),
-                            // Products tab
-                            GridView.builder(
-                              padding: const EdgeInsets.all(12),
-                              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: 3, childAspectRatio: 1.6, crossAxisSpacing: 10, mainAxisSpacing: 10),
-                              itemCount: _products.length,
-                              itemBuilder: (ctx, i) => _itemCard(
-                                id: _products[i].productId,
-                                name: _products[i].name,
-                                price: _products[i].sellingPrice,
-                                type: 'Product',
-                                color: Colors.orange.shade100,
-                                subtitle: 'Kho: ${_products[i].stock}',
-                              ),
-                            ),
-                          ]),
-                        ),
-                      ],
-                    ),
-                  ),
+          : isDesktop
+              ? Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Expanded(child: productColumn),
+                    const VerticalDivider(thickness: 1, width: 1),
+                    SizedBox(width: 360, child: cartPanel),
+                  ],
+                )
+              : Column(
+                  children: [
+                    Expanded(child: productColumn),
+                    SizedBox(height: 320, child: cartPanel),
+                  ],
                 ),
-                // Right: Cart
-                Expanded(
-                  flex: 1,
-                  child: Container(
-                    color: Colors.grey.shade100,
-                    child: Column(children: [
-                      Container(
-                        padding: const EdgeInsets.all(12),
-                        color: Colors.white,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Text('Khách hàng:', style: TextStyle(fontWeight: FontWeight.bold)),
-                            TextButton(
-                              onPressed: () => ref.read(posProvider.notifier).setCustomer('CUST-01', 'Khách lẻ'),
-                              child: Text(posState.invoice.customerName ?? 'Khách lẻ'),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const Divider(height: 1),
-                      Expanded(
-                        child: ListView.builder(
-                          itemCount: posState.details.length,
-                          itemBuilder: (ctx, i) {
-                            final item = posState.details[i];
-                            return ListTile(
-                              title: Text(item.itemName, style: const TextStyle(fontSize: 13)),
-                              subtitle: Text('${item.quantity.toInt()} x ${fmt.format(item.unitPrice)}'),
-                              trailing: Row(mainAxisSize: MainAxisSize.min, children: [
-                                Text(fmt.format(item.total), style: const TextStyle(fontSize: 12)),
-                                IconButton(
-                                  icon: const Icon(Icons.remove_circle, color: Colors.red, size: 18),
-                                  onPressed: () => ref.read(posProvider.notifier).removeItem(item.itemId),
-                                ),
-                              ]),
-                            );
-                          },
-                        ),
-                      ),
-                      Container(
-                        padding: const EdgeInsets.all(12),
-                        color: Colors.white,
-                        child: SingleChildScrollView(
-                          child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-                            _total('Tạm tính:', posState.subTotal, fmt),
-                            _total('Giảm giá:', posState.invoice.discount, fmt),
-                            const Divider(),
-                            _total('Tổng cộng:', posState.total, fmt, bold: true),
-                            const SizedBox(height: 12),
-                            ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                padding: const EdgeInsets.symmetric(vertical: 14), backgroundColor: Colors.green),
-                              onPressed: posState.details.isEmpty ? null : () {
-                                Navigator.push(context, MaterialPageRoute(builder: (_) => const CheckoutScreen()));
-                              },
-                              child: const Text('THANH TOÁN', style: TextStyle(fontSize: 16, color: Colors.white)),
-                            ),
-                          ]),
-                        ),
-                      ),
-                    ]),
-                  ),
-                ),
-              ],
-            ),
     );
   }
 

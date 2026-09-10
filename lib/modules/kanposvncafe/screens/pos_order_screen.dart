@@ -44,95 +44,103 @@ class _PosOrderScreenState extends ConsumerState<PosOrderScreen> {
       return matchesCat && matchesSearch;
     }).toList();
 
+    final isDesktop = MediaQuery.of(context).size.width > 600;
+
+    final productColumn = Column(
+      children: [
+        // Top Search Bar & Category Filter
+        Container(
+          padding: const EdgeInsets.all(12),
+          color: Colors.grey.shade100,
+          child: Column(
+            children: [
+              TextField(
+                decoration: InputDecoration(
+                  hintText: 'Tìm kiếm món (Tên hoặc Mã)...',
+                  prefixIcon: const Icon(Icons.search),
+                  filled: true,
+                  fillColor: Colors.white,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: BorderSide.none,
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
+                ),
+                onChanged: (val) =>
+                    setState(() => _searchQuery = val),
+              ),
+              const SizedBox(height: 8),
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: [
+                    FilterChip(
+                      label: const Text('Tất cả'),
+                      selected: _selectedCatId == 'ALL',
+                      onSelected: (_) =>
+                          setState(() => _selectedCatId = 'ALL'),
+                    ),
+                    const SizedBox(width: 6),
+                    ...categories.map(
+                      (cat) => Padding(
+                        padding: const EdgeInsets.only(right: 6),
+                        child: FilterChip(
+                          label: Text(cat.name),
+                          selected: _selectedCatId == cat.id,
+                          onSelected: (_) =>
+                              setState(() => _selectedCatId = cat.id),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        // Menu Items Grid
+        Expanded(
+          child: GridView.builder(
+            padding: const EdgeInsets.all(12),
+            gridDelegate:
+                const SliverGridDelegateWithMaxCrossAxisExtent(
+                  maxCrossAxisExtent: 180,
+                  childAspectRatio: 0.9,
+                  crossAxisSpacing: 10,
+                  mainAxisSpacing: 10,
+                ),
+            itemCount: filteredItems.length,
+            itemBuilder: (context, index) {
+              final item = filteredItems[index];
+              return _buildMenuItemCard(context, item);
+            },
+          ),
+        ),
+      ],
+    );
+
     return Scaffold(
       resizeToAvoidBottomInset: true,
       body: SafeArea(
-        child: Row(
-          children: [
-            // Left Side: Menu Grid & Search
-            Expanded(
-              flex: 6,
-              child: Column(
+        child: isDesktop
+            ? Row(
                 children: [
-                  // Top Search Bar & Category Filter
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    color: Colors.grey.shade100,
-                    child: Column(
-                      children: [
-                        TextField(
-                          decoration: InputDecoration(
-                            hintText: 'Tìm kiếm món (Tên hoặc Mã)...',
-                            prefixIcon: const Icon(Icons.search),
-                            filled: true,
-                            fillColor: Colors.white,
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide: BorderSide.none,
-                            ),
-                            contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 8,
-                            ),
-                          ),
-                          onChanged: (val) =>
-                              setState(() => _searchQuery = val),
-                        ),
-                        const SizedBox(height: 8),
-                        SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
-                          child: Row(
-                            children: [
-                              FilterChip(
-                                label: const Text('Tất cả'),
-                                selected: _selectedCatId == 'ALL',
-                                onSelected: (_) =>
-                                    setState(() => _selectedCatId = 'ALL'),
-                              ),
-                              const SizedBox(width: 6),
-                              ...categories.map(
-                                (cat) => Padding(
-                                  padding: const EdgeInsets.only(right: 6),
-                                  child: FilterChip(
-                                    label: Text(cat.name),
-                                    selected: _selectedCatId == cat.id,
-                                    onSelected: (_) =>
-                                        setState(() => _selectedCatId = cat.id),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  // Menu Items Grid
-                  Expanded(
-                    child: GridView.builder(
-                      padding: const EdgeInsets.all(12),
-                      gridDelegate:
-                          const SliverGridDelegateWithMaxCrossAxisExtent(
-                            maxCrossAxisExtent: 180,
-                            childAspectRatio: 0.9,
-                            crossAxisSpacing: 10,
-                            mainAxisSpacing: 10,
-                          ),
-                      itemCount: filteredItems.length,
-                      itemBuilder: (context, index) {
-                        final item = filteredItems[index];
-                        return _buildMenuItemCard(context, item);
-                      },
-                    ),
-                  ),
+                  // Left Side: Menu Grid & Search
+                  Expanded(flex: 6, child: productColumn),
+                  const VerticalDivider(width: 1),
+                  // Right Side: Cart & Bill Checkout Panel
+                  Expanded(flex: 4, child: _buildCartPanel(context, cart)),
+                ],
+              )
+            : Column(
+                children: [
+                  Expanded(child: productColumn),
+                  SizedBox(height: 360, child: _buildCartPanel(context, cart)),
                 ],
               ),
-            ),
-            const VerticalDivider(width: 1),
-            // Right Side: Cart & Bill Checkout Panel
-            Expanded(flex: 4, child: _buildCartPanel(context, cart)),
-          ],
-        ),
       ),
     );
   }

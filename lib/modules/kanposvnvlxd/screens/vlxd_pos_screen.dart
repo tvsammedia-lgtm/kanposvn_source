@@ -116,312 +116,322 @@ class _VlxdPosScreenState extends ConsumerState<VlxdPosScreen> {
   @override
   Widget build(BuildContext context) {
     final productsAsyncValue = ref.watch(vlxdProductsProvider);
+    final isDesktop = MediaQuery.of(context).size.width > 600;
+
+    final productColumn = Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: TextField(
+            decoration: InputDecoration(
+              hintText: 'Tìm kiếm vật tư...',
+              prefixIcon: const Icon(Icons.search),
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+            ),
+            onChanged: (val) {
+              setState(() {
+                _searchQuery = val.toLowerCase();
+              });
+            },
+          ),
+        ),
+        Expanded(
+          child: productsAsyncValue.when(
+            data: (products) {
+              final filtered = products.where((p) => p.productName.toLowerCase().contains(_searchQuery)).toList();
+              if (filtered.isEmpty) return const Center(child: Text('Không tìm thấy sản phẩm.'));
+              return GridView.builder(
+                padding: const EdgeInsets.all(8),
+                gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                  maxCrossAxisExtent: 180,
+                  childAspectRatio: 0.85,
+                  crossAxisSpacing: 8,
+                  mainAxisSpacing: 8,
+                ),
+                itemCount: filtered.length,
+                itemBuilder: (context, index) {
+                  final product = filtered[index];
+                  return InkWell(
+                    onTap: () => _addToCart(product),
+                    borderRadius: BorderRadius.circular(8),
+                    child: Card(
+                      elevation: 2,
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(Icons.construction, size: 40, color: Colors.blueGrey),
+                            const SizedBox(height: 8),
+                            Text(product.productName, textAlign: TextAlign.center, style: const TextStyle(fontWeight: FontWeight.bold), maxLines: 2, overflow: TextOverflow.ellipsis),
+                            const Spacer(),
+                            Text('${product.retailPrice} đ', style: const TextStyle(color: Colors.red, fontWeight: FontWeight.w600)),
+                            Text(product.unit, style: const TextStyle(color: Colors.grey, fontSize: 12)),
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              );
+            },
+            loading: () => const Center(child: CircularProgressIndicator()),
+            error: (err, st) => Center(child: Text('Lỗi: $err')),
+          ),
+        ),
+      ],
+    );
+
+    final cartPanel = Container(
+      color: Colors.grey[100],
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(16),
+            color: Colors.grey[200],
+            width: double.infinity,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('Giỏ hàng', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 8),
+                Consumer(
+                  builder: (context, ref, _) {
+                    final customersAsync = ref.watch(vlxdCustomersProvider);
+                    return customersAsync.when(
+                      data: (customers) => DropdownButtonFormField<VlxdCustomer>(
+                        value: _selectedCustomer,
+                        hint: const Text('Khách hàng (tùy chọn)'),
+                        isExpanded: true,
+                        decoration: const InputDecoration(
+                          isDense: true,
+                          contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                          border: OutlineInputBorder(),
+                        ),
+                        items: [
+                          const DropdownMenuItem<VlxdCustomer>(
+                            value: null,
+                            child: Text('Khách vãng lai'),
+                          ),
+                          ...customers.map((c) => DropdownMenuItem<VlxdCustomer>(
+                            value: c,
+                            child: Text('${c.name}${c.phone.isNotEmpty ? ' (${c.phone})' : ''}', overflow: TextOverflow.ellipsis),
+                          )),
+                        ],
+                        onChanged: (val) => setState(() => _selectedCustomer = val),
+                      ),
+                      loading: () => const SizedBox.shrink(),
+                      error: (_, __) => const SizedBox.shrink(),
+                    );
+                  },
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        keyboardType: TextInputType.number,
+                        decoration: const InputDecoration(
+                          isDense: true,
+                          contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                          hintText: 'Giảm giá %',
+                          border: OutlineInputBorder(),
+                          suffixText: '%',
+                        ),
+                        onChanged: (val) {
+                          final v = double.tryParse(val) ?? 0;
+                          setState(() => _discountPercent = v.clamp(0, 100));
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: DropdownButtonFormField<PaymentMethod>(
+                        value: _selectedPaymentMethod,
+                        isExpanded: true,
+                        decoration: const InputDecoration(
+                          isDense: true,
+                          contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                          border: OutlineInputBorder(),
+                        ),
+                        items: PaymentMethod.values.map((pm) => DropdownMenuItem<PaymentMethod>(
+                          value: pm,
+                          child: Text(pm.label),
+                        )).toList(),
+                        onChanged: (val) {
+                          if (val != null) setState(() => _selectedPaymentMethod = val);
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: _cart.isEmpty
+                ? const Center(child: Text('Chưa có mặt hàng nào'))
+                : ListView.builder(
+                    itemCount: _cart.length,
+                    itemBuilder: (context, index) {
+                      final item = _cart[index];
+                      final product = item.product.value;
+                      return ListTile(
+                        title: Text(product?.productName ?? 'Sản phẩm'),
+                        subtitle: Row(
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.remove_circle_outline),
+                              onPressed: () => _updateQuantity(index, item.quantity - 1),
+                            ),
+                            Text('${item.quantity} ${product?.unit ?? ""}'),
+                            IconButton(
+                              icon: const Icon(Icons.add_circle_outline),
+                              onPressed: () => _updateQuantity(index, item.quantity + 1),
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.edit, size: 16),
+                              onPressed: () {
+                                // ignore: todo
+                                // TODO: Hỗ trợ nhập số thập phân
+                              },
+                            )
+                          ],
+                        ),
+                        trailing: Text('${item.total} đ', style: const TextStyle(fontWeight: FontWeight.bold)),
+                      );
+                    },
+                  ),
+          ),
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, -2))],
+            ),
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text('Tạm tính:', style: TextStyle(fontSize: 14, color: Colors.grey)),
+                      Text('$_cartTotal đ', style: const TextStyle(fontSize: 14)),
+                    ],
+                  ),
+                  if (_discountPercent > 0) ...[
+                    const SizedBox(height: 4),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text('Giảm giá ($_discountPercent%):', style: const TextStyle(fontSize: 14, color: Colors.orange)),
+                        Text('-${_discountAmount.toStringAsFixed(0)} đ', style: const TextStyle(fontSize: 14, color: Colors.orange)),
+                      ],
+                    ),
+                  ],
+                  if (_vatTotal > 0) ...[
+                    const SizedBox(height: 4),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text('VAT:', style: TextStyle(fontSize: 14, color: Colors.blue)),
+                        Text('${_vatTotal.toStringAsFixed(0)} đ', style: const TextStyle(fontSize: 14, color: Colors.blue)),
+                      ],
+                    ),
+                  ],
+                  const Divider(),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text('Tổng cộng:', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                      Text('${_grandTotal.toStringAsFixed(0)} đ', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.red)),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: SizedBox(
+                          height: 44,
+                          child: ElevatedButton.icon(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.orange,
+                              foregroundColor: Colors.white,
+                            ),
+                            onPressed: _cart.isEmpty
+                                ? null
+                                : () => _processPayment(
+                                      ReceiptPrintMode.thermal80,
+                                    ),
+                            icon: const Icon(Icons.print, size: 16),
+                            label: const Text('IN BILL 80mm',
+                                style: TextStyle(
+                                    fontSize: 12, fontWeight: FontWeight.bold)),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: SizedBox(
+                          height: 44,
+                          child: ElevatedButton.icon(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.red,
+                              foregroundColor: Colors.white,
+                            ),
+                            onPressed: _cart.isEmpty
+                                ? null
+                                : () => _processPayment(
+                                      ReceiptPrintMode.pdf,
+                                    ),
+                            icon: const Icon(Icons.picture_as_pdf, size: 16),
+                            label: const Text('IN PDF',
+                                style: TextStyle(
+                                    fontSize: 12, fontWeight: FontWeight.bold)),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 50,
+                    child: ElevatedButton(
+                      onPressed: _cart.isEmpty
+                          ? null
+                          : () => _processPayment(ReceiptPrintMode.auto),
+                      style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
+                      child: const Text('Thanh Toán', style: TextStyle(fontSize: 18, color: Colors.white)),
+                    ),
+                  )
+                ],
+              ),
+            ),
+          )
+        ],
+      ),
+    );
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Bán Lẻ / POS'),
       ),
-      body: Row(
-        children: [
-          // Bên trái: Danh sách sản phẩm
-          Expanded(
-            flex: 2,
-            child: Column(
+      body: isDesktop
+          ? Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: TextField(
-                    decoration: InputDecoration(
-                      hintText: 'Tìm kiếm vật tư...',
-                      prefixIcon: const Icon(Icons.search),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-                    ),
-                    onChanged: (val) {
-                      setState(() {
-                        _searchQuery = val.toLowerCase();
-                      });
-                    },
-                  ),
-                ),
-                Expanded(
-                  child: productsAsyncValue.when(
-                    data: (products) {
-                      final filtered = products.where((p) => p.productName.toLowerCase().contains(_searchQuery)).toList();
-                      if (filtered.isEmpty) return const Center(child: Text('Không tìm thấy sản phẩm.'));
-                      return GridView.builder(
-                        padding: const EdgeInsets.all(8),
-                        gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                          maxCrossAxisExtent: 180,
-                          childAspectRatio: 0.85,
-                          crossAxisSpacing: 8,
-                          mainAxisSpacing: 8,
-                        ),
-                        itemCount: filtered.length,
-                        itemBuilder: (context, index) {
-                          final product = filtered[index];
-                          return InkWell(
-                            onTap: () => _addToCart(product),
-                            borderRadius: BorderRadius.circular(8),
-                            child: Card(
-                              elevation: 2,
-                              child: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    const Icon(Icons.construction, size: 40, color: Colors.blueGrey),
-                                    const SizedBox(height: 8),
-                                    Text(product.productName, textAlign: TextAlign.center, style: const TextStyle(fontWeight: FontWeight.bold), maxLines: 2, overflow: TextOverflow.ellipsis),
-                                    const Spacer(),
-                                    Text('${product.retailPrice} đ', style: const TextStyle(color: Colors.red, fontWeight: FontWeight.w600)),
-                                    Text(product.unit, style: const TextStyle(color: Colors.grey, fontSize: 12)),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          );
-                        },
-                      );
-                    },
-                    loading: () => const Center(child: CircularProgressIndicator()),
-                    error: (err, st) => Center(child: Text('Lỗi: $err')),
-                  ),
-                ),
+                Expanded(flex: 2, child: productColumn),
+                const VerticalDivider(width: 1, thickness: 1),
+                SizedBox(width: 360, child: cartPanel),
+              ],
+            )
+          : Column(
+              children: [
+                Expanded(child: productColumn),
+                SizedBox(height: 360, child: cartPanel),
               ],
             ),
-          ),
-          const VerticalDivider(width: 1, thickness: 1),
-          // Bên phải: Giỏ hàng
-          Expanded(
-            flex: 1,
-            child: Column(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  color: Colors.grey[200],
-                  width: double.infinity,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text('Giỏ hàng', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                      const SizedBox(height: 8),
-                      Consumer(
-                        builder: (context, ref, _) {
-                          final customersAsync = ref.watch(vlxdCustomersProvider);
-                          return customersAsync.when(
-                            data: (customers) => DropdownButtonFormField<VlxdCustomer>(
-                              value: _selectedCustomer,
-                              hint: const Text('Khách hàng (tùy chọn)'),
-                              isExpanded: true,
-                              decoration: const InputDecoration(
-                                isDense: true,
-                                contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                                border: OutlineInputBorder(),
-                              ),
-                              items: [
-                                const DropdownMenuItem<VlxdCustomer>(
-                                  value: null,
-                                  child: Text('Khách vãng lai'),
-                                ),
-                                ...customers.map((c) => DropdownMenuItem<VlxdCustomer>(
-                                  value: c,
-                                  child: Text('${c.name}${c.phone.isNotEmpty ? ' (${c.phone})' : ''}', overflow: TextOverflow.ellipsis),
-                                )),
-                              ],
-                              onChanged: (val) => setState(() => _selectedCustomer = val),
-                            ),
-                            loading: () => const SizedBox.shrink(),
-                            error: (_, __) => const SizedBox.shrink(),
-                          );
-                        },
-                      ),
-                      const SizedBox(height: 8),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: TextField(
-                              keyboardType: TextInputType.number,
-                              decoration: const InputDecoration(
-                                isDense: true,
-                                contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                                hintText: 'Giảm giá %',
-                                border: OutlineInputBorder(),
-                                suffixText: '%',
-                              ),
-                              onChanged: (val) {
-                                final v = double.tryParse(val) ?? 0;
-                                setState(() => _discountPercent = v.clamp(0, 100));
-                              },
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: DropdownButtonFormField<PaymentMethod>(
-                              value: _selectedPaymentMethod,
-                              isExpanded: true,
-                              decoration: const InputDecoration(
-                                isDense: true,
-                                contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                                border: OutlineInputBorder(),
-                              ),
-                              items: PaymentMethod.values.map((pm) => DropdownMenuItem<PaymentMethod>(
-                                value: pm,
-                                child: Text(pm.label),
-                              )).toList(),
-                              onChanged: (val) {
-                                if (val != null) setState(() => _selectedPaymentMethod = val);
-                              },
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-                Expanded(
-                  child: _cart.isEmpty
-                      ? const Center(child: Text('Chưa có mặt hàng nào'))
-                      : ListView.builder(
-                          itemCount: _cart.length,
-                          itemBuilder: (context, index) {
-                            final item = _cart[index];
-                            final product = item.product.value;
-                            return ListTile(
-                              title: Text(product?.productName ?? 'Sản phẩm'),
-                              subtitle: Row(
-                                children: [
-                                  IconButton(
-                                    icon: const Icon(Icons.remove_circle_outline),
-                                    onPressed: () => _updateQuantity(index, item.quantity - 1),
-                                  ),
-                                  Text('${item.quantity} ${product?.unit ?? ""}'),
-                                  IconButton(
-                                    icon: const Icon(Icons.add_circle_outline),
-                                    onPressed: () => _updateQuantity(index, item.quantity + 1),
-                                  ),
-                                  IconButton(
-                                    icon: const Icon(Icons.edit, size: 16),
-                                    onPressed: () {
-                                      // ignore: todo
-                                      // TODO: Hỗ trợ nhập số thập phân
-                                    },
-                                  )
-                                ],
-                              ),
-                              trailing: Text('${item.total} đ', style: const TextStyle(fontWeight: FontWeight.bold)),
-                            );
-                          },
-                        ),
-                ),
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
-                    boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, -2))],
-                  ),
-                  child: Column(
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const Text('Tạm tính:', style: TextStyle(fontSize: 14, color: Colors.grey)),
-                          Text('$_cartTotal đ', style: const TextStyle(fontSize: 14)),
-                        ],
-                      ),
-                      if (_discountPercent > 0) ...[
-                        const SizedBox(height: 4),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text('Giảm giá ($_discountPercent%):', style: const TextStyle(fontSize: 14, color: Colors.orange)),
-                            Text('-${_discountAmount.toStringAsFixed(0)} đ', style: const TextStyle(fontSize: 14, color: Colors.orange)),
-                          ],
-                        ),
-                      ],
-                      if (_vatTotal > 0) ...[
-                        const SizedBox(height: 4),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Text('VAT:', style: TextStyle(fontSize: 14, color: Colors.blue)),
-                            Text('${_vatTotal.toStringAsFixed(0)} đ', style: const TextStyle(fontSize: 14, color: Colors.blue)),
-                          ],
-                        ),
-                      ],
-                      const Divider(),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const Text('Tổng cộng:', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                          Text('${_grandTotal.toStringAsFixed(0)} đ', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.red)),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: SizedBox(
-                              height: 44,
-                              child: ElevatedButton.icon(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.orange,
-                                  foregroundColor: Colors.white,
-                                ),
-                                onPressed: _cart.isEmpty
-                                    ? null
-                                    : () => _processPayment(
-                                          ReceiptPrintMode.thermal80,
-                                        ),
-                                icon: const Icon(Icons.print, size: 16),
-                                label: const Text('IN BILL 80mm',
-                                    style: TextStyle(
-                                        fontSize: 12, fontWeight: FontWeight.bold)),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: SizedBox(
-                              height: 44,
-                              child: ElevatedButton.icon(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.red,
-                                  foregroundColor: Colors.white,
-                                ),
-                                onPressed: _cart.isEmpty
-                                    ? null
-                                    : () => _processPayment(
-                                          ReceiptPrintMode.pdf,
-                                        ),
-                                icon: const Icon(Icons.picture_as_pdf, size: 16),
-                                label: const Text('IN PDF',
-                                    style: TextStyle(
-                                        fontSize: 12, fontWeight: FontWeight.bold)),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      SizedBox(
-                        width: double.infinity,
-                        height: 50,
-                        child: ElevatedButton(
-                          onPressed: _cart.isEmpty
-                              ? null
-                              : () => _processPayment(ReceiptPrintMode.auto),
-                          style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
-                          child: const Text('Thanh Toán', style: TextStyle(fontSize: 18, color: Colors.white)),
-                        ),
-                      )
-                    ],
-                  ),
-                )
-              ],
-            ),
-          )
-        ],
-      ),
     );
   }
 }

@@ -56,38 +56,66 @@ class _TramXangPosScreenState extends ConsumerState<TramXangPosScreen> {
       }
     }
 
+    final isDesktop = MediaQuery.of(context).size.width > 600;
+
     return Scaffold(
       appBar: AppBar(title: const Text('POS Bán Hàng')),
-      body: Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Expanded(
-            flex: 5,
-            child: Column(
+      body: isDesktop
+          ? Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                if (shift == null)
-                  MaterialBanner(
-                    backgroundColor: const Color(0xFFFFF3E0),
-                    content: const Text('Chưa mở ca bán hàng.'),
-                    actions: [
-                      TextButton(
-                        onPressed: () {
-                          _openShiftNow();
-                        },
-                        child: const Text('MỞ CA NGAY'),
-                      ),
+                Expanded(
+                  flex: 5,
+                  child: Column(
+                    children: [
+                      if (shift == null)
+                        MaterialBanner(
+                          backgroundColor: const Color(0xFFFFF3E0),
+                          content: const Text('Chưa mở ca bán hàng.'),
+                          actions: [
+                            TextButton(
+                              onPressed: () {
+                                _openShiftNow();
+                              },
+                              child: const Text('MỞ CA NGAY'),
+                            ),
+                          ],
+                        ),
+                      Expanded(child: _buildProductGrid(products, stockMap)),
                     ],
                   ),
-                Expanded(child: _buildProductGrid(products, stockMap)),
+                ),
+                Expanded(
+                  flex: 3,
+                  child: _buildCartPanel(customers, shift),
+                ),
+              ],
+            )
+          : Column(
+              children: [
+                Expanded(
+                  child: Column(
+                    children: [
+                      if (shift == null)
+                        MaterialBanner(
+                          backgroundColor: const Color(0xFFFFF3E0),
+                          content: const Text('Chưa mở ca bán hàng.'),
+                          actions: [
+                            TextButton(
+                              onPressed: () {
+                                _openShiftNow();
+                              },
+                              child: const Text('MỞ CA NGAY'),
+                            ),
+                          ],
+                        ),
+                      Expanded(child: _buildProductGrid(products, stockMap)),
+                    ],
+                  ),
+                ),
+                SizedBox(height: 360, child: _buildCartPanel(customers, shift)),
               ],
             ),
-          ),
-          Expanded(
-            flex: 3,
-            child: _buildCartPanel(customers, shift),
-          ),
-        ],
-      ),
     );
   }
 
@@ -222,75 +250,81 @@ class _TramXangPosScreenState extends ConsumerState<TramXangPosScreen> {
                     },
                   ),
           ),
-          const Divider(),
-          Row(
-            children: [
-              const Text('Chiết khấu (đ): '),
-              Expanded(
-                child: TextField(
-                  keyboardType: TextInputType.number,
-                  onChanged: (v) =>
-                      setState(() => _discount = double.tryParse(v) ?? 0),
-                  decoration: const InputDecoration(isDense: true),
+          SingleChildScrollView(
+            child: Column(
+              children: [
+                const Divider(),
+                Row(
+                  children: [
+                    const Text('Chiết khấu (đ): '),
+                    Expanded(
+                      child: TextField(
+                        keyboardType: TextInputType.number,
+                        onChanged: (v) =>
+                            setState(() => _discount = double.tryParse(v) ?? 0),
+                        decoration: const InputDecoration(isDense: true),
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-            ],
-          ),
-          DropdownButtonFormField<String>(
-            initialValue: _customerId,
-            decoration: const InputDecoration(
-                labelText: 'Khách hàng (tùy chọn)', isDense: true),
-            items: [
-              const DropdownMenuItem(value: null, child: Text('Khách lẻ')),
-              for (final c in customers)
-                DropdownMenuItem(
-                    value: c.customerId, child: Text('${c.name} (${c.code})')),
-            ],
-            onChanged: (v) => setState(() => _customerId = v),
-          ),
-          Wrap(
-            spacing: 4,
-            children: [
-              for (final m in [
-                ('CASH', 'Tiền mặt'),
-                ('TRANSFER', 'Chuyển khoản'),
-                ('QR', 'QR Code'),
-                ('DEBT', 'Ghi nợ'),
-              ])
-                ChoiceChip(
-                  label: Text(m.$2),
-                  selected: _paymentMethod == m.$1,
-                  onSelected: (_) => setState(() => _paymentMethod = m.$1),
+                DropdownButtonFormField<String>(
+                  initialValue: _customerId,
+                  decoration: const InputDecoration(
+                      labelText: 'Khách hàng (tùy chọn)', isDense: true),
+                  items: [
+                    const DropdownMenuItem(value: null, child: Text('Khách lẻ')),
+                    for (final c in customers)
+                      DropdownMenuItem(
+                          value: c.customerId, child: Text('${c.name} (${c.code})')),
+                  ],
+                  onChanged: (v) => setState(() => _customerId = v),
                 ),
-            ],
-          ),
-          const SizedBox(height: 4),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text('Tổng (chưa thuế):',
-                  style: TextStyle(fontWeight: FontWeight.bold)),
-              Text(_money(total),
-                  style: const TextStyle(
-                      fontSize: 20, fontWeight: FontWeight.bold)),
-            ],
-          ),
-          const SizedBox(height: 4),
-          ElevatedButton.icon(
-            icon: _checkingOut
-                ? const SizedBox(
-                    width: 18,
-                    height: 18,
-                    child: CircularProgressIndicator(strokeWidth: 2))
-                : const Icon(Icons.payment),
-            label: const Text('THANH TOÁN'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.green,
-              foregroundColor: Colors.white,
-              minimumSize: const Size(double.infinity, 50),
+                Wrap(
+                  spacing: 4,
+                  children: [
+                    for (final m in [
+                      ('CASH', 'Tiền mặt'),
+                      ('TRANSFER', 'Chuyển khoản'),
+                      ('QR', 'QR Code'),
+                      ('DEBT', 'Ghi nợ'),
+                    ])
+                      ChoiceChip(
+                        label: Text(m.$2),
+                        selected: _paymentMethod == m.$1,
+                        onSelected: (_) => setState(() => _paymentMethod = m.$1),
+                      ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text('Tổng (chưa thuế):',
+                        style: TextStyle(fontWeight: FontWeight.bold)),
+                    Text(_money(total),
+                        style: const TextStyle(
+                            fontSize: 20, fontWeight: FontWeight.bold)),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                ElevatedButton.icon(
+                  icon: _checkingOut
+                      ? const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(strokeWidth: 2))
+                      : const Icon(Icons.payment),
+                  label: const Text('THANH TOÁN'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green,
+                    foregroundColor: Colors.white,
+                    minimumSize: const Size(double.infinity, 50),
+                  ),
+                  onPressed:
+                      _cart.isEmpty || _checkingOut ? null : () => _checkout(),
+                ),
+              ],
             ),
-            onPressed:
-                _cart.isEmpty || _checkingOut ? null : () => _checkout(),
           ),
         ],
       ),
