@@ -146,98 +146,206 @@ class _NhathuocPosScreenState extends ConsumerState<NhathuocPosScreen> {
     final medicinesAsync = ref.watch(nhathuocMedicinesProvider);
     final templatesAsync = ref.watch(nhathuocPrescriptionTemplatesProvider);
     final patientsAsync = ref.watch(nhathuocPatientsProvider);
+    final isDesktop = MediaQuery.of(context).size.width > 600;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Bán Hàng (POS)'),
-        actions: [
-          templatesAsync.when(
-            data: (templates) => PopupMenuButton<NhathuocPrescriptionTemplate>(
-              icon: const Icon(Icons.receipt_long),
-              tooltip: 'Kê Toa Nhanh',
-              onSelected: _applyTemplate,
-              itemBuilder: (context) => templates.map((t) => PopupMenuItem(
-                value: t,
-                child: Text('Toa: ${t.diseaseName}'),
-              )).toList(),
-            ),
-            loading: () => const SizedBox(),
-            error: (_, __) => const SizedBox(),
+    final grid = medicinesAsync.when(
+      data: (medicines) {
+        final filtered = medicines
+            .where((m) =>
+                m.name.toLowerCase().contains(_searchQuery) ||
+                m.activeIngredient.toLowerCase().contains(_searchQuery) ||
+                m.barcode.toLowerCase().contains(_searchQuery))
+            .toList();
+        return GridView.builder(
+          padding: const EdgeInsets.all(8),
+          gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+            maxCrossAxisExtent: 200,
+            childAspectRatio: isDesktop ? 1.0 : 0.85,
+            crossAxisSpacing: 8,
+            mainAxisSpacing: 8,
           ),
-          const SizedBox(width: 16),
-        ],
-      ),
-      body: Row(
-        children: [
-          // Left: Product List
-          Expanded(
-            flex: 2,
-            child: Column(
-              children: [
-                Padding(
+          itemCount: filtered.length,
+          itemBuilder: (context, index) {
+            final med = filtered[index];
+            final isLow = med.currentStock < 10;
+            return InkWell(
+              onTap: () => _addToCart(med),
+              child: Card(
+                color: med.isPrescriptionRequired
+                    ? Colors.red[50]
+                    : (isLow ? Colors.orange[50] : Colors.green[50]),
+                child: Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: TextField(
-                    decoration: const InputDecoration(
-                      labelText: 'Tìm thuốc (tên, mã vạch, hoạt chất)',
-                      prefixIcon: Icon(Icons.search),
-                      border: OutlineInputBorder(),
-                    ),
-                    onChanged: (val) => setState(() => _searchQuery = val.toLowerCase()),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        med.name,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                        textAlign: TextAlign.center,
+                      ),
+                      Text(
+                        med.activeIngredient,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(color: Colors.grey, fontSize: 11),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        '${med.retailPrice.toStringAsFixed(0)} đ / ${med.unit}',
+                        style: const TextStyle(color: Colors.blue, fontWeight: FontWeight.bold, fontSize: 12),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        'Tồn: ${med.currentStock.toStringAsFixed(0)}',
+                        style: TextStyle(color: isLow ? Colors.red : Colors.black, fontSize: 11),
+                      ),
+                    ],
                   ),
                 ),
-                Expanded(
-                  child: medicinesAsync.when(
-                    data: (medicines) {
-                      final filtered = medicines.where((m) => m.name.toLowerCase().contains(_searchQuery) || m.activeIngredient.toLowerCase().contains(_searchQuery) || m.barcode.toLowerCase().contains(_searchQuery)).toList();
-                      return GridView.builder(
-                        padding: const EdgeInsets.all(8),
-                        gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                          maxCrossAxisExtent: 200,
-                          childAspectRatio: 1.0,
-                          crossAxisSpacing: 8,
-                          mainAxisSpacing: 8,
-                        ),
-                        itemCount: filtered.length,
-                        itemBuilder: (context, index) {
-                          final med = filtered[index];
-                          final isLow = med.currentStock < 10;
-                          return InkWell(
-                            onTap: () => _addToCart(med),
-                            child: Card(
-                              color: med.isPrescriptionRequired ? Colors.red[50] : (isLow ? Colors.orange[50] : Colors.green[50]),
-                              child: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text(med.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14), textAlign: TextAlign.center),
-                                    Text(med.activeIngredient, style: const TextStyle(color: Colors.grey, fontSize: 11), textAlign: TextAlign.center),
-                                    const SizedBox(height: 4),
-                                    Text('${med.retailPrice.toStringAsFixed(0)} đ / ${med.unit}', style: const TextStyle(color: Colors.blue, fontWeight: FontWeight.bold, fontSize: 12)),
-                                    const SizedBox(height: 2),
-                                    Text('Tồn: ${med.currentStock.toStringAsFixed(0)}', style: TextStyle(color: isLow ? Colors.red : Colors.black, fontSize: 11)),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          );
-                        },
-                      );
-                    },
-                    loading: () => const Center(child: CircularProgressIndicator()),
-                    error: (err, st) => Center(child: Text('Lỗi: $err')),
-                  ),
-                ),
-              ],
-            ),
+              ),
+            );
+          },
+        );
+      },
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (err, st) => Center(child: Text('Lỗi: $err')),
+    );
+
+    final cartFormColumn = Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        DropdownButtonFormField<PaymentMethod>(
+          value: _paymentMethod,
+          decoration: const InputDecoration(
+              labelText: 'Phương thức thanh toán',
+              border: OutlineInputBorder(),
+              isDense: true),
+          items: PaymentMethod.values
+              .where((p) => p != PaymentMethod.MIXED)
+              .map((p) => DropdownMenuItem(value: p, child: Text(p.label)))
+              .toList(),
+          onChanged: (v) =>
+              setState(() => _paymentMethod = v ?? PaymentMethod.CASH),
+        ),
+        const SizedBox(height: 8),
+        TextField(
+          controller: _discountCtrl,
+          keyboardType: TextInputType.number,
+          decoration: const InputDecoration(
+              labelText: 'Giảm giá (đ)',
+              border: OutlineInputBorder(),
+              isDense: true),
+          onChanged: (v) =>
+              setState(() => _discountAmount = double.tryParse(v) ?? 0),
+        ),
+        if (_paymentMethod == PaymentMethod.CASH) ...[
+          const SizedBox(height: 8),
+          TextField(
+            controller: _cashCtrl,
+            keyboardType: TextInputType.number,
+            decoration: const InputDecoration(
+                labelText: 'Tiền khách đưa (đ)',
+                border: OutlineInputBorder(),
+                isDense: true),
+            onChanged: (v) =>
+                setState(() => _cashReceived = double.tryParse(v) ?? 0),
           ),
-          const VerticalDivider(width: 1, thickness: 1),
-          // Right: Cart & Checkout
+          if (_cashReceived > 0 && _change >= 0)
+            Padding(
+              padding: const EdgeInsets.only(top: 4),
+              child: Text(
+                  'Tiền thối: ${_change.toStringAsFixed(0)} đ',
+                  style: const TextStyle(color: Colors.green, fontWeight: FontWeight.bold)),
+            ),
+          if (_cashReceived > 0 && _change < 0)
+            Padding(
+              padding: const EdgeInsets.only(top: 4),
+              child: Text(
+                  'Thiếu: ${(-_change).toStringAsFixed(0)} đ',
+                  style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+            ),
+        ],
+        const SizedBox(height: 8),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text('Tổng:', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            Text('${_totalAmount.toStringAsFixed(0)} đ',
+                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.red)),
+          ],
+        ),
+        const SizedBox(height: 8),
+        Row(
+          children: [
+            Expanded(
+              child: SizedBox(
+                height: 40,
+                child: ElevatedButton.icon(
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.orange,
+                      foregroundColor: Colors.white),
+                  onPressed: _cart.isEmpty
+                      ? null
+                      : () => _completeCheckout(ReceiptPrintMode.thermal80),
+                  icon: const Icon(Icons.print, size: 14),
+                  label: const Text('IN 80mm', style: TextStyle(fontSize: 11)),
+                ),
+              ),
+            ),
+            const SizedBox(width: 4),
+            Expanded(
+              child: SizedBox(
+                height: 40,
+                child: ElevatedButton.icon(
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red,
+                      foregroundColor: Colors.white),
+                  onPressed: _cart.isEmpty
+                      ? null
+                      : () => _completeCheckout(ReceiptPrintMode.pdf),
+                  icon: const Icon(Icons.picture_as_pdf, size: 14),
+                  label: const Text('IN PDF', style: TextStyle(fontSize: 11)),
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 4),
+        SizedBox(
+          width: double.infinity,
+          height: 44,
+          child: ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: _paymentMethod == PaymentMethod.CREDIT
+                  ? Colors.orange
+                  : Colors.green,
+              foregroundColor: Colors.white,
+            ),
+            onPressed: _cart.isEmpty
+                ? null
+                : () => _completeCheckout(ReceiptPrintMode.auto),
+            child: Text(
+                _paymentMethod == PaymentMethod.CREDIT
+                    ? 'GHI NỢ'
+                    : 'Thanh Toán',
+                style: const TextStyle(fontSize: 16)),
+          ),
+        ),
+      ],
+    );
+
+    final cartPanel = Container(
+      color: Colors.grey[100],
+      child: Column(
+        children: [
           Expanded(
-            flex: 1,
-            child: Column(
+            child: ListView(
+              padding: const EdgeInsets.all(8),
               children: [
-                // Patient Selection
                 Container(
                   padding: const EdgeInsets.all(8),
                   color: Colors.blue[50],
@@ -266,7 +374,7 @@ class _NhathuocPosScreenState extends ConsumerState<NhathuocPosScreen> {
                         }
                       },
                     ),
-                    loading: () => const CircularProgressIndicator(),
+                    loading: () => const Center(child: CircularProgressIndicator()),
                     error: (_, __) => const Text('Lỗi tải BN'),
                   ),
                 ),
@@ -282,189 +390,112 @@ class _NhathuocPosScreenState extends ConsumerState<NhathuocPosScreen> {
                     ],
                   ),
                 ),
-                Expanded(
-                  child: ListView.builder(
-                    itemCount: _cart.length,
-                    itemBuilder: (context, index) {
-                      final item = _cart[index];
-                      bool isAllergic = false;
-                      if (_selectedPatient != null && _selectedPatient!.allergies.toLowerCase().contains(item.medicine.value?.activeIngredient.toLowerCase() ?? '')) {
-                        isAllergic = true;
-                      }
-                      if (_selectedPatient != null && _selectedPatient!.allergies.toLowerCase().contains(item.medicine.value?.name.toLowerCase() ?? '')) {
-                        isAllergic = true;
-                      }
-
-                      return ListTile(
-                        tileColor: isAllergic ? Colors.red[100] : null,
-                        title: Text(item.medicine.value?.name ?? '', style: TextStyle(color: isAllergic ? Colors.red : Colors.black, fontWeight: isAllergic ? FontWeight.bold : FontWeight.normal, fontSize: 13)),
-                        subtitle: Text('${item.quantity.toStringAsFixed(0)} x ${item.unitPrice.toStringAsFixed(0)} đ', style: const TextStyle(fontSize: 12)),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text('${item.total.toStringAsFixed(0)} đ', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
-                            IconButton(
-                              icon: const Icon(Icons.delete, color: Colors.red, size: 18),
-                              onPressed: () => setState(() => _cart.removeAt(index)),
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-                  ),
-                ),
-                // Payment & Checkout
-                Flexible(
-                  child: Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration:
-                        const BoxDecoration(border: Border(top: BorderSide(color: Colors.grey))),
-                    child: SingleChildScrollView(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          // Payment method selector
-                          DropdownButtonFormField<PaymentMethod>(
-                            value: _paymentMethod,
-                            decoration: const InputDecoration(
-                                labelText: 'Phương thức thanh toán',
-                                border: OutlineInputBorder(),
-                                isDense: true),
-                            items: PaymentMethod.values
-                                .where((p) => p != PaymentMethod.MIXED)
-                                .map((p) =>
-                                    DropdownMenuItem(value: p, child: Text(p.label)))
-                                .toList(),
-                            onChanged: (v) =>
-                                setState(() => _paymentMethod = v ?? PaymentMethod.CASH),
-                          ),
-                          const SizedBox(height: 8),
-                          // Discount
-                          TextField(
-                            controller: _discountCtrl,
-                            keyboardType: TextInputType.number,
-                            decoration: const InputDecoration(
-                                labelText: 'Giảm giá (đ)',
-                                border: OutlineInputBorder(),
-                                isDense: true),
-                            onChanged: (v) =>
-                                setState(() => _discountAmount = double.tryParse(v) ?? 0),
-                          ),
-                          if (_paymentMethod == PaymentMethod.CASH) ...[
-                            const SizedBox(height: 8),
-                            TextField(
-                              controller: _cashCtrl,
-                              keyboardType: TextInputType.number,
-                              decoration: const InputDecoration(
-                                  labelText: 'Tiền khách đưa (đ)',
-                                  border: OutlineInputBorder(),
-                                  isDense: true),
-                              onChanged: (v) =>
-                                  setState(() => _cashReceived = double.tryParse(v) ?? 0),
-                            ),
-                            if (_cashReceived > 0 && _change >= 0)
-                              Padding(
-                                padding: const EdgeInsets.only(top: 4),
-                                child: Text(
-                                    'Tiền thối: ${_change.toStringAsFixed(0)} đ',
-                                    style: const TextStyle(
-                                        color: Colors.green,
-                                        fontWeight: FontWeight.bold)),
-                              ),
-                            if (_cashReceived > 0 && _change < 0)
-                              Padding(
-                                padding: const EdgeInsets.only(top: 4),
-                                child: Text(
-                                    'Thiếu: ${(-_change).toStringAsFixed(0)} đ',
-                                    style: const TextStyle(
-                                        color: Colors.red,
-                                        fontWeight: FontWeight.bold)),
-                              ),
-                          ],
-                          const SizedBox(height: 8),
-                          // Total
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              const Text('Tổng:',
-                                  style: TextStyle(
-                                      fontSize: 16, fontWeight: FontWeight.bold)),
-                              Text('${_totalAmount.toStringAsFixed(0)} đ',
-                                  style: const TextStyle(
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.red)),
-                            ],
-                          ),
-                          const SizedBox(height: 8),
-                          // Checkout buttons
-                          Row(
-                            children: [
-                              Expanded(
-                                child: SizedBox(
-                                  height: 40,
-                                  child: ElevatedButton.icon(
-                                    style: ElevatedButton.styleFrom(
-                                        backgroundColor: Colors.orange,
-                                        foregroundColor: Colors.white),
-                                    onPressed: _cart.isEmpty
-                                        ? null
-                                        : () =>
-                                            _completeCheckout(ReceiptPrintMode.thermal80),
-                                    icon: const Icon(Icons.print, size: 14),
-                                    label: const Text('IN 80mm',
-                                        style: TextStyle(fontSize: 11)),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 4),
-                              Expanded(
-                                child: SizedBox(
-                                  height: 40,
-                                  child: ElevatedButton.icon(
-                                    style: ElevatedButton.styleFrom(
-                                        backgroundColor: Colors.red,
-                                        foregroundColor: Colors.white),
-                                    onPressed: _cart.isEmpty
-                                        ? null
-                                        : () => _completeCheckout(ReceiptPrintMode.pdf),
-                                    icon: const Icon(Icons.picture_as_pdf, size: 14),
-                                    label: const Text('IN PDF',
-                                        style: TextStyle(fontSize: 11)),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 4),
-                          SizedBox(
-                            width: double.infinity,
-                            height: 44,
-                            child: ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: _paymentMethod ==
-                                        PaymentMethod.CREDIT
-                                    ? Colors.orange
-                                    : Colors.green,
-                                foregroundColor: Colors.white,
-                              ),
-                              onPressed: _cart.isEmpty
-                                  ? null
-                                  : () => _completeCheckout(ReceiptPrintMode.auto),
-                              child: Text(
-                                  _paymentMethod == PaymentMethod.CREDIT
-                                      ? 'GHI NỢ'
-                                      : 'Thanh Toán',
-                                  style: const TextStyle(fontSize: 16)),
-                            ),
-                          ),
-                        ],
-                      ),
+                if (_cart.isEmpty)
+                  const Padding(
+                    padding: EdgeInsets.all(16),
+                    child: Center(
+                      child: Text('Chưa có sản phẩm nào', style: TextStyle(color: Colors.grey)),
                     ),
-                  ),
-                ),
+                  )
+                else
+                  for (var index = 0; index < _cart.length; index++) _cartItemTile(index),
               ],
             ),
+          ),
+          SingleChildScrollView(
+            child: cartFormColumn,
+          ),
+        ],
+      ),
+    );
+
+    final productColumn = Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: TextField(
+            decoration: const InputDecoration(
+              labelText: 'Tìm thuốc (tên, mã vạch, hoạt chất)',
+              prefixIcon: Icon(Icons.search),
+              border: OutlineInputBorder(),
+            ),
+            onChanged: (val) => setState(() => _searchQuery = val.toLowerCase()),
+          ),
+        ),
+        Expanded(child: grid),
+      ],
+    );
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Bán Hàng (POS)'),
+        actions: [
+          templatesAsync.when(
+            data: (templates) => PopupMenuButton<NhathuocPrescriptionTemplate>(
+              icon: const Icon(Icons.receipt_long),
+              tooltip: 'Kê Toa Nhanh',
+              onSelected: _applyTemplate,
+              itemBuilder: (context) => templates.map((t) => PopupMenuItem(
+                value: t,
+                child: Text('Toa: ${t.diseaseName}'),
+              )).toList(),
+            ),
+            loading: () => const SizedBox(),
+            error: (_, __) => const SizedBox(),
+          ),
+          const SizedBox(width: 16),
+        ],
+      ),
+      body: isDesktop
+          ? Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Expanded(child: productColumn),
+                const VerticalDivider(thickness: 1, width: 1),
+                SizedBox(width: 360, child: cartPanel),
+              ],
+            )
+          : Column(
+              children: [
+                Expanded(child: productColumn),
+                SizedBox(height: 320, child: cartPanel),
+              ],
+            ),
+    );
+  }
+
+  Widget _cartItemTile(int index) {
+    final item = _cart[index];
+    bool isAllergic = false;
+    if (_selectedPatient != null &&
+        _selectedPatient!.allergies.toLowerCase().contains(
+            item.medicine.value?.activeIngredient.toLowerCase() ?? '')) {
+      isAllergic = true;
+    }
+    if (_selectedPatient != null &&
+        _selectedPatient!.allergies.toLowerCase().contains(
+            item.medicine.value?.name.toLowerCase() ?? '')) {
+      isAllergic = true;
+    }
+
+    return ListTile(
+      dense: true,
+      tileColor: isAllergic ? Colors.red[100] : null,
+      title: Text(item.medicine.value?.name ?? '',
+          style: TextStyle(
+              color: isAllergic ? Colors.red : Colors.black,
+              fontWeight: isAllergic ? FontWeight.bold : FontWeight.normal,
+              fontSize: 13)),
+      subtitle: Text('${item.quantity.toStringAsFixed(0)} x ${item.unitPrice.toStringAsFixed(0)} đ',
+          style: const TextStyle(fontSize: 12)),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text('${item.total.toStringAsFixed(0)} đ',
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+          IconButton(
+            icon: const Icon(Icons.delete, color: Colors.red, size: 18),
+            onPressed: () => setState(() => _cart.removeAt(index)),
           ),
         ],
       ),
