@@ -44,6 +44,7 @@ dependencies:
   flutter_map: ^8.1.1
   geolocator: ^14.0.2
   latlong2: ^0.9.1
+  graphview: ^1.2.0
 
 dev_dependencies:
   flutter_test:

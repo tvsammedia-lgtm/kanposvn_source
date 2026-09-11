@@ -34,7 +34,9 @@ enum AppModule {
   kanposvntramxang('KanPosVN Trạm Xăng', Icons.local_gas_station, Color(0xFFF59E0B)),
   kanposvncongtrinh('KanPosVN Công Trình', Icons.request_quote, Color(0xFF4F46E5)),
   kanposvnordertq('KanPosVN Order', Icons.local_shipping, Color(0xFFEF4444)),
-  kanposvndailynongsan('Đại Lý Nông Sản', Icons.agriculture, Color(0xFF4CAF50));
+  kanposvndailynongsan('Đại Lý Nông Sản', Icons.agriculture, Color(0xFF4CAF50)),
+  kanposvngiapha('KanPosVN Gia Phả', Icons.account_tree, Color(0xFF8B5CF6)),
+  kanposvntaxhkd('KanPosVN Thuế HKD', Icons.receipt_long, Color(0xFFDC2626));
 
   final String label;
   final IconData icon;
@@ -77,6 +79,8 @@ enum AppModule {
       case AppModule.kanposvncongtrinh: return 'kanposvncongtrinh';
       case AppModule.kanposvnordertq: return 'kanposvnordertq';
       case AppModule.kanposvndailynongsan: return 'kanposvndailynongsan';
+      case AppModule.kanposvngiapha: return 'kanposvngiapha';
+      case AppModule.kanposvntaxhkd: return 'kanposvntaxhkd';
     }
   }
 
@@ -116,6 +120,8 @@ enum AppModule {
       case AppModule.kanposvncongtrinh: return AppModuleType.kanposvncongtrinh;
       case AppModule.kanposvnordertq: return AppModuleType.kanposvnordertq;
       case AppModule.kanposvndailynongsan: return AppModuleType.kanposvndailynongsan;
+      case AppModule.kanposvngiapha: return AppModuleType.kanposvngiapha;
+      case AppModule.kanposvntaxhkd: return AppModuleType.kanposvntaxhkd;
     }
   }
 
@@ -158,7 +164,9 @@ enum AppModuleType {
   kanposvntramxang('Trạm Xăng & Tạp Hóa', Icons.local_gas_station),
   kanposvncongtrinh('Công Trình & Dự Toán', Icons.request_quote),
   kanposvnordertq('KanPosVN Order (Vận Chuyển)', Icons.local_shipping),
-  kanposvndailynongsan('Đại Lý Nông Sản', Icons.agriculture);
+  kanposvndailynongsan('Đại Lý Nông Sản', Icons.agriculture),
+  kanposvngiapha('KanPosVN Gia Phả', Icons.account_tree),
+  kanposvntaxhkd('Thuế Hộ Kinh Doanh', Icons.receipt_long);
 
   final String label;
   final IconData icon;

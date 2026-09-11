@@ -356,6 +356,29 @@ export async function POST(req: NextRequest) {
     ['020_customers_registered_modules', "ALTER TABLE customers ADD COLUMN IF NOT EXISTS registered_modules TEXT DEFAULT ''"],
     ['020_customers_approved_at', 'ALTER TABLE customers ADD COLUMN IF NOT EXISTS approved_at TIMESTAMP WITH TIME ZONE'],
     ['020_customers_backfill_approved', "UPDATE customers SET approval_status = 'approved' WHERE approval_status = 'pending' AND active = true AND approved_at IS NULL"],
+    // Migration 024: new modules kanposvngiapha (Gia Phả) + kanposvntaxhkd (Thuế HKD).
+    // Khớp AppModule bên Flutter. Plugins không nằm trong STORE_MODULES đăng ký cửa hàng.
+    ['024_giapha_app', `INSERT INTO apps (app_code, app_name, description, package_name, platform, show_in_registration, price)
+      SELECT 'kanposvngiapha', 'KanPosVN Gia Phả', 'Quản lý gia phả, dòng họ, cây phả hệ', 'com.kanposvn.giapha', 'flutter', true, 499000
+      WHERE NOT EXISTS (SELECT 1 FROM apps WHERE app_code = 'kanposvngiapha')
+      ON CONFLICT (app_code) DO UPDATE SET show_in_registration = true`],
+    ['024_taxhkd_app', `INSERT INTO apps (app_code, app_name, description, package_name, platform, show_in_registration, price)
+      SELECT 'kanposvntaxhkd', 'KanPosVN Thuế HKD', 'Quản lý thuế hộ kinh doanh, tờ khai, hóa đơn điện tử', 'com.kanposvn.taxhkd', 'flutter', true, 699000
+      WHERE NOT EXISTS (SELECT 1 FROM apps WHERE app_code = 'kanposvntaxhkd')
+      ON CONFLICT (app_code) DO UPDATE SET show_in_registration = true`],
+    ['024_giapha_taxhkd_role_permissions', `DO $$
+      DECLARE app_record RECORD; role_record RECORD;
+      BEGIN
+        FOR app_record IN SELECT id FROM apps WHERE app_code IN ('kanposvngiapha', 'kanposvntaxhkd') LOOP
+          FOR role_record IN SELECT id, role_name FROM roles LOOP
+            INSERT INTO role_permissions (app_id, role_id, can_view, can_edit, can_delete)
+            VALUES (app_record.id, role_record.id, true,
+              CASE WHEN role_record.role_name IN ('Admin', 'Manager') THEN true ELSE false END,
+              CASE WHEN role_record.role_name = 'Admin' THEN true ELSE false END
+            ) ON CONFLICT (app_id, role_id) DO NOTHING;
+          END LOOP;
+        END LOOP;
+      END $$;`],
   ];
 
   for (const [name, sqlStr] of migrations) {

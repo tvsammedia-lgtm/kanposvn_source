@@ -51,6 +51,8 @@ import 'modules/kanposvnordertq/views/kanposvnordertq_shell.dart';
 import 'modules/kanposvnordertq/providers/order_provider.dart';
 import 'modules/kanposvnordertq/services/order_tq_isar_service.dart';
 import 'modules/kanposvndailynongsan/screens/kanposvndailynongsan_shell.dart';
+import 'modules/kanposvngiapha/screens/family_selector_screen.dart';
+import 'modules/kanposvntaxhkd/tax_navigation.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -337,6 +339,10 @@ class _MainShell extends ConsumerWidget {
         return const KanPosVNOrderTqShell();
       case AppModuleType.kanposvndailynongsan:
         return const KanPosVnDailyNongSanShell();
+      case AppModuleType.kanposvngiapha:
+        return const FamilySelectorScreen();
+      case AppModuleType.kanposvntaxhkd:
+        return const TaxNavigation();
     }
   }
 
