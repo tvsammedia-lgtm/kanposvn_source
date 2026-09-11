@@ -379,6 +379,20 @@ export async function POST(req: NextRequest) {
           END LOOP;
         END LOOP;
       END $$;`],
+    // Grant owner 0908567567 can_login Admin for kanposvngiapha + kanposvntaxhkd (idempotent).
+    ['024_owner_grant_giapha_taxhkd', `DO $$
+      DECLARE owner_id UUID; admin_role_id UUID; app_id UUID;
+      BEGIN
+        SELECT id INTO owner_id FROM users WHERE email = '0908567567@kanposvn.local';
+        SELECT id INTO admin_role_id FROM roles WHERE role_name = 'Admin';
+        IF owner_id IS NULL OR admin_role_id IS NULL THEN RETURN; END IF;
+        FOR app_id IN SELECT id FROM apps WHERE app_code IN ('kanposvngiapha', 'kanposvntaxhkd') LOOP
+          INSERT INTO user_permissions (user_id, app_id, role_id, can_login)
+          VALUES (owner_id, app_id, admin_role_id, true)
+          ON CONFLICT (user_id, app_id)
+          DO UPDATE SET role_id = admin_role_id, can_login = true;
+        END LOOP;
+      END $$;`],
   ];
 
   for (const [name, sqlStr] of migrations) {
